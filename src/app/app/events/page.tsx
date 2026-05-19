@@ -17,33 +17,36 @@ export default async function EventsPage() {
   return (
     <div className="container max-w-4xl space-y-6 py-8">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight">Events</h1>
+        <h1 className="text-[28px] font-semibold tracking-tight">Events</h1>
         <p className="mt-1 text-sm text-muted-foreground">All detected changes across your watchlists.</p>
       </header>
 
-      <div className="rounded-xl border bg-card">
+      <div className="rounded-lg border bg-card">
         <div className="flex items-center justify-between border-b px-5 py-3">
-          <div className="text-sm font-medium">{events.length} events</div>
+          <div className="text-sm font-semibold"><span className="tnum">{events.length}</span> events</div>
           <div className="text-xs text-muted-foreground">
-            Public events also appear on <Link href="/feed" className="underline">/feed</Link>
+            Public events also appear on{" "}
+            <Link href="/feed" className="text-foreground underline underline-offset-4 hover:no-underline">
+              /feed
+            </Link>
           </div>
         </div>
-        <div className="px-3 pb-1">
-          {events.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <Bell className="h-6 w-6" />
-              </div>
-              <div className="font-medium">No events yet</div>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                Once a tracked profile changes company, headline, or location, you&apos;ll see it here.
-              </p>
-              <Button asChild className="mt-2"><Link href="/app/watchlist">Add profiles</Link></Button>
+        {events.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-background text-muted-foreground">
+              <Bell className="h-5 w-5" />
             </div>
-          ) : (
-            events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
-          )}
-        </div>
+            <div className="text-sm font-semibold">No events yet</div>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Once a tracked profile changes company, headline, or location, you&apos;ll see it here.
+            </p>
+            <Button asChild className="mt-1"><Link href="/app/watchlist">Add profiles</Link></Button>
+          </div>
+        ) : (
+          <div className="divide-y">
+            {events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const org = await ensureOrgForUser(user.id, user.email ?? null);
 
   return (
-    <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
+    <div className="grid min-h-screen md:grid-cols-[248px_1fr]">
       <AppSidebar orgName={org.name} orgPlan={org.plan} email={user.email ?? ""} />
       <main className="min-w-0">{children}</main>
     </div>

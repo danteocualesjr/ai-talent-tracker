@@ -17,24 +17,27 @@ export function MarketingNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-30 w-full border-b border-border/70 bg-background/85 backdrop-blur">
+      <div className="container flex h-14 items-center justify-between">
         <Logo />
 
         <nav className="hidden items-center gap-1 text-sm md:flex">
           {LINKS.map((l) => (
-            <Link 
-              key={l.href} 
+            <Link
+              key={l.href}
               href={l.href}
-              className="rounded-lg px-4 py-2 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
             >
               {l.label}
             </Link>
           ))}
-          <div className="mx-3 h-5 w-px bg-border" />
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/login">Log in</Link>
-          </Button>
+          <span className="mx-2 h-4 w-px bg-border" />
+          <Link
+            href="/login"
+            className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Log in
+          </Link>
           <Button asChild size="sm" className="ml-1">
             <Link href="/login">Start tracking</Link>
           </Button>
@@ -42,29 +45,33 @@ export function MarketingNav() {
 
         <button
           onClick={() => setOpen(!open)}
-          className="rounded-lg p-2.5 transition-colors hover:bg-accent md:hidden"
+          className="rounded-md p-2 text-muted-foreground hover:bg-accent md:hidden"
           aria-label="Toggle menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      <div className={cn("border-t border-border/40 bg-background/95 backdrop-blur-lg md:hidden", open ? "block" : "hidden")}>
-        <nav className="container flex flex-col gap-1 py-4 text-sm">
+      <div className={cn("border-t border-border/70 bg-background md:hidden", open ? "block" : "hidden")}>
+        <nav className="container flex flex-col gap-1 py-3 text-sm">
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-4 py-2.5 font-medium transition-colors hover:bg-accent"
+              className="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               {l.label}
             </Link>
           ))}
-          <Link href="/login" onClick={() => setOpen(false)} className="rounded-lg px-4 py-2.5 font-medium transition-colors hover:bg-accent">
+          <Link
+            href="/login"
+            onClick={() => setOpen(false)}
+            className="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
             Log in
           </Link>
-          <Button asChild className="mt-2">
+          <Button asChild className="mt-1">
             <Link href="/login">Start tracking</Link>
           </Button>
         </nav>

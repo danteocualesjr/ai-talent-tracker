@@ -19,20 +19,20 @@ export default async function AlertsPage() {
   const channels = (data ?? []) as NotificationChannel[];
 
   return (
-    <div className="container max-w-4xl space-y-8 py-8">
+    <div className="container max-w-4xl space-y-7 py-8">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight">Alerts</h1>
+        <h1 className="text-[28px] font-semibold tracking-tight">Alerts</h1>
         <p className="mt-1 text-sm text-muted-foreground">Where we deliver detected change events.</p>
       </header>
 
-      <div className="rounded-xl border bg-card">
+      <div className="rounded-lg border bg-card">
         <div className="border-b px-5 py-3 text-sm font-semibold">Active channels</div>
         {channels.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-              <Bell className="h-6 w-6" />
+          <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-background text-muted-foreground">
+              <Bell className="h-5 w-5" />
             </div>
-            <div className="font-medium">No channels yet</div>
+            <div className="text-sm font-semibold">No channels yet</div>
             <p className="max-w-sm text-sm text-muted-foreground">
               Add at least one channel below so we can deliver alerts when a tracked profile changes.
             </p>
@@ -40,12 +40,12 @@ export default async function AlertsPage() {
         ) : (
           <div className="divide-y">
             {channels.map((c) => (
-              <div key={c.id} className="flex items-center justify-between px-5 py-3">
+              <div key={c.id} className="flex items-center justify-between px-5 py-3.5">
                 <div className="flex items-center gap-3">
                   <ChannelIcon type={c.type} />
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{describeChannel(c)}</span>
+                      <span className="text-sm font-medium">{describeChannel(c)}</span>
                       <Badge variant="secondary" className="uppercase">{c.type}</Badge>
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">
@@ -55,7 +55,7 @@ export default async function AlertsPage() {
                 </div>
                 <form action={removeChannel}>
                   <input type="hidden" name="id" value={c.id} />
-                  <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </form>
@@ -109,22 +109,22 @@ export default async function AlertsPage() {
 
 function ChannelCard({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border bg-card p-5">
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-foreground">{icon}</div>
+    <div className="rounded-lg border bg-card p-5">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background text-foreground">{icon}</div>
         <div>
           <div className="text-sm font-semibold">{title}</div>
           <div className="text-xs text-muted-foreground">{description}</div>
         </div>
       </div>
-      <div className="mt-4">{children}</div>
+      <div className="mt-5">{children}</div>
     </div>
   );
 }
 
 function ChannelIcon({ type }: { type: string }) {
   const icon = type === "email" ? <Mail className="h-4 w-4" /> : type === "slack" ? <MessageSquare className="h-4 w-4" /> : <Webhook className="h-4 w-4" />;
-  return <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted text-foreground">{icon}</div>;
+  return <div className="flex h-9 w-9 items-center justify-center rounded-md border bg-background text-foreground">{icon}</div>;
 }
 
 function describeChannel(c: NotificationChannel): string {

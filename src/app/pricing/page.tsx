@@ -18,29 +18,32 @@ export default function PricingPage() {
       <MarketingNav />
       <main className="flex-1">
         <section className="relative overflow-hidden border-b">
-          <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-50" />
-          <div className="pointer-events-none absolute inset-0 gradient-mesh" />
-          <div className="container relative py-16 text-center">
-            <Badge variant="secondary" className="rounded-full">Pricing</Badge>
-            <h1 className="mt-4 text-balance text-5xl font-semibold tracking-tighter md:text-6xl">
+          <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
+          <div className="container relative py-20 text-center md:py-24">
+            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Pricing
+            </div>
+            <h1 className="mt-3 text-balance text-5xl font-semibold tracking-tight md:text-6xl">
               Simple pricing.
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground md:text-lg">
               Start free. Pay when you need real-time alerts at scale.
             </p>
           </div>
         </section>
 
-        <section className="container max-w-6xl py-12">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <PlanCard slug="free" priceEnv={null} ctaHref="/login" cta="Start free" />
-            <PlanCard slug="pro" priceEnv={process.env.STRIPE_PRICE_PRO} highlighted />
-            <PlanCard slug="team" priceEnv={process.env.STRIPE_PRICE_TEAM} />
-            <PlanCard slug="enterprise" priceEnv={null} ctaHref="mailto:hello@aitalenttracker.com" cta="Contact us" />
+        <section className="border-b">
+          <div className="container max-w-6xl py-14">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <PlanCard slug="free" priceEnv={null} ctaHref="/login" cta="Start free" />
+              <PlanCard slug="pro" priceEnv={process.env.STRIPE_PRICE_PRO} highlighted />
+              <PlanCard slug="team" priceEnv={process.env.STRIPE_PRICE_TEAM} />
+              <PlanCard slug="enterprise" priceEnv={null} ctaHref="mailto:hello@aitalenttracker.com" cta="Contact us" />
+            </div>
+            <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
+              All paid plans include the public departure feed. Cancel anytime. Prices in USD.
+            </p>
           </div>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-xs text-muted-foreground">
-            All paid plans include the public departure feed. Cancel anytime. Prices in USD.
-          </p>
         </section>
       </main>
       <MarketingFooter />
@@ -52,37 +55,39 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
   const plan = PLAN_DETAILS[slug];
   return (
     <div
-      className={`group relative flex flex-col rounded-2xl border bg-card p-7 transition-all duration-300 hover:shadow-xl ${highlighted ? "border-primary/50 shadow-2xl shadow-primary/10 ring-1 ring-primary/20 scale-[1.02]" : "hover:-translate-y-1"}`}
+      className={`relative flex flex-col rounded-xl border bg-card p-6 transition-colors ${
+        highlighted
+          ? "border-foreground/80 shadow-[0_24px_60px_-30px_hsl(var(--foreground)/0.4)] ring-1 ring-foreground/10"
+          : "hover:border-foreground/30"
+      }`}
     >
       {highlighted && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-          <Badge variant="gradient" className="px-4 py-1 shadow-lg">Most popular</Badge>
+        <div className="absolute -top-3 left-6">
+          <Badge>Most popular</Badge>
         </div>
       )}
       <div>
-        <div className="text-sm font-bold tracking-tight">{plan.name}</div>
+        <div className="text-sm font-semibold tracking-tight">{plan.name}</div>
         <div className="mt-4 flex items-baseline gap-1">
           {slug === "enterprise" ? (
-            <span className="text-4xl font-bold tracking-tight">Custom</span>
+            <span className="text-4xl font-semibold tracking-tight">Custom</span>
           ) : (
             <>
-              <span className="text-5xl font-bold tracking-tight">${plan.price_monthly}</span>
-              <span className="text-sm font-medium text-muted-foreground">/mo</span>
+              <span className="tnum text-5xl font-semibold tracking-tight">${plan.price_monthly}</span>
+              <span className="text-sm text-muted-foreground">/mo</span>
             </>
           )}
         </div>
       </div>
-      <ul className="mt-8 flex-1 space-y-3 text-sm">
+      <ul className="mt-7 flex-1 space-y-3 text-sm">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-3">
-            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/50">
-              <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-            </div>
+          <li key={f} className="flex items-start gap-2.5">
+            <Check className="mt-0.5 h-4 w-4 shrink-0 text-foreground/70" />
             <span className="text-muted-foreground">{f}</span>
           </li>
         ))}
       </ul>
-      <div className="mt-8">
+      <div className="mt-7">
         {priceEnv ? (
           <CheckoutButton priceId={priceEnv} label={`Subscribe to ${plan.name}`} />
         ) : (

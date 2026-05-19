@@ -11,11 +11,11 @@ export default async function SettingsPage() {
   return (
     <div className="container max-w-3xl space-y-6 py-8">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="text-[28px] font-semibold tracking-tight">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">Workspace identifiers and account info.</p>
       </header>
 
-      <section className="rounded-xl border bg-card">
+      <section className="rounded-lg border bg-card">
         <div className="border-b px-5 py-3 text-sm font-semibold">Workspace</div>
         <dl className="divide-y text-sm">
           <Row label="Name" value={org.name} />
@@ -26,7 +26,7 @@ export default async function SettingsPage() {
         </dl>
       </section>
 
-      <section className="rounded-xl border bg-card">
+      <section className="rounded-lg border bg-card">
         <div className="border-b px-5 py-3 text-sm font-semibold">Account</div>
         <dl className="divide-y text-sm">
           <Row label="Email" value={user!.email ?? ""} />
