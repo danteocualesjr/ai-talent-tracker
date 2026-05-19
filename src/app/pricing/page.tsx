@@ -52,39 +52,41 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
   const plan = PLAN_DETAILS[slug];
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border bg-card p-6 transition ${highlighted ? "border-foreground shadow-2xl ring-1 ring-foreground/10" : ""}`}
+      className={`group relative flex flex-col rounded-2xl border bg-card p-7 transition-all duration-300 hover:shadow-xl ${highlighted ? "border-primary/50 shadow-2xl shadow-primary/10 ring-1 ring-primary/20 scale-[1.02]" : "hover:-translate-y-1"}`}
     >
       {highlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge>Most popular</Badge>
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+          <Badge variant="gradient" className="px-4 py-1 shadow-lg">Most popular</Badge>
         </div>
       )}
       <div>
-        <div className="text-sm font-semibold">{plan.name}</div>
-        <div className="mt-3 flex items-baseline gap-1">
+        <div className="text-sm font-bold tracking-tight">{plan.name}</div>
+        <div className="mt-4 flex items-baseline gap-1">
           {slug === "enterprise" ? (
-            <span className="text-3xl font-semibold">Custom</span>
+            <span className="text-4xl font-bold tracking-tight">Custom</span>
           ) : (
             <>
-              <span className="text-4xl font-semibold tracking-tight">${plan.price_monthly}</span>
-              <span className="text-sm text-muted-foreground">/mo</span>
+              <span className="text-5xl font-bold tracking-tight">${plan.price_monthly}</span>
+              <span className="text-sm font-medium text-muted-foreground">/mo</span>
             </>
           )}
         </div>
       </div>
-      <ul className="mt-6 flex-1 space-y-2.5 text-sm">
+      <ul className="mt-8 flex-1 space-y-3 text-sm">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-2">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-            <span>{f}</span>
+          <li key={f} className="flex items-start gap-3">
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/50">
+              <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <span className="text-muted-foreground">{f}</span>
           </li>
         ))}
       </ul>
-      <div className="mt-6">
+      <div className="mt-8">
         {priceEnv ? (
           <CheckoutButton priceId={priceEnv} label={`Subscribe to ${plan.name}`} />
         ) : (
-          <Button asChild className="w-full" variant={highlighted ? "default" : "outline"}>
+          <Button asChild className="w-full" variant={highlighted ? "default" : "outline"} size="lg">
             <Link href={ctaHref ?? "/login"}>{cta ?? "Start free"}</Link>
           </Button>
         )}

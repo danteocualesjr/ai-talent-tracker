@@ -25,28 +25,28 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-3 border-b py-4 last:border-b-0">
+    <div className="group relative flex items-start gap-4 rounded-xl border-b py-4 transition-all duration-200 last:border-b-0 hover:bg-accent/30">
       <div className="relative shrink-0">
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-11 w-11 ring-2 ring-background shadow-sm transition-transform group-hover:scale-105">
           {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.full_name ?? ""} /> : null}
-          <AvatarFallback>{initials}</AvatarFallback>
+          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 font-semibold">{initials}</AvatarFallback>
         </Avatar>
-        <div className={`absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full ring-2 ring-card ${meta.bg}`}>
+        <div className={`absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full ring-2 ring-card shadow-sm ${meta.bg}`}>
           <Icon className="h-3 w-3" />
         </div>
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <Link href={href ?? `/app/profiles/${profile.id}`} className="truncate font-medium hover:underline">
+          <Link href={href ?? `/app/profiles/${profile.id}`} className="truncate font-semibold transition-colors hover:text-primary">
             {profile.full_name || profile.linkedin_handle}
           </Link>
           <Badge variant={meta.tone}>{meta.label}</Badge>
-          <span className="text-xs text-muted-foreground">· {formatRelative(event.detected_at)}</span>
+          <span className="text-xs text-muted-foreground/70">· {formatRelative(event.detected_at)}</span>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">{event.summary}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
         {profile.headline && (
-          <p className="mt-1 truncate text-xs text-muted-foreground/80">{profile.headline}</p>
+          <p className="mt-1 truncate text-xs text-muted-foreground/60">{profile.headline}</p>
         )}
       </div>
 
@@ -54,7 +54,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         href={profile.linkedin_url}
         target="_blank"
         rel="noreferrer noopener"
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border bg-background px-2.5 py-1 text-xs text-muted-foreground opacity-0 transition hover:text-foreground group-hover:opacity-100"
+        className="inline-flex shrink-0 items-center gap-1.5 self-center rounded-lg border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground opacity-0 shadow-sm transition-all hover:border-primary/30 hover:text-primary group-hover:opacity-100"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>
@@ -66,17 +66,17 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
   const meta = TYPE_META[event.type] ?? TYPE_META.other;
   const Icon = meta.icon;
   return (
-    <div className="relative pl-10">
-      <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full ring-4 ring-background ${meta.bg}`}>
-        <Icon className="h-3.5 w-3.5" />
+    <div className="group relative pl-12">
+      <div className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-xl ring-4 ring-background shadow-sm transition-transform group-hover:scale-110 ${meta.bg}`}>
+        <Icon className="h-4 w-4" />
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <Badge variant={meta.tone}>{meta.label}</Badge>
-        <span className="text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
+        <span className="text-xs text-muted-foreground/70">{formatRelative(event.detected_at)}</span>
       </div>
-      <p className="mt-1 text-sm">{event.summary}</p>
-      <Link href={`/app/profiles/${profile.id}`} className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-        Open profile <ArrowRight className="h-3 w-3" />
+      <p className="mt-1.5 text-sm leading-relaxed">{event.summary}</p>
+      <Link href={`/app/profiles/${profile.id}`} className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary">
+        Open profile <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
     </div>
   );

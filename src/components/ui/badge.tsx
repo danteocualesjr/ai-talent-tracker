@@ -3,16 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-ring",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
+        default: "border-transparent bg-primary text-primary-foreground shadow-sm",
         secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive text-destructive-foreground",
-        outline: "text-foreground",
-        success: "border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-300",
-        warning: "border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300",
+        destructive: "border-transparent bg-destructive text-destructive-foreground shadow-sm",
+        outline: "border-border text-foreground bg-background",
+        success: "border-transparent bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-1 dark:ring-emerald-500/20",
+        warning: "border-transparent bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 dark:ring-1 dark:ring-amber-500/20",
+        info: "border-transparent bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:ring-1 dark:ring-blue-500/20",
+        purple: "border-transparent bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 dark:ring-1 dark:ring-purple-500/20",
+        gradient: "border-0 bg-gradient-to-r from-primary to-purple-500 text-white shadow-sm",
+        glow: "border-transparent bg-primary/10 text-primary ring-1 ring-primary/30",
       },
     },
     defaultVariants: { variant: "default" },
