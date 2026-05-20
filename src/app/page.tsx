@@ -44,7 +44,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="mx-auto max-w-3xl text-center">
             <Link
               href="/feed"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-foreground/20 hover:text-foreground"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -56,34 +56,32 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               <ArrowRight className="h-3 w-3" />
             </Link>
 
-            <h1 className="mt-7 text-balance text-[44px] font-semibold leading-[1.04] tracking-tight text-foreground md:text-[68px]">
+            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-7 text-balance text-[44px] font-semibold leading-[1.04] tracking-tight text-foreground md:text-[68px]">
               Know the moment{" "}
-              <span className="relative inline-block">
-                <span className="italic font-medium text-muted-foreground">AI talent</span>
-              </span>{" "}
+              <span className="text-gradient-hero italic font-medium">AI talent</span>{" "}
               moves.
             </h1>
 
-            <p className="mx-auto mt-6 max-w-xl text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
+            <p className="animate-fade-up animate-fade-up-delay-2 mx-auto mt-6 max-w-xl text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
               Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
               and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
             </p>
 
-            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" className="group">
+            <div className="animate-fade-up animate-fade-up-delay-3 mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg" className="group shadow-md shadow-foreground/10">
                 <Link href="/login">
                   Start tracking free
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="ghost" className="group text-muted-foreground hover:text-foreground">
+              <Button asChild size="lg" variant="outline" className="group border-border/80 bg-background/80 backdrop-blur">
                 <Link href="/feed">
                   See the live feed
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </Link>
               </Button>
             </div>
-            <p className="mt-5 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+            <p className="animate-fade-up animate-fade-up-delay-4 mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> No credit card</span>
               <span className="text-border">·</span>
               <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> 5 free profiles</span>
@@ -92,9 +90,23 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </p>
           </div>
 
+          <div className="mx-auto mt-10 grid max-w-lg grid-cols-3 gap-3 border-y py-6 md:max-w-2xl">
+            {[
+              ["20+", "AI labs tracked"],
+              ["<15m", "avg. detection"],
+              ["3", "alert channels"],
+            ].map(([value, label]) => (
+              <div key={label} className="text-center">
+                <div className="tnum text-2xl font-semibold tracking-tight">{value}</div>
+                <div className="mt-1 text-[11px] text-muted-foreground">{label}</div>
+              </div>
+            ))}
+          </div>
+
           {/* Dashboard preview */}
-          <div className="relative mx-auto mt-16 max-w-5xl">
-            <div className="absolute inset-x-16 -bottom-6 -z-10 h-24 rounded-full bg-foreground/5 blur-2xl" />
+          <div className="relative mx-auto mt-12 max-w-5xl">
+            <div className="absolute inset-x-12 -bottom-8 -z-10 h-32 rounded-full bg-signal/10 blur-3xl" />
+            <div className="absolute inset-x-20 -bottom-4 -z-10 h-20 rounded-full bg-foreground/5 blur-2xl" />
             <DashboardPreview />
           </div>
         </div>
@@ -238,11 +250,11 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group relative p-8 transition-colors hover:bg-accent/40">
-      <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-card text-foreground">
+    <div className="group relative p-8 transition-colors duration-200 hover:bg-accent/50">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-card text-foreground shadow-sm transition-all duration-200 group-hover:border-signal/30 group-hover:text-signal">
         {icon}
       </div>
-      <h3 className="mt-5 font-semibold tracking-tight">{title}</h3>
+      <h3 className="mt-5 font-semibold tracking-tight transition-colors group-hover:text-foreground">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
@@ -250,10 +262,9 @@ function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: stri
 
 function Step({ n, title, body }: { n: number; title: string; body: string }) {
   return (
-    <div className="relative">
-      <div className="flex items-center gap-3">
-        <div className="font-mono text-xs text-muted-foreground">0{n}</div>
-        <div className="h-px flex-1 bg-border" />
+    <div className="group relative rounded-xl border bg-background p-6 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-muted/50 font-mono text-xs font-medium text-foreground">
+        {n}
       </div>
       <h3 className="mt-4 text-lg font-semibold tracking-tight">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
@@ -264,7 +275,8 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
 function SampleAlert() {
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-xl border bg-card">
+      <div className="absolute -inset-px rounded-[13px] bg-gradient-to-b from-amber-200/60 via-transparent to-transparent dark:from-amber-900/40" />
+      <div className="relative overflow-hidden rounded-xl border bg-card shadow-lg">
         <div className="flex items-center justify-between border-b bg-muted/30 px-5 py-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="relative flex h-1.5 w-1.5">

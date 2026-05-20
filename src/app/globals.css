@@ -96,10 +96,53 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   }
 
-  /* Editorial backdrop — soft, single-tone, no rainbow */
+  /* Editorial backdrop — warm center glow + subtle signal accent */
   .hero-backdrop {
     background:
-      radial-gradient(80% 60% at 50% 0%, hsl(var(--foreground) / 0.04) 0%, transparent 60%);
+      radial-gradient(90% 70% at 50% -10%, hsl(var(--signal) / 0.07) 0%, transparent 55%),
+      radial-gradient(80% 60% at 50% 0%, hsl(var(--foreground) / 0.05) 0%, transparent 65%);
+  }
+
+  .text-gradient-hero {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--muted-foreground)) 55%,
+      hsl(var(--signal)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .preview-glow {
+    box-shadow:
+      0 0 0 1px hsl(var(--border)),
+      0 24px 60px -28px hsl(var(--foreground) / 0.22),
+      0 0 120px -40px hsl(var(--signal) / 0.15);
+  }
+
+  .preview-tilt {
+    transform: perspective(1400px) rotateX(2deg);
+    transform-origin: center top;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-fade-up {
+      animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-fade-up-delay-1 { animation-delay: 0.08s; }
+    .animate-fade-up-delay-2 { animation-delay: 0.16s; }
+    .animate-fade-up-delay-3 { animation-delay: 0.24s; }
+    .animate-fade-up-delay-4 { animation-delay: 0.32s; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .marquee-pause:hover .animate-marquee {
+    animation-play-state: paused;
   }
 
   /* Hairline grid — much more subtle */

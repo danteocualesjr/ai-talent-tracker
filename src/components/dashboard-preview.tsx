@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Bell, LineChart, ListChecks, Settings, Sparkles, Users } from "lucide-react";
 
 export function DashboardPreview() {
   return (
-    <div className="overflow-hidden rounded-xl border bg-card shadow-[0_24px_60px_-30px_hsl(var(--foreground)/0.25)]">
+    <div className="preview-tilt preview-glow overflow-hidden rounded-xl border bg-card">
       {/* window chrome */}
       <div className="flex items-center gap-3 border-b bg-muted/40 px-4 py-2.5">
         <div className="flex gap-1.5">
@@ -51,8 +52,8 @@ export function DashboardPreview() {
             <Stat label="Stealth" value="3" delta="+1" tone="amber" />
           </div>
 
-          <div className="mt-4 divide-y rounded-lg border">
-            <Row name="Jane Researcher" initials="JR" tag="Went stealth" tone="warning" when="14m" />
+          <div className="mt-4 divide-y overflow-hidden rounded-lg border">
+            <Row name="Jane Researcher" initials="JR" tag="Went stealth" tone="warning" when="14m" highlight />
             <Row name="Mike Patel" initials="MP" tag="Joined Anthropic" tone="info" when="2h" />
             <Row name="Aria Chen" initials="AC" tag="Founding signal" tone="success" when="6h" />
             <Row name="Sam Becker" initials="SB" tag="Left OpenAI" tone="warning" when="1d" />
@@ -77,9 +78,9 @@ function SideItem({ icon, label, active }: { icon: React.ReactNode; label: strin
 }
 
 function Stat({ label, value, delta, tone = "default" }: { label: string; value: string; delta: string; tone?: "default" | "amber" }) {
-  const color = tone === "amber" ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400";
+  const color = tone === "amber" ? "text-amber-700 dark:text-amber-400" : "text-signal";
   return (
-    <div className="rounded-md border bg-background p-3">
+    <div className="rounded-md border bg-background p-3 shadow-sm">
       <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{label}</div>
       <div className="mt-1 flex items-baseline gap-2">
         <div className="tnum text-xl font-semibold">{value}</div>
@@ -89,9 +90,9 @@ function Stat({ label, value, delta, tone = "default" }: { label: string; value:
   );
 }
 
-function Row({ name, initials, tag, tone, when }: { name: string; initials: string; tag: string; tone: "warning" | "success" | "info"; when: string }) {
+function Row({ name, initials, tag, tone, when, highlight }: { name: string; initials: string; tag: string; tone: "warning" | "success" | "info"; when: string; highlight?: boolean }) {
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5">
+    <div className={cn("flex items-center gap-3 px-3 py-2.5", highlight && "bg-amber-50/60 dark:bg-amber-950/20")}>
       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
         {initials}
       </div>

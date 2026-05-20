@@ -23,7 +23,7 @@ const SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t bg-card">
+    <footer className="border-t bg-gradient-to-b from-card to-background">
       <div className="container grid gap-12 py-14 md:grid-cols-3">
         <div className="md:col-span-1">
           <Logo />

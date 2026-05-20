@@ -24,8 +24,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`h-full ${inter.variable} ${mono.variable}`}>
-      <body className="min-h-full bg-background font-sans antialiased">
+    <html
+      lang="en"
+      className={`h-full ${inter.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full bg-background font-sans antialiased" suppressHydrationWarning>
         {children}
         <Toaster position="top-right" richColors />
         <PostHogAnalytics />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -15,9 +15,22 @@ const LINKS = [
 
 export function MarketingNav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 6);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border/70 bg-background/85 backdrop-blur">
+    <header
+      className={cn(
+        "sticky top-0 z-30 w-full border-b bg-background/80 backdrop-blur-md transition-shadow duration-200",
+        scrolled ? "border-border shadow-[0_8px_30px_-20px_hsl(var(--foreground)/0.12)]" : "border-border/60",
+      )}
+    >
       <div className="container flex h-14 items-center justify-between">
         <Logo />
 
@@ -26,7 +39,7 @@ export function MarketingNav() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
             >
               {l.label}
             </Link>
@@ -34,7 +47,7 @@ export function MarketingNav() {
           <span className="mx-2 h-4 w-px bg-border" />
           <Link
             href="/login"
-            className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+            className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
           >
             Log in
           </Link>
