@@ -19,10 +19,11 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${now}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
