@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogAnalytics } from "@/components/analytics";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   title: {
@@ -20,8 +24,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full font-sans antialiased">
+    <html
+      lang="en"
+      className={`h-full ${inter.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full bg-background font-sans antialiased" suppressHydrationWarning>
         {children}
         <Toaster position="top-right" richColors />
         <PostHogAnalytics />

@@ -3,16 +3,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-ring",
+  "inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-medium leading-none transition-colors focus:outline-none focus:ring-2 focus:ring-ring",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive text-destructive-foreground",
-        outline: "text-foreground",
-        success: "border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-300",
-        warning: "border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-300",
+        default:
+          "border-transparent bg-foreground text-background",
+        secondary:
+          "border-border bg-secondary text-secondary-foreground",
+        outline:
+          "border-border bg-transparent text-foreground",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground",
+        success:
+          "border-emerald-200/70 bg-emerald-50 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300",
+        warning:
+          "border-amber-200/70 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300",
+        info:
+          "border-blue-200/70 bg-blue-50 text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300",
+        purple:
+          "border-violet-200/70 bg-violet-50 text-violet-800 dark:border-violet-900/40 dark:bg-violet-950/40 dark:text-violet-300",
+        gradient:
+          "border-transparent bg-foreground text-background",
+        glow:
+          "border-border bg-background text-foreground",
       },
     },
     defaultVariants: { variant: "default" },

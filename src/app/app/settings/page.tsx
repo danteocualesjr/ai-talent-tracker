@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = { title: "Settings" };
 
@@ -11,29 +10,38 @@ export default async function SettingsPage() {
 
   return (
     <div className="container max-w-3xl space-y-6 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+      <header>
+        <h1 className="text-[28px] font-semibold tracking-tight">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Workspace identifiers and account info.</p>
+      </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Workspace</CardTitle>
-          <CardDescription>Identifiers for your org.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-muted-foreground">Name</span><span>{org.name}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Slug</span><span className="font-mono">{org.slug}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Plan</span><span className="capitalize">{org.plan}</span></div>
-        </CardContent>
-      </Card>
+      <section className="rounded-lg border bg-card">
+        <div className="border-b px-5 py-3 text-sm font-semibold">Workspace</div>
+        <dl className="divide-y text-sm">
+          <Row label="Name" value={org.name} />
+          <Row label="Slug" value={org.slug} mono />
+          <Row label="Plan" value={org.plan} capitalize />
+          <Row label="Profile limit" value={String(org.profile_limit)} />
+          <Row label="Refresh cadence" value={org.refresh_cadence} />
+        </dl>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Account</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span>{user!.email}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">User ID</span><span className="font-mono text-xs">{user!.id}</span></div>
-        </CardContent>
-      </Card>
+      <section className="rounded-lg border bg-card">
+        <div className="border-b px-5 py-3 text-sm font-semibold">Account</div>
+        <dl className="divide-y text-sm">
+          <Row label="Email" value={user!.email ?? ""} />
+          <Row label="User ID" value={user!.id} mono />
+        </dl>
+      </section>
+    </div>
+  );
+}
+
+function Row({ label, value, mono, capitalize }: { label: string; value: string; mono?: boolean; capitalize?: boolean }) {
+  return (
+    <div className="flex items-center justify-between px-5 py-3">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={`${mono ? "font-mono text-xs" : ""} ${capitalize ? "capitalize" : ""}`}>{value}</dd>
     </div>
   );
 }

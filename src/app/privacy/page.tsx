@@ -8,10 +8,10 @@ export default function PrivacyPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="container max-w-3xl space-y-6 py-10 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_p]:text-sm [&_p]:text-muted-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_ul>li]:text-sm [&_ul>li]:text-muted-foreground">
-        <h1 className="text-3xl font-semibold tracking-tight">Privacy</h1>
+      <main className="container max-w-3xl flex-1 py-12 [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_p]:mt-3 [&_p]:text-sm [&_p]:text-muted-foreground [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul>li]:text-sm [&_ul>li]:text-muted-foreground">
+        <h1 className="text-4xl font-semibold tracking-tighter md:text-5xl">Privacy</h1>
         <p>
-          AI Talent Tracker monitors <strong>publicly accessible professional information</strong> about employees at AI labs to provide
+          AI Talent Tracker monitors <strong className="text-foreground">publicly accessible professional information</strong> about employees at AI labs to provide
           alerting to recruiters, investors, and journalists. We do not directly scrape LinkedIn; we use licensed
           third-party data providers.
         </p>
@@ -33,7 +33,8 @@ export default function PrivacyPage() {
         <h2>Your rights — opt out / DSAR</h2>
         <p>
           Anyone listed in our index can request removal or a copy of the data we hold. Use{" "}
-          <Link href="/opt-out" className="underline">the opt-out form</Link>{" "}or email <a className="underline" href="mailto:privacy@aitalenttracker.com">privacy@aitalenttracker.com</a>.
+          <Link href="/opt-out" className="underline">the opt-out form</Link>{" "}or email{" "}
+          <a className="underline" href="mailto:privacy@aitalenttracker.com">privacy@aitalenttracker.com</a>.
           We honor verified requests within 30 days.
         </p>
 
@@ -50,9 +51,7 @@ export default function PrivacyPage() {
         </p>
 
         <h2>Contact</h2>
-        <p>
-          privacy@aitalenttracker.com
-        </p>
+        <p>privacy@aitalenttracker.com</p>
       </main>
       <MarketingFooter />
     </div>

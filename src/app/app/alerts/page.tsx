@@ -1,12 +1,11 @@
+import { Bell, Mail, MessageSquare, Trash2, Webhook } from "lucide-react";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { addChannel, removeChannel } from "./actions";
-import { Trash2 } from "lucide-react";
 import type { NotificationChannel } from "@/types/db";
 
 export const metadata = { title: "Alerts" };
@@ -20,89 +19,112 @@ export default async function AlertsPage() {
   const channels = (data ?? []) as NotificationChannel[];
 
   return (
-    <div className="container max-w-3xl space-y-6 py-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Alerts</h1>
-        <p className="text-sm text-muted-foreground">Where we deliver detected change events.</p>
+    <div className="container max-w-4xl space-y-7 py-8">
+      <header>
+        <h1 className="text-[28px] font-semibold tracking-tight">Alerts</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Where we deliver detected change events.</p>
+      </header>
+
+      <div className="rounded-lg border bg-card">
+        <div className="border-b px-5 py-3 text-sm font-semibold">Active channels</div>
+        {channels.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-background text-muted-foreground">
+              <Bell className="h-5 w-5" />
+            </div>
+            <div className="text-sm font-semibold">No channels yet</div>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Add at least one channel below so we can deliver alerts when a tracked profile changes.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y">
+            {channels.map((c) => (
+              <div key={c.id} className="flex items-center justify-between px-5 py-3.5">
+                <div className="flex items-center gap-3">
+                  <ChannelIcon type={c.type} />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{describeChannel(c)}</span>
+                      <Badge variant="secondary" className="uppercase">{c.type}</Badge>
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Triggers on: {c.event_types.join(", ")}
+                    </p>
+                  </div>
+                </div>
+                <form action={removeChannel}>
+                  <input type="hidden" name="id" value={c.id} />
+                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Active channels</CardTitle>
-        </CardHeader>
-        <CardContent className="divide-y">
-          {channels.length === 0 ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">No channels yet.</div>
-          ) : channels.map((c) => (
-            <div key={c.id} className="flex items-center justify-between py-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="uppercase">{c.type}</Badge>
-                  <span className="text-sm">{describeChannel(c)}</span>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Triggers on: {c.event_types.join(", ")}
-                </p>
-              </div>
-              <form action={removeChannel}>
-                <input type="hidden" name="id" value={c.id} />
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4" /></Button>
-              </form>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Email</CardTitle>
-            <CardDescription>Send alerts to a single inbox.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={addChannel} className="space-y-3">
-              <input type="hidden" name="type" value="email" />
-              <Label htmlFor="to">Email</Label>
+        <ChannelCard icon={<Mail className="h-4 w-4" />} title="Email" description="Single inbox delivery via Resend.">
+          <form action={addChannel} className="space-y-3">
+            <input type="hidden" name="type" value="email" />
+            <div className="space-y-1.5">
+              <Label htmlFor="to" className="text-xs">Email</Label>
               <Input id="to" name="to" type="email" required placeholder="alerts@you.com" />
-              <Button type="submit" className="w-full">Add email</Button>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+            <Button type="submit" className="w-full" size="sm">Add email</Button>
+          </form>
+        </ChannelCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Slack</CardTitle>
-            <CardDescription>Use an incoming-webhook URL.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={addChannel} className="space-y-3">
-              <input type="hidden" name="type" value="slack" />
-              <Label htmlFor="webhook_url">Webhook URL</Label>
+        <ChannelCard icon={<MessageSquare className="h-4 w-4" />} title="Slack" description="Incoming webhook URL.">
+          <form action={addChannel} className="space-y-3">
+            <input type="hidden" name="type" value="slack" />
+            <div className="space-y-1.5">
+              <Label htmlFor="webhook_url" className="text-xs">Webhook URL</Label>
               <Input id="webhook_url" name="webhook_url" type="url" required placeholder="https://hooks.slack.com/..." />
-              <Button type="submit" className="w-full">Add Slack</Button>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+            <Button type="submit" className="w-full" size="sm">Add Slack</Button>
+          </form>
+        </ChannelCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Webhook</CardTitle>
-            <CardDescription>HMAC-signed POST. Team plan and up.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={addChannel} className="space-y-3">
-              <input type="hidden" name="type" value="webhook" />
-              <Label htmlFor="url">URL</Label>
+        <ChannelCard icon={<Webhook className="h-4 w-4" />} title="Webhook" description="HMAC-signed POST. Team+.">
+          <form action={addChannel} className="space-y-3">
+            <input type="hidden" name="type" value="webhook" />
+            <div className="space-y-1.5">
+              <Label htmlFor="url" className="text-xs">URL</Label>
               <Input id="url" name="url" type="url" required placeholder="https://api.you.com/events" />
-              <Label htmlFor="secret">Secret (optional)</Label>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="secret" className="text-xs">Secret (optional)</Label>
               <Input id="secret" name="secret" type="text" placeholder="signing secret" />
-              <Button type="submit" className="w-full">Add webhook</Button>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+            <Button type="submit" className="w-full" size="sm">Add webhook</Button>
+          </form>
+        </ChannelCard>
       </div>
     </div>
   );
+}
+
+function ChannelCard({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border bg-card p-5">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background text-foreground">{icon}</div>
+        <div>
+          <div className="text-sm font-semibold">{title}</div>
+          <div className="text-xs text-muted-foreground">{description}</div>
+        </div>
+      </div>
+      <div className="mt-5">{children}</div>
+    </div>
+  );
+}
+
+function ChannelIcon({ type }: { type: string }) {
+  const icon = type === "email" ? <Mail className="h-4 w-4" /> : type === "slack" ? <MessageSquare className="h-4 w-4" /> : <Webhook className="h-4 w-4" />;
+  return <div className="flex h-9 w-9 items-center justify-center rounded-md border bg-background text-foreground">{icon}</div>;
 }
 
 function describeChannel(c: NotificationChannel): string {
