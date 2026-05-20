@@ -129,7 +129,7 @@
 
   @media (prefers-reduced-motion: no-preference) {
     .animate-fade-up {
-      animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
     .animate-fade-up-delay-1 { animation-delay: 0.08s; }
     .animate-fade-up-delay-2 { animation-delay: 0.16s; }

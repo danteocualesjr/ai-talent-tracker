@@ -44,7 +44,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="mx-auto max-w-3xl text-center">
             <Link
               href="/feed"
-              className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-foreground/20 hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-foreground/20 hover:text-foreground animate-fade-up"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />

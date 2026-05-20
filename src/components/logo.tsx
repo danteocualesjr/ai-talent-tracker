@@ -12,9 +12,16 @@ export function Logo({ className, href = "/" }: { className?: string; href?: str
     >
       <span
         aria-hidden
-        className="relative inline-flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-background"
+        className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-foreground text-background"
       >
-        <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          fill="none"
+          className="h-3.5 w-3.5 shrink-0"
+          aria-hidden
+        >
           {/* tight, geometric mark — three dots forming a vector */}
           <circle cx="6" cy="18" r="2" fill="currentColor" />
           <circle cx="12" cy="12" r="2" fill="currentColor" />
