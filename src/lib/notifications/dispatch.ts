@@ -49,6 +49,14 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { count: prior } = await db
+      .from("notification_deliveries")
+      .select("id", { count: "exact", head: true })
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .eq("status", "sent");
+    if ((prior ?? 0) > 0) continue;
+
     try {
       await deliver(ch, event, profile);
       await db.from("notification_deliveries").insert({

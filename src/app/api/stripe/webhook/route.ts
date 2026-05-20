@@ -26,7 +26,13 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (sub.status === "active" || sub.status === "trialing") {
+        await applySubscription(db, sub);
+      } else {
+        await downgradeCustomer(db, sub.customer as string);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -46,6 +52,13 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
     return await stripe.subscriptions.retrieve(session.subscription as string);
   }
   return event.data.object as Stripe.Subscription;
+}
+
+async function downgradeCustomer(db: ReturnType<typeof createAdminClient>, customerId: string) {
+  await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", customerId);
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
