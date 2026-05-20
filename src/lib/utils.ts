@@ -8,7 +8,9 @@ export function cn(...inputs: ClassValue[]) {
 export function formatRelative(date: Date | string | null | undefined) {
   if (!date) return "never";
   const d = typeof date === "string" ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return "unknown";
   const diff = Date.now() - d.getTime();
+  if (diff < 0) return "just now";
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}s ago`;
   const min = Math.floor(sec / 60);
