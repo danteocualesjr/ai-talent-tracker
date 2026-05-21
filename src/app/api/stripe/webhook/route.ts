@@ -30,10 +30,7 @@ export async function POST(req: NextRequest) {
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    await downgradeToFree(db, sub.customer as string);
   }
 
   return NextResponse.json({ received: true });
@@ -48,11 +45,21 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+const ACTIVE_SUB_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  if (!ACTIVE_SUB_STATUSES.has(sub.status)) {
+    await downgradeToFree(db, sub.customer as string);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unmapped price id", priceId);
+    return;
+  }
 
   await db
     .from("organizations")
@@ -63,4 +70,11 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+}
+
+async function downgradeToFree(db: ReturnType<typeof createAdminClient>, customerId: string) {
+  await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", customerId);
 }
