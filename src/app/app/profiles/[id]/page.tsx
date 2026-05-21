@@ -1,19 +1,28 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { ensureOrgForUser } from "@/lib/org";
+import { orgWatchesProfile } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
 import { Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventTimelineItem } from "@/components/event-row";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, formatRelativeTo } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) notFound();
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await orgWatchesProfile(org.id, id))) notFound();
+
   const db = createAdminClient();
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
@@ -66,7 +75,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               )}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Last synced {formatRelative(p.last_synced_at)} · next sync {formatRelative(p.next_sync_at)}
+              Last synced {formatRelative(p.last_synced_at)} · next sync{" "}
+              {p.next_sync_at ? formatRelativeTo(p.next_sync_at) : "not scheduled"}
             </p>
           </div>
         </div>
