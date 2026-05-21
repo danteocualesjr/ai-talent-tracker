@@ -204,7 +204,36 @@
   }
 
   .nav-active-rail {
-    @apply relative before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-foreground;
+    @apply relative before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-signal;
+  }
+
+  .app-shell-bg {
+    background:
+      radial-gradient(ellipse 100% 60% at 100% 0%, hsl(var(--signal) / 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 50% at 0% 100%, hsl(var(--foreground) / 0.02) 0%, transparent 45%),
+      hsl(var(--background));
+  }
+
+  .prose-legal {
+    @apply text-pretty text-sm leading-relaxed text-muted-foreground;
+  }
+  .prose-legal h1 {
+    @apply text-balance text-4xl font-bold tracking-tight text-foreground md:text-5xl;
+  }
+  .prose-legal h2 {
+    @apply mt-10 text-xl font-bold tracking-tight text-foreground;
+  }
+  .prose-legal p {
+    @apply mt-4;
+  }
+  .prose-legal ul {
+    @apply mt-4 list-disc space-y-2 pl-6;
+  }
+  .prose-legal a {
+    @apply link-subtle;
+  }
+  .prose-legal strong {
+    @apply font-semibold text-foreground;
   }
 
   .hover-lift {

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github } from "lucide-react";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { BackLink } from "@/components/back-link";
 import { Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventTimelineItem } from "@/components/event-row";
@@ -29,9 +30,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
-      <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground hover:text-foreground">
-        <Link href="/app/watchlist"><ArrowLeft className="mr-1 h-4 w-4" /> Back to watchlist</Link>
-      </Button>
+      <BackLink href="/app/watchlist">Back to watchlist</BackLink>
 
       <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
         <div className="flex items-start gap-5">

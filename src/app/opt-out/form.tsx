@@ -29,9 +29,12 @@ export function OptOutForm() {
 
   if (sent) {
     return (
-      <div className="rounded-md border bg-muted/30 p-4 text-sm">
+      <div className="rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
         Request received. We&apos;ll confirm via email shortly. If you don&apos;t hear back within 30 days, email{" "}
-        <a className="underline" href="mailto:privacy@aitalenttracker.com">privacy@aitalenttracker.com</a>.
+        <a className="link-subtle" href="mailto:privacy@aitalenttracker.com">
+          privacy@aitalenttracker.com
+        </a>
+        .
       </div>
     );
   }

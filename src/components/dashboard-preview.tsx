@@ -69,7 +69,7 @@ function SideItem({ icon, label, active }: { icon: React.ReactNode; label: strin
       className={cn(
         "flex items-center gap-2 rounded-lg px-2.5 py-2 transition-colors",
         active
-          ? "nav-active-rail bg-background pl-3.5 font-semibold text-foreground shadow-sm"
+          ? "nav-active-rail bg-signal/8 pl-3.5 font-semibold text-foreground shadow-sm"
           : "text-muted-foreground hover:bg-background/60 hover:text-foreground",
       )}
     >

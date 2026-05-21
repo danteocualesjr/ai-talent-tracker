@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ const LINKS = [
 ];
 
 export function MarketingNav() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -37,15 +39,23 @@ export function MarketingNav() {
         <Logo />
 
         <nav className="hidden items-center gap-0.5 text-sm md:flex">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-lg px-3.5 py-2 text-muted-foreground transition-colors hover:bg-accent/80 hover:text-foreground"
-            >
-              {l.label}
-            </Link>
-          ))}
+          {LINKS.map((l) => {
+            const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn(
+                  "rounded-lg px-3.5 py-2 transition-colors",
+                  active
+                    ? "bg-accent font-semibold text-foreground"
+                    : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
+                )}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
           <span className="mx-2 h-4 w-px bg-border/80" />
           <Link
             href="/login"
@@ -69,16 +79,24 @@ export function MarketingNav() {
 
       <div className={cn("border-t border-border/60 bg-background/95 backdrop-blur-xl md:hidden", open ? "block" : "hidden")}>
         <nav className="container flex flex-col gap-1 py-4 text-sm">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-            >
-              {l.label}
-            </Link>
-          ))}
+          {LINKS.map((l) => {
+            const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "rounded-lg px-3 py-2.5 transition-colors",
+                  active
+                    ? "bg-accent font-semibold text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
           <Link
             href="/login"
             onClick={() => setOpen(false)}

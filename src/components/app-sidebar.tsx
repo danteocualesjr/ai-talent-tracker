@@ -83,7 +83,7 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
                 className={cn(
                   "flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150",
                   active
-                    ? "nav-active-rail bg-accent pl-3.5 font-semibold text-foreground"
+                    ? "nav-active-rail bg-signal/8 pl-3.5 font-semibold text-foreground"
                     : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                 )}
               >

@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
       <AppSidebar orgName={org.name} orgPlan={org.plan} email={user.email ?? ""} />
-      <main className="min-w-0">{children}</main>
+      <main className="app-shell-bg min-w-0">{children}</main>
     </div>
   );
 }

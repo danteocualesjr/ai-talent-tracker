@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { BackLink } from "@/components/back-link";
+import { EmptyPanel, Panel } from "@/components/panel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { formatRelative } from "@/lib/utils";
 
@@ -17,70 +17,80 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
   const left = people.filter((p) => p.status === "left").length;
 
   return (
-    <div className="container max-w-5xl space-y-6 py-8">
-      <Button asChild variant="ghost" size="sm" className="-ml-3 text-muted-foreground">
-        <Link href="/app/labs"><ArrowLeft className="mr-1 h-4 w-4" /> Back to labs</Link>
-      </Button>
+    <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+      <BackLink href="/app/labs">Back to labs</BackLink>
 
-      <div className="rounded-2xl border bg-card p-6">
-        <div className="flex items-center gap-4">
+      <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
           {lab.logo_url ? (
-            <img src={lab.logo_url} alt={lab.name} className="h-14 w-14 rounded-md border bg-muted object-contain" />
+            <img
+              src={lab.logo_url}
+              alt={lab.name}
+              className="h-16 w-16 rounded-2xl border border-border/60 bg-muted object-contain p-2"
+            />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-md bg-muted text-xl font-semibold">{lab.name.slice(0, 1)}</div>
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border/60 bg-muted text-2xl font-bold">
+              {lab.name.slice(0, 1)}
+            </div>
           )}
           <div className="flex-1">
-            <h1 className="text-2xl font-semibold tracking-tight">{lab.name}</h1>
-            <p className="text-sm text-muted-foreground">{lab.description} · {lab.domain}</p>
+            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{lab.name}</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {lab.description} · {lab.domain}
+            </p>
           </div>
         </div>
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="mt-6 grid grid-cols-3 gap-3">
           <Stat label="Indexed" value={people.length} />
-          <Stat label="Stealth" value={stealth} tone="amber" />
-          <Stat label="Left" value={left} tone="rose" />
+          <Stat label="Stealth" value={stealth} tone="signal" />
+          <Stat label="Left" value={left} tone="muted" />
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card">
-        <div className="border-b px-5 py-3 text-sm font-semibold">Employees</div>
+      <Panel title="Employees" bodyClassName={people.length === 0 ? undefined : "divide-y divide-border/60"}>
         {people.length === 0 ? (
-          <div className="px-5 py-12 text-center text-sm text-muted-foreground">
-            No people indexed yet for this lab.
-          </div>
+          <EmptyPanel
+            icon={<span className="text-lg font-bold">{lab.name.slice(0, 1)}</span>}
+            title="No people indexed yet"
+            body="This lab roster is still being built. Check back after the next sync."
+          />
         ) : (
-          <div className="divide-y">
-            {people.map((p) => {
-              const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
-              return (
-                <div key={p.id} className="flex items-center gap-3 px-5 py-3">
-                  <Avatar>
-                    {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <Link href={`/app/profiles/${p.id}`} className="truncate font-medium hover:underline">
-                      {p.full_name || p.linkedin_handle}
-                    </Link>
-                    <p className="truncate text-sm text-muted-foreground">{p.headline ?? p.current_title ?? ""}</p>
-                  </div>
-                  <Badge variant="secondary" className="capitalize">{p.status}</Badge>
-                  <div className="font-mono text-xs text-muted-foreground">{formatRelative(p.last_synced_at)}</div>
+          people.map((p) => {
+            const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
+            return (
+              <div key={p.id} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
+                <Avatar className="h-10 w-10">
+                  {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
+                  <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold hover:underline">
+                    {p.full_name || p.linkedin_handle}
+                  </Link>
+                  <p className="truncate text-sm text-muted-foreground">{p.headline ?? p.current_title ?? ""}</p>
                 </div>
-              );
-            })}
-          </div>
+                <Badge variant="secondary" className="capitalize">
+                  {p.status}
+                </Badge>
+                <div className="tnum hidden font-mono text-xs text-muted-foreground sm:block">
+                  {formatRelative(p.last_synced_at)}
+                </div>
+              </div>
+            );
+          })
         )}
-      </div>
+      </Panel>
     </div>
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: number; tone?: "amber" | "rose" }) {
-  const color = tone === "amber" ? "text-amber-600" : tone === "rose" ? "text-rose-600" : "";
+function Stat({ label, value, tone }: { label: string; value: number; tone?: "signal" | "muted" }) {
+  const valueClass =
+    tone === "signal" ? "text-signal" : tone === "muted" ? "text-muted-foreground" : "text-foreground";
   return (
-    <div className="rounded-lg border bg-background p-4">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${color}`}>{value}</div>
+    <div className="rounded-xl border border-border/60 bg-background px-4 py-3.5">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`tnum mt-1 text-2xl font-bold ${valueClass}`}>{value}</div>
     </div>
   );
 }

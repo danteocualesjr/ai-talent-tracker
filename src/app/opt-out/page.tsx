@@ -1,5 +1,6 @@
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
+import { MarketingHero } from "@/components/marketing-hero";
 import { OptOutForm } from "./form";
 
 export const metadata = { title: "Opt out / DSAR" };
@@ -8,14 +9,17 @@ export default function OptOutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="container max-w-2xl flex-1 py-12">
-        <h1 className="text-4xl font-semibold tracking-tighter md:text-5xl">Opt out / DSAR</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Submit your LinkedIn URL to be removed from our index. We will stop refreshing your profile, hide your data
-          from all customers, and delete historical snapshots within 30 days.
-        </p>
-        <div className="mt-8 rounded-2xl border bg-card p-6">
-          <OptOutForm />
+      <main className="flex-1">
+        <MarketingHero
+          align="center"
+          eyebrow={<div className="label-caps">Your rights</div>}
+          title="Opt out / DSAR"
+          description="Request removal from our index or a copy of the data we hold about you."
+        />
+        <div className="container max-w-xl pb-16">
+          <div className="surface-elevated -mt-6 rounded-2xl border border-border/60 bg-card p-8">
+            <OptOutForm />
+          </div>
         </div>
       </main>
       <MarketingFooter />
