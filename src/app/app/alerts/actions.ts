@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { isSafeOutboundUrl } from "@/lib/utils";
 import type { ChannelType } from "@/types/db";
 
 const EmailSchema = z.object({ to: z.string().email() });
@@ -30,7 +31,7 @@ export async function addChannel(formData: FormData): Promise<void> {
     config = r.data;
   } else if (type === "webhook") {
     const r = WebhookSchema.safeParse({ url: formData.get("url"), secret: formData.get("secret") || undefined });
-    if (!r.success) return;
+    if (!r.success || !isSafeOutboundUrl(r.data.url)) return;
     config = r.data;
   } else {
     return;
