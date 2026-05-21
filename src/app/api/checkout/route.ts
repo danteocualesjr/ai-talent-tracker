@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
@@ -7,6 +7,9 @@ import { ensureOrgForUser } from "@/lib/org";
 export async function POST(req: NextRequest) {
   const { priceId } = (await req.json()) as { priceId?: string };
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
+  if (!Object.prototype.hasOwnProperty.call(PRICE_PLAN_MAP, priceId)) {
+    return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
+  }
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
@@ -22,7 +25,14 @@ export async function POST(req: NextRequest) {
     });
     customerId = customer.id;
     const admin = (await import("@/lib/supabase/server")).createAdminClient();
-    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", org.id);
+    const { error: custErr } = await admin
+      .from("organizations")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", org.id);
+    if (custErr) {
+      console.error("[checkout] failed to save stripe_customer_id", custErr);
+      return NextResponse.json({ error: "failed to save customer" }, { status: 500 });
+    }
   }
 
   const session = await stripe.checkout.sessions.create({

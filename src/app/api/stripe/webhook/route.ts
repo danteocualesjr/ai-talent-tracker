@@ -26,17 +26,32 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      try {
+        await applySubscription(db, sub);
+      } catch {
+        return NextResponse.json({ error: "db update failed" }, { status: 500 });
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
+    const customerId = stripeCustomerId(sub.customer);
+    const { error } = await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+      .eq("stripe_customer_id", customerId);
+    if (error) {
+      console.error("[stripe webhook] subscription deleted update failed", error);
+      return NextResponse.json({ error: "db update failed" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ received: true });
+}
+
+function stripeCustomerId(customer: string | Stripe.Customer | Stripe.DeletedCustomer): string {
+  return typeof customer === "string" ? customer : customer.id;
 }
 
 async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscription | null> {
@@ -50,11 +65,18 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe webhook] subscription missing price id", sub.id);
+    return;
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe webhook] unknown price id", priceId);
+    return;
+  }
 
-  await db
+  const customerId = stripeCustomerId(sub.customer);
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +84,9 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+  if (error) {
+    console.error("[stripe webhook] plan update failed", { customerId, priceId, error });
+    throw error;
+  }
 }
