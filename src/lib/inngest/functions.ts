@@ -19,14 +19,20 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
-      const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []) as { id: string }[];
+      const iso = new Date().toISOString();
+      const base = () =>
+        db.from("profiles").select("id").eq("is_opted_out", false).limit(500);
+      const [byTime, byNull] = await Promise.all([
+        base().lte("next_sync_at", iso),
+        base().is("next_sync_at", null),
+      ]);
+      if (byTime.error) throw byTime.error;
+      if (byNull.error) throw byNull.error;
+      const ids = new Set<string>();
+      for (const row of [...(byTime.data ?? []), ...(byNull.data ?? [])] as { id: string }[]) {
+        ids.add(row.id);
+      }
+      return [...ids].map((id) => ({ id }));
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -61,6 +67,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -90,7 +98,7 @@ export const refreshProfile = inngest.createFunction(
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,6 +114,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
