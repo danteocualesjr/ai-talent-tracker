@@ -18,6 +18,7 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   const { data: prof, error: profErr } = await db.from("profiles").select("*").eq("id", event.profile_id).single();
   if (profErr || !prof) throw profErr ?? new Error("profile not found");
   const profile = prof as Profile;
+  if (profile.is_opted_out) return { dispatched: 0 };
 
   // Find every org watching this profile.
   const { data: watchers } = await db

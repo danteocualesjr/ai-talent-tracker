@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,8 +91,8 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await nextSyncAt(db, profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,6 +108,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +187,26 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<string, number> = { weekly: 168, daily: 24, hourly: 1 };
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let hours = profile.status === "left" || profile.status === "stealth" ? 6 : 168;
+  for (const row of watchers ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] } }).watchlists;
+    const org = wl && !Array.isArray(wl) ? wl.organizations : Array.isArray(wl) ? wl[0]?.organizations : undefined;
+    const cadence = (Array.isArray(org) ? org[0] : org)?.refresh_cadence ?? "weekly";
+    const h = CADENCE_HOURS[cadence] ?? 168;
+    if (h < hours) hours = h;
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }
