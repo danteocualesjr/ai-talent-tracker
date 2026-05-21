@@ -25,6 +25,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
     .maybeSingle();
   if (!data) notFound();
   const ev = data as unknown as EventRow & { profile: Profile };
+  if (ev.profile.is_opted_out) notFound();
   const initials = (ev.profile.full_name || ev.profile.linkedin_handle || "??").slice(0, 2).toUpperCase();
 
   return (
