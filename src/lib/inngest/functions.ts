@@ -19,9 +19,17 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: watched, error: watchErr } = await db
+        .from("watchlist_profiles")
+        .select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = Array.from(new Set((watched ?? []).map((w) => (w as { profile_id: string }).profile_id)));
+      if (watchedIds.length === 0) return [];
+
       const { data, error } = await db
         .from("profiles")
         .select("id")
+        .in("id", watchedIds)
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -61,8 +69,11 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
-    const hash = hashSnapshot(fetched);
+    const effective = mergeProviderFetch(profile, fetched);
+    const hash = hashSnapshot(effective);
 
     const stored = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
@@ -78,7 +89,7 @@ export const refreshProfile = inngest.createFunction(
         .insert({
           profile_id: profileId,
           source: provider.name,
-          raw: fetched.raw as object,
+          raw: effective.raw as object,
           content_hash: hash,
         })
         .select("*")
@@ -93,15 +104,15 @@ export const refreshProfile = inngest.createFunction(
       await db
         .from("profiles")
         .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
+          full_name: effective.full_name ?? profile.full_name,
+          headline: effective.headline ?? profile.headline,
+          current_company: effective.current_company,
+          current_title: effective.current_title,
+          location: effective.location ?? profile.location,
+          avatar_url: effective.avatar_url ?? profile.avatar_url,
+          about: effective.about ?? profile.about,
+          github_handle: effective.github_handle ?? profile.github_handle,
+          x_handle: effective.x_handle ?? profile.x_handle,
           last_synced_at: new Date().toISOString(),
           next_sync_at: next,
         })
@@ -121,13 +132,23 @@ export const refreshProfile = inngest.createFunction(
       github_handle: profile.github_handle,
       x_handle: profile.x_handle,
     };
-    const diffs = diffProfiles(prev, fetched);
+    const priorSnapshots = await step.run("count-prior-snapshots", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return count ?? 0;
+    });
+    if (priorSnapshots <= 1) return { changed: true, eventCreated: false, baseline: true };
+
+    const diffs = diffProfiles(prev, effective);
     if (diffs.length === 0) return { changed: false };
 
     let classification = classifyByRules(
       diffs,
       { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
+      { current_company: effective.current_company, headline: effective.headline },
     );
 
     // Escalate ambiguous results to the LLM.
@@ -136,7 +157,7 @@ export const refreshProfile = inngest.createFunction(
         classifyWithLLM({
           diffs,
           prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
+          next: effective as unknown as Record<string, string | null>,
         }),
       );
       if (llm) classification = llm;
@@ -153,7 +174,7 @@ export const refreshProfile = inngest.createFunction(
           confidence: classification!.confidence,
           summary: classification!.summary,
           before: prev as object,
-          after: fetched as unknown as object,
+          after: effective as unknown as object,
           is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
             && classification!.confidence >= 0.7,
         })
@@ -185,8 +206,22 @@ export const notifyEvent = inngest.createFunction(
 );
 
 function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
   const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
   return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+}
+
+/** Treat null provider fields as unknown — keep existing profile values. */
+function mergeProviderFetch(profile: Profile, fetched: ProviderProfile): ProviderProfile {
+  return {
+    ...fetched,
+    full_name: fetched.full_name ?? profile.full_name,
+    headline: fetched.headline ?? profile.headline,
+    current_company: fetched.current_company ?? profile.current_company,
+    current_title: fetched.current_title ?? profile.current_title,
+    location: fetched.location ?? profile.location,
+    avatar_url: fetched.avatar_url ?? profile.avatar_url,
+    about: fetched.about ?? profile.about,
+    github_handle: fetched.github_handle ?? profile.github_handle,
+    x_handle: fetched.x_handle ?? profile.x_handle,
+  };
 }
