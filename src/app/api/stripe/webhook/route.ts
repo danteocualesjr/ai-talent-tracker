@@ -48,19 +48,59 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+const ACTIVE_SUB_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = sub.customer as string;
+  if (!ACTIVE_SUB_STATUSES.has(sub.status)) {
+    await downgradeOrg(db, customerId, sub.metadata?.org_id);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.warn("[stripe] unmapped price", priceId);
+    return;
+  }
 
-  await db
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const { data: byCustomer } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(payload)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if ((byCustomer ?? []).length > 0) return;
+
+  const orgId = sub.metadata?.org_id;
+  if (orgId) {
+    await db.from("organizations").update(payload).eq("id", orgId);
+  }
+}
+
+async function downgradeOrg(
+  db: ReturnType<typeof createAdminClient>,
+  customerId: string,
+  orgId?: string | null,
+) {
+  const free = {
+    plan: "free" as const,
+    profile_limit: 5,
+    refresh_cadence: "weekly" as const,
+    stripe_subscription_id: null,
+  };
+  const { data: byCustomer } = await db
+    .from("organizations")
+    .update(free)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if ((byCustomer ?? []).length > 0) return;
+  if (orgId) await db.from("organizations").update(free).eq("id", orgId);
 }
