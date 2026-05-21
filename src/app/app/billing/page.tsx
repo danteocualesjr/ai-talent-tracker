@@ -5,6 +5,7 @@ import { ensureOrgForUser } from "@/lib/org";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
+import { PortalButton } from "./portal-button";
 
 export const metadata = { title: "Billing" };
 
@@ -34,11 +35,7 @@ export default async function BillingPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline"><Link href="/pricing">Change plan</Link></Button>
-            {org.stripe_customer_id && (
-              <form action="/api/portal" method="post">
-                <Button type="submit">Manage subscription</Button>
-              </form>
-            )}
+            {org.stripe_customer_id && <PortalButton />}
           </div>
         </div>
       </div>
