@@ -58,8 +58,12 @@ export const refreshProfile = inngest.createFunction(
     const profile = await step.run("load-profile", async () => {
       const { data, error } = await db.from("profiles").select("*").eq("id", profileId).single();
       if (error) throw error;
-      return data as Profile;
+      const row = data as Profile;
+      if (row.is_opted_out) return null;
+      return row;
     });
+
+    if (!profile) return { changed: false, skipped: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -87,10 +91,22 @@ export const refreshProfile = inngest.createFunction(
       return data as ProfileSnapshot;
     });
 
-    // Always bump last_synced_at + reschedule.
-    await step.run("touch-profile", async () => {
+    // Diff vs profile row as loaded (before any touch) so Inngest retries still detect changes.
+    const prev: Partial<ProviderProfile> = {
+      full_name: profile.full_name,
+      headline: profile.headline,
+      current_company: profile.current_company,
+      current_title: profile.current_title,
+      location: profile.location,
+      about: profile.about,
+      github_handle: profile.github_handle,
+      x_handle: profile.x_handle,
+    };
+    const diffs = diffProfiles(prev, fetched);
+
+    const touchProfile = async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,23 +122,13 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
-    });
-
-    if (!stored) return { changed: false };
-
-    // Diff vs previous snapshot's projection (the profile row prior to update).
-    const prev: Partial<ProviderProfile> = {
-      full_name: profile.full_name,
-      headline: profile.headline,
-      current_company: profile.current_company,
-      current_title: profile.current_title,
-      location: profile.location,
-      about: profile.about,
-      github_handle: profile.github_handle,
-      x_handle: profile.x_handle,
+      if (error) throw error;
     };
-    const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+
+    if (diffs.length === 0) {
+      await step.run("touch-profile", touchProfile);
+      return { changed: false };
+    }
 
     let classification = classifyByRules(
       diffs,
@@ -142,9 +148,23 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification) {
+      await step.run("touch-profile", touchProfile);
+      return { changed: true, eventCreated: false };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: existing } = await db
+        .from("events")
+        .select("id")
+        .eq("profile_id", profileId)
+        .eq("type", classification!.type)
+        .eq("summary", classification!.summary)
+        .gte("detected_at", since)
+        .maybeSingle();
+      if (existing) return existing;
+
       const { data, error } = await db
         .from("events")
         .insert({
@@ -167,6 +187,7 @@ export const refreshProfile = inngest.createFunction(
       return data;
     });
 
+    await step.run("touch-profile", touchProfile);
     await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
     return { changed: true, eventCreated: true, type: classification.type };
   },
