@@ -3,6 +3,8 @@ import { Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { getOrgEvents } from "@/lib/queries";
+import { PageHeader } from "@/components/page-header";
+import { EmptyPanel, Panel } from "@/components/panel";
 import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
 
@@ -15,39 +17,40 @@ export default async function EventsPage() {
   const events = await getOrgEvents(org.id, 200);
 
   return (
-    <div className="container max-w-4xl space-y-6 py-8">
-      <header>
-        <h1 className="text-[28px] font-semibold tracking-tight">Events</h1>
-        <p className="mt-1 text-sm text-muted-foreground">All detected changes across your watchlists.</p>
-      </header>
+    <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+      <PageHeader title="Events" description="All detected changes across your watchlists." />
 
-      <div className="rounded-lg border bg-card">
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <div className="text-sm font-semibold"><span className="tnum">{events.length}</span> events</div>
-          <div className="text-xs text-muted-foreground">
-            Public events also appear on{" "}
-            <Link href="/feed" className="text-foreground underline underline-offset-4 hover:no-underline">
+      <Panel
+        title={
+          <>
+            <span className="tnum">{events.length}</span> events
+          </>
+        }
+        action={
+          <span className="text-xs text-muted-foreground">
+            Public events on{" "}
+            <Link href="/feed" className="link-subtle text-xs">
               /feed
             </Link>
-          </div>
-        </div>
+          </span>
+        }
+        bodyClassName={events.length === 0 ? undefined : "divide-y divide-border/60"}
+      >
         {events.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-background text-muted-foreground">
-              <Bell className="h-5 w-5" />
-            </div>
-            <div className="text-sm font-semibold">No events yet</div>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Once a tracked profile changes company, headline, or location, you&apos;ll see it here.
-            </p>
-            <Button asChild className="mt-1"><Link href="/app/watchlist">Add profiles</Link></Button>
-          </div>
+          <EmptyPanel
+            icon={<Bell className="h-5 w-5" />}
+            title="No events yet"
+            body="Once a tracked profile changes company, headline, or location, you'll see it here."
+            cta={
+              <Button asChild>
+                <Link href="/app/watchlist">Add profiles</Link>
+              </Button>
+            }
+          />
         ) : (
-          <div className="divide-y">
-            {events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)}
-          </div>
+          events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
         )}
-      </div>
+      </Panel>
     </div>
   );
 }

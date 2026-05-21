@@ -31,47 +31,43 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
 
   return (
     <>
-      {/* Mobile top bar */}
-      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/85 px-4 backdrop-blur md:hidden">
+      <div className="sticky top-0 z-30 flex h-[60px] items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl md:hidden">
         <Logo href="/app" />
         <button
           onClick={() => setOpen(!open)}
-          className="rounded-md p-2 text-muted-foreground hover:bg-accent"
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent"
           aria-label="Toggle menu"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Drawer overlay (mobile) */}
       {open && (
         <button
           aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-foreground/40 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm md:hidden"
           onClick={() => setOpen(false)}
         />
       )}
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r bg-card transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border/60 bg-card/95 backdrop-blur-xl transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-14 items-center justify-between border-b px-4">
+        <div className="flex h-[60px] items-center justify-between border-b border-border/60 px-4">
           <Logo href="/app" />
-          <button onClick={() => setOpen(false)} className="rounded-md p-1 text-muted-foreground hover:bg-accent md:hidden" aria-label="Close">
+          <button onClick={() => setOpen(false)} className="rounded-lg p-1 text-muted-foreground hover:bg-accent md:hidden" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="px-3 py-4">
-          <div className="px-2 pb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Workspace
-          </div>
-          <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
-            <span className="truncate text-sm font-medium">{orgName}</span>
-            <Badge variant="secondary" className="capitalize">{orgPlan}</Badge>
+        <div className="px-3 py-5">
+          <div className="label-caps px-2 pb-2">Workspace</div>
+          <div className="surface-elevated flex items-center justify-between rounded-xl border border-border/60 bg-background px-3.5 py-2.5">
+            <span className="truncate text-sm font-semibold">{orgName}</span>
+            <Badge variant="secondary" className="capitalize font-medium">{orgPlan}</Badge>
           </div>
         </div>
 
@@ -85,9 +81,9 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors",
+                  "flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150",
                   active
-                    ? "bg-accent font-medium text-foreground"
+                    ? "nav-active-rail bg-accent pl-3.5 font-semibold text-foreground"
                     : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                 )}
               >
@@ -98,12 +94,12 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
           })}
         </nav>
 
-        <div className="border-t p-3">
-          <div className="truncate px-2 pb-2 text-xs text-muted-foreground" title={email}>
+        <div className="border-t border-border/60 p-3">
+          <div className="truncate px-2 pb-2.5 text-xs text-muted-foreground" title={email}>
             {email}
           </div>
           <form action="/auth/signout" method="post">
-            <Button variant="outline" className="w-full justify-start" size="sm">
+            <Button variant="outline" className="w-full justify-start rounded-lg" size="sm">
               <LogOut className="h-4 w-4" /> Sign out
             </Button>
           </form>

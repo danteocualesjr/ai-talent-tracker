@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { PageHeader } from "@/components/page-header";
+import { Panel } from "@/components/panel";
 
 export const metadata = { title: "Settings" };
 
@@ -9,39 +11,32 @@ export default async function SettingsPage() {
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
 
   return (
-    <div className="container max-w-3xl space-y-6 py-8">
-      <header>
-        <h1 className="text-[28px] font-semibold tracking-tight">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Workspace identifiers and account info.</p>
-      </header>
+    <div className="container max-w-3xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+      <PageHeader title="Settings" description="Workspace identifiers and account info." />
 
-      <section className="rounded-lg border bg-card">
-        <div className="border-b px-5 py-3 text-sm font-semibold">Workspace</div>
-        <dl className="divide-y text-sm">
-          <Row label="Name" value={org.name} />
-          <Row label="Slug" value={org.slug} mono />
-          <Row label="Plan" value={org.plan} capitalize />
-          <Row label="Profile limit" value={String(org.profile_limit)} />
-          <Row label="Refresh cadence" value={org.refresh_cadence} />
-        </dl>
-      </section>
+      <Panel title="Workspace" bodyClassName="divide-y divide-border/60">
+        <Row label="Name" value={org.name} />
+        <Row label="Slug" value={org.slug} mono />
+        <Row label="Plan" value={org.plan} capitalize />
+        <Row label="Profile limit" value={String(org.profile_limit)} />
+        <Row label="Refresh cadence" value={org.refresh_cadence} />
+      </Panel>
 
-      <section className="rounded-lg border bg-card">
-        <div className="border-b px-5 py-3 text-sm font-semibold">Account</div>
-        <dl className="divide-y text-sm">
-          <Row label="Email" value={user!.email ?? ""} />
-          <Row label="User ID" value={user!.id} mono />
-        </dl>
-      </section>
+      <Panel title="Account" bodyClassName="divide-y divide-border/60">
+        <Row label="Email" value={user!.email ?? ""} />
+        <Row label="User ID" value={user!.id} mono />
+      </Panel>
     </div>
   );
 }
 
 function Row({ label, value, mono, capitalize }: { label: string; value: string; mono?: boolean; capitalize?: boolean }) {
   return (
-    <div className="flex items-center justify-between px-5 py-3">
+    <div className="flex items-center justify-between px-5 py-4 text-sm">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className={`${mono ? "font-mono text-xs" : ""} ${capitalize ? "capitalize" : ""}`}>{value}</dd>
+      <dd className={`font-medium ${mono ? "font-mono text-xs text-muted-foreground" : ""} ${capitalize ? "capitalize" : ""}`}>
+        {value}
+      </dd>
     </div>
   );
 }

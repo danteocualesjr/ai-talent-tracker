@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
+import { MarketingHero } from "@/components/marketing-hero";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
@@ -17,20 +18,12 @@ export default function PricingPage() {
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
       <main className="flex-1">
-        <section className="relative overflow-hidden border-b">
-          <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
-          <div className="container relative py-20 text-center md:py-24">
-            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Pricing
-            </div>
-            <h1 className="mt-3 text-balance text-5xl font-semibold tracking-tight md:text-6xl">
-              Simple pricing.
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-muted-foreground md:text-lg">
-              Start free. Pay when you need real-time alerts at scale.
-            </p>
-          </div>
-        </section>
+        <MarketingHero
+          align="center"
+          eyebrow={<div className="label-caps">Pricing</div>}
+          title="Simple pricing."
+          description="Start free. Pay when you need real-time alerts at scale."
+        />
 
         <section className="border-b">
           <div className="container max-w-6xl py-14">
@@ -55,10 +48,10 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
   const plan = PLAN_DETAILS[slug];
   return (
     <div
-      className={`relative flex flex-col rounded-xl border bg-card p-6 transition-colors ${
+      className={`relative flex flex-col rounded-2xl border bg-card p-7 transition-all duration-300 ${
         highlighted
-          ? "border-foreground/80 shadow-[0_24px_60px_-30px_hsl(var(--foreground)/0.4)] ring-1 ring-foreground/10"
-          : "hover:border-foreground/30"
+          ? "surface-elevated border-foreground/20 ring-1 ring-foreground/5"
+          : "border-border/60 hover:border-foreground/15 hover:shadow-soft"
       }`}
     >
       {highlighted && (

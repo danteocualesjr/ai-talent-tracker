@@ -36,29 +36,30 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       )}
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b">
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div className="pointer-events-none absolute inset-0 noise opacity-60" />
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
 
-        <div className="container relative pt-20 pb-20 md:pt-28 md:pb-24">
+        <div className="container relative pt-16 pb-20 md:pt-24 md:pb-28">
           <div className="mx-auto max-w-3xl text-center">
             <Link
               href="/feed"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-foreground/20 hover:text-foreground animate-fade-up"
+              className="surface-glass animate-fade-up inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs text-muted-foreground transition-all hover:border-foreground/15 hover:text-foreground"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
               </span>
-              <span className="font-medium text-foreground">Live</span>
+              <span className="font-semibold text-foreground">Live</span>
               <span className="text-border">·</span>
               <span>New departures detected this week</span>
-              <ArrowRight className="h-3 w-3" />
+              <ArrowRight className="h-3 w-3 opacity-60" />
             </Link>
 
-            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-7 text-balance text-[44px] font-semibold leading-[1.04] tracking-tight text-foreground md:text-[68px]">
+            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[42px] font-bold leading-[1.05] tracking-tight text-foreground md:text-[72px]">
               Know the moment{" "}
-              <span className="text-gradient-hero italic font-medium">AI talent</span>{" "}
+              <span className="font-serif text-gradient-hero italic font-normal">AI talent</span>{" "}
               moves.
             </h1>
 
@@ -67,55 +68,55 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
             </p>
 
-            <div className="animate-fade-up animate-fade-up-delay-3 mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" className="group shadow-md shadow-foreground/10">
+            <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg" className="group min-w-[200px]">
                 <Link href="/login">
                   Start tracking free
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="group border-border/80 bg-background/80 backdrop-blur">
+              <Button asChild size="lg" variant="outline" className="group min-w-[200px]">
                 <Link href="/feed">
                   See the live feed
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </Link>
               </Button>
             </div>
-            <p className="animate-fade-up animate-fade-up-delay-4 mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> No credit card</span>
-              <span className="text-border">·</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> 5 free profiles</span>
-              <span className="text-border">·</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Cancel anytime</span>
+            <p className="animate-fade-up animate-fade-up-delay-4 mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> No credit card</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> 5 free profiles</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> Cancel anytime</span>
             </p>
           </div>
 
-          <div className="mx-auto mt-10 grid max-w-lg grid-cols-3 gap-3 border-y py-6 md:max-w-2xl">
+          <div className="animate-fade-up animate-fade-up-delay-4 mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4 rounded-2xl border border-border/60 bg-card/60 p-1 shadow-soft backdrop-blur-sm md:max-w-2xl">
             {[
               ["20+", "AI labs tracked"],
               ["<15m", "avg. detection"],
               ["3", "alert channels"],
-            ].map(([value, label]) => (
-              <div key={label} className="text-center">
-                <div className="tnum text-2xl font-semibold tracking-tight">{value}</div>
-                <div className="mt-1 text-[11px] text-muted-foreground">{label}</div>
+            ].map(([value, label], i) => (
+              <div
+                key={label}
+                className={`rounded-xl px-4 py-5 text-center ${i === 1 ? "border-x border-border/60 bg-background/80" : ""}`}
+              >
+                <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
+                <div className="mt-1.5 text-[11px] font-medium text-muted-foreground">{label}</div>
               </div>
             ))}
           </div>
 
-          {/* Dashboard preview */}
-          <div className="relative mx-auto mt-12 max-w-5xl">
-            <div className="absolute inset-x-12 -bottom-8 -z-10 h-32 rounded-full bg-signal/10 blur-3xl" />
-            <div className="absolute inset-x-20 -bottom-4 -z-10 h-20 rounded-full bg-foreground/5 blur-2xl" />
+          <div className="relative mx-auto mt-14 max-w-5xl">
+            <div className="absolute inset-x-16 -bottom-10 -z-10 h-40 rounded-full bg-signal/15 blur-[80px]" />
+            <div className="absolute inset-x-24 -bottom-6 -z-10 h-24 rounded-full bg-foreground/6 blur-3xl" />
             <DashboardPreview />
           </div>
         </div>
       </section>
 
       {/* Logo strip */}
-      <section className="border-b bg-card">
-        <div className="container py-10">
-          <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+      <section className="border-b border-border/60 bg-muted/30">
+        <div className="container py-12">
+          <p className="label-caps text-center">
             Tracking talent at
           </p>
           <div className="mt-6">
@@ -125,13 +126,11 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* Features */}
-      <section className="border-b">
+      <section className="border-b border-border/60">
         <div className="container py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Features
-            </div>
-            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight md:text-5xl">
+            <div className="label-caps">Features</div>
+            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
               Built for sourcing the next wave.
             </h2>
             <p className="mt-4 text-pretty text-muted-foreground md:text-lg">
@@ -139,7 +138,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </p>
           </div>
 
-          <div className="mt-14 grid divide-y border-y md:grid-cols-2 md:divide-x md:divide-y-0 lg:grid-cols-3">
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <FeatureCard icon={<Bell className="h-4 w-4" />} title="Real-time alerts" body="Email, Slack, or HMAC-signed webhook the moment a tracked profile changes company, headline, or location." />
             <FeatureCard icon={<Sparkles className="h-4 w-4" />} title="Stealth & founder detection" body="An LLM-backed classifier labels departures, stealth flips, and founding-role headlines automatically." />
             <FeatureCard icon={<LineChart className="h-4 w-4" />} title="Curated lab rosters" body="Pre-built employee lists for every major AI lab. One click to track an entire org." />
@@ -151,17 +150,15 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* How it works */}
-      <section className="border-b bg-card">
+      <section className="border-b border-border/60 bg-muted/20">
         <div className="container py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              How it works
-            </div>
-            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight md:text-5xl">
+            <div className="label-caps">How it works</div>
+            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
               From profile to alert in three steps.
             </h2>
           </div>
-          <div className="mx-auto mt-14 grid max-w-5xl gap-6 md:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3">
             <Step n={1} title="Build your watchlist" body="Paste LinkedIn URLs or one-click a curated lab roster. Up to 1,000 profiles on Team." />
             <Step n={2} title="We poll & diff" body="Durable Inngest jobs refresh profiles on your plan's cadence and hash-diff against historical snapshots." />
             <Step n={3} title="Get classified alerts" body="A rule-based + LLM classifier labels the change (left, joined, stealth, founder) and pushes to your channels." />
@@ -170,17 +167,15 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* Who uses */}
-      <section className="border-b">
+      <section className="border-b border-border/60">
         <div className="container py-20 md:py-28">
           <div className="grid items-center gap-14 md:grid-cols-2">
             <div>
-              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                Who uses this
-              </div>
-              <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+              <div className="label-caps">Who uses this</div>
+              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-4xl">
                 If your edge is being first, this is for you.
               </h2>
-              <ul className="mt-8 divide-y border-y">
+              <ul className="mt-8 divide-y divide-border/60 rounded-2xl border border-border/60 bg-card">
                 {[
                   ["VCs & scouts", "Reach researchers the day they go stealth."],
                   ["AI startup recruiters", "Source candidates from real-time departures."],
@@ -188,8 +183,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                   ["Competitive intel teams", "Track who's being poached, and by whom."],
                   ["Journalists & analysts", "Cover the AI labor market with primary signal."],
                 ].map(([who, why]) => (
-                  <li key={who} className="flex items-start gap-4 py-4">
-                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <li key={who} className="flex items-start gap-4 px-5 py-4 first:rounded-t-2xl last:rounded-b-2xl">
+                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
                     <div>
                       <div className="text-sm font-medium">{who}</div>
                       <div className="text-sm text-muted-foreground">{why}</div>
@@ -207,34 +202,35 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       {/* CTA */}
       <section>
         <div className="container py-20 md:py-28">
-          <div className="relative overflow-hidden rounded-xl border bg-foreground text-background">
+          <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground text-background shadow-soft">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-signal/25 blur-[80px]" />
             <div
-              className="pointer-events-none absolute inset-0 opacity-[0.08]"
+              className="pointer-events-none absolute inset-0 opacity-[0.06]"
               style={{
                 backgroundImage:
                   "linear-gradient(to right, hsl(var(--background)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--background)) 1px, transparent 1px)",
-                backgroundSize: "48px 48px",
-                maskImage: "radial-gradient(ellipse at center, black, transparent 70%)",
-                WebkitMaskImage: "radial-gradient(ellipse at center, black, transparent 70%)",
+                backgroundSize: "56px 56px",
+                maskImage: "radial-gradient(ellipse at center, black, transparent 72%)",
+                WebkitMaskImage: "radial-gradient(ellipse at center, black, transparent 72%)",
               }}
             />
             <div className="relative grid items-center gap-10 p-10 md:grid-cols-[1.2fr_1fr] md:p-16">
               <div>
-                <Badge variant="outline" className="border-background/30 bg-transparent text-background/80">
+                <Badge variant="outline" className="border-background/25 bg-background/10 text-background/90">
                   Get started
                 </Badge>
-                <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight md:text-5xl">
+                <h2 className="mt-5 text-balance text-3xl font-bold tracking-tight md:text-5xl">
                   Start with 5 free profiles.
                 </h2>
-                <p className="mt-4 max-w-md text-pretty text-base text-background/70">
+                <p className="mt-4 max-w-md text-pretty text-base leading-relaxed text-background/65">
                   Sign up with email, paste a few LinkedIn URLs, and the next change becomes your next intro.
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row md:justify-end">
-                <Button asChild size="lg" variant="outline" className="border-background/20 bg-background text-foreground hover:bg-background/90">
+                <Button asChild size="lg" variant="outline" className="border-background/25 bg-background text-foreground hover:bg-background/95">
                   <Link href="/login">Get started</Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="text-background hover:bg-background/10 hover:text-background">
+                <Button asChild size="lg" variant="ghost" className="text-background/90 hover:bg-background/10 hover:text-background">
                   <Link href="/pricing">See pricing</Link>
                 </Button>
               </div>
@@ -250,11 +246,11 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group relative p-8 transition-colors duration-200 hover:bg-accent/50">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-card text-foreground shadow-sm transition-all duration-200 group-hover:border-signal/30 group-hover:text-signal">
+    <div className="group surface-elevated relative rounded-2xl border border-border/60 bg-card p-7 transition-all duration-300 hover:border-foreground/15 hover:shadow-soft">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
         {icon}
       </div>
-      <h3 className="mt-5 font-semibold tracking-tight transition-colors group-hover:text-foreground">{title}</h3>
+      <h3 className="mt-5 text-base font-bold tracking-tight">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
@@ -262,11 +258,11 @@ function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: stri
 
 function Step({ n, title, body }: { n: number; title: string; body: string }) {
   return (
-    <div className="group relative rounded-xl border bg-background p-6 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full border bg-muted/50 font-mono text-xs font-medium text-foreground">
+    <div className="group surface-elevated relative rounded-2xl border border-border/60 bg-card p-7 transition-all hover:border-foreground/15">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background">
         {n}
       </div>
-      <h3 className="mt-4 text-lg font-semibold tracking-tight">{title}</h3>
+      <h3 className="mt-5 text-lg font-bold tracking-tight">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
@@ -275,22 +271,22 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
 function SampleAlert() {
   return (
     <div className="relative">
-      <div className="absolute -inset-px rounded-[13px] bg-gradient-to-b from-amber-200/60 via-transparent to-transparent dark:from-amber-900/40" />
-      <div className="relative overflow-hidden rounded-xl border bg-card shadow-lg">
-        <div className="flex items-center justify-between border-b bg-muted/30 px-5 py-3">
+      <div className="absolute -inset-px rounded-[17px] bg-gradient-to-b from-signal/30 via-transparent to-transparent" />
+      <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card">
+        <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-5 py-3.5">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-amber-500" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-500" />
+              <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
             </span>
             <span className="font-medium text-foreground">New alert</span>
             <span>· just now</span>
           </div>
           <div className="font-mono text-[11px] text-muted-foreground">#openai</div>
         </div>
-        <div className="space-y-4 p-5">
+        <div className="space-y-4 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/50 text-sm font-bold text-foreground ring-2 ring-background">
               JR
             </div>
             <div className="flex-1">

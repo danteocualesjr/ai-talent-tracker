@@ -7,21 +7,23 @@ export const metadata = { title: "Log in" };
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
+      <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
-      <div className="relative w-full max-w-sm">
-        <div className="mb-8 flex justify-center">
+      <div className="relative w-full max-w-[400px]">
+        <div className="mb-10 flex justify-center">
           <Logo />
         </div>
-        <div className="rounded-xl border bg-card p-7 shadow-[0_24px_60px_-30px_hsl(var(--foreground)/0.25)]">
-          <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
-          <p className="mt-1 text-sm text-muted-foreground">We&apos;ll email you a magic link.</p>
+        <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-8">
+          <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">We&apos;ll email you a magic link.</p>
           <LoginForm searchParams={searchParams} />
         </div>
-        <p className="mt-5 text-center text-xs text-muted-foreground">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           By signing in you agree to our{" "}
-          <Link href="/privacy" className="underline underline-offset-4 hover:no-underline">
+          <Link href="/privacy" className="font-medium text-foreground underline-offset-4 hover:underline">
             privacy policy
-          </Link>.
+          </Link>
+          .
         </p>
       </div>
     </div>

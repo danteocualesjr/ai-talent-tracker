@@ -33,8 +33,8 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   if (sent) {
     return (
-      <div className="mt-6 rounded-md border bg-muted/30 p-4 text-sm">
-        Check <span className="font-medium">{email}</span> for a magic link. You can close this tab.
+      <div className="mt-6 rounded-xl border border-signal/20 bg-signal/5 p-4 text-sm leading-relaxed">
+        Check <span className="font-semibold text-foreground">{email}</span> for a magic link. You can close this tab.
       </div>
     );
   }

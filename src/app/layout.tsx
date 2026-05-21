@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Instrument_Serif, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogAnalytics } from "@/components/analytics";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const sans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
@@ -26,12 +37,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`h-full ${inter.variable} ${mono.variable}`}
+      className={`h-full ${sans.variable} ${serif.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background font-sans antialiased" suppressHydrationWarning>
         {children}
-        <Toaster position="top-right" richColors />
+        <Toaster position="top-right" richColors toastOptions={{ className: "font-sans" }} />
         <PostHogAnalytics />
       </body>
     </html>

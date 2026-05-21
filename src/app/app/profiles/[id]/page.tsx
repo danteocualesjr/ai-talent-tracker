@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Github } from "lucide-react";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventTimelineItem } from "@/components/event-row";
 import { formatRelative } from "@/lib/utils";
@@ -27,13 +28,12 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const snapshotList = (snaps ?? []) as ProfileSnapshot[];
 
   return (
-    <div className="container max-w-4xl space-y-8 py-8">
-      <Button asChild variant="ghost" size="sm" className="-ml-3 text-muted-foreground">
+    <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+      <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground hover:text-foreground">
         <Link href="/app/watchlist"><ArrowLeft className="mr-1 h-4 w-4" /> Back to watchlist</Link>
       </Button>
 
-      {/* Header card */}
-      <div className="rounded-2xl border bg-card p-6">
+      <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
         <div className="flex items-start gap-5">
           <Avatar className="h-20 w-20 ring-2 ring-border">
             {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
@@ -79,10 +79,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         )}
       </div>
 
-      {/* Timeline */}
-      <div className="rounded-xl border bg-card">
-        <div className="border-b px-5 py-3 font-semibold">Event timeline</div>
-        <div className="p-6">
+      <Panel title="Event timeline" bodyClassName="p-6">
           {eventList.length === 0 ? (
             <div className="text-center text-sm text-muted-foreground">No changes detected yet.</div>
           ) : (
@@ -95,13 +92,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
           )}
-        </div>
-      </div>
+      </Panel>
 
-      {/* Snapshots */}
-      <div className="rounded-xl border bg-card">
-        <div className="border-b px-5 py-3 font-semibold">Recent snapshots</div>
-        <div className="divide-y">
+      <Panel title="Recent snapshots" bodyClassName="divide-y divide-border/60">
           {snapshotList.length === 0 ? (
             <div className="px-5 py-6 text-center text-sm text-muted-foreground">No snapshots yet.</div>
           ) : snapshotList.map((s) => (
@@ -111,8 +104,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               <span className="text-muted-foreground">{formatRelative(s.fetched_at)}</span>
             </div>
           ))}
-        </div>
-      </div>
+      </Panel>
     </div>
   );
 }

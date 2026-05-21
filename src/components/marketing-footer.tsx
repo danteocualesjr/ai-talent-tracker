@@ -23,8 +23,9 @@ const SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t bg-gradient-to-b from-card to-background">
-      <div className="container grid gap-12 py-14 md:grid-cols-3">
+    <footer className="relative border-t bg-card/50">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div className="container grid gap-12 py-16 md:grid-cols-3">
         <div className="md:col-span-1">
           <Logo />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
@@ -34,10 +35,8 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 gap-8 md:col-span-2">
           {SECTIONS.map((s) => (
             <div key={s.title}>
-              <h4 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                {s.title}
-              </h4>
-              <ul className="mt-4 space-y-2.5 text-sm">
+              <h4 className="label-caps">{s.title}</h4>
+              <ul className="mt-4 space-y-3 text-sm">
                 {s.links.map((l) => (
                   <li key={l.href}>
                     <Link
@@ -53,10 +52,10 @@ export function MarketingFooter() {
           ))}
         </div>
       </div>
-      <div className="border-t">
-        <div className="container flex flex-col items-start justify-between gap-2 py-5 text-xs text-muted-foreground md:flex-row md:items-center">
+      <div className="border-t border-border/60">
+        <div className="container flex flex-col items-start justify-between gap-2 py-6 text-xs text-muted-foreground md:flex-row md:items-center">
           <div>© {new Date().getFullYear()} AI Talent Tracker. All rights reserved.</div>
-          <div className="font-mono">Next.js · Supabase · Inngest · Stripe</div>
+          <div className="font-mono text-[11px] opacity-70">Next.js · Supabase · Inngest · Stripe</div>
         </div>
       </div>
     </footer>
