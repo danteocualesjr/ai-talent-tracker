@@ -16,5 +16,6 @@ export async function POST() {
     customer: org.stripe_customer_id,
     return_url: `${siteUrl()}/app/billing`,
   });
+  if (!session.url) return NextResponse.json({ error: "portal unavailable" }, { status: 500 });
   return NextResponse.json({ url: session.url });
 }

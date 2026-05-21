@@ -49,6 +49,18 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: prior } = await db
+      .from("notification_deliveries")
+      .select("status")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (prior?.status === "sent") {
+      dispatched++;
+      continue;
+    }
+    if (prior?.status === "failed") continue;
+
     try {
       await deliver(ch, event, profile);
       await db.from("notification_deliveries").insert({
@@ -81,17 +93,20 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
 
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
+    if (!cfg?.to) throw new Error("email channel missing recipient");
     const { subject, html } = renderEventEmail(payload);
     await sendEventEmail(cfg.to, subject, html);
     return;
   }
   if (ch.type === "slack") {
     const cfg = ch.config as unknown as SlackConfig;
+    if (!cfg?.webhook_url) throw new Error("slack channel missing webhook_url");
     await sendSlack(cfg.webhook_url, payload);
     return;
   }
   if (ch.type === "webhook") {
     const cfg = ch.config as unknown as WebhookConfig;
+    if (!cfg?.url) throw new Error("webhook channel missing url");
     await sendWebhook(cfg.url, cfg.secret, {
       event_id: event.id,
       profile_id: profile.id,
@@ -99,4 +114,5 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
     });
     return;
   }
+  throw new Error(`unsupported notification channel type: ${ch.type}`);
 }
