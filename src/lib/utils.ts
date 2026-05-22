@@ -42,8 +42,22 @@ export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
 
-/** Restrict post-login redirects to same-origin relative paths. */
+/** Allow only same-origin relative paths for post-login redirects. */
 export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) return fallback;
-  return next;
+  if (!next || typeof next !== "string") return fallback;
+  const trimmed = next.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return fallback;
+  if (trimmed.includes("\\") || trimmed.includes("\0")) return fallback;
+  try {
+    const u = new URL(trimmed, "http://local.invalid");
+    if (u.origin !== "http://local.invalid") return fallback;
+    return u.pathname + u.search + u.hash;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Prevent `]]>` from terminating CDATA sections in RSS output. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
 }
