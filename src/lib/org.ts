@@ -30,7 +30,23 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .insert({ name: email ? `${email.split("@")[0]}'s workspace` : "My workspace", slug })
     .select("*")
     .single();
-  if (error || !org) throw error ?? new Error("failed to create org");
+  if (error) {
+    // Concurrent first-login requests can race on slug; re-fetch the org that won.
+    if (error.code === "23505") {
+      const { data: retry } = await db
+        .from("org_members")
+        .select("org_id, organizations(*)")
+        .eq("user_id", userId)
+        .limit(1)
+        .maybeSingle();
+      if (retry && (retry as { organizations?: unknown }).organizations) {
+        const o = (retry as { organizations: unknown }).organizations;
+        return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
+      }
+    }
+    throw error;
+  }
+  if (!org) throw new Error("failed to create org");
   const orgRow = org as Organization;
 
   await db.from("org_members").insert({ org_id: orgRow.id, user_id: userId, role: "owner" });
