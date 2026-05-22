@@ -5,12 +5,31 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Allow only same-origin relative paths (blocks open redirects like //evil.com). */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next) return fallback;
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
+  if (next.includes("\\") || next.includes("\0")) return fallback;
+  try {
+    const path = new URL(next, "http://localhost");
+    if (path.hostname !== "localhost") return fallback;
+    return `${path.pathname}${path.search}${path.hash}` || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Escape text embedded in RSS CDATA sections (]]> breaks the wrapper). */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
 export function formatRelative(date: Date | string | null | undefined) {
   if (!date) return "never";
   const d = typeof date === "string" ? new Date(date) : date;
   if (Number.isNaN(d.getTime())) return "unknown";
   const diff = Date.now() - d.getTime();
-  if (diff < 0) return "just now";
+  if (diff < 0) return formatRelativeTo(d);
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}s ago`;
   const min = Math.floor(sec / 60);
@@ -22,6 +41,24 @@ export function formatRelative(date: Date | string | null | undefined) {
   const mo = Math.floor(day / 30);
   if (mo < 12) return `${mo}mo ago`;
   return `${Math.floor(mo / 12)}y ago`;
+}
+
+/** Relative time for a future date (e.g. next_sync_at). */
+export function formatRelativeTo(date: Date | string) {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const diff = d.getTime() - Date.now();
+  if (diff <= 0) return "soon";
+  const sec = Math.floor(diff / 1000);
+  if (sec < 60) return `in ${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `in ${min}m`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `in ${hr}h`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `in ${day}d`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `in ${mo}mo`;
+  return `in ${Math.floor(mo / 12)}y`;
 }
 
 export function normalizeLinkedInUrl(url: string): string | null {
