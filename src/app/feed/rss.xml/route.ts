@@ -4,7 +4,7 @@ import { siteUrl } from "@/lib/utils";
 export const revalidate = 300;
 
 export async function GET() {
-  const events = await getPublicEvents(50);
+  const events = (await getPublicEvents(50)).filter((e) => e.profile != null);
   const items = events.map((e) => {
     const link = `${siteUrl()}/feed/${e.id}`;
     return `

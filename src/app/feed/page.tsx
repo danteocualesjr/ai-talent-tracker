@@ -16,7 +16,7 @@ export const metadata = {
 export const revalidate = 300;
 
 export default async function PublicFeedPage() {
-  const events = await getPublicEvents(100);
+  const events = (await getPublicEvents(100)).filter((e) => e.profile != null);
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
