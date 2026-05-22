@@ -97,14 +97,16 @@ export async function refreshNowForm(formData: FormData): Promise<void> {
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   const db = createAdminClient();
 
-  const { data: link } = await db
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return;
+
+  const { count } = await db
     .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
+    .select("profile_id", { count: "exact", head: true })
     .eq("profile_id", profileId)
-    .eq("watchlists.org_id", org.id)
-    .limit(1)
-    .maybeSingle();
-  if (!link) return;
+    .in("watchlist_id", ids);
+  if (!count) return;
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });

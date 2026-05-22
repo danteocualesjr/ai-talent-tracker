@@ -12,7 +12,7 @@ export function PortalButton() {
     try {
       const res = await fetch("/api/portal", { method: "POST" });
       if (res.status === 401) {
-        window.location.href = "/login?next=%2Fapp%2Fbilling";
+        window.location.href = `/login?next=${encodeURIComponent("/app/billing")}`;
         return;
       }
       const data = (await res.json()) as { url?: string; error?: string };

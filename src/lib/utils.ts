@@ -42,8 +42,17 @@ export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
 
-/** Reject open redirects: only same-origin relative paths. */
-export function safeNextPath(next: string | null | undefined, fallback = "/app"): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) return fallback;
-  return next;
+/** Restrict post-login redirects to same-origin relative paths. */
+export function safeRedirectPath(next: string | null | undefined): string {
+  if (!next) return "/app";
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return "/app";
+  try {
+    const { pathname, search, hash } = new URL(next, siteUrl());
+    return `${pathname}${search}${hash}`;
+  } catch {
+    return "/app";
+  }
 }
+
+/** @deprecated Use safeRedirectPath */
+export const safeNextPath = safeRedirectPath;

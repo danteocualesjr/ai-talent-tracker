@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { safeNextPath } from "@/lib/utils";
+import { safeRedirectPath } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
     try {
       const supa = createClient();
       const origin = window.location.origin;
-      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(safeNextPath(params.next))}`;
+      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(safeRedirectPath(params.next))}`;
       const { error } = await supa.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
       if (error) throw error;
       setSent(true);

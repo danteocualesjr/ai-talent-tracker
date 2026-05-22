@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
 import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { getOrgForUser } from "@/lib/org";
+import { ensureOrgForUser } from "@/lib/org";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
@@ -18,19 +18,21 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
-  if (!user) notFound();
-  const org = await getOrgForUser(user.id);
-  if (!org) notFound();
+  if (!user) redirect("/login?next=/app/watchlist");
 
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
   const db = createAdminClient();
-  const { data: link } = await db
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const watchlistIds = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (watchlistIds.length === 0) notFound();
+
+  const { count } = await db
     .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
+    .select("profile_id", { count: "exact", head: true })
     .eq("profile_id", id)
-    .eq("watchlists.org_id", org.id)
-    .limit(1)
-    .maybeSingle();
-  if (!link) notFound();
+    .in("watchlist_id", watchlistIds);
+  if (!count) notFound();
 
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
