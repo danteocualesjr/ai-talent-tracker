@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { orgWatchesProfile } from "@/lib/queries";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -39,6 +40,15 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
     if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
     profile = ins.data;
+  } else if ((profile as Profile).is_opted_out) {
+    const { data: cleared, error: clearErr } = await db
+      .from("profiles")
+      .update({ is_opted_out: false })
+      .eq("id", (profile as Profile).id)
+      .select("*")
+      .single();
+    if (clearErr || !cleared) return { error: clearErr?.message ?? "Could not clear opt-out." };
+    profile = cleared;
   }
   const profileRow = profile as Profile;
 
@@ -88,6 +98,14 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await orgWatchesProfile(org.id, profileId))) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
