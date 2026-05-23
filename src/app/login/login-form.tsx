@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { safeNextPath } from "@/lib/utils";
 
 export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const params = use(searchParams);
+  const nextPath = safeNextPath(params.next);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
     try {
       const supa = createClient();
       const origin = window.location.origin;
-      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(params.next ?? "/app")}`;
+      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
       const { error } = await supa.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
       if (error) throw error;
       setSent(true);

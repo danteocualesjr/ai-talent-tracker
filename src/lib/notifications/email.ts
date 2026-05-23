@@ -12,11 +12,9 @@ function resend(): Resend | null {
 
 export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
   const r = resend();
-  if (!r) {
-    console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
-  }
-  await r.emails.send({ from: FROM, to, subject, html });
+  if (!r) throw new Error("email provider not configured");
+  const { error } = await r.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(error.message);
 }
 
 export function renderEventEmail(args: {
