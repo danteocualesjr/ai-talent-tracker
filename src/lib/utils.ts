@@ -24,10 +24,28 @@ export function formatRelative(date: Date | string | null | undefined) {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
+/** Only allow same-origin relative paths (blocks open redirects). */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes(":")) {
+    return fallback;
+  }
+  return next;
+}
+
+/** Escape text embedded in RSS CDATA sections. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+function isLinkedInHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return h === "linkedin.com" || h === "www.linkedin.com";
+}
+
 export function normalizeLinkedInUrl(url: string): string | null {
   try {
     const u = new URL(url.trim());
-    if (!u.hostname.includes("linkedin.com")) return null;
+    if (!isLinkedInHost(u.hostname)) return null;
     const parts = u.pathname.split("/").filter(Boolean);
     const inIdx = parts.indexOf("in");
     if (inIdx === -1 || !parts[inIdx + 1]) return null;
