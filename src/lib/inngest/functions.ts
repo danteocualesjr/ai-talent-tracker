@@ -89,14 +89,14 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await resolveNextSyncAt(db, profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -106,6 +106,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +185,46 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+type RefreshCadence = "weekly" | "daily" | "hourly";
+
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  hourly: 1,
+  daily: 24,
+  weekly: 24 * 7,
+};
+
+async function resolveNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  if (profile.status === "left" || profile.status === "stealth") {
+    return new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+  }
+
+  const { data: links } = await db
+    .from("watchlist_profiles")
+    .select("watchlist_id")
+    .eq("profile_id", profileId);
+  const watchlistIds = ((links ?? []) as { watchlist_id: string }[]).map((l) => l.watchlist_id);
+  if (watchlistIds.length === 0) {
+    return new Date(Date.now() + CADENCE_HOURS.weekly * 60 * 60 * 1000).toISOString();
+  }
+
+  const { data: watchlists } = await db
+    .from("watchlists")
+    .select("organizations(refresh_cadence)")
+    .in("id", watchlistIds);
+
+  let fastest = CADENCE_HOURS.weekly;
+  for (const row of watchlists ?? []) {
+    const orgs = (row as { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] }).organizations;
+    const org = orgs && !Array.isArray(orgs) ? orgs : Array.isArray(orgs) ? orgs[0] : undefined;
+    const cadence = org?.refresh_cadence;
+    if (cadence && cadence in CADENCE_HOURS) {
+      fastest = Math.min(fastest, CADENCE_HOURS[cadence as RefreshCadence]);
+    }
+  }
+
+  return new Date(Date.now() + fastest * 60 * 60 * 1000).toISOString();
 }

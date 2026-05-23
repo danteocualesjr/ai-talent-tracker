@@ -10,7 +10,7 @@ export function formatRelative(date: Date | string | null | undefined) {
   const d = typeof date === "string" ? new Date(date) : date;
   if (Number.isNaN(d.getTime())) return "unknown";
   const diff = Date.now() - d.getTime();
-  if (diff < 0) return "just now";
+  if (diff < 0) return formatRelativeFuture(-diff);
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}s ago`;
   const min = Math.floor(sec / 60);
@@ -22,6 +22,26 @@ export function formatRelative(date: Date | string | null | undefined) {
   const mo = Math.floor(day / 30);
   if (mo < 12) return `${mo}mo ago`;
   return `${Math.floor(mo / 12)}y ago`;
+}
+
+function formatRelativeFuture(ms: number): string {
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `in ${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `in ${min}m`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `in ${hr}h`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `in ${day}d`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `in ${mo}mo`;
+  return `in ${Math.floor(mo / 12)}y`;
+}
+
+/** Reject open redirects: only same-origin relative paths. */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return fallback;
+  return next;
 }
 
 export function normalizeLinkedInUrl(url: string): string | null {
