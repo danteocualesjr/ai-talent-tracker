@@ -41,3 +41,48 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Reject open redirects: only same-origin relative paths. */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
+    return fallback;
+  }
+  return next;
+}
+
+/** Escape `]]>` sequences inside RSS CDATA sections. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/\]\]>/g, "]]]]><![CDATA[>");
+}
+
+/** Block SSRF targets for user-configured outbound webhooks. */
+export function isSafeWebhookUrl(urlString: string): boolean {
+  try {
+    const u = new URL(urlString);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host.endsWith(".localhost") ||
+      host.endsWith(".local") ||
+      host === "metadata.google.internal"
+    ) {
+      return false;
+    }
+    if (
+      /^127\./.test(host) ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^169\.254\./.test(host) ||
+      /^0\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+      host === "::1" ||
+      host === "[::1]"
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
