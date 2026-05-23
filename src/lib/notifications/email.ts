@@ -10,13 +10,14 @@ function resend(): Resend | null {
   return cached;
 }
 
-export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
+export async function sendEventEmail(to: string, subject: string, html: string): Promise<boolean> {
   const r = resend();
   if (!r) {
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
+    return false;
   }
   await r.emails.send({ from: FROM, to, subject, html });
+  return true;
 }
 
 export function renderEventEmail(args: {

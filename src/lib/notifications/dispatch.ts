@@ -50,7 +50,16 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
     if (!ch.event_types.includes(event.type)) continue;
 
     try {
-      await deliver(ch, event, profile);
+      const result = await deliver(ch, event, profile);
+      if (result === "skipped") {
+        await db.from("notification_deliveries").insert({
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "skipped",
+          error: "delivery not configured",
+        });
+        continue;
+      }
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
@@ -70,7 +79,11 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   return { dispatched };
 }
 
-async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
+async function deliver(
+  ch: NotificationChannel,
+  event: EventRow,
+  profile: Profile,
+): Promise<"sent" | "skipped"> {
   const payload = {
     name: profile.full_name || profile.linkedin_url,
     summary: event.summary,
@@ -82,13 +95,13 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
     const { subject, html } = renderEventEmail(payload);
-    await sendEventEmail(cfg.to, subject, html);
-    return;
+    const sent = await sendEventEmail(cfg.to, subject, html);
+    return sent ? "sent" : "skipped";
   }
   if (ch.type === "slack") {
     const cfg = ch.config as unknown as SlackConfig;
     await sendSlack(cfg.webhook_url, payload);
-    return;
+    return "sent";
   }
   if (ch.type === "webhook") {
     const cfg = ch.config as unknown as WebhookConfig;
@@ -97,6 +110,7 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
       profile_id: profile.id,
       ...payload,
     });
-    return;
+    return "sent";
   }
+  return "skipped";
 }
