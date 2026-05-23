@@ -49,12 +49,20 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
-  const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
-  const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (sub.status !== "active" && sub.status !== "trialing") return;
 
-  await db
+  const priceId = sub.items.data[0]?.price.id;
+  if (!priceId) {
+    console.error("[stripe] subscription missing price id", sub.id);
+    throw new Error("subscription missing price id");
+  }
+  const mapping = PRICE_PLAN_MAP[priceId];
+  if (!mapping) {
+    console.error("[stripe] unmapped price id", priceId, "for subscription", sub.id);
+    throw new Error(`unmapped price id: ${priceId}`);
+  }
+
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +71,5 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
 }
