@@ -10,10 +10,11 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile | null }>)
+    .flatMap((r) => {
+      if (!r.profiles) return [];
+      return [{ ...r.profiles, watchlist_id: r.watchlist_id }];
+    });
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
@@ -34,7 +35,8 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
     .order("detected_at", { ascending: false })
     .limit(limit);
 
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return ((data ?? []) as unknown as (EventRow & { profile: Profile | null })[])
+    .filter((e): e is EventRow & { profile: Profile } => e.profile != null);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
@@ -42,11 +44,13 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
+    .eq("profiles.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return ((data ?? []) as unknown as (EventRow & { profile: Profile | null })[])
+    .filter((e): e is EventRow & { profile: Profile } => e.profile != null);
 }
 
 export async function listLabs(): Promise<Lab[]> {
