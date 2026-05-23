@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
-import { createClient } from "@/lib/supabase/server";
+import { stripe, isAllowedPriceId } from "@/lib/stripe";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
 
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
-  if (!PRICE_PLAN_MAP[priceId]) return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
+  if (!isAllowedPriceId(priceId)) return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
@@ -27,8 +27,15 @@ export async function POST(req: NextRequest) {
       metadata: { org_id: org.id },
     });
     customerId = customer.id;
-    const admin = (await import("@/lib/supabase/server")).createAdminClient();
-    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", org.id);
+    const admin = createAdminClient();
+    const { error } = await admin
+      .from("organizations")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", org.id);
+    if (error) {
+      console.error("[checkout] failed to persist stripe_customer_id", error);
+      return NextResponse.json({ error: "failed to save customer" }, { status: 500 });
+    }
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -38,6 +45,7 @@ export async function POST(req: NextRequest) {
     success_url: `${siteUrl()}/app/billing?status=success`,
     cancel_url: `${siteUrl()}/pricing?status=cancelled`,
     allow_promotion_codes: true,
+    metadata: { org_id: org.id },
   });
 
   return NextResponse.json({ url: session.url });
