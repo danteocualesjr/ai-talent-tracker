@@ -2,12 +2,19 @@ import "server-only";
 import { inngest } from "./client";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getProvider } from "@/lib/providers";
+import { mergeProviderProfile } from "@/lib/providers/merge";
 import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
+
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
 
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
@@ -61,8 +68,11 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
-    const hash = hashSnapshot(fetched);
+    const merged = mergeProviderProfile(profile, fetched);
+    const hash = hashSnapshot(merged);
 
     const stored = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
@@ -82,26 +92,27 @@ export const refreshProfile = inngest.createFunction(
           content_hash: hash,
         })
         .select("*")
-        .single();
+        .maybeSingle();
+      if (error?.code === "23505") return null;
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return data as ProfileSnapshot | null;
     });
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await computeNextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
+          full_name: merged.full_name,
+          headline: merged.headline,
+          current_company: merged.current_company,
+          current_title: merged.current_title,
+          location: merged.location,
+          avatar_url: merged.avatar_url,
+          about: merged.about,
+          github_handle: merged.github_handle,
+          x_handle: merged.x_handle,
           last_synced_at: new Date().toISOString(),
           next_sync_at: next,
         })
@@ -121,13 +132,13 @@ export const refreshProfile = inngest.createFunction(
       github_handle: profile.github_handle,
       x_handle: profile.x_handle,
     };
-    const diffs = diffProfiles(prev, fetched);
+    const diffs = diffProfiles(prev, merged);
     if (diffs.length === 0) return { changed: false };
 
     let classification = classifyByRules(
       diffs,
       { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
+      { current_company: merged.current_company, headline: merged.headline },
     );
 
     // Escalate ambiguous results to the LLM.
@@ -136,7 +147,7 @@ export const refreshProfile = inngest.createFunction(
         classifyWithLLM({
           diffs,
           prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
+          next: merged as unknown as Record<string, string | null>,
         }),
       );
       if (llm) classification = llm;
@@ -153,7 +164,7 @@ export const refreshProfile = inngest.createFunction(
           confidence: classification!.confidence,
           summary: classification!.summary,
           before: prev as object,
-          after: fetched as unknown as object,
+          after: merged as unknown as object,
           is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
             && classification!.confidence >= 0.7,
         })
@@ -184,9 +195,37 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+async function computeNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlist_id, watchlists(org_id)")
+    .eq("profile_id", profileId);
+
+  const orgIds = Array.from(
+    new Set(
+      ((watchers ?? []) as Array<{ watchlists?: { org_id?: string } | { org_id?: string }[] | null }>)
+        .map((w) => {
+          const wl = w.watchlists;
+          if (!wl) return undefined;
+          if (Array.isArray(wl)) return wl[0]?.org_id;
+          return wl.org_id;
+        })
+        .filter((x): x is string => Boolean(x)),
+    ),
+  );
+
+  let minHours = CADENCE_HOURS.weekly;
+  if (orgIds.length > 0) {
+    const { data: orgs } = await db.from("organizations").select("refresh_cadence").in("id", orgIds);
+    for (const org of (orgs ?? []) as { refresh_cadence: RefreshCadence }[]) {
+      minHours = Math.min(minHours, CADENCE_HOURS[org.refresh_cadence] ?? CADENCE_HOURS.weekly);
+    }
+  }
+
+  const statusHours = profile.status === "left" || profile.status === "stealth" ? 6 : minHours;
+  return new Date(Date.now() + statusHours * 60 * 60 * 1000).toISOString();
 }
