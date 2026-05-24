@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { orgWatchesProfile } from "@/lib/queries";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -41,6 +42,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
     profile = ins.data;
   }
   const profileRow = profile as Profile;
+  if (profileRow.is_opted_out) {
+    return { error: "This profile has opted out of tracking." };
+  }
 
   let { data: wl } = await db.from("watchlists").select("*").eq("org_id", org.id).limit(1).maybeSingle();
   if (!wl) {
@@ -50,10 +54,11 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
   const watchlistRow = wl as Watchlist;
 
-  await db.from("watchlist_profiles").upsert(
+  const { error: wlErr } = await db.from("watchlist_profiles").upsert(
     { watchlist_id: watchlistRow.id, profile_id: profileRow.id, added_by: user.id },
     { onConflict: "watchlist_id,profile_id" },
   );
+  if (wlErr) return { error: wlErr.message };
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
@@ -88,6 +93,15 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const watches = await orgWatchesProfile(org.id, profileId);
+  if (!watches) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
