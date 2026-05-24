@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,8 +91,8 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await resolveNextSyncAt(db, profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,9 +108,20 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
+
+    const isBaseline = await step.run("check-baseline", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return (count ?? 0) <= 1;
+    });
+    if (isBaseline) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -184,9 +197,54 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+async function resolveNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const hours = await fastestRefreshHours(db, profileId, profile);
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
+async function fastestRefreshHours(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<number> {
+  if (profile.status === "left" || profile.status === "stealth") return 6;
+
+  const { data: watchers, error } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+  if (error) throw error;
+
+  const cadences: RefreshCadence[] = [];
+  for (const row of watchers ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null }).watchlists;
+    if (!wl) continue;
+    const lists = Array.isArray(wl) ? wl : [wl];
+    for (const w of lists) {
+      const org = w.organizations;
+      if (!org) continue;
+      const o = Array.isArray(org) ? org[0] : org;
+      if (o?.refresh_cadence) cadences.push(o.refresh_cadence);
+    }
+  }
+
+  if (cadences.length === 0) return 24 * 7; // free default: weekly
+  return Math.min(...cadences.map(cadenceToHours));
+}
+
+function cadenceToHours(cadence: RefreshCadence): number {
+  switch (cadence) {
+    case "hourly":
+      return 1;
+    case "daily":
+      return 24;
+    case "weekly":
+      return 24 * 7;
+    default:
+      return 24 * 7;
+  }
 }
