@@ -28,7 +28,7 @@ export const scheduleRefreshes = inngest.createFunction(
       const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
-        .select("id")
+        .select("id, watchlist_profiles!inner(profile_id)")
         .or(`next_sync_at.lte."${now}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -113,8 +113,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,

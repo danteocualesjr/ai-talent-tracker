@@ -31,11 +31,7 @@ export async function POST(req: NextRequest) {
     }
     if (event.type === "customer.subscription.deleted") {
       const sub = event.data.object as Stripe.Subscription;
-      const { error } = await db
-        .from("organizations")
-        .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-        .eq("stripe_customer_id", sub.customer as string);
-      if (error) throw error;
+      await downgradeSubscription(db, sub, event);
     }
   } catch (e) {
     console.error("[stripe webhook]", e);
@@ -54,11 +50,18 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+const PAID_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 async function applySubscription(
   db: ReturnType<typeof createAdminClient>,
   sub: Stripe.Subscription,
   event: Stripe.Event,
 ) {
+  if (!PAID_SUBSCRIPTION_STATUSES.has(sub.status)) {
+    await downgradeSubscription(db, sub, event);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
@@ -88,5 +91,33 @@ async function applySubscription(
     .from("organizations")
     .update(updates)
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
+}
+
+async function downgradeSubscription(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+  event: Stripe.Event,
+) {
+  const free = {
+    plan: "free" as const,
+    profile_limit: 5,
+    refresh_cadence: "weekly" as const,
+    stripe_subscription_id: null,
+  };
+
+  const orgId =
+    sub.metadata?.org_id ||
+    (event.type === "checkout.session.completed"
+      ? (event.data.object as Stripe.Checkout.Session).metadata?.org_id
+      : undefined);
+
+  if (orgId) {
+    const { error } = await db.from("organizations").update(free).eq("id", orgId);
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await db.from("organizations").update(free).eq("stripe_customer_id", sub.customer as string);
   if (error) throw error;
 }
