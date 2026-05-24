@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,56 +61,92 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    const snapshotResult = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
-        .select("id")
+        .select("id, fetched_at")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) {
+        return { snapshot: existing as Pick<ProfileSnapshot, "id" | "fetched_at">, isNew: false, isBaseline: false };
+      }
 
-      const { data, error } = await db
-        .from("profile_snapshots")
-        .insert({
-          profile_id: profileId,
-          source: provider.name,
-          raw: fetched.raw as object,
-          content_hash: hash,
-        })
-        .select("*")
-        .single();
-      if (error) throw error;
-      return data as ProfileSnapshot;
+      try {
+        const { data, error } = await db
+          .from("profile_snapshots")
+          .insert({
+            profile_id: profileId,
+            source: provider.name,
+            raw: fetched.raw as object,
+            content_hash: hash,
+          })
+          .select("id, fetched_at")
+          .single();
+        if (error) throw error;
+
+        const { count } = await db
+          .from("profile_snapshots")
+          .select("id", { count: "exact", head: true })
+          .eq("profile_id", profileId);
+
+        return {
+          snapshot: data as Pick<ProfileSnapshot, "id" | "fetched_at">,
+          isNew: true,
+          isBaseline: (count ?? 0) <= 1,
+        };
+      } catch (e: unknown) {
+        // Concurrent refresh with identical data — treat as duplicate.
+        const code = (e as { code?: string })?.code;
+        if (code === "23505") {
+          const { data: dup } = await db
+            .from("profile_snapshots")
+            .select("id, fetched_at")
+            .eq("profile_id", profileId)
+            .eq("content_hash", hash)
+            .single();
+          return {
+            snapshot: dup as Pick<ProfileSnapshot, "id" | "fetched_at">,
+            isNew: false,
+            isBaseline: false,
+          };
+        }
+        throw e;
+      }
     });
 
-    // Always bump last_synced_at + reschedule.
-    await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+    const nextSync = await step.run("schedule-next-sync", async () => {
+      const at = await resolveNextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
-        .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
-          last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
-        })
+        .update({ last_synced_at: new Date().toISOString(), next_sync_at: at })
         .eq("id", profileId);
+      return at;
     });
 
-    if (!stored) return { changed: false };
+    if (!snapshotResult.isNew) {
+      const hasEvent = await step.run("check-pending-event", async () => {
+        const { count, error } = await db
+          .from("events")
+          .select("id", { count: "exact", head: true })
+          .eq("profile_id", profileId)
+          .gte("detected_at", snapshotResult.snapshot.fetched_at);
+        if (error) throw error;
+        return (count ?? 0) > 0;
+      });
+      if (hasEvent) return { changed: false, nextSync };
+    } else if (snapshotResult.isBaseline) {
+      await step.run("touch-profile-baseline", async () => {
+        await updateProfileFields(db, profileId, profile, fetched);
+      });
+      return { changed: false, baseline: true, nextSync };
+    }
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
       headline: profile.headline,
@@ -122,7 +158,7 @@ export const refreshProfile = inngest.createFunction(
       x_handle: profile.x_handle,
     };
     const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+    if (diffs.length === 0) return { changed: false, nextSync };
 
     let classification = classifyByRules(
       diffs,
@@ -130,7 +166,6 @@ export const refreshProfile = inngest.createFunction(
       { current_company: fetched.current_company, headline: fetched.headline },
     );
 
-    // Escalate ambiguous results to the LLM.
     if (!classification || classification.confidence < 0.6) {
       const llm = await step.run("llm-classify", async () =>
         classifyWithLLM({
@@ -142,7 +177,12 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification || (classification.type === "other" && classification.confidence < 0.5)) {
+      await step.run("touch-profile-no-event", async () => {
+        await updateProfileFields(db, profileId, profile, fetched);
+      });
+      return { changed: true, eventCreated: false, nextSync };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
@@ -167,8 +207,12 @@ export const refreshProfile = inngest.createFunction(
       return data;
     });
 
+    await step.run("touch-profile-after-event", async () => {
+      await updateProfileFields(db, profileId, profile, fetched);
+    });
+
     await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
-    return { changed: true, eventCreated: true, type: classification.type };
+    return { changed: true, eventCreated: true, type: classification.type, nextSync };
   },
 );
 
@@ -184,9 +228,54 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 24 * 7,
+  daily: 24,
+  hourly: 1,
+};
+
+async function resolveNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const fastTrack = profile.status === "left" || profile.status === "stealth";
+  let hours = fastTrack ? 6 : CADENCE_HOURS.weekly;
+
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  for (const row of data ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | null } | null })
+      .watchlists;
+    const cadence = wl?.organizations?.refresh_cadence;
+    if (!cadence) continue;
+    hours = Math.min(hours, CADENCE_HOURS[cadence]);
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
+async function updateProfileFields(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+  fetched: ProviderProfile,
+): Promise<void> {
+  await db
+    .from("profiles")
+    .update({
+      full_name: fetched.full_name ?? profile.full_name,
+      headline: fetched.headline ?? profile.headline,
+      current_company: fetched.current_company ?? profile.current_company,
+      current_title: fetched.current_title ?? profile.current_title,
+      location: fetched.location ?? profile.location,
+      avatar_url: fetched.avatar_url ?? profile.avatar_url,
+      about: fetched.about ?? profile.about,
+      github_handle: fetched.github_handle ?? profile.github_handle,
+      x_handle: fetched.x_handle ?? profile.x_handle,
+    })
+    .eq("id", profileId);
 }

@@ -49,6 +49,15 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: prior } = await db
+      .from("notification_deliveries")
+      .select("id")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .eq("status", "sent")
+      .maybeSingle();
+    if (prior) continue;
+
     try {
       await deliver(ch, event, profile);
       await db.from("notification_deliveries").insert({
@@ -99,4 +108,5 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
     });
     return;
   }
+  throw new Error(`Unknown notification channel type: ${ch.type}`);
 }

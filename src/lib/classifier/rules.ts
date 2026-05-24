@@ -41,6 +41,43 @@ export function classifyByRules(
   const companyChanged = diffs.some((d) => d.field === "current_company");
   const headlineChanged = diffs.some((d) => d.field === "headline");
 
+  if (companyChanged) {
+    const left = prev.current_company;
+    const joined = next.current_company;
+    if (left && !joined) {
+      return {
+        type: "left_company",
+        confidence: 0.8,
+        status: "left",
+        summary: `Left ${left}. Current company removed from profile.`,
+      };
+    }
+    if (left && joined && norm(left) !== norm(joined)) {
+      return {
+        type: "joined_company",
+        confidence: 0.75,
+        status: "active",
+        summary: `Moved from ${left} to ${joined}.`,
+      };
+    }
+    if (!left && joined) {
+      return {
+        type: "joined_company",
+        confidence: 0.6,
+        status: "active",
+        summary: `Joined ${joined}.`,
+      };
+    }
+  }
+
+  if (!headlineChanged) {
+    return {
+      type: "other",
+      confidence: 0.3,
+      summary: `Profile updated (${diffs.map((d) => d.field).join(", ")}).`,
+    };
+  }
+
   for (const re of STEALTH_PATTERNS) {
     if (re.test(headline)) {
       return {
@@ -74,47 +111,10 @@ export function classifyByRules(
     }
   }
 
-  if (companyChanged) {
-    const left = prev.current_company;
-    const joined = next.current_company;
-    if (left && !joined) {
-      return {
-        type: "left_company",
-        confidence: 0.8,
-        status: "left",
-        summary: `Left ${left}. Current company removed from profile.`,
-      };
-    }
-    if (left && joined && norm(left) !== norm(joined)) {
-      return {
-        type: "joined_company",
-        confidence: 0.75,
-        status: "active",
-        summary: `Moved from ${left} to ${joined}.`,
-      };
-    }
-    if (!left && joined) {
-      return {
-        type: "joined_company",
-        confidence: 0.6,
-        status: "active",
-        summary: `Joined ${joined}.`,
-      };
-    }
-  }
-
-  if (headlineChanged) {
-    return {
-      type: "role_change_internal",
-      confidence: 0.5,
-      summary: `Headline changed to "${headline}".`,
-    };
-  }
-
   return {
-    type: "other",
-    confidence: 0.3,
-    summary: `Profile updated (${diffs.map((d) => d.field).join(", ")}).`,
+    type: "role_change_internal",
+    confidence: 0.5,
+    summary: `Headline changed to "${headline}".`,
   };
 }
 
