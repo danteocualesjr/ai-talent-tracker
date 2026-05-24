@@ -70,6 +70,7 @@ export async function listLabProfiles(labId: string, limit = 100): Promise<Profi
     .from("profiles")
     .select("*")
     .eq("current_company_lab_id", labId)
+    .eq("is_opted_out", false)
     .order("status")
     .limit(limit);
   return (data ?? []) as Profile[];
