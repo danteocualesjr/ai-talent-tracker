@@ -19,14 +19,26 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
-        .limit(500);
+        .from("watchlist_profiles")
+        .select("profile_id, profiles!inner(id, next_sync_at, is_opted_out)")
+        .eq("profiles.is_opted_out", false)
+        .limit(2000);
       if (error) throw error;
-      return (data ?? []) as { id: string }[];
+
+      const seen = new Set<string>();
+      const ids: { id: string }[] = [];
+      for (const row of data ?? []) {
+        const raw = (row as { profiles?: { id: string; next_sync_at: string | null; is_opted_out: boolean } | { id: string; next_sync_at: string | null; is_opted_out: boolean }[] }).profiles;
+        const prof = Array.isArray(raw) ? raw[0] : raw;
+        if (!prof || prof.is_opted_out || seen.has(prof.id)) continue;
+        if (prof.next_sync_at && prof.next_sync_at > now) continue;
+        seen.add(prof.id);
+        ids.push({ id: prof.id });
+        if (ids.length >= 500) break;
+      }
+      return ids;
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -61,7 +73,10 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
+    const isBaseline = !profile.last_synced_at;
     const hash = hashSnapshot(fetched);
 
     const stored = await step.run("store-snapshot", async () => {
@@ -95,8 +110,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -109,6 +124,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First ingest establishes baseline — skip diff/events until a prior sync exists.
+    if (isBaseline) return { changed: true, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {

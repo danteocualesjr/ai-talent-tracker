@@ -7,10 +7,21 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_place
   typescript: true,
 });
 
-export const PRICE_PLAN_MAP: Record<string, { plan: Plan; profile_limit: number; cadence: "weekly" | "daily" | "hourly" }> = {
-  [process.env.STRIPE_PRICE_PRO || "price_pro"]:   { plan: "pro",  profile_limit: 100,  cadence: "daily"  },
-  [process.env.STRIPE_PRICE_TEAM || "price_team"]: { plan: "team", profile_limit: 1000, cadence: "hourly" },
-};
+type PriceMapping = { plan: Plan; profile_limit: number; cadence: "weekly" | "daily" | "hourly" };
+
+const PRICE_ENTRIES: Array<[string | undefined, PriceMapping]> = [
+  [process.env.STRIPE_PRICE_PRO, { plan: "pro", profile_limit: 100, cadence: "daily" }],
+  [process.env.STRIPE_PRICE_TEAM, { plan: "team", profile_limit: 1000, cadence: "hourly" }],
+];
+
+/** Only includes prices configured via env — avoids placeholder keys that never match Stripe. */
+export const PRICE_PLAN_MAP: Record<string, PriceMapping> = Object.fromEntries(
+  PRICE_ENTRIES.filter((entry): entry is [string, PriceMapping] => Boolean(entry[0])),
+);
+
+export function getAllowedPriceIds(): string[] {
+  return Object.keys(PRICE_PLAN_MAP);
+}
 
 export const PLAN_DETAILS: Record<Plan, { name: string; price_monthly: number; profile_limit: number; features: string[] }> = {
   free:       { name: "Free",       price_monthly: 0,    profile_limit: 5,    features: ["Public departure feed", "5 watchlist profiles", "Weekly refresh"] },
