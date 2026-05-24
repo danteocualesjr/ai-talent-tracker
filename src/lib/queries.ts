@@ -46,7 +46,8 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
     .eq("is_public", true)
     .order("detected_at", { ascending: false })
     .limit(limit);
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  const rows = (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return rows.filter((e) => !e.profile?.is_opted_out);
 }
 
 export async function listLabs(): Promise<Lab[]> {
@@ -63,6 +64,17 @@ export async function getLabBySlug(slug: string): Promise<Lab | null> {
   return (data ?? null) as Lab | null;
 }
 
+export async function orgWatchesProfile(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("watchlists.org_id", orgId)
+    .eq("profile_id", profileId);
+  return (count ?? 0) > 0;
+}
+
 export async function listLabProfiles(labId: string, limit = 100): Promise<Profile[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -70,6 +82,7 @@ export async function listLabProfiles(labId: string, limit = 100): Promise<Profi
     .from("profiles")
     .select("*")
     .eq("current_company_lab_id", labId)
+    .eq("is_opted_out", false)
     .order("status")
     .limit(limit);
   return (data ?? []) as Profile[];
