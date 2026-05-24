@@ -19,10 +19,17 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
+      const { data: watched, error: watchErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = Array.from(new Set((watched ?? []).map((w) => (w as { profile_id: string }).profile_id)));
+      if (watchedIds.length === 0) return [];
+
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .in("id", watchedIds)
+        .or(`next_sync_at.lte.${now},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -95,8 +102,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,

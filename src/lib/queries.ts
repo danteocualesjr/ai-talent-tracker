@@ -2,6 +2,19 @@ import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { EventRow, Lab, Profile } from "@/types/db";
 
+export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId)
+    .limit(1)
+    .maybeSingle();
+  return Boolean(data);
+}
+
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -42,8 +55,9 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
+    .eq("profiles.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
