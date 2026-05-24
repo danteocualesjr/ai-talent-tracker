@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,8 +91,8 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await computeNextSyncAt(db, profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,6 +108,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +187,41 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
+
+async function computeNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  if (profile.status === "left" || profile.status === "stealth") {
+    return new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+  }
+
+  const { data: rows } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  const cadences = ((rows ?? []) as Array<{ watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null }>)
+    .map((row) => {
+      const wl = row.watchlists;
+      if (!wl) return undefined;
+      const watchlist = Array.isArray(wl) ? wl[0] : wl;
+      const org = watchlist?.organizations;
+      if (!org) return undefined;
+      const organization = Array.isArray(org) ? org[0] : org;
+      return organization?.refresh_cadence;
+    })
+    .filter((c): c is RefreshCadence => Boolean(c));
+
+  const hours = cadences.length > 0
+    ? Math.min(...cadences.map((c) => CADENCE_HOURS[c]))
+    : CADENCE_HOURS.weekly;
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }
