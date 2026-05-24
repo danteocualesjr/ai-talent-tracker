@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
-import { createClient } from "@/lib/supabase/server";
+import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
 
 export async function POST(req: NextRequest) {
   const { priceId } = (await req.json()) as { priceId?: string };
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
+  if (!PRICE_PLAN_MAP[priceId]) {
+    return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
+  }
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
@@ -21,8 +24,12 @@ export async function POST(req: NextRequest) {
       metadata: { org_id: org.id },
     });
     customerId = customer.id;
-    const admin = (await import("@/lib/supabase/server")).createAdminClient();
-    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", org.id);
+    const admin = createAdminClient();
+    const { error } = await admin
+      .from("organizations")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", org.id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   const session = await stripe.checkout.sessions.create({
