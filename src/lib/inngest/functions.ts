@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,7 +61,10 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
-    const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
+    const fetchedRaw = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
+    const fetched = mergeProviderProfile(profile, fetchedRaw);
     const hash = hashSnapshot(fetched);
 
     const stored = await step.run("store-snapshot", async () => {
@@ -89,14 +92,14 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await resolveNextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -184,9 +187,60 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+function mergeProviderProfile(profile: Profile, fetched: ProviderProfile): ProviderProfile {
+  return {
+    ...fetched,
+    full_name: fetched.full_name ?? profile.full_name,
+    headline: fetched.headline ?? profile.headline,
+    current_company: fetched.current_company ?? profile.current_company,
+    current_title: fetched.current_title ?? profile.current_title,
+    location: fetched.location ?? profile.location,
+    avatar_url: fetched.avatar_url ?? profile.avatar_url,
+    about: fetched.about ?? profile.about,
+    github_handle: fetched.github_handle ?? profile.github_handle,
+    x_handle: fetched.x_handle ?? profile.x_handle,
+  };
+}
+
+async function resolveNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  if (profile.status === "left" || profile.status === "stealth") {
+    return new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+  }
+
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  const cadences = ((watchers ?? []) as Array<{ watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null }>)
+    .flatMap((w) => {
+      const wl = w.watchlists;
+      if (!wl) return [];
+      const rows = Array.isArray(wl) ? wl : [wl];
+      return rows
+        .map((row) => {
+          const org = row.organizations;
+          if (!org) return undefined;
+          if (Array.isArray(org)) return org[0]?.refresh_cadence;
+          return org.refresh_cadence;
+        })
+        .filter((c): c is RefreshCadence => Boolean(c));
+    });
+
+  const hours = cadences.length > 0
+    ? Math.min(...cadences.map(cadenceToHours))
+    : cadenceToHours("weekly");
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
+function cadenceToHours(cadence: RefreshCadence): number {
+  switch (cadence) {
+    case "hourly": return 1;
+    case "daily": return 24;
+    case "weekly": return 24 * 7;
+  }
 }

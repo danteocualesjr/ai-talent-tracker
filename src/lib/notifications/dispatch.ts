@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
-import { renderEventEmail, sendEventEmail } from "./email";
+import { renderEventEmail, sendEventEmail, type DeliveryOutcome } from "./email";
 import { sendSlack } from "./slack";
 import { sendWebhook } from "./webhook";
 import type { EventRow, NotificationChannel, Profile } from "@/types/db";
@@ -49,28 +49,45 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: prior } = await db
+      .from("notification_deliveries")
+      .select("status")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (prior?.status === "sent" || prior?.status === "skipped") continue;
+
     try {
-      await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
-      });
-      dispatched++;
+      const outcome = await deliver(ch, event, profile);
+      const status = outcome === "skipped" ? "skipped" : "sent";
+      await db.from("notification_deliveries").upsert(
+        {
+          channel_id: ch.id,
+          event_id: event.id,
+          status,
+          delivered_at: status === "sent" ? new Date().toISOString() : null,
+          error: null,
+        },
+        { onConflict: "channel_id,event_id" },
+      );
+      if (status === "sent") dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
+      await db.from("notification_deliveries").upsert(
+        {
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "failed",
+          error: e instanceof Error ? e.message : String(e),
+          delivered_at: null,
+        },
+        { onConflict: "channel_id,event_id" },
+      );
     }
   }
   return { dispatched };
 }
 
-async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
+async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<DeliveryOutcome> {
   const payload = {
     name: profile.full_name || profile.linkedin_url,
     summary: event.summary,
@@ -82,13 +99,12 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
     const { subject, html } = renderEventEmail(payload);
-    await sendEventEmail(cfg.to, subject, html);
-    return;
+    return sendEventEmail(cfg.to, subject, html);
   }
   if (ch.type === "slack") {
     const cfg = ch.config as unknown as SlackConfig;
     await sendSlack(cfg.webhook_url, payload);
-    return;
+    return "sent";
   }
   if (ch.type === "webhook") {
     const cfg = ch.config as unknown as WebhookConfig;
@@ -97,6 +113,7 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
       profile_id: profile.id,
       ...payload,
     });
-    return;
+    return "sent";
   }
+  return "skipped";
 }
