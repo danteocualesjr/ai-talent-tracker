@@ -61,8 +61,15 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
-    const hash = hashSnapshot(fetched);
+    const merged: ProviderProfile = {
+      ...fetched,
+      current_company: fetched.current_company ?? profile.current_company,
+      current_title: fetched.current_title ?? profile.current_title,
+    };
+    const hash = hashSnapshot(merged);
 
     const stored = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
@@ -78,7 +85,7 @@ export const refreshProfile = inngest.createFunction(
         .insert({
           profile_id: profileId,
           source: provider.name,
-          raw: fetched.raw as object,
+          raw: merged.raw as object,
           content_hash: hash,
         })
         .select("*")
@@ -95,8 +102,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: merged.current_company,
+          current_title: merged.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -121,13 +128,13 @@ export const refreshProfile = inngest.createFunction(
       github_handle: profile.github_handle,
       x_handle: profile.x_handle,
     };
-    const diffs = diffProfiles(prev, fetched);
+    const diffs = diffProfiles(prev, merged);
     if (diffs.length === 0) return { changed: false };
 
     let classification = classifyByRules(
       diffs,
       { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
+      { current_company: merged.current_company, headline: merged.headline },
     );
 
     // Escalate ambiguous results to the LLM.
@@ -136,7 +143,7 @@ export const refreshProfile = inngest.createFunction(
         classifyWithLLM({
           diffs,
           prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
+          next: merged as unknown as Record<string, string | null>,
         }),
       );
       if (llm) classification = llm;
@@ -153,7 +160,7 @@ export const refreshProfile = inngest.createFunction(
           confidence: classification!.confidence,
           summary: classification!.summary,
           before: prev as object,
-          after: fetched as unknown as object,
+          after: merged as unknown as object,
           is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
             && classification!.confidence >= 0.7,
         })
