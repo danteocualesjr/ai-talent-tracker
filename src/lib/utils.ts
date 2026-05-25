@@ -41,3 +41,23 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Reject open redirects; only same-origin relative paths are allowed. */
+export function safeRedirectPath(path: string | null | undefined, fallback = "/app"): string {
+  if (!path) return fallback;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return fallback;
+  if (trimmed.includes("://") || trimmed.includes("\\")) return fallback;
+  try {
+    const u = new URL(trimmed, "http://local");
+    if (u.origin !== "http://local") return fallback;
+    return u.pathname + u.search + u.hash;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Prevent CDATA sections from breaking when content contains `]]>`. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
