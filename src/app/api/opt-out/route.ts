@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
@@ -9,8 +9,13 @@ export async function POST(req: NextRequest) {
   const notes = String(form.get("notes") ?? "");
   if (!url || !email) return NextResponse.json({ error: "missing" }, { status: 400 });
 
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({ error: "service unavailable" }, { status: 503 });
+  }
+
   const db = createAdminClient();
-  await db.from("profiles").update({ is_opted_out: true }).eq("linkedin_url", url);
+  const { error } = await db.from("profiles").update({ is_opted_out: true }).eq("linkedin_url", url);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // In production, also email the team. Logged for now.
   console.log("[opt-out] received", { url, email, notes });

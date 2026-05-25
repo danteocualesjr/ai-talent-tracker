@@ -19,10 +19,11 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.is.null,next_sync_at.lte."${now}"`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -109,6 +110,17 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    const isBaselineSync = await step.run("check-baseline", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("*", { count: "exact", head: true })
+        .eq("profile_id", profileId)
+        .neq("id", stored.id);
+      if (error) throw error;
+      return (count ?? 0) === 0;
+    });
+    if (isBaselineSync) return { changed: true, eventCreated: false };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
