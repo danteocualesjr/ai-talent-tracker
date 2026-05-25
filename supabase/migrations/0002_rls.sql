@@ -70,7 +70,7 @@ drop policy if exists "profiles are readable" on public.profiles;
 create policy "profiles are readable" on public.profiles for select using (is_opted_out = false);
 
 drop policy if exists "events are readable" on public.events;
-create policy "events are readable" on public.events for select using (true);
+create policy "events are readable" on public.events for select using (is_public = true);
 
 drop policy if exists "snapshots readable to org members" on public.profile_snapshots;
 create policy "snapshots readable to org members" on public.profile_snapshots for select using (
