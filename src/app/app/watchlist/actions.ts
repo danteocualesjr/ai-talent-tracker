@@ -88,6 +88,27 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const watchlistIds = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (watchlistIds.length === 0) return;
+
+  const { data: onWatchlist } = await db
+    .from("watchlist_profiles")
+    .select("profile_id")
+    .eq("profile_id", profileId)
+    .in("watchlist_id", watchlistIds)
+    .limit(1)
+    .maybeSingle();
+  if (!onWatchlist) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {

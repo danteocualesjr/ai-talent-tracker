@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { sanitizeRedirectPath } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/app";
+  const next = sanitizeRedirectPath(url.searchParams.get("next"));
 
   if (!code) return NextResponse.redirect(new URL("/login", request.url));
 

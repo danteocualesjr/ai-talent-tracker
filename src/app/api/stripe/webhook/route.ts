@@ -26,14 +26,21 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      const err = await applySubscription(db, sub);
+      if (err) return err;
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
+    const { error } = await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
       .eq("stripe_customer_id", sub.customer as string);
+    if (error) {
+      console.error("[stripe] subscription deleted update failed", error);
+      return NextResponse.json({ error: "db update failed" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ received: true });
@@ -48,13 +55,22 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
-async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+async function applySubscription(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+): Promise<NextResponse | null> {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe] subscription missing price id", sub.id);
+    return NextResponse.json({ error: "missing price" }, { status: 500 });
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unknown price id", priceId, "known:", Object.keys(PRICE_PLAN_MAP));
+    return NextResponse.json({ error: "unknown price" }, { status: 500 });
+  }
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +79,9 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) {
+    console.error("[stripe] subscription update failed", error);
+    return NextResponse.json({ error: "db update failed" }, { status: 500 });
+  }
+  return null;
 }
