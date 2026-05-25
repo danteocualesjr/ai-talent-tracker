@@ -10,11 +10,18 @@ function resend(): Resend | null {
   return cached;
 }
 
+export class EmailDeliverySkipped extends Error {
+  constructor() {
+    super("RESEND_API_KEY not configured");
+    this.name = "EmailDeliverySkipped";
+  }
+}
+
 export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
   const r = resend();
   if (!r) {
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
+    throw new EmailDeliverySkipped();
   }
   await r.emails.send({ from: FROM, to, subject, html });
 }
