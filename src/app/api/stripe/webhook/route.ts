@@ -26,7 +26,9 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub && (sub.status === "active" || sub.status === "trialing")) {
+      await applySubscription(db, sub);
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -52,7 +54,10 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unknown price id on subscription", { priceId, subscriptionId: sub.id });
+    return;
+  }
 
   await db
     .from("organizations")
