@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -87,9 +89,8 @@ export const refreshProfile = inngest.createFunction(
       return data as ProfileSnapshot;
     });
 
-    // Always bump last_synced_at + reschedule.
+    // Always bump last_synced_at and profile fields from the provider.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
       await db
         .from("profiles")
         .update({
@@ -103,12 +104,29 @@ export const refreshProfile = inngest.createFunction(
           github_handle: fetched.github_handle ?? profile.github_handle,
           x_handle: fetched.x_handle ?? profile.x_handle,
           last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
         })
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    const scheduleSync = () =>
+      step.run("schedule-next-sync", () => updateNextSyncAt(db, profileId, profile));
+
+    if (!stored) {
+      await scheduleSync();
+      return { changed: false };
+    }
+
+    const isBaseline = await step.run("check-baseline", async () => {
+      const { count } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      return (count ?? 0) <= 1;
+    });
+    if (isBaseline) {
+      await scheduleSync();
+      return { changed: true, eventCreated: false };
+    }
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -122,7 +140,10 @@ export const refreshProfile = inngest.createFunction(
       x_handle: profile.x_handle,
     };
     const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+    if (diffs.length === 0) {
+      await scheduleSync();
+      return { changed: false };
+    }
 
     let classification = classifyByRules(
       diffs,
@@ -142,7 +163,10 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification) {
+      await scheduleSync();
+      return { changed: true, eventCreated: false };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
@@ -168,6 +192,8 @@ export const refreshProfile = inngest.createFunction(
     });
 
     await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
+    await scheduleSync();
+
     return { changed: true, eventCreated: true, type: classification.type };
   },
 );
@@ -183,6 +209,19 @@ export const notifyEvent = inngest.createFunction(
     return dispatchEvent(event.data.event_id);
   },
 );
+
+async function updateNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<void> {
+  const { data: current } = await db.from("profiles").select("status").eq("id", profileId).single();
+  const status = (current as Pick<Profile, "status"> | null)?.status ?? profile.status;
+  await db
+    .from("profiles")
+    .update({ next_sync_at: nextSyncAt({ ...profile, status }) })
+    .eq("id", profileId);
+}
 
 function nextSyncAt(profile: Profile): string {
   // Cadence is the *fastest* cadence among orgs watching this profile.

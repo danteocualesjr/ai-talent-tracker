@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+      .eq("stripe_customer_id", stripeCustomerId(sub));
   }
 
   return NextResponse.json({ received: true });
@@ -52,7 +52,10 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unmapped price id:", priceId);
+    return;
+  }
 
   await db
     .from("organizations")
@@ -62,5 +65,10 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", stripeCustomerId(sub));
+}
+
+function stripeCustomerId(sub: Stripe.Subscription): string {
+  const customer = sub.customer;
+  return typeof customer === "string" ? customer : customer.id;
 }

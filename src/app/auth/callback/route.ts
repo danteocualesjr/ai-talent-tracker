@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { safeRedirectPath } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -16,5 +17,5 @@ export async function GET(request: NextRequest) {
   }
   await ensureOrgForUser(data.user.id, data.user.email ?? null);
 
-  return NextResponse.redirect(new URL(next, request.url));
+  return NextResponse.redirect(new URL(safeRedirectPath(next), request.url));
 }
