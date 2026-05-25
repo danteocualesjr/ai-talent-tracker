@@ -74,3 +74,15 @@ export async function listLabProfiles(labId: string, limit = 100): Promise<Profi
     .limit(limit);
   return (data ?? []) as Profile[];
 }
+
+export async function orgWatchesProfile(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count, error } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("watchlists.org_id", orgId)
+    .eq("profile_id", profileId);
+  if (error) return false;
+  return (count ?? 0) > 0;
+}
