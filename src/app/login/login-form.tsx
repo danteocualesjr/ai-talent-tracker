@@ -1,14 +1,13 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const params = use(searchParams);
+export function LoginForm({ next }: { next: string }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,7 +18,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
     try {
       const supa = createClient();
       const origin = window.location.origin;
-      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(params.next ?? "/app")}`;
+      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
       const { error } = await supa.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
       if (error) throw error;
       setSent(true);

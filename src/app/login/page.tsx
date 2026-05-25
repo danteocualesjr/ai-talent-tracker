@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { LoginForm } from "./login-form";
+import { safeRedirectPath } from "@/lib/utils";
 
 export const metadata = { title: "Log in" };
 
-export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const { next } = await searchParams;
+  const redirectNext = safeRedirectPath(next);
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
@@ -16,7 +20,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
         <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-8">
           <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">We&apos;ll email you a magic link.</p>
-          <LoginForm searchParams={searchParams} />
+          <LoginForm next={redirectNext} />
         </div>
         <p className="mt-6 text-center text-xs text-muted-foreground">
           By signing in you agree to our{" "}
