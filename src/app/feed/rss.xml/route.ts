@@ -1,5 +1,5 @@
 import { getPublicEvents } from "@/lib/queries";
-import { siteUrl } from "@/lib/utils";
+import { escapeRssCdata, siteUrl } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -9,11 +9,11 @@ export async function GET() {
     const link = `${siteUrl()}/feed/${e.id}`;
     return `
       <item>
-        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
+        <title><![CDATA[${escapeRssCdata(e.profile.full_name || e.profile.linkedin_handle || "")} — ${escapeRssCdata(e.type.replace(/_/g, " "))}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
-        <description><![CDATA[${e.summary}]]></description>
+        <description><![CDATA[${escapeRssCdata(e.summary)}]]></description>
       </item>`;
   }).join("");
 
