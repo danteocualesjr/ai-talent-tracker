@@ -29,8 +29,9 @@ export async function addChannel(formData: FormData): Promise<void> {
     if (!r.success) return;
     config = r.data;
   } else if (type === "webhook") {
+    if (org.plan !== "team" && org.plan !== "enterprise") return;
     const r = WebhookSchema.safeParse({ url: formData.get("url"), secret: formData.get("secret") || undefined });
-    if (!r.success) return;
+    if (!r.success || !isSafeWebhookUrl(r.data.url)) return;
     config = r.data;
   } else {
     return;
@@ -51,4 +52,25 @@ export async function removeChannel(formData: FormData): Promise<void> {
   const db = createAdminClient();
   await db.from("notification_channels").delete().eq("id", id).eq("org_id", org.id);
   revalidatePath("/app/alerts");
+}
+
+function isSafeWebhookUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (!["http:", "https:"].includes(u.protocol)) return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".localhost")) return false;
+    if (host === "127.0.0.1" || host === "0.0.0.0" || host === "[::1]") return false;
+    if (host === "169.254.169.254" || host.endsWith(".internal")) return false;
+    const octets = host.split(".").map(Number);
+    if (octets.length === 4 && octets.every((n) => !Number.isNaN(n))) {
+      const [a, b] = octets;
+      if (a === 10 || a === 127) return false;
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      if (a === 192 && b === 168) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
