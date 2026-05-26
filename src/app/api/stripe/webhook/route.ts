@@ -49,12 +49,17 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  if (!["active", "trialing"].includes(sub.status)) return;
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unknown price id", priceId);
+    return;
+  }
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +68,5 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) console.error("[stripe] failed to update org", error.message);
 }
