@@ -18,6 +18,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
   const p = profile as Profile;
+  if (p.is_opted_out) notFound();
 
   const [{ data: events }, { data: snaps }] = await Promise.all([
     db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(50),
