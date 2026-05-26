@@ -61,17 +61,24 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
     const stored = await step.run("store-snapshot", async () => {
+      const { count: priorCount } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+
       const { data: existing } = await db
         .from("profile_snapshots")
         .select("id")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { snapshot: null as ProfileSnapshot | null, isBaseline: false };
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -84,12 +91,13 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return {
+        snapshot: data as ProfileSnapshot,
+        isBaseline: (priorCount ?? 0) === 0,
+      };
     });
 
-    // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
       await db
         .from("profiles")
         .update({
@@ -103,14 +111,22 @@ export const refreshProfile = inngest.createFunction(
           github_handle: fetched.github_handle ?? profile.github_handle,
           x_handle: fetched.x_handle ?? profile.x_handle,
           last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
         })
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    await step.run("schedule-next-sync", async () => {
+      const { data: current } = await db.from("profiles").select("status").eq("id", profileId).single();
+      const status = (current as { status: Profile["status"] } | null)?.status ?? profile.status;
+      const cadenceHours = await getFastestRefreshHours(db, profileId);
+      const next = nextSyncAt(status, cadenceHours);
+      await db.from("profiles").update({ next_sync_at: next }).eq("id", profileId);
+    });
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
+    if (!stored.snapshot) return { changed: false };
+    if (stored.isBaseline) return { changed: true, eventCreated: false, baseline: true };
+
+    // Diff vs profile row before this refresh (prior synced state).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
       headline: profile.headline,
@@ -184,9 +200,38 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<string, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
+
+async function getFastestRefreshHours(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+): Promise<number> {
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let minHours = CADENCE_HOURS.weekly;
+  for (const row of data ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] } })
+      .watchlists;
+    if (!wl) continue;
+    const org = Array.isArray((wl as { organizations?: unknown }).organizations)
+      ? (wl as { organizations: { refresh_cadence?: string }[] }).organizations[0]
+      : (wl as { organizations?: { refresh_cadence?: string } }).organizations;
+    const cadence = org?.refresh_cadence ?? "weekly";
+    const hours = CADENCE_HOURS[cadence] ?? CADENCE_HOURS.weekly;
+    if (hours < minHours) minHours = hours;
+  }
+  return minHours;
+}
+
+function nextSyncAt(status: Profile["status"], cadenceHours: number): string {
+  const hours =
+    status === "left" || status === "stealth" ? Math.min(6, cadenceHours) : cadenceHours;
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }

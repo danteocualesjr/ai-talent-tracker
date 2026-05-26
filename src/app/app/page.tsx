@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Activity, AlertTriangle, Bell, Plus, Sparkles, TrendingUp, Users2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import { getOrgEvents, listOrgProfiles } from "@/lib/queries";
+import { countOrgEventsLast30Days, getOrgEvents, listOrgProfiles } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
@@ -16,13 +16,16 @@ export default async function DashboardPage() {
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
 
-  const [events, profiles] = await Promise.all([getOrgEvents(org.id, 20), listOrgProfiles(org.id)]);
+  const [events, profiles, last30] = await Promise.all([
+    getOrgEvents(org.id, 20),
+    listOrgProfiles(org.id),
+    countOrgEventsLast30Days(org.id),
+  ]);
   const plan = PLAN_DETAILS[org.plan];
 
   const stealth = profiles.filter((p) => p.status === "stealth").length;
   const founders = profiles.filter((p) => p.status === "founder").length;
   const left = profiles.filter((p) => p.status === "left").length;
-  const last30 = events.filter((e) => new Date(e.detected_at).getTime() > Date.now() - 30 * 86400000).length;
 
   return (
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
