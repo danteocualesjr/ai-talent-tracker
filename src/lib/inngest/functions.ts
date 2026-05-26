@@ -22,7 +22,7 @@ export const scheduleRefreshes = inngest.createFunction(
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${new Date().toISOString()}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -61,17 +61,26 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
     const stored = await step.run("store-snapshot", async () => {
+      const { data: priorSnapshot } = await db
+        .from("profile_snapshots")
+        .select("id")
+        .eq("profile_id", profileId)
+        .limit(1)
+        .maybeSingle();
+
       const { data: existing } = await db
         .from("profile_snapshots")
         .select("id")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { snapshot: null as ProfileSnapshot | null, isFirstSnapshot: !priorSnapshot };
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -84,8 +93,11 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { snapshot: data as ProfileSnapshot, isFirstSnapshot: !priorSnapshot };
     });
+
+    const snapshot = stored.snapshot;
+    const isFirstSnapshot = stored.isFirstSnapshot;
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
@@ -108,7 +120,10 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    if (!snapshot) return { changed: false };
+
+    // Skip diff/events on the initial snapshot — avoids false positives on add.
+    if (isFirstSnapshot) return { changed: true, eventCreated: false, reason: "first_snapshot" };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
