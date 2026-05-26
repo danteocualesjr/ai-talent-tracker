@@ -54,13 +54,34 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const updates = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+    stripe_customer_id: sub.customer as string,
+  };
+
+  const customerId = sub.customer as string;
+  const { data: byCustomer, error: custErr } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(updates)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if (custErr) {
+    console.error("[stripe webhook] update by customer failed", custErr);
+    return;
+  }
+  if (byCustomer?.length) return;
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (customer.deleted) return;
+  const orgId = customer.metadata?.org_id;
+  if (!orgId) {
+    console.warn("[stripe webhook] no org matched for customer", customerId);
+    return;
+  }
+
+  const { error: orgErr } = await db.from("organizations").update(updates).eq("id", orgId);
+  if (orgErr) console.error("[stripe webhook] update by org_id failed", orgErr);
 }

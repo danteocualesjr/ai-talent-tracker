@@ -5,7 +5,13 @@ import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
 
 export async function POST(req: NextRequest) {
-  const { priceId } = (await req.json()) as { priceId?: string };
+  let body: { priceId?: string };
+  try {
+    body = (await req.json()) as { priceId?: string };
+  } catch {
+    return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
+  const { priceId } = body;
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
 
   const supa = await createClient();
@@ -22,7 +28,14 @@ export async function POST(req: NextRequest) {
     });
     customerId = customer.id;
     const admin = (await import("@/lib/supabase/server")).createAdminClient();
-    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", org.id);
+    const { error: custErr } = await admin
+      .from("organizations")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", org.id);
+    if (custErr) {
+      console.error("[checkout] failed to save stripe_customer_id", custErr);
+      return NextResponse.json({ error: "could not save billing profile" }, { status: 500 });
+    }
   }
 
   const session = await stripe.checkout.sessions.create({
