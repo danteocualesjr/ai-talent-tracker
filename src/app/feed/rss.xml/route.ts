@@ -1,19 +1,29 @@
 import { getPublicEvents } from "@/lib/queries";
 import { siteUrl } from "@/lib/utils";
+import type { Profile } from "@/types/db";
 
 export const revalidate = 300;
+
+function cdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+function profileLabel(p: Profile): string {
+  return p.full_name || p.linkedin_handle || p.linkedin_url || "Unknown profile";
+}
 
 export async function GET() {
   const events = await getPublicEvents(50);
   const items = events.map((e) => {
     const link = `${siteUrl()}/feed/${e.id}`;
+    const title = `${profileLabel(e.profile)} — ${e.type.replace(/_/g, " ")}`;
     return `
       <item>
-        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
+        <title><![CDATA[${cdata(title)}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
-        <description><![CDATA[${e.summary}]]></description>
+        <description><![CDATA[${cdata(e.summary)}]]></description>
       </item>`;
   }).join("");
 

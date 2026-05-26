@@ -30,6 +30,10 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .insert({ name: email ? `${email.split("@")[0]}'s workspace` : "My workspace", slug })
     .select("*")
     .single();
+  if (error?.code === "23505") {
+    const existing = await getOrgForUser(userId);
+    if (existing) return existing;
+  }
   if (error || !org) throw error ?? new Error("failed to create org");
   const orgRow = org as Organization;
 
