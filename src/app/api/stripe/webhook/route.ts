@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
+import { stripe, PRICE_PLAN_MAP, stripeResourceId, subscriptionGrantsPlan } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -26,14 +26,17 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (subscriptionGrantsPlan(sub)) {
+        await applySubscription(db, sub);
+      } else {
+        await clearSubscriptionPlan(db, sub);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    await clearSubscriptionPlan(db, sub);
   }
 
   return NextResponse.json({ received: true });
@@ -42,8 +45,9 @@ export async function POST(req: NextRequest) {
 async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscription | null> {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    if (!session.subscription) return null;
-    return await stripe.subscriptions.retrieve(session.subscription as string);
+    const subId = stripeResourceId(session.subscription);
+    if (!subId) return null;
+    return await stripe.subscriptions.retrieve(subId);
   }
   return event.data.object as Stripe.Subscription;
 }
@@ -54,7 +58,10 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const customerId = stripeResourceId(sub.customer);
+  if (!customerId) return;
+
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +69,20 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe webhook] applySubscription failed", error);
+}
+
+async function clearSubscriptionPlan(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+) {
+  const customerId = stripeResourceId(sub.customer);
+  if (!customerId) return;
+
+  const { error } = await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe webhook] clearSubscriptionPlan failed", error);
 }

@@ -7,6 +7,20 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_place
   typescript: true,
 });
 
+/** Normalize Stripe expandable ID fields (string or expanded object). */
+export function stripeResourceId(
+  value: string | { id: string } | null | undefined,
+): string | null {
+  if (value == null) return null;
+  return typeof value === "string" ? value : value.id;
+}
+
+const PAID_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
+export function subscriptionGrantsPlan(sub: Stripe.Subscription): boolean {
+  return PAID_SUBSCRIPTION_STATUSES.has(sub.status);
+}
+
 export const PRICE_PLAN_MAP: Record<string, { plan: Plan; profile_limit: number; cadence: "weekly" | "daily" | "hourly" }> = {
   [process.env.STRIPE_PRICE_PRO || "price_pro"]:   { plan: "pro",  profile_limit: 100,  cadence: "daily"  },
   [process.env.STRIPE_PRICE_TEAM || "price_team"]: { plan: "team", profile_limit: 1000, cadence: "hourly" },
