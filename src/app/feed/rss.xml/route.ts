@@ -5,11 +5,12 @@ export const revalidate = 300;
 
 export async function GET() {
   const events = await getPublicEvents(50);
-  const items = events.map((e) => {
+  const items = events.filter((e) => e.profile).map((e) => {
+    const profile = e.profile!;
     const link = `${siteUrl()}/feed/${e.id}`;
     return `
       <item>
-        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
+        <title><![CDATA[${profile.full_name || profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>

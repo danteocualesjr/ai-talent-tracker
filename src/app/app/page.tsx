@@ -67,7 +67,9 @@ export default async function DashboardPage() {
             cta={<Button asChild><Link href="/app/watchlist">Add profiles</Link></Button>}
           />
         ) : (
-          events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
+          events
+            .filter((e): e is typeof e & { profile: NonNullable<typeof e.profile> } => Boolean(e.profile))
+            .map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
         )}
       </Panel>
 

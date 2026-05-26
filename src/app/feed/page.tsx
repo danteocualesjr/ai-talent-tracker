@@ -56,7 +56,9 @@ export default async function PublicFeedPage() {
                 body="We're indexing the first departures. Check back soon or subscribe via RSS."
               />
             ) : (
-              events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} href={`/feed/${e.id}`} />)
+              events
+                .filter((e): e is typeof e & { profile: NonNullable<typeof e.profile> } => Boolean(e.profile))
+                .map((e) => <EventListItem key={e.id} event={e} profile={e.profile} href={`/feed/${e.id}`} />)
             )}
           </Panel>
         </section>
