@@ -20,13 +20,14 @@ export async function POST(req: NextRequest) {
 
   const db = createAdminClient();
 
-  if (
-    event.type === "checkout.session.completed" ||
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.created"
-  ) {
+  if (event.type === "checkout.session.completed") {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub && isActiveSubscription(sub)) await applySubscription(db, sub);
+  }
+  if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.created") {
+    const sub = event.data.object as Stripe.Subscription;
+    if (isActiveSubscription(sub)) await applySubscription(db, sub);
+    else await downgradeCustomer(db, sub.customer as string, sub.id);
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -46,6 +47,24 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
     return await stripe.subscriptions.retrieve(session.subscription as string);
   }
   return event.data.object as Stripe.Subscription;
+}
+
+const ACTIVE_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
+function isActiveSubscription(sub: Stripe.Subscription): boolean {
+  return ACTIVE_STATUSES.has(sub.status);
+}
+
+async function downgradeCustomer(
+  db: ReturnType<typeof createAdminClient>,
+  customerId: string,
+  subscriptionId: string,
+) {
+  await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", customerId)
+    .eq("stripe_subscription_id", subscriptionId);
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {

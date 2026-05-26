@@ -54,7 +54,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         href={profile.linkedin_url}
         target="_blank"
         rel="noreferrer noopener"
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-0 shadow-sm transition-all hover:border-foreground/20 hover:text-foreground group-hover:opacity-100"
+        className="inline-flex shrink-0 items-center gap-1 self-center rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-100 shadow-sm transition-all hover:border-foreground/20 hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>

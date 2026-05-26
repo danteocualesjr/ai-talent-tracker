@@ -95,7 +95,7 @@ export default async function WatchlistPage() {
                     Last synced {formatRelative(p.last_synced_at)} · {p.current_company ?? "no current company"}
                   </p>
                 </div>
-                <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                   <form action={refreshNowForm}>
                     <input type="hidden" name="profile_id" value={p.id} />
                     <Button variant="ghost" size="icon" title="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
