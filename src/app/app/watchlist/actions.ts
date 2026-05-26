@@ -50,10 +50,11 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
   const watchlistRow = wl as Watchlist;
 
-  await db.from("watchlist_profiles").upsert(
+  const { error: linkErr } = await db.from("watchlist_profiles").upsert(
     { watchlist_id: watchlistRow.id, profile_id: profileRow.id, added_by: user.id },
     { onConflict: "watchlist_id,profile_id" },
   );
+  if (linkErr) return { error: linkErr.message };
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
@@ -88,6 +89,25 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return;
+
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("*", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .in("watchlist_id", ids);
+  if ((count ?? 0) === 0) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
