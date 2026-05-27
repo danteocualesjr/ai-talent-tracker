@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    const orgId =
+      event.type === "checkout.session.completed"
+        ? (event.data.object as Stripe.Checkout.Session).metadata?.org_id
+        : undefined;
+    if (sub) await applySubscription(db, sub, orgId);
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -48,19 +52,32 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
-async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+async function applySubscription(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+  orgIdFromSession?: string,
+) {
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+    stripe_customer_id: sub.customer as string,
+  };
+
+  const byCustomer = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(payload)
+    .eq("stripe_customer_id", sub.customer as string)
+    .select("id");
+  if ((byCustomer.data ?? []).length > 0) return;
+
+  if (orgIdFromSession) {
+    await db.from("organizations").update(payload).eq("id", orgIdFromSession);
+  }
 }
