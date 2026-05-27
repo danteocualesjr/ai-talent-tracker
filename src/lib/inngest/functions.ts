@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -83,7 +85,11 @@ export const refreshProfile = inngest.createFunction(
         })
         .select("*")
         .single();
-      if (error) throw error;
+      if (error) {
+        // Concurrent refreshes can race on the same content hash.
+        if (error.code === "23505") return null;
+        throw error;
+      }
       return data as ProfileSnapshot;
     });
 
@@ -109,6 +115,13 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First snapshot is baseline only — avoid false alerts from empty profile rows.
+    const { count: snapshotCount } = await db
+      .from("profile_snapshots")
+      .select("*", { count: "exact", head: true })
+      .eq("profile_id", profileId);
+    if ((snapshotCount ?? 0) <= 1) return { changed: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
