@@ -6,6 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
+import { computeNextSyncAt } from "@/lib/refresh-schedule";
 import type { Profile, ProfileSnapshot } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
@@ -19,10 +20,11 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const iso = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .select("id, watchlist_profiles!inner(profile_id)")
+        .or(`next_sync_at.lte."${iso}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -61,6 +63,10 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) {
+      return { optedOut: true };
+    }
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -87,9 +93,7 @@ export const refreshProfile = inngest.createFunction(
       return data as ProfileSnapshot;
     });
 
-    // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
       await db
         .from("profiles")
         .update({
@@ -103,72 +107,86 @@ export const refreshProfile = inngest.createFunction(
           github_handle: fetched.github_handle ?? profile.github_handle,
           x_handle: fetched.x_handle ?? profile.x_handle,
           last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
         })
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    let outcome: Record<string, unknown> = { changed: false };
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
-    const prev: Partial<ProviderProfile> = {
-      full_name: profile.full_name,
-      headline: profile.headline,
-      current_company: profile.current_company,
-      current_title: profile.current_title,
-      location: profile.location,
-      about: profile.about,
-      github_handle: profile.github_handle,
-      x_handle: profile.x_handle,
-    };
-    const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
-
-    let classification = classifyByRules(
-      diffs,
-      { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
-    );
-
-    // Escalate ambiguous results to the LLM.
-    if (!classification || classification.confidence < 0.6) {
-      const llm = await step.run("llm-classify", async () =>
-        classifyWithLLM({
+    if (!stored) {
+      outcome = { changed: false };
+    } else {
+      const prev: Partial<ProviderProfile> = {
+        full_name: profile.full_name,
+        headline: profile.headline,
+        current_company: profile.current_company,
+        current_title: profile.current_title,
+        location: profile.location,
+        about: profile.about,
+        github_handle: profile.github_handle,
+        x_handle: profile.x_handle,
+      };
+      const diffs = diffProfiles(prev, fetched);
+      if (diffs.length === 0) {
+        outcome = { changed: false };
+      } else {
+        let classification = classifyByRules(
           diffs,
-          prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
-        }),
-      );
-      if (llm) classification = llm;
+          { current_company: profile.current_company, headline: profile.headline },
+          { current_company: fetched.current_company, headline: fetched.headline },
+        );
+
+        if (!classification || classification.confidence < 0.6) {
+          const llm = await step.run("llm-classify", async () =>
+            classifyWithLLM({
+              diffs,
+              prev: prev as Record<string, string | null>,
+              next: fetched as unknown as Record<string, string | null>,
+            }),
+          );
+          if (llm) classification = llm;
+        }
+
+        if (!classification) {
+          outcome = { changed: true, eventCreated: false };
+        } else {
+          const eventRow = await step.run("persist-event", async () => {
+            const { data, error } = await db
+              .from("events")
+              .insert({
+                profile_id: profileId,
+                type: classification!.type,
+                confidence: classification!.confidence,
+                summary: classification!.summary,
+                before: prev as object,
+                after: fetched as unknown as object,
+                is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
+                  && classification!.confidence >= 0.7,
+              })
+              .select("*")
+              .single();
+            if (error) throw error;
+
+            if (classification!.status) {
+              await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+            }
+            return data;
+          });
+
+          await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
+          outcome = { changed: true, eventCreated: true, type: classification.type };
+        }
+      }
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
-
-    const eventRow = await step.run("persist-event", async () => {
-      const { data, error } = await db
-        .from("events")
-        .insert({
-          profile_id: profileId,
-          type: classification!.type,
-          confidence: classification!.confidence,
-          summary: classification!.summary,
-          before: prev as object,
-          after: fetched as unknown as object,
-          is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
-            && classification!.confidence >= 0.7,
-        })
-        .select("*")
-        .single();
-      if (error) throw error;
-
-      if (classification!.status) {
-        await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
-      }
-      return data;
+    await step.run("schedule-next-sync", async () => {
+      const { data: current } = await db.from("profiles").select("id, status").eq("id", profileId).single();
+      if (!current) return;
+      const next = await computeNextSyncAt(db, current as Pick<Profile, "id" | "status">);
+      await db.from("profiles").update({ next_sync_at: next }).eq("id", profileId);
     });
 
-    await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
-    return { changed: true, eventCreated: true, type: classification.type };
+    return outcome;
   },
 );
 
@@ -183,10 +201,3 @@ export const notifyEvent = inngest.createFunction(
     return dispatchEvent(event.data.event_id);
   },
 );
-
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
-}
