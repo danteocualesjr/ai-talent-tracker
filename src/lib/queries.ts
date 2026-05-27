@@ -16,6 +16,17 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
   }));
 }
 
+export async function orgWatchesProfile(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId);
+  return (count ?? 0) > 0;
+}
+
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -27,14 +38,22 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
   if (ids.length === 0) return [];
 
-  const { data } = await db
-    .from("events")
-    .select("*, profile:profiles(*)")
-    .in("profile_id", ids)
-    .order("detected_at", { ascending: false })
-    .limit(limit);
+  const results: (EventRow & { profile: Profile })[] = [];
+  const chunkSize = 80;
+  for (let i = 0; i < ids.length && results.length < limit; i += chunkSize) {
+    const chunk = ids.slice(i, i + chunkSize);
+    const { data } = await db
+      .from("events")
+      .select("*, profile:profiles(*)")
+      .in("profile_id", chunk)
+      .order("detected_at", { ascending: false })
+      .limit(limit - results.length);
+    results.push(...((data ?? []) as unknown as (EventRow & { profile: Profile })[]));
+  }
 
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return results
+    .sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime())
+    .slice(0, limit);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {

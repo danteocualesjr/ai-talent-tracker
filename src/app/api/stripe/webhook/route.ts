@@ -54,13 +54,37 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+  const { data: byCustomer, error: customerErr } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(payload)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if (customerErr) {
+    console.error("[stripe] org update failed", customerErr);
+    throw customerErr;
+  }
+  if ((byCustomer ?? []).length > 0) return;
+
+  const orgId = sub.metadata?.org_id;
+  if (!orgId) {
+    console.error("[stripe] no org matched for customer", customerId);
+    return;
+  }
+
+  const { data: byOrg, error: orgErr } = await db.from("organizations").update(payload).eq("id", orgId).select("id");
+  if (orgErr) {
+    console.error("[stripe] org metadata update failed", orgErr);
+    throw orgErr;
+  }
+  if ((byOrg ?? []).length === 0) {
+    console.error("[stripe] org metadata id not found", orgId);
+  }
 }

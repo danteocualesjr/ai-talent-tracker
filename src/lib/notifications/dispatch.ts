@@ -49,22 +49,49 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: prior } = await db
+      .from("notification_deliveries")
+      .select("id, status")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (prior?.status === "sent") {
+      dispatched++;
+      continue;
+    }
+
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
-      });
+      if (prior) {
+        await db
+          .from("notification_deliveries")
+          .update({
+            status: "sent",
+            error: null,
+            delivered_at: new Date().toISOString(),
+          })
+          .eq("id", prior.id);
+      } else {
+        await db.from("notification_deliveries").insert({
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "sent",
+          delivered_at: new Date().toISOString(),
+        });
+      }
       dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
+      const message = e instanceof Error ? e.message : String(e);
+      if (prior) {
+        await db.from("notification_deliveries").update({ status: "failed", error: message }).eq("id", prior.id);
+      } else {
+        await db.from("notification_deliveries").insert({
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "failed",
+          error: message,
+        });
+      }
     }
   }
   return { dispatched };

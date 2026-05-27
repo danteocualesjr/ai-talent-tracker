@@ -41,3 +41,35 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Reject open redirects; only allow same-origin relative paths. */
+export function safeRedirectPath(next: string | null | undefined): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/app";
+  if (next.includes("\\") || next.includes("\0")) return "/app";
+  return next;
+}
+
+const BLOCKED_WEBHOOK_HOSTS = new Set([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "[::1]",
+  "metadata.google.internal",
+]);
+
+/** Block SSRF-prone webhook targets (private/reserved hosts). */
+export function isSafeWebhookUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (BLOCKED_WEBHOOK_HOSTS.has(host)) return false;
+    if (host.endsWith(".local") || host.endsWith(".internal")) return false;
+    if (/^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host)) return false;
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false;
+    if (/^169\.254\./.test(host) || host === "metadata.google.internal") return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
