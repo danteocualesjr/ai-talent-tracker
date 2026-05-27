@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,6 +61,10 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
+    const isBaselineSync = profile.last_synced_at === null;
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,14 +93,14 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await nextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -109,6 +113,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First sync establishes a baseline — skip event creation to avoid false positives.
+    if (isBaselineSync) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -132,13 +139,18 @@ export const refreshProfile = inngest.createFunction(
 
     // Escalate ambiguous results to the LLM.
     if (!classification || classification.confidence < 0.6) {
-      const llm = await step.run("llm-classify", async () =>
-        classifyWithLLM({
-          diffs,
-          prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
-        }),
-      );
+      const llm = await step.run("llm-classify", async () => {
+        try {
+          return await classifyWithLLM({
+            diffs,
+            prev: prev as Record<string, string | null>,
+            next: fetched as unknown as Record<string, string | null>,
+          });
+        } catch (e) {
+          console.warn("[llm] classification failed", e);
+          return null;
+        }
+      });
       if (llm) classification = llm;
     }
 
@@ -184,9 +196,38 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let fastestHours = CADENCE_HOURS.weekly;
+  for (const row of watchers ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null }).watchlists;
+    const watchlist = Array.isArray(wl) ? wl[0] : wl;
+    const org = watchlist?.organizations;
+    const orgRow = Array.isArray(org) ? org[0] : org;
+    const cadence = orgRow?.refresh_cadence;
+    if (cadence && CADENCE_HOURS[cadence] < fastestHours) {
+      fastestHours = CADENCE_HOURS[cadence];
+    }
+  }
+
+  // Left/stealth profiles get checked more often regardless of plan.
+  if (profile.status === "left" || profile.status === "stealth") {
+    fastestHours = Math.min(fastestHours, 6);
+  }
+
+  return new Date(Date.now() + fastestHours * 60 * 60 * 1000).toISOString();
 }
