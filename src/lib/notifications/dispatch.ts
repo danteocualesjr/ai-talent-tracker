@@ -49,22 +49,34 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: priorSent } = await db
+      .from("notification_deliveries")
+      .select("id")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .eq("status", "sent")
+      .maybeSingle();
+    if (priorSent) continue;
+
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
+      const { error: sentErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status: "sent",
         delivered_at: new Date().toISOString(),
       });
+      if (sentErr) throw sentErr;
       dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
+      const { error: failErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status: "failed",
         error: e instanceof Error ? e.message : String(e),
       });
+      if (failErr) throw failErr;
+      throw e;
     }
   }
   return { dispatched };

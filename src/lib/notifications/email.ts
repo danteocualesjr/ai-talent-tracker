@@ -1,5 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
+import { isSafeHttpsUrl } from "@/lib/utils";
 
 const FROM = process.env.RESEND_FROM || "AI Talent Tracker <alerts@example.com>";
 
@@ -13,10 +14,10 @@ function resend(): Resend | null {
 export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
   const r = resend();
   if (!r) {
-    console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
+    throw new Error("RESEND_API_KEY is not configured");
   }
-  await r.emails.send({ from: FROM, to, subject, html });
+  const { error } = await r.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(error.message);
 }
 
 export function renderEventEmail(args: {
@@ -27,13 +28,14 @@ export function renderEventEmail(args: {
   detectedAt: string;
 }): { subject: string; html: string } {
   const subject = `[Tracker] ${args.name} — ${labelFor(args.type)}`;
+  const linkedInHref = isSafeHttpsUrl(args.linkedinUrl) ? args.linkedinUrl : "#";
   const html = `
     <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px;margin:auto;padding:24px">
       <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666">${labelFor(args.type)}</div>
       <h2 style="margin:8px 0 16px">${escapeHtml(args.name)}</h2>
       <p style="font-size:15px;line-height:1.5">${escapeHtml(args.summary)}</p>
       <p style="margin-top:24px">
-        <a href="${args.linkedinUrl}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
+        <a href="${linkedInHref}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
       </p>
       <p style="color:#888;font-size:12px;margin-top:32px">Detected ${args.detectedAt}</p>
     </div>`;
