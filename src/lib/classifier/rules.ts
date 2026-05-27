@@ -93,14 +93,8 @@ export function classifyByRules(
         summary: `Moved from ${left} to ${joined}.`,
       };
     }
-    if (!left && joined) {
-      return {
-        type: "joined_company",
-        confidence: 0.6,
-        status: "active",
-        summary: `Joined ${joined}.`,
-      };
-    }
+    // Skip initial population (no prior company on record) — not a job change.
+    if (!left && joined) return null;
   }
 
   if (headlineChanged) {

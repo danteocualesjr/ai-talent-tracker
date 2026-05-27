@@ -5,7 +5,13 @@ import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
 
 export async function POST(req: NextRequest) {
-  const { priceId } = (await req.json()) as { priceId?: string };
+  let priceId: string | undefined;
+  try {
+    const body = (await req.json()) as { priceId?: string };
+    priceId = body.priceId;
+  } catch {
+    return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
   if (!PRICE_PLAN_MAP[priceId]) {
     return NextResponse.json({ error: "invalid priceId" }, { status: 400 });

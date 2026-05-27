@@ -25,10 +25,12 @@ export async function addChannel(formData: FormData): Promise<void> {
     if (!r.success) return;
     config = r.data;
   } else if (type === "slack") {
+    if (org.plan === "free") return;
     const r = SlackSchema.safeParse({ webhook_url: formData.get("webhook_url") });
     if (!r.success) return;
     config = r.data;
   } else if (type === "webhook") {
+    if (org.plan !== "team" && org.plan !== "enterprise") return;
     const r = WebhookSchema.safeParse({ url: formData.get("url"), secret: formData.get("secret") || undefined });
     if (!r.success) return;
     config = r.data;

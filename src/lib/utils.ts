@@ -44,8 +44,18 @@ export function siteUrl(): string {
 
 /** Reject protocol-relative and absolute URLs to prevent open redirects after auth. */
 export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
+  if (!next) return fallback;
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
+  try {
+    const decoded = decodeURIComponent(next);
+    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.includes("\\")) return fallback;
+  } catch {
     return fallback;
   }
   return next;
+}
+
+/** Escape text embedded in RSS CDATA sections (breaks feed if raw `]]>` appears). */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
 }

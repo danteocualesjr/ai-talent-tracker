@@ -33,7 +33,7 @@ export function renderEventEmail(args: {
       <h2 style="margin:8px 0 16px">${escapeHtml(args.name)}</h2>
       <p style="font-size:15px;line-height:1.5">${escapeHtml(args.summary)}</p>
       <p style="margin-top:24px">
-        <a href="${args.linkedinUrl}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
+        <a href="${escapeHtml(args.linkedinUrl)}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
       </p>
       <p style="color:#888;font-size:12px;margin-top:32px">Detected ${args.detectedAt}</p>
     </div>`;
