@@ -41,3 +41,38 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths for post-login redirects. */
+export function safeRedirectPath(next: string | null | undefined): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
+    return "/app";
+  }
+  return next;
+}
+
+/** Prevent CDATA terminator sequences from breaking RSS XML. */
+export function escapeRssCdata(value: string): string {
+  return value.replace(/\]\]>/g, "]]]]><![CDATA[>");
+}
+
+/** Block webhook URLs that target private/internal networks (SSRF mitigation). */
+export function isSafeWebhookUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    if (!["https:", "http:"].includes(url.protocol)) return false;
+    if (process.env.NODE_ENV === "production" && url.protocol !== "https:") return false;
+
+    const hostname = url.hostname.toLowerCase();
+    if (hostname === "localhost" || hostname.endsWith(".localhost")) return false;
+    if (hostname === "127.0.0.1" || hostname === "::1" || hostname === "0.0.0.0") return false;
+    if (hostname === "169.254.169.254" || hostname.startsWith("169.254.")) return false;
+    if (/^10\./.test(hostname)) return false;
+    if (/^192\.168\./.test(hostname)) return false;
+    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname)) return false;
+    if (hostname.startsWith("[") && /^(fc|fd|fe80)/i.test(hostname)) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { safeRedirectPath } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function CheckoutButton({ priceId, label }: { priceId: string; label: string }) {
@@ -16,7 +17,7 @@ export function CheckoutButton({ priceId, label }: { priceId: string; label: str
         body: JSON.stringify({ priceId }),
       });
       if (res.status === 401) {
-        window.location.href = `/login?next=${encodeURIComponent("/pricing")}`;
+        window.location.href = `/login?next=${encodeURIComponent(safeRedirectPath("/pricing"))}`;
         return;
       }
       const data = (await res.json()) as { url?: string; error?: string };

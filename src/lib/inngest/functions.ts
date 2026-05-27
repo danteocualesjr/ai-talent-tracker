@@ -19,14 +19,16 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
+        .from("watchlist_profiles")
+        .select("profile_id, profiles!inner(id, next_sync_at, is_opted_out)")
+        .or(`profiles.next_sync_at.lte.${now},profiles.next_sync_at.is.null`)
+        .eq("profiles.is_opted_out", false)
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as { id: string }[];
+      const ids = Array.from(new Set(((data ?? []) as { profile_id: string }[]).map((r) => r.profile_id)));
+      return ids.map((id) => ({ id }));
     });
 
     if (due.length === 0) return { refreshed: 0 };

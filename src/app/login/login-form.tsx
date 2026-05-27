@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { safeRedirectPath } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
@@ -19,7 +20,8 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
     try {
       const supa = createClient();
       const origin = window.location.origin;
-      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(params.next ?? "/app")}`;
+      const next = safeRedirectPath(params.next);
+      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
       const { error } = await supa.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
       if (error) throw error;
       setSent(true);
