@@ -16,6 +16,8 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
   }));
 }
 
+const PROFILE_ID_BATCH = 100;
+
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -27,14 +29,22 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
   if (ids.length === 0) return [];
 
-  const { data } = await db
-    .from("events")
-    .select("*, profile:profiles(*)")
-    .in("profile_id", ids)
-    .order("detected_at", { ascending: false })
-    .limit(limit);
+  const merged: (EventRow & { profile: Profile })[] = [];
+  for (let i = 0; i < ids.length; i += PROFILE_ID_BATCH) {
+    const batch = ids.slice(i, i + PROFILE_ID_BATCH);
+    const { data } = await db
+      .from("events")
+      .select("*, profile:profiles(*)")
+      .in("profile_id", batch)
+      .order("detected_at", { ascending: false })
+      .limit(limit);
+    merged.push(...((data ?? []) as unknown as (EventRow & { profile: Profile })[]));
+  }
 
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  merged.sort(
+    (a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime(),
+  );
+  return merged.slice(0, limit);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
