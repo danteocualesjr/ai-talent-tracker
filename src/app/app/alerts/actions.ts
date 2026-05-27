@@ -36,6 +36,9 @@ export async function addChannel(formData: FormData): Promise<void> {
     return;
   }
 
+  if (type === "slack" && org.plan === "free") return;
+  if (type === "webhook" && org.plan !== "team" && org.plan !== "enterprise") return;
+
   await db.from("notification_channels").insert({ org_id: org.id, type, config: config as object });
   revalidatePath("/app/alerts");
 }

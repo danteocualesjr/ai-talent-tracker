@@ -65,6 +65,7 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
         status: "failed",
         error: e instanceof Error ? e.message : String(e),
       });
+      throw e;
     }
   }
   return { dispatched };
