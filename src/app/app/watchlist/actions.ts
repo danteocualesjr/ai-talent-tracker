@@ -6,6 +6,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
+import { isProfileOnOrgWatchlist } from "@/lib/watchlist-access";
 import type { Profile, Watchlist } from "@/types/db";
 
 const AddSchema = z.object({ linkedin_url: z.string().min(1) });
@@ -88,6 +89,16 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+  const onWatchlist = await isProfileOnOrgWatchlist(db, org.id, profileId);
+  if (!onWatchlist) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {

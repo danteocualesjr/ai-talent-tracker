@@ -42,8 +42,9 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
+    .eq("profiles.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
@@ -70,6 +71,7 @@ export async function listLabProfiles(labId: string, limit = 100): Promise<Profi
     .from("profiles")
     .select("*")
     .eq("current_company_lab_id", labId)
+    .eq("is_opted_out", false)
     .order("status")
     .limit(limit);
   return (data ?? []) as Profile[];

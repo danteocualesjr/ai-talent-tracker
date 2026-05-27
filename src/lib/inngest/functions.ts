@@ -19,9 +19,15 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: watched, error: watchErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = Array.from(new Set((watched ?? []).map((w) => w.profile_id)));
+      if (watchedIds.length === 0) return [];
+
       const { data, error } = await db
         .from("profiles")
         .select("id")
+        .in("id", watchedIds)
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -58,8 +64,12 @@ export const refreshProfile = inngest.createFunction(
     const profile = await step.run("load-profile", async () => {
       const { data, error } = await db.from("profiles").select("*").eq("id", profileId).single();
       if (error) throw error;
-      return data as Profile;
+      const row = data as Profile;
+      if (row.is_opted_out) return null;
+      return row;
     });
+
+    if (!profile) return { changed: false, skipped: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -95,8 +105,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
