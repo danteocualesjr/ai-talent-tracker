@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,30 +61,27 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
         .select("id")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return;
 
-      const { data, error } = await db
-        .from("profile_snapshots")
-        .insert({
-          profile_id: profileId,
-          source: provider.name,
-          raw: fetched.raw as object,
-          content_hash: hash,
-        })
-        .select("*")
-        .single();
+      const { error } = await db.from("profile_snapshots").insert({
+        profile_id: profileId,
+        source: provider.name,
+        raw: fetched.raw as object,
+        content_hash: hash,
+      });
       if (error) throw error;
-      return data as ProfileSnapshot;
     });
 
     // Always bump last_synced_at + reschedule.
@@ -95,8 +92,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -107,8 +104,6 @@ export const refreshProfile = inngest.createFunction(
         })
         .eq("id", profileId);
     });
-
-    if (!stored) return { changed: false };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { orgWatchesProfile } from "@/lib/queries";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -37,8 +38,19 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
-    if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
-    profile = ins.data;
+    if (ins.error) {
+      if (ins.error.code === "23505") {
+        const { data: existing } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+        if (!existing) return { error: "Profile exists but could not be loaded." };
+        profile = existing;
+      } else {
+        return { error: ins.error.message ?? "Insert failed" };
+      }
+    } else if (!ins.data) {
+      return { error: "Insert failed" };
+    } else {
+      profile = ins.data;
+    }
   }
   const profileRow = profile as Profile;
 
@@ -88,6 +100,14 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await orgWatchesProfile(org.id, profileId))) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
