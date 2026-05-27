@@ -2,10 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 
+/** Only allow same-site relative paths (blocks open redirects via `//evil.com`). */
+function safeRedirectPath(next: string | null): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/app";
+  return next;
+}
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/app";
+  const next = safeRedirectPath(url.searchParams.get("next"));
 
   if (!code) return NextResponse.redirect(new URL("/login", request.url));
 
