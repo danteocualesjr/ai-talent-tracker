@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -109,6 +111,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First sync establishes a baseline — skip event creation to avoid false alerts.
+    if (!profile.last_synced_at) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
