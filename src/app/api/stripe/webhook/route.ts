@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, secret);
-  } catch (e) {
-    return NextResponse.json({ error: `invalid signature: ${(e as Error).message}` }, { status: 400 });
+  } catch {
+    return NextResponse.json({ error: "invalid signature" }, { status: 400 });
   }
 
   const db = createAdminClient();
@@ -49,6 +49,8 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  if (!["active", "trialing"].includes(sub.status)) return;
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
