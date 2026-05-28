@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,14 +91,14 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await nextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -184,9 +186,35 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<string, number> = {
+  hourly: 1,
+  daily: 24,
+  weekly: 24 * 7,
+};
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: rows } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let hours = CADENCE_HOURS.weekly;
+  for (const row of rows ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: string } | null } | null })
+      .watchlists;
+    const cadence = wl?.organizations?.refresh_cadence;
+    if (cadence && cadence in CADENCE_HOURS) {
+      hours = Math.min(hours, CADENCE_HOURS[cadence]!);
+    }
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    hours = Math.min(hours, 6);
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }
