@@ -54,13 +54,33 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+  const { data: byCustomer } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(payload)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+
+  if ((byCustomer ?? []).length > 0) return;
+
+  const orgId = sub.metadata?.org_id;
+  if (orgId) {
+    await db.from("organizations").update({ ...payload, stripe_customer_id: customerId }).eq("id", orgId);
+    return;
+  }
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (!customer.deleted && customer.metadata?.org_id) {
+    await db
+      .from("organizations")
+      .update({ ...payload, stripe_customer_id: customerId })
+      .eq("id", customer.metadata.org_id);
+  }
 }
