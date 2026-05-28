@@ -16,5 +16,5 @@ export async function POST() {
     customer: org.stripe_customer_id,
     return_url: `${siteUrl()}/app/billing`,
   });
-  return NextResponse.json({ url: session.url });
+  return NextResponse.redirect(session.url!, 303);
 }
