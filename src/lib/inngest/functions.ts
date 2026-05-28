@@ -31,6 +31,14 @@ export const scheduleRefreshes = inngest.createFunction(
 
     if (due.length === 0) return { refreshed: 0 };
 
+    // Reserve profiles so hourly cron does not re-queue them before refresh completes.
+    await step.run("reserve-profiles", async () => {
+      const reservedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      const ids = due.map((p) => p.id);
+      const { error } = await db.from("profiles").update({ next_sync_at: reservedUntil }).in("id", ids);
+      if (error) throw error;
+    });
+
     await step.sendEvent(
       "fan-out",
       due.map((p) => ({ name: "profile/refresh.requested", data: { profile_id: p.id, reason: "cron" } })),
@@ -60,6 +68,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
       return data as Profile;
     });
+
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -95,8 +105,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -179,8 +189,8 @@ export const refreshProfile = inngest.createFunction(
 export const notifyEvent = inngest.createFunction(
   { id: "notify-event", retries: 5 },
   { event: "event/created" },
-  async ({ event }) => {
-    return dispatchEvent(event.data.event_id);
+  async ({ event, step }) => {
+    return step.run("dispatch-notifications", () => dispatchEvent(event.data.event_id));
   },
 );
 
