@@ -21,9 +21,9 @@ export const scheduleRefreshes = inngest.createFunction(
     const due = await step.run("find-due-profiles", async () => {
       const { data, error } = await db
         .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .select("id, watchlist_profiles!inner(profile_id)")
         .eq("is_opted_out", false)
+        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .limit(500);
       if (error) throw error;
       return (data ?? []) as { id: string }[];
@@ -90,13 +90,13 @@ export const refreshProfile = inngest.createFunction(
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -106,6 +106,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -162,7 +163,11 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
 
       if (classification!.status) {
-        await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        const { error: statusErr } = await db
+          .from("profiles")
+          .update({ status: classification!.status })
+          .eq("id", profileId);
+        if (statusErr) throw statusErr;
       }
       return data;
     });

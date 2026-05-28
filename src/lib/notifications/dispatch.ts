@@ -49,22 +49,38 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: existing } = await db
+      .from("notification_deliveries")
+      .select("status")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (existing?.status === "sent") continue;
+
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
+      const { error: insertErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status: "sent",
         delivered_at: new Date().toISOString(),
       });
+      if (insertErr) {
+        // Another worker may have recorded delivery between our check and insert.
+        if (insertErr.code === "23505") continue;
+        throw insertErr;
+      }
       dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
+      await db.from("notification_deliveries").upsert(
+        {
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "failed",
+          error: e instanceof Error ? e.message : String(e),
+        },
+        { onConflict: "channel_id,event_id" },
+      );
     }
   }
   return { dispatched };
