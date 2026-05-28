@@ -49,10 +49,24 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = sub.customer as string;
+  const inactive = ["canceled", "unpaid", "incomplete_expired", "past_due"].includes(sub.status);
+  if (inactive) {
+    await db
+      .from("organizations")
+      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+      .eq("stripe_customer_id", customerId);
+    return;
+  }
+  if (!["active", "trialing"].includes(sub.status)) return;
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.warn("[stripe] unknown price id", priceId);
+    return;
+  }
 
   await db
     .from("organizations")
