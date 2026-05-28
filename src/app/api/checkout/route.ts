@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
@@ -7,6 +7,9 @@ import { ensureOrgForUser } from "@/lib/org";
 export async function POST(req: NextRequest) {
   const { priceId } = (await req.json()) as { priceId?: string };
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
+  if (!PRICE_PLAN_MAP[priceId]) {
+    return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
+  }
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
@@ -28,6 +31,8 @@ export async function POST(req: NextRequest) {
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
+    client_reference_id: org.id,
+    metadata: { org_id: org.id },
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${siteUrl()}/app/billing?status=success`,
     cancel_url: `${siteUrl()}/pricing?status=cancelled`,

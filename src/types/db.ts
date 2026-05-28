@@ -106,6 +106,7 @@ export interface EventRow {
   after: Json | null;
   detected_at: string;
   is_public: boolean;
+  content_hash?: string | null;
 }
 
 export interface NotificationChannel {
