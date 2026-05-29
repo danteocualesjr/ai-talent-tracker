@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -71,7 +73,13 @@ export const refreshProfile = inngest.createFunction(
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { snapshot: null as ProfileSnapshot | null, isBaseline: false };
+
+      const { count: priorCount } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      const isBaseline = (priorCount ?? 0) === 0;
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -84,7 +92,7 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { snapshot: data as ProfileSnapshot, isBaseline };
     });
 
     // Always bump last_synced_at + reschedule.
@@ -108,7 +116,8 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    if (!stored.snapshot) return { changed: false };
+    if (stored.isBaseline) return { changed: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
