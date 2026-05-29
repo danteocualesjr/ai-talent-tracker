@@ -20,20 +20,25 @@ export async function POST(req: NextRequest) {
 
   const db = createAdminClient();
 
-  if (
-    event.type === "checkout.session.completed" ||
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.created"
-  ) {
-    const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
-  }
-  if (event.type === "customer.subscription.deleted") {
-    const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+  try {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.created"
+    ) {
+      const sub = await loadSubscription(event);
+      if (sub) await applySubscription(db, sub);
+    }
+    if (event.type === "customer.subscription.deleted") {
+      const sub = event.data.object as Stripe.Subscription;
+      await downgradeOrg(db, sub.customer as string);
+    }
+  } catch (e) {
+    console.error("[stripe webhook]", e);
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "webhook handler failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ received: true });
@@ -54,13 +59,59 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const customerId = sub.customer as string;
+  const { data, error } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(payload)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+
+  if (error) throw error;
+  if (data && data.length > 0) return;
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (customer.deleted) throw new Error(`customer ${customerId} deleted`);
+  const orgId = customer.metadata?.org_id;
+  if (!orgId) throw new Error(`no org found for customer ${customerId}`);
+
+  const { data: byOrg, error: orgErr } = await db
+    .from("organizations")
+    .update(payload)
+    .eq("id", orgId)
+    .select("id");
+  if (orgErr) throw orgErr;
+  if (!byOrg || byOrg.length === 0) throw new Error(`org ${orgId} not found`);
+}
+
+async function downgradeOrg(db: ReturnType<typeof createAdminClient>, customerId: string) {
+  const payload = {
+    plan: "free" as const,
+    profile_limit: 5,
+    refresh_cadence: "weekly" as const,
+    stripe_subscription_id: null,
+  };
+
+  const { data, error } = await db
+    .from("organizations")
+    .update(payload)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if (error) throw error;
+  if (data && data.length > 0) return;
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (customer.deleted) return;
+  const orgId = customer.metadata?.org_id;
+  if (!orgId) throw new Error(`no org found for customer ${customerId}`);
+
+  const { data: byOrg, error: orgErr } = await db.from("organizations").update(payload).eq("id", orgId).select("id");
+  if (orgErr) throw orgErr;
+  if (!byOrg || byOrg.length === 0) throw new Error(`org ${orgId} not found`);
 }
