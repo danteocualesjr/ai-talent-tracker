@@ -9,7 +9,7 @@ export async function GET() {
     const link = `${siteUrl()}/feed/${e.id}`;
     return `
       <item>
-        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
+        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle || e.profile.linkedin_url} — ${e.type.replace(/_/g, " ")}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>

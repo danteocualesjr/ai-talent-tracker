@@ -5,7 +5,9 @@ import { ensureOrgForUser } from "@/lib/org";
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/app";
+  const rawNext = url.searchParams.get("next") ?? "/app";
+  const next =
+    rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/app";
 
   if (!code) return NextResponse.redirect(new URL("/login", request.url));
 

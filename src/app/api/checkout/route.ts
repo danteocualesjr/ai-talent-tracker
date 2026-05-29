@@ -20,9 +20,29 @@ export async function POST(req: NextRequest) {
       email: user.email ?? undefined,
       metadata: { org_id: org.id },
     });
-    customerId = customer.id;
     const admin = (await import("@/lib/supabase/server")).createAdminClient();
-    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", org.id);
+    const { data: updated } = await admin
+      .from("organizations")
+      .update({ stripe_customer_id: customer.id })
+      .eq("id", org.id)
+      .is("stripe_customer_id", null)
+      .select("stripe_customer_id")
+      .maybeSingle();
+
+    if (updated?.stripe_customer_id) {
+      customerId = updated.stripe_customer_id;
+    } else {
+      const { data: fresh } = await admin
+        .from("organizations")
+        .select("stripe_customer_id")
+        .eq("id", org.id)
+        .single();
+      customerId = fresh?.stripe_customer_id ?? customer.id;
+    }
+  }
+
+  if (!customerId) {
+    return NextResponse.json({ error: "customer setup failed" }, { status: 500 });
   }
 
   const session = await stripe.checkout.sessions.create({
