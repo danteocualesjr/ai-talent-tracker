@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -143,6 +145,10 @@ export const refreshProfile = inngest.createFunction(
     }
 
     if (!classification) return { changed: true, eventCreated: false };
+
+    // First sync only seeds data — skip noisy baseline events.
+    if (!profile.last_synced_at) return { changed: true, eventCreated: false, baseline: true };
+    if (classification.confidence < 0.6) return { changed: true, eventCreated: false };
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
