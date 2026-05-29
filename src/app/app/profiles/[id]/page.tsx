@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createClient, createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { ensureOrgForUser } from "@/lib/org";
+import { orgWatchesProfile } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
@@ -14,10 +16,17 @@ import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) notFound();
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+
   const db = createAdminClient();
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
   const p = profile as Profile;
+  if (p.is_opted_out || !(await orgWatchesProfile(org.id, id))) notFound();
 
   const [{ data: events }, { data: snaps }] = await Promise.all([
     db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(50),

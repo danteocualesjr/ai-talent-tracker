@@ -24,10 +24,29 @@ export function formatRelative(date: Date | string | null | undefined) {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
+/** Only allow same-origin relative redirects (blocks //evil.com and absolute URLs). */
+export function safeRedirectPath(path: string | null | undefined, fallback = "/app"): string {
+  if (!path) return fallback;
+  const trimmed = path.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return fallback;
+  if (trimmed.includes("\\") || trimmed.includes("\0")) return fallback;
+  return trimmed.split(/[\r\n]/)[0] || fallback;
+}
+
+/** Prevent `]]>` from breaking out of RSS CDATA sections. */
+export function escapeRssCdata(value: string): string {
+  return value.replace(/\]\]>/g, "]]]]><![CDATA[>");
+}
+
+function isLinkedInHostname(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return h === "linkedin.com" || h === "www.linkedin.com";
+}
+
 export function normalizeLinkedInUrl(url: string): string | null {
   try {
     const u = new URL(url.trim());
-    if (!u.hostname.includes("linkedin.com")) return null;
+    if (!isLinkedInHostname(u.hostname)) return null;
     const parts = u.pathname.split("/").filter(Boolean);
     const inIdx = parts.indexOf("in");
     if (inIdx === -1 || !parts[inIdx + 1]) return null;
