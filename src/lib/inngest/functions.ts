@@ -22,7 +22,7 @@ export const scheduleRefreshes = inngest.createFunction(
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${new Date().toISOString()}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -60,6 +60,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
       return data as Profile;
     });
+
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
