@@ -5,6 +5,14 @@ import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
+const ACTIVE_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+const INACTIVE_STATUSES = new Set<Stripe.Subscription.Status>([
+  "canceled",
+  "unpaid",
+  "past_due",
+  "incomplete_expired",
+]);
+
 export async function POST(req: NextRequest) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = req.headers.get("stripe-signature");
@@ -20,20 +28,28 @@ export async function POST(req: NextRequest) {
 
   const db = createAdminClient();
 
-  if (
-    event.type === "checkout.session.completed" ||
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.created"
-  ) {
-    const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
-  }
-  if (event.type === "customer.subscription.deleted") {
-    const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+  try {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.created"
+    ) {
+      const sub = await loadSubscription(event);
+      if (sub) {
+        if (ACTIVE_STATUSES.has(sub.status)) {
+          await applySubscription(db, sub);
+        } else if (INACTIVE_STATUSES.has(sub.status)) {
+          await downgradeSubscription(db, sub);
+        }
+      }
+    }
+    if (event.type === "customer.subscription.deleted") {
+      const sub = event.data.object as Stripe.Subscription;
+      await downgradeSubscription(db, sub);
+    }
+  } catch (e) {
+    console.error("[stripe webhook]", e);
+    return NextResponse.json({ error: "handler failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
@@ -54,7 +70,7 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +79,18 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
+}
+
+async function downgradeSubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const { error } = await db
+    .from("organizations")
+    .update({
+      plan: "free",
+      profile_limit: 5,
+      refresh_cadence: "weekly",
+      stripe_subscription_id: null,
+    })
+    .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
 }
