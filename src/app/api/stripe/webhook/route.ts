@@ -26,7 +26,10 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    const session = event.type === "checkout.session.completed"
+      ? (event.data.object as Stripe.Checkout.Session)
+      : null;
+    if (sub) await applySubscription(db, sub, session?.metadata?.org_id);
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -48,19 +51,59 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
-async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+const ACTIVE_SUB_STATUSES = new Set(["active", "trialing"]);
+
+async function applySubscription(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+  orgIdFallback?: string,
+) {
+  const customerId = sub.customer as string;
+
+  if (!ACTIVE_SUB_STATUSES.has(sub.status)) {
+    const { data } = await db
+      .from("organizations")
+      .update({
+        plan: "free",
+        profile_limit: 5,
+        refresh_cadence: "weekly",
+        stripe_subscription_id: null,
+      })
+      .eq("stripe_customer_id", customerId)
+      .select("id");
+    if ((!data || data.length === 0) && orgIdFallback) {
+      await db
+        .from("organizations")
+        .update({
+          plan: "free",
+          profile_limit: 5,
+          refresh_cadence: "weekly",
+          stripe_subscription_id: null,
+        })
+        .eq("id", orgIdFallback);
+    }
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
-    .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const { data } = await db.from("organizations").update(payload).eq("stripe_customer_id", customerId).select("id");
+  if (data && data.length > 0) return;
+
+  if (orgIdFallback) {
+    await db.from("organizations").update({ ...payload, stripe_customer_id: customerId }).eq("id", orgIdFallback);
+    return;
+  }
+
+  console.error("[stripe] no org matched customer", customerId, "subscription", sub.id);
 }
