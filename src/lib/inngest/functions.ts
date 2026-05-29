@@ -19,14 +19,26 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
-      const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []) as { id: string }[];
+      const { data: watched, error: watchErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (watchErr) throw watchErr;
+      const ids = [...new Set(((watched ?? []) as { profile_id: string }[]).map((r) => r.profile_id))];
+      if (ids.length === 0) return [];
+
+      const now = new Date().toISOString();
+      const dueProfiles: { id: string }[] = [];
+      for (let i = 0; i < ids.length && dueProfiles.length < 500; i += 200) {
+        const chunk = ids.slice(i, i + 200);
+        const { data, error } = await db
+          .from("profiles")
+          .select("id")
+          .in("id", chunk)
+          .eq("is_opted_out", false)
+          .or(`next_sync_at.lte."${now}",next_sync_at.is.null`)
+          .limit(500 - dueProfiles.length);
+        if (error) throw error;
+        dueProfiles.push(...((data ?? []) as { id: string }[]));
+      }
+      return dueProfiles;
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -61,6 +73,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -90,13 +104,13 @@ export const refreshProfile = inngest.createFunction(
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -106,9 +120,20 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
+
+    const isInitialSync = await step.run("check-initial-sync", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return (count ?? 0) <= 1;
+    });
+    if (isInitialSync) return { changed: true, eventCreated: false, reason: "initial_sync" };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {

@@ -30,7 +30,23 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .insert({ name: email ? `${email.split("@")[0]}'s workspace` : "My workspace", slug })
     .select("*")
     .single();
-  if (error || !org) throw error ?? new Error("failed to create org");
+  if (error) {
+    const code = (error as { code?: string }).code;
+    if (code === "23505") {
+      const { data: orgBySlug } = await db.from("organizations").select("*").eq("slug", slug).maybeSingle();
+      if (orgBySlug) {
+        await db.from("org_members").upsert(
+          { org_id: orgBySlug.id, user_id: userId, role: "owner" },
+          { onConflict: "org_id,user_id" },
+        );
+        return orgBySlug as Organization;
+      }
+      const existingOrg = await getOrgForUser(userId);
+      if (existingOrg) return existingOrg;
+    }
+    throw error;
+  }
+  if (!org) throw new Error("failed to create org");
   const orgRow = org as Organization;
 
   await db.from("org_members").insert({ org_id: orgRow.id, user_id: userId, role: "owner" });

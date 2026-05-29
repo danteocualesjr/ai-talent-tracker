@@ -26,14 +26,17 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (isActiveSubscription(sub)) {
+        await applySubscription(db, sub);
+      } else {
+        await downgradeOrg(db, sub);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    await downgradeOrg(db, sub);
   }
 
   return NextResponse.json({ received: true });
@@ -46,6 +49,21 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
     return await stripe.subscriptions.retrieve(session.subscription as string);
   }
   return event.data.object as Stripe.Subscription;
+}
+
+function stripeCustomerId(customer: Stripe.Subscription["customer"]): string {
+  return typeof customer === "string" ? customer : customer.id;
+}
+
+function isActiveSubscription(sub: Stripe.Subscription): boolean {
+  return sub.status === "active" || sub.status === "trialing";
+}
+
+async function downgradeOrg(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", stripeCustomerId(sub.customer));
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
@@ -62,5 +80,5 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", stripeCustomerId(sub.customer));
 }
