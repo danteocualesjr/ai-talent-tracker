@@ -49,25 +49,66 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const claimed = await claimDeliverySlot(db, ch.id, event.id);
+    if (!claimed) continue;
+
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
-      });
+      await db
+        .from("notification_deliveries")
+        .update({
+          status: "sent",
+          delivered_at: new Date().toISOString(),
+          error: null,
+        })
+        .eq("channel_id", ch.id)
+        .eq("event_id", event.id);
       dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
+      await db
+        .from("notification_deliveries")
+        .update({
+          status: "failed",
+          error: e instanceof Error ? e.message : String(e),
+        })
+        .eq("channel_id", ch.id)
+        .eq("event_id", event.id);
     }
   }
   return { dispatched };
+}
+
+type AdminDb = ReturnType<typeof createAdminClient>;
+
+/** Reserve a delivery row before sending so Inngest retries do not duplicate alerts. */
+async function claimDeliverySlot(db: AdminDb, channelId: string, eventId: string): Promise<boolean> {
+  const { error: insErr } = await db.from("notification_deliveries").insert({
+    channel_id: channelId,
+    event_id: eventId,
+    status: "queued",
+  });
+
+  if (!insErr) return true;
+
+  if (insErr.code !== "23505") throw insErr;
+
+  const { data: existing } = await db
+    .from("notification_deliveries")
+    .select("status")
+    .eq("channel_id", channelId)
+    .eq("event_id", eventId)
+    .maybeSingle();
+
+  if (!existing) return true;
+  if (existing.status === "sent" || existing.status === "queued") return false;
+
+  const { error: updErr } = await db
+    .from("notification_deliveries")
+    .update({ status: "queued", error: null, delivered_at: null })
+    .eq("channel_id", channelId)
+    .eq("event_id", eventId);
+  if (updErr) throw updErr;
+  return true;
 }
 
 async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
