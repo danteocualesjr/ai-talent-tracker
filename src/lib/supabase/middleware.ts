@@ -45,7 +45,11 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    response.cookies.getAll().forEach(({ name, value }) => {
+      redirect.cookies.set(name, value);
+    });
+    return redirect;
   }
 
   return response;
