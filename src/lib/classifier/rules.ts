@@ -42,7 +42,7 @@ export function classifyByRules(
   const headlineChanged = diffs.some((d) => d.field === "headline");
 
   for (const re of STEALTH_PATTERNS) {
-    if (re.test(headline)) {
+    if (headlineChanged && re.test(headline)) {
       return {
         type: "went_stealth",
         confidence: 0.9,
@@ -53,7 +53,7 @@ export function classifyByRules(
   }
 
   for (const re of FOUNDER_PATTERNS) {
-    if (re.test(headline)) {
+    if (headlineChanged && re.test(headline)) {
       return {
         type: "headline_signals_founding",
         confidence: 0.85,
@@ -64,7 +64,7 @@ export function classifyByRules(
   }
 
   for (const re of STAFF_FOUNDING_PATTERNS) {
-    if (re.test(headline)) {
+    if (headlineChanged && re.test(headline)) {
       return {
         type: "headline_signals_founding",
         confidence: 0.7,

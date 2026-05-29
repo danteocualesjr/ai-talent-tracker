@@ -1,9 +1,10 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
 import { renderEventEmail, sendEventEmail } from "./email";
+import { NotificationSkippedError } from "./errors";
 import { sendSlack } from "./slack";
 import { sendWebhook } from "./webhook";
-import type { EventRow, NotificationChannel, Profile } from "@/types/db";
+import type { DeliveryStatus, EventRow, NotificationChannel, Profile } from "@/types/db";
 
 interface EmailConfig { to: string }
 interface SlackConfig { webhook_url: string }
@@ -49,23 +50,40 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: existing } = await db
+      .from("notification_deliveries")
+      .select("status")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (existing?.status === "sent" || existing?.status === "skipped") continue;
+
+    let status: DeliveryStatus = "sent";
+    let error: string | undefined;
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
-      });
-      dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
+      if (e instanceof NotificationSkippedError) {
+        status = "skipped";
+        error = e.message;
+      } else {
+        status = "failed";
+        error = e instanceof Error ? e.message : String(e);
+      }
+    }
+
+    const { error: upsertErr } = await db.from("notification_deliveries").upsert(
+      {
         channel_id: ch.id,
         event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
-    }
+        status,
+        error: error ?? null,
+        delivered_at: status === "sent" ? new Date().toISOString() : null,
+      },
+      { onConflict: "channel_id,event_id" },
+    );
+    if (upsertErr) throw upsertErr;
+    if (status === "sent") dispatched++;
   }
   return { dispatched };
 }

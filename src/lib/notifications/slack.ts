@@ -1,4 +1,5 @@
 import "server-only";
+import { NotificationDeliveryError } from "./errors";
 
 export async function sendSlack(webhookUrl: string, payload: {
   name: string;
@@ -6,7 +7,7 @@ export async function sendSlack(webhookUrl: string, payload: {
   type: string;
   linkedinUrl: string;
 }): Promise<void> {
-  await fetch(webhookUrl, {
+  const res = await fetch(webhookUrl, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -21,4 +22,8 @@ export async function sendSlack(webhookUrl: string, payload: {
       ],
     }),
   });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new NotificationDeliveryError(`Slack webhook returned ${res.status}${body ? `: ${body.slice(0, 200)}` : ""}`);
+  }
 }

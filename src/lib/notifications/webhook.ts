@@ -1,5 +1,6 @@
 import "server-only";
 import { createHmac } from "node:crypto";
+import { NotificationDeliveryError } from "./errors";
 
 export async function sendWebhook(url: string, secret: string | undefined, payload: object): Promise<void> {
   const body = JSON.stringify(payload);
@@ -8,5 +9,9 @@ export async function sendWebhook(url: string, secret: string | undefined, paylo
     const sig = createHmac("sha256", secret).update(body).digest("hex");
     headers["x-tracker-signature"] = `sha256=${sig}`;
   }
-  await fetch(url, { method: "POST", headers, body });
+  const res = await fetch(url, { method: "POST", headers, body });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new NotificationDeliveryError(`Webhook returned ${res.status}${text ? `: ${text.slice(0, 200)}` : ""}`);
+  }
 }
