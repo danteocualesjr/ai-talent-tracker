@@ -41,3 +41,11 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Restrict post-login redirects to same-origin relative paths. */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next) return fallback;
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
+  if (next.includes("\\") || next.includes("\0")) return fallback;
+  return next;
+}
