@@ -61,17 +61,19 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
     const stored = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
-        .select("id")
+        .select("*")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { snapshot: existing as ProfileSnapshot, created: false };
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -84,7 +86,7 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { snapshot: data as ProfileSnapshot, created: true };
     });
 
     // Always bump last_synced_at + reschedule.
@@ -108,8 +110,6 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
-
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
@@ -123,6 +123,19 @@ export const refreshProfile = inngest.createFunction(
     };
     const diffs = diffProfiles(prev, fetched);
     if (diffs.length === 0) return { changed: false };
+
+    // Duplicate snapshot hash: skip unless a prior run inserted the snapshot but failed before creating an event.
+    if (!stored.created) {
+      const { data: existingEvent } = await db
+        .from("events")
+        .select("id")
+        .eq("profile_id", profileId)
+        .gte("detected_at", stored.snapshot.fetched_at)
+        .order("detected_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existingEvent) return { changed: false, eventId: existingEvent.id };
+    }
 
     let classification = classifyByRules(
       diffs,
