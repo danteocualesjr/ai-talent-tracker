@@ -35,6 +35,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
 
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+  if (profile?.is_opted_out) {
+    return { error: "This person has opted out of tracking." };
+  }
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
     if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
