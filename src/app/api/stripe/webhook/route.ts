@@ -49,12 +49,34 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = sub.customer as string;
+  const active = sub.status === "active" || sub.status === "trialing";
+
+  if (!active) {
+    const { data, error } = await db
+      .from("organizations")
+      .update({
+        plan: "free",
+        profile_limit: 5,
+        refresh_cadence: "weekly",
+        stripe_subscription_id: null,
+      })
+      .eq("stripe_customer_id", customerId)
+      .select("id");
+    if (error) console.error("[stripe] downgrade failed", error);
+    else if (!data?.length) console.error("[stripe] no org for customer", customerId);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unknown price", priceId);
+    return;
+  }
 
-  await db
+  const { data, error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +84,8 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if (error) console.error("[stripe] apply subscription failed", error);
+  else if (!data?.length) console.error("[stripe] no org for customer", customerId);
 }
