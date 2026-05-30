@@ -93,14 +93,8 @@ export function classifyByRules(
         summary: `Moved from ${left} to ${joined}.`,
       };
     }
-    if (!left && joined) {
-      return {
-        type: "joined_company",
-        confidence: 0.6,
-        status: "active",
-        summary: `Joined ${joined}.`,
-      };
-    }
+    // Skip first-sync baseline when company was previously unknown.
+    if (!left && joined) return null;
   }
 
   if (headlineChanged) {

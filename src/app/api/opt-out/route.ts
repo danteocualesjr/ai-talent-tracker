@@ -10,6 +10,11 @@ export async function POST(req: NextRequest) {
   if (!url || !email) return NextResponse.json({ error: "missing" }, { status: 400 });
 
   const db = createAdminClient();
+  const { data: profile } = await db.from("profiles").select("id").eq("linkedin_url", url).maybeSingle();
+  if (profile) {
+    await db.from("profile_snapshots").delete().eq("profile_id", profile.id);
+    await db.from("events").update({ is_public: false }).eq("profile_id", profile.id);
+  }
   await db.from("profiles").update({ is_opted_out: true }).eq("linkedin_url", url);
 
   // In production, also email the team. Logged for now.

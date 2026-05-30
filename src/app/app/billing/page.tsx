@@ -7,6 +7,7 @@ import { Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
+import { BillingPortalButton } from "./portal-button";
 
 export const metadata = { title: "Billing" };
 
@@ -37,11 +38,7 @@ export default async function BillingPage() {
             <Button asChild variant="outline">
               <Link href="/pricing">Change plan</Link>
             </Button>
-            {org.stripe_customer_id && (
-              <form action="/api/portal" method="post">
-                <Button type="submit">Manage subscription</Button>
-              </form>
-            )}
+            {org.stripe_customer_id && <BillingPortalButton />}
           </div>
         </div>
       </Panel>
