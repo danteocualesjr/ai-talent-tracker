@@ -46,7 +46,7 @@ export const scheduleRefreshes = inngest.createFunction(
 export const refreshProfile = inngest.createFunction(
   {
     id: "refresh-profile",
-    concurrency: { limit: 10 },
+    concurrency: { key: "event.data.profile_id", limit: 1 },
     retries: 3,
   },
   { event: "profile/refresh.requested" },
@@ -61,17 +61,21 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    const snapshotMeta = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
-        .select("id")
+        .select("id, fetched_at")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) {
+        return { snapshot: existing as ProfileSnapshot, isNew: false };
+      }
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -84,33 +88,10 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { snapshot: data as ProfileSnapshot, isNew: true };
     });
 
-    // Always bump last_synced_at + reschedule.
-    await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
-        .from("profiles")
-        .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
-          last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
-        })
-        .eq("id", profileId);
-    });
-
-    if (!stored) return { changed: false };
-
-    // Diff vs previous snapshot's projection (the profile row prior to update).
+    // Diff vs profile row before any updates.
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
       headline: profile.headline,
@@ -122,7 +103,59 @@ export const refreshProfile = inngest.createFunction(
       x_handle: profile.x_handle,
     };
     const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+
+    const touchProfile = () =>
+      db
+        .from("profiles")
+        .update({
+          full_name: fetched.full_name ?? profile.full_name,
+          headline: fetched.headline ?? profile.headline,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
+          location: fetched.location ?? profile.location,
+          avatar_url: fetched.avatar_url ?? profile.avatar_url,
+          about: fetched.about ?? profile.about,
+          github_handle: fetched.github_handle ?? profile.github_handle,
+          x_handle: fetched.x_handle ?? profile.x_handle,
+          last_synced_at: new Date().toISOString(),
+          next_sync_at: nextSyncAt(profile),
+        })
+        .eq("id", profileId);
+
+    if (diffs.length === 0) {
+      await step.run("touch-profile", touchProfile);
+      return { changed: false };
+    }
+
+    // Skip event emission on the first snapshot (baseline sync).
+    if (snapshotMeta.isNew) {
+      const { count } = await db
+        .from("profile_snapshots")
+        .select("*", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if ((count ?? 0) <= 1) {
+        await step.run("touch-profile", touchProfile);
+        return { changed: true, eventCreated: false, reason: "baseline" };
+      }
+    }
+
+    // Duplicate snapshot from a prior partial run: skip if event already exists.
+    if (!snapshotMeta.isNew) {
+      const alreadyProcessed = await step.run("check-existing-event", async () => {
+        const { data } = await db
+          .from("events")
+          .select("id")
+          .eq("profile_id", profileId)
+          .gte("detected_at", snapshotMeta.snapshot.fetched_at)
+          .limit(1)
+          .maybeSingle();
+        return Boolean(data);
+      });
+      if (alreadyProcessed) {
+        await step.run("touch-profile", touchProfile);
+        return { changed: true, eventCreated: false, alreadyProcessed: true };
+      }
+    }
 
     let classification = classifyByRules(
       diffs,
@@ -130,7 +163,6 @@ export const refreshProfile = inngest.createFunction(
       { current_company: fetched.current_company, headline: fetched.headline },
     );
 
-    // Escalate ambiguous results to the LLM.
     if (!classification || classification.confidence < 0.6) {
       const llm = await step.run("llm-classify", async () =>
         classifyWithLLM({
@@ -142,7 +174,10 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification) {
+      await step.run("touch-profile", touchProfile);
+      return { changed: true, eventCreated: false };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
@@ -167,6 +202,7 @@ export const refreshProfile = inngest.createFunction(
       return data;
     });
 
+    await step.run("touch-profile", touchProfile);
     await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
     return { changed: true, eventCreated: true, type: classification.type };
   },
@@ -185,8 +221,6 @@ export const notifyEvent = inngest.createFunction(
 );
 
 function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
   const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
   return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
 }

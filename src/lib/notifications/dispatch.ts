@@ -19,6 +19,8 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   if (profErr || !prof) throw profErr ?? new Error("profile not found");
   const profile = prof as Profile;
 
+  if (profile.is_opted_out) return { dispatched: 0 };
+
   // Find every org watching this profile.
   const { data: watchers } = await db
     .from("watchlist_profiles")
@@ -48,6 +50,18 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   let dispatched = 0;
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
+
+    const { data: prior } = await db
+      .from("notification_deliveries")
+      .select("id")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .eq("status", "sent")
+      .maybeSingle();
+    if (prior) {
+      dispatched++;
+      continue;
+    }
 
     try {
       await deliver(ch, event, profile);

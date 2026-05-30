@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
+import { stripe, PRICE_PLAN_MAP, isActiveSubscription } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -26,7 +26,16 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (isActiveSubscription(sub)) {
+        await applySubscription(db, sub);
+      } else {
+        await db
+          .from("organizations")
+          .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+          .eq("stripe_customer_id", sub.customer as string);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -50,9 +59,15 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe webhook] subscription missing price id", sub.id);
+    throw new Error("subscription missing price id");
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe webhook] unknown price id", priceId);
+    throw new Error(`unknown price id: ${priceId}`);
+  }
 
   await db
     .from("organizations")
