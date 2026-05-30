@@ -19,9 +19,10 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("id", id)
     .eq("is_public", true)
+    .eq("profile.is_opted_out", false)
     .maybeSingle();
   if (!data) notFound();
   const ev = data as unknown as EventRow & { profile: Profile };
