@@ -26,14 +26,17 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (sub.status === "active" || sub.status === "trialing") {
+        await applySubscription(db, sub);
+      } else {
+        await downgradeOrg(db, sub.customer as string);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    await downgradeOrg(db, sub.customer as string);
   }
 
   return NextResponse.json({ received: true });
@@ -54,7 +57,7 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +66,13 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
+}
+
+async function downgradeOrg(db: ReturnType<typeof createAdminClient>, customerId: string) {
+  const { error } = await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", customerId);
+  if (error) throw error;
 }
