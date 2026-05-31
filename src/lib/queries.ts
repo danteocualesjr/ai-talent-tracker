@@ -2,6 +2,29 @@ import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { EventRow, Lab, Profile } from "@/types/db";
 
+export async function orgWatchesProfile(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count, error } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("watchlists.org_id", orgId)
+    .eq("profile_id", profileId);
+  if (error) throw error;
+  return (count ?? 0) > 0;
+}
+
+export async function countOrgWatchlistProfiles(orgId: string): Promise<number> {
+  if (!isSupabaseConfigured()) return 0;
+  const db = createAdminClient();
+  const { data, error } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  if (error) throw error;
+  return new Set((data ?? []).map((r) => (r as { profile_id: string }).profile_id)).size;
+}
+
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -10,10 +33,14 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  const byId = new Map<string, Profile & { watchlist_id: string }>();
+  for (const r of (data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>) {
+    const profile = r.profiles as Profile;
+    if (!byId.has(profile.id)) {
+      byId.set(profile.id, { ...profile, watchlist_id: r.watchlist_id });
+    }
+  }
+  return Array.from(byId.values());
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
