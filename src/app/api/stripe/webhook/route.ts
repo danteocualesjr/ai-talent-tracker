@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
+import { stripe, getPricePlanMap } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -51,7 +51,7 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
-  const mapping = PRICE_PLAN_MAP[priceId];
+  const mapping = getPricePlanMap()[priceId];
   if (!mapping) return;
 
   await db

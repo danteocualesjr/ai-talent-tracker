@@ -47,7 +47,7 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
 
   let dispatched = 0;
   for (const ch of (channels ?? []) as NotificationChannel[]) {
-    if (!ch.event_types.includes(event.type)) continue;
+    if (!ch.event_types?.includes(event.type)) continue;
 
     try {
       await deliver(ch, event, profile);
