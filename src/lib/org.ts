@@ -8,17 +8,8 @@ import type { Organization } from "@/types/db";
 export async function ensureOrgForUser(userId: string, email: string | null): Promise<Organization> {
   const db = createAdminClient();
 
-  const { data: existing } = await db
-    .from("org_members")
-    .select("org_id, organizations(*)")
-    .eq("user_id", userId)
-    .limit(1)
-    .maybeSingle();
-
-  if (existing && (existing as { organizations?: unknown }).organizations) {
-    const o = (existing as { organizations: unknown }).organizations;
-    return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
-  }
+  const existingOrg = await getOrgForUser(userId);
+  if (existingOrg) return existingOrg;
 
   const slug = (email?.split("@")[0] || `u-${userId.slice(0, 8)}`)
     .toLowerCase()
@@ -47,7 +38,27 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
   // Default watchlist.
   await db.from("watchlists").insert({ org_id: orgRow.id, name: "My Watchlist", description: "Profiles I'm tracking" });
 
+  // Concurrent sign-up flows can each create an org; keep the earliest membership.
+  const { data: memberships } = await db
+    .from("org_members")
+    .select("org_id, created_at, organizations(*)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (memberships && memberships.length > 1) {
+    const primary = memberships[0] as { organizations?: unknown };
+    const primaryOrg = extractOrg(primary.organizations);
+    for (const m of memberships.slice(1)) {
+      await db.from("organizations").delete().eq("id", (m as { org_id: string }).org_id);
+    }
+    return primaryOrg;
+  }
+
   return orgRow;
+}
+
+function extractOrg(o: unknown): Organization {
+  return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
 }
 
 export async function getOrgForUser(userId: string): Promise<Organization | null> {
@@ -59,6 +70,5 @@ export async function getOrgForUser(userId: string): Promise<Organization | null
     .limit(1)
     .maybeSingle();
   if (!data || !(data as { organizations?: unknown }).organizations) return null;
-  const o = (data as { organizations: unknown }).organizations;
-  return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
+  return extractOrg((data as { organizations: unknown }).organizations);
 }
