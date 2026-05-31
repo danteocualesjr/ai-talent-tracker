@@ -3,19 +3,27 @@ import { siteUrl } from "@/lib/utils";
 
 export const revalidate = 300;
 
+function cdata(value: string): string {
+  return value.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
 export async function GET() {
   const events = await getPublicEvents(50);
-  const items = events.map((e) => {
-    const link = `${siteUrl()}/feed/${e.id}`;
-    return `
+  const items = events
+    .filter((e) => e.profile)
+    .map((e) => {
+      const link = `${siteUrl()}/feed/${e.id}`;
+      const title = e.profile.full_name || e.profile.linkedin_handle || "Profile";
+      return `
       <item>
-        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
+        <title><![CDATA[${cdata(title)} — ${e.type.replace(/_/g, " ")}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
-        <description><![CDATA[${e.summary}]]></description>
+        <description><![CDATA[${cdata(e.summary)}]]></description>
       </item>`;
-  }).join("");
+    })
+    .join("");
 
   const lastBuild = events[0]?.detected_at
     ? new Date(events[0].detected_at).toUTCString()
