@@ -5,7 +5,7 @@ export const revalidate = 300;
 
 export async function GET() {
   const events = await getPublicEvents(50);
-  const items = events.map((e) => {
+  const items = events.filter((e) => e.profile).map((e) => {
     const link = `${siteUrl()}/feed/${e.id}`;
     return `
       <item>
