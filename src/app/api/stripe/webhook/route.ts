@@ -26,17 +26,37 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      try {
+        await applySubscription(db, sub);
+      } catch (e) {
+        console.error("[stripe] applySubscription failed", e);
+        return NextResponse.json({ error: "db update failed" }, { status: 500 });
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
+    const customerId = stripeCustomerId(sub.customer);
+    if (!customerId) {
+      console.error("[stripe] subscription.deleted missing customer id");
+      return NextResponse.json({ error: "missing customer" }, { status: 400 });
+    }
+    const { error } = await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+      .eq("stripe_customer_id", customerId);
+    if (error) {
+      console.error("[stripe] subscription.deleted update failed", error);
+      return NextResponse.json({ error: "db update failed" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ received: true });
+}
+
+function stripeCustomerId(customer: string | Stripe.Customer | Stripe.DeletedCustomer): string | null {
+  return typeof customer === "string" ? customer : customer.id ?? null;
 }
 
 async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscription | null> {
@@ -54,7 +74,13 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const customerId = stripeCustomerId(sub.customer);
+  if (!customerId) {
+    console.error("[stripe] subscription update missing customer id");
+    throw new Error("missing customer id");
+  }
+
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +88,9 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+  if (error) {
+    console.error("[stripe] subscription update failed", error);
+    throw error;
+  }
 }
