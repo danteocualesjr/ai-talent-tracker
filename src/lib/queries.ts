@@ -16,6 +16,17 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
   }));
 }
 
+export async function orgWatchesProfile(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId);
+  return (count ?? 0) > 0;
+}
+
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -42,8 +53,9 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
+    .eq("profiles.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
