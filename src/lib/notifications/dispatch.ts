@@ -45,9 +45,25 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
     .in("org_id", orgIds)
     .eq("is_active", true);
 
+  const channelList = (channels ?? []) as NotificationChannel[];
+  const channelIds = channelList.map((c) => c.id);
+  const { data: prior } = channelIds.length
+    ? await db
+        .from("notification_deliveries")
+        .select("channel_id, status")
+        .eq("event_id", event.id)
+        .in("channel_id", channelIds)
+    : { data: [] };
+  const alreadySent = new Set(
+    ((prior ?? []) as { channel_id: string; status: string }[])
+      .filter((d) => d.status === "sent")
+      .map((d) => d.channel_id),
+  );
+
   let dispatched = 0;
-  for (const ch of (channels ?? []) as NotificationChannel[]) {
+  for (const ch of channelList) {
     if (!ch.event_types.includes(event.type)) continue;
+    if (alreadySent.has(ch.id)) continue;
 
     try {
       await deliver(ch, event, profile);
