@@ -7,9 +7,14 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_place
   typescript: true,
 });
 
+const proPrice = process.env.STRIPE_PRICE_PRO;
+const teamPrice = process.env.STRIPE_PRICE_TEAM;
+
+export const ALLOWED_CHECKOUT_PRICE_IDS = [proPrice, teamPrice].filter((id): id is string => Boolean(id));
+
 export const PRICE_PLAN_MAP: Record<string, { plan: Plan; profile_limit: number; cadence: "weekly" | "daily" | "hourly" }> = {
-  [process.env.STRIPE_PRICE_PRO || "price_pro"]:   { plan: "pro",  profile_limit: 100,  cadence: "daily"  },
-  [process.env.STRIPE_PRICE_TEAM || "price_team"]: { plan: "team", profile_limit: 1000, cadence: "hourly" },
+  ...(proPrice ? { [proPrice]: { plan: "pro" as const, profile_limit: 100, cadence: "daily" as const } } : {}),
+  ...(teamPrice ? { [teamPrice]: { plan: "team" as const, profile_limit: 1000, cadence: "hourly" as const } } : {}),
 };
 
 export const PLAN_DETAILS: Record<Plan, { name: string; price_monthly: number; profile_limit: number; features: string[] }> = {
