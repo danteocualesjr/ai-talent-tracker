@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
+const ACTIVE_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 export async function POST(req: NextRequest) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = req.headers.get("stripe-signature");
@@ -26,14 +28,19 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      const err = await applySubscription(db, sub);
+      if (err) return NextResponse.json({ error: err }, { status: 500 });
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
+    const customerId = stripeCustomerId(sub.customer);
+    const { error } = await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+      .eq("stripe_customer_id", customerId);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
@@ -42,19 +49,33 @@ export async function POST(req: NextRequest) {
 async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscription | null> {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    if (!session.subscription) return null;
-    return await stripe.subscriptions.retrieve(session.subscription as string);
+    const subId = stripeSubscriptionId(session.subscription);
+    if (!subId) return null;
+    return await stripe.subscriptions.retrieve(subId);
   }
   return event.data.object as Stripe.Subscription;
 }
 
-async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
-  const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
-  const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+async function applySubscription(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+): Promise<string | null> {
+  if (!ACTIVE_STATUSES.has(sub.status)) {
+    const customerId = stripeCustomerId(sub.customer);
+    const { error } = await db
+      .from("organizations")
+      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+      .eq("stripe_customer_id", customerId);
+    return error?.message ?? null;
+  }
 
-  await db
+  const priceId = sub.items.data[0]?.price.id;
+  if (!priceId) return null;
+  const mapping = PRICE_PLAN_MAP[priceId];
+  if (!mapping) return null;
+
+  const customerId = stripeCustomerId(sub.customer);
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +83,17 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+  return error?.message ?? null;
+}
+
+function stripeCustomerId(customer: string | Stripe.Customer | Stripe.DeletedCustomer): string {
+  return typeof customer === "string" ? customer : customer.id;
+}
+
+function stripeSubscriptionId(
+  subscription: string | Stripe.Subscription | null | undefined,
+): string | null {
+  if (!subscription) return null;
+  return typeof subscription === "string" ? subscription : subscription.id;
 }
