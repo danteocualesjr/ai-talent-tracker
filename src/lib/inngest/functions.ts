@@ -6,8 +6,14 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
+
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 24 * 7,
+  daily: 24,
+  hourly: 1,
+};
 
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
@@ -19,10 +25,11 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${now}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -61,17 +68,24 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    const { stored, isFirstSnapshot } = await step.run("store-snapshot", async () => {
+      const { count: priorCount } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+
       const { data: existing } = await db
         .from("profile_snapshots")
         .select("id")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { stored: null, isFirstSnapshot: false };
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -84,12 +98,13 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { stored: data as ProfileSnapshot, isFirstSnapshot: (priorCount ?? 0) === 0 };
     });
+
+    const nextSync = await step.run("compute-next-sync", async () => computeNextSyncAt(db, profileId, profile));
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
       await db
         .from("profiles")
         .update({
@@ -103,24 +118,38 @@ export const refreshProfile = inngest.createFunction(
           github_handle: fetched.github_handle ?? profile.github_handle,
           x_handle: fetched.x_handle ?? profile.x_handle,
           last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
+          next_sync_at: nextSync,
         })
         .eq("id", profileId);
     });
 
     if (!stored) return { changed: false };
+    if (isFirstSnapshot) return { changed: false, baseline: true };
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
-    const prev: Partial<ProviderProfile> = {
-      full_name: profile.full_name,
-      headline: profile.headline,
-      current_company: profile.current_company,
-      current_title: profile.current_title,
-      location: profile.location,
-      about: profile.about,
-      github_handle: profile.github_handle,
-      x_handle: profile.x_handle,
-    };
+    const prev = await step.run("load-previous-snapshot", async () => {
+      const { data: priorSnaps } = await db
+        .from("profile_snapshots")
+        .select("raw")
+        .eq("profile_id", profileId)
+        .neq("id", stored.id)
+        .order("fetched_at", { ascending: false })
+        .limit(1);
+      const raw = (priorSnaps?.[0] as { raw?: Record<string, unknown> } | undefined)?.raw;
+      if (raw && typeof raw === "object") {
+        return snapshotToProviderProfile(raw);
+      }
+      return {
+        full_name: profile.full_name,
+        headline: profile.headline,
+        current_company: profile.current_company,
+        current_title: profile.current_title,
+        location: profile.location,
+        about: profile.about,
+        github_handle: profile.github_handle,
+        x_handle: profile.x_handle,
+      } satisfies Partial<ProviderProfile>;
+    });
+
     const diffs = diffProfiles(prev, fetched);
     if (diffs.length === 0) return { changed: false };
 
@@ -184,9 +213,53 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+async function computeNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let hours = CADENCE_HOURS.weekly;
+  for (const row of watchers ?? []) {
+    const cadence = extractRefreshCadence(row);
+    if (cadence) hours = Math.min(hours, CADENCE_HOURS[cadence]);
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    hours = Math.min(hours, 6);
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
+function extractRefreshCadence(row: unknown): RefreshCadence | null {
+  const watchlists = (row as { watchlists?: unknown }).watchlists;
+  if (!watchlists) return null;
+  const wl = Array.isArray(watchlists) ? watchlists[0] : watchlists;
+  const orgs = (wl as { organizations?: unknown }).organizations;
+  if (!orgs) return null;
+  const org = Array.isArray(orgs) ? orgs[0] : orgs;
+  const cadence = (org as { refresh_cadence?: RefreshCadence }).refresh_cadence;
+  return cadence ?? null;
+}
+
+function snapshotToProviderProfile(raw: Record<string, unknown>): Partial<ProviderProfile> {
+  return {
+    full_name: stringOrNull(raw.full_name),
+    headline: stringOrNull(raw.headline),
+    current_company: stringOrNull(raw.current_company),
+    current_title: stringOrNull(raw.current_title),
+    location: stringOrNull(raw.location),
+    about: stringOrNull(raw.about),
+    github_handle: stringOrNull(raw.github_handle),
+    x_handle: stringOrNull(raw.x_handle),
+  };
+}
+
+function stringOrNull(v: unknown): string | null {
+  return typeof v === "string" ? v : null;
 }
