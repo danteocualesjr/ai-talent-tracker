@@ -41,3 +41,16 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Reject open-redirect targets; only same-origin relative paths are allowed. */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next) return fallback;
+  try {
+    const parsed = new URL(next, "http://localhost");
+    if (parsed.origin !== "http://localhost" || !parsed.pathname.startsWith("/")) return fallback;
+    if (next.startsWith("//") || next.includes("\\")) return fallback;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
+}
