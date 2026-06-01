@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Allow only same-origin relative paths (blocks protocol-relative and off-site redirects). */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next) return fallback;
+  const trimmed = next.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//") || trimmed.includes("://")) {
+    return fallback;
+  }
+  return trimmed;
+}
+
+/** Escape text embedded in RSS CDATA sections (prevents `]]>` breakage / injection). */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
 export function formatRelative(date: Date | string | null | undefined) {
   if (!date) return "never";
   const d = typeof date === "string" ? new Date(date) : date;
