@@ -20,5 +20,7 @@ export async function sendSlack(webhookUrl: string, payload: {
         },
       ],
     }),
+  }).then((res) => {
+    if (!res.ok) throw new Error(`Slack webhook failed (${res.status})`);
   });
 }

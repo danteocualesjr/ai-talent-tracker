@@ -6,8 +6,14 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
+
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
 
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
@@ -21,7 +27,7 @@ export const scheduleRefreshes = inngest.createFunction(
     const due = await step.run("find-due-profiles", async () => {
       const { data, error } = await db
         .from("profiles")
-        .select("id")
+        .select("id, watchlist_profiles!inner(profile_id)")
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -58,38 +64,39 @@ export const refreshProfile = inngest.createFunction(
     const profile = await step.run("load-profile", async () => {
       const { data, error } = await db.from("profiles").select("*").eq("id", profileId).single();
       if (error) throw error;
-      return data as Profile;
+      const row = data as Profile;
+      if (row.is_opted_out) return null;
+      return row;
     });
+
+    if (!profile) return { skipped: "opted_out_or_missing" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
         .select("id")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return;
 
-      const { data, error } = await db
-        .from("profile_snapshots")
-        .insert({
-          profile_id: profileId,
-          source: provider.name,
-          raw: fetched.raw as object,
-          content_hash: hash,
-        })
-        .select("*")
-        .single();
+      const { error } = await db.from("profile_snapshots").insert({
+        profile_id: profileId,
+        source: provider.name,
+        raw: {
+          projection: projectionFromProvider(fetched),
+          provider: fetched.raw,
+        },
+        content_hash: hash,
+      });
       if (error) throw error;
-      return data as ProfileSnapshot;
     });
 
-    // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await nextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
@@ -108,35 +115,58 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    const analysis = await step.run("analyze-changes", async () => {
+      const { data: snaps, error } = await db
+        .from("profile_snapshots")
+        .select("*")
+        .eq("profile_id", profileId)
+        .order("fetched_at", { ascending: false })
+        .limit(2);
+      if (error) throw error;
+      if (!snaps || snaps.length < 2) return { changed: false as const };
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
-    const prev: Partial<ProviderProfile> = {
-      full_name: profile.full_name,
-      headline: profile.headline,
-      current_company: profile.current_company,
-      current_title: profile.current_title,
-      location: profile.location,
-      about: profile.about,
-      github_handle: profile.github_handle,
-      x_handle: profile.x_handle,
-    };
-    const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+      const latest = snaps[0] as ProfileSnapshot;
+      const previous = snaps[1] as ProfileSnapshot;
+      const prev = projectionFromSnapshot(previous.raw);
+      const nextProj = projectionFromSnapshot(latest.raw);
+      const nextProfile = toProviderProfile(profile.linkedin_url, nextProj, fetched);
+
+      const diffs = diffProfiles(prev, nextProfile);
+      if (diffs.length === 0) return { changed: false as const };
+
+      const { data: existingEvent } = await db
+        .from("events")
+        .select("id")
+        .eq("profile_id", profileId)
+        .gte("detected_at", latest.fetched_at)
+        .limit(1)
+        .maybeSingle();
+      if (existingEvent) {
+        return { changed: true as const, eventId: existingEvent.id as string, prev, nextProfile, diffs, existing: true as const };
+      }
+
+      return { changed: true as const, prev, nextProfile, diffs, latestFetchedAt: latest.fetched_at, existing: false as const };
+    });
+
+    if (!analysis.changed) return { changed: false };
+
+    if ("eventId" in analysis && analysis.existing) {
+      await step.sendEvent("notify", { name: "event/created", data: { event_id: analysis.eventId } });
+      return { changed: true, eventCreated: false, eventId: analysis.eventId };
+    }
 
     let classification = classifyByRules(
-      diffs,
-      { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
+      analysis.diffs,
+      { current_company: (analysis.prev.current_company as string | null) ?? null, headline: (analysis.prev.headline as string | null) ?? null },
+      { current_company: analysis.nextProfile.current_company, headline: analysis.nextProfile.headline },
     );
 
-    // Escalate ambiguous results to the LLM.
     if (!classification || classification.confidence < 0.6) {
       const llm = await step.run("llm-classify", async () =>
         classifyWithLLM({
-          diffs,
-          prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
+          diffs: analysis.diffs,
+          prev: analysis.prev as Record<string, string | null>,
+          next: analysis.nextProfile as unknown as Record<string, string | null>,
         }),
       );
       if (llm) classification = llm;
@@ -152,8 +182,8 @@ export const refreshProfile = inngest.createFunction(
           type: classification!.type,
           confidence: classification!.confidence,
           summary: classification!.summary,
-          before: prev as object,
-          after: fetched as unknown as object,
+          before: analysis.prev as object,
+          after: analysis.nextProfile as unknown as object,
           is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
             && classification!.confidence >= 0.7,
         })
@@ -184,9 +214,84 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+function projectionFromProvider(p: ProviderProfile): Partial<ProviderProfile> {
+  return {
+    full_name: p.full_name,
+    headline: p.headline,
+    current_company: p.current_company,
+    current_title: p.current_title,
+    location: p.location,
+    about: p.about,
+    github_handle: p.github_handle,
+    x_handle: p.x_handle,
+  };
+}
+
+function projectionFromSnapshot(raw: unknown): Partial<ProviderProfile> {
+  if (raw && typeof raw === "object" && "projection" in raw) {
+    const projection = (raw as { projection?: Partial<ProviderProfile> }).projection;
+    if (projection && typeof projection === "object") return projection;
+  }
+  return {};
+}
+
+function toProviderProfile(
+  linkedinUrl: string,
+  projection: Partial<ProviderProfile>,
+  fallback: ProviderProfile,
+): ProviderProfile {
+  return {
+    linkedin_url: linkedinUrl,
+    full_name: projection.full_name ?? fallback.full_name,
+    headline: projection.headline ?? fallback.headline,
+    current_company: projection.current_company ?? fallback.current_company,
+    current_title: projection.current_title ?? fallback.current_title,
+    location: projection.location ?? fallback.location,
+    avatar_url: fallback.avatar_url,
+    about: projection.about ?? fallback.about,
+    github_handle: projection.github_handle ?? fallback.github_handle,
+    x_handle: projection.x_handle ?? fallback.x_handle,
+    raw: fallback.raw,
+  };
+}
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists!inner(organizations!inner(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  const cadences = new Set<RefreshCadence>();
+  for (const row of data ?? []) {
+    const watchlists = (row as { watchlists?: unknown }).watchlists;
+    const org = extractOrg(watchlists);
+    if (org?.refresh_cadence) cadences.add(org.refresh_cadence as RefreshCadence);
+  }
+  if (cadences.size === 0) cadences.add("weekly");
+
+  let hours = Math.min(...Array.from(cadences).map((c) => CADENCE_HOURS[c]));
+  if (profile.status === "left" || profile.status === "stealth") {
+    hours = Math.min(hours, 6);
+  }
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+}
+
+function extractOrg(watchlists: unknown): { refresh_cadence?: string } | null {
+  if (!watchlists) return null;
+  if (Array.isArray(watchlists)) {
+    const wl = watchlists[0] as { organizations?: unknown } | undefined;
+    return extractNestedOrg(wl?.organizations);
+  }
+  const wl = watchlists as { organizations?: unknown };
+  return extractNestedOrg(wl.organizations);
+}
+
+function extractNestedOrg(organizations: unknown): { refresh_cadence?: string } | null {
+  if (!organizations) return null;
+  if (Array.isArray(organizations)) return (organizations[0] as { refresh_cadence?: string }) ?? null;
+  return organizations as { refresh_cadence?: string };
 }
