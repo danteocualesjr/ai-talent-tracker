@@ -48,7 +48,11 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+const ACTIVE_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  if (!ACTIVE_STATUSES.has(sub.status)) return;
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
