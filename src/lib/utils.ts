@@ -41,3 +41,18 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths for post-auth redirects. */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next || typeof next !== "string") return fallback;
+  const path = next.trim();
+  if (!path.startsWith("/") || path.startsWith("//")) return fallback;
+  if (path.includes("\\") || path.includes("\0")) return fallback;
+  try {
+    const url = new URL(path, siteUrl());
+    if (url.origin !== new URL(siteUrl()).origin) return fallback;
+  } catch {
+    return fallback;
+  }
+  return path;
+}
