@@ -10,10 +10,14 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  const seen = new Map<string, Profile & { watchlist_id: string }>();
+  for (const r of (data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>) {
+    const profile = r.profiles as Profile;
+    if (!seen.has(profile.id)) {
+      seen.set(profile.id, { ...profile, watchlist_id: r.watchlist_id });
+    }
+  }
+  return Array.from(seen.values());
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
@@ -24,17 +28,26 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
     .from("watchlist_profiles")
     .select("profile_id, watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
-  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  const ids = Array.from(
+    new Set(((watched ?? []) as { profile_id: string }[]).map((w) => w.profile_id)),
+  );
   if (ids.length === 0) return [];
 
-  const { data } = await db
-    .from("events")
-    .select("*, profile:profiles(*)")
-    .in("profile_id", ids)
-    .order("detected_at", { ascending: false })
-    .limit(limit);
+  const events: (EventRow & { profile: Profile })[] = [];
+  const chunkSize = 100;
+  for (let i = 0; i < ids.length; i += chunkSize) {
+    const chunk = ids.slice(i, i + chunkSize);
+    const { data } = await db
+      .from("events")
+      .select("*, profile:profiles(*)")
+      .in("profile_id", chunk)
+      .order("detected_at", { ascending: false })
+      .limit(limit);
+    events.push(...((data ?? []) as unknown as (EventRow & { profile: Profile })[]));
+  }
 
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  events.sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime());
+  return events.slice(0, limit);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
