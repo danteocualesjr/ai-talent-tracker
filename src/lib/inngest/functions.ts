@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -83,34 +85,15 @@ export const refreshProfile = inngest.createFunction(
         })
         .select("*")
         .single();
-      if (error) throw error;
+      if (error) {
+        // Concurrent refresh may have inserted the same hash first.
+        if (error.code === "23505") return null;
+        throw error;
+      }
       return data as ProfileSnapshot;
     });
 
-    // Always bump last_synced_at + reschedule.
-    await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
-        .from("profiles")
-        .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
-          last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
-        })
-        .eq("id", profileId);
-    });
-
-    if (!stored) return { changed: false };
-
-    // Diff vs previous snapshot's projection (the profile row prior to update).
+    // Diff vs profile row *before* we update it (so retries after a failed persist still see changes).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
       headline: profile.headline,
@@ -122,16 +105,16 @@ export const refreshProfile = inngest.createFunction(
       x_handle: profile.x_handle,
     };
     const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
 
-    let classification = classifyByRules(
-      diffs,
-      { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
-    );
+    let classification = diffs.length > 0
+      ? classifyByRules(
+          diffs,
+          { current_company: profile.current_company, headline: profile.headline },
+          { current_company: fetched.current_company ?? profile.current_company, headline: fetched.headline ?? profile.headline },
+        )
+      : null;
 
-    // Escalate ambiguous results to the LLM.
-    if (!classification || classification.confidence < 0.6) {
+    if (diffs.length > 0 && (!classification || classification.confidence < 0.6)) {
       const llm = await step.run("llm-classify", async () =>
         classifyWithLLM({
           diffs,
@@ -142,33 +125,61 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    let eventCreated = false;
+    if (classification) {
+      const eventRow = await step.run("persist-event", async () => {
+        const { data, error } = await db
+          .from("events")
+          .insert({
+            profile_id: profileId,
+            type: classification!.type,
+            confidence: classification!.confidence,
+            summary: classification!.summary,
+            before: prev as object,
+            after: fetched as unknown as object,
+            is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
+              && classification!.confidence >= 0.7,
+          })
+          .select("*")
+          .single();
+        if (error) throw error;
 
-    const eventRow = await step.run("persist-event", async () => {
-      const { data, error } = await db
-        .from("events")
-        .insert({
-          profile_id: profileId,
-          type: classification!.type,
-          confidence: classification!.confidence,
-          summary: classification!.summary,
-          before: prev as object,
-          after: fetched as unknown as object,
-          is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
-            && classification!.confidence >= 0.7,
+        if (classification!.status) {
+          await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        }
+        return data;
+      });
+
+      await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
+      eventCreated = true;
+    }
+
+    const nextSync = await step.run("resolve-next-sync", async () =>
+      resolveNextSyncAt(db, profileId, profile),
+    );
+
+    await step.run("touch-profile", async () => {
+      const { error } = await db
+        .from("profiles")
+        .update({
+          full_name: fetched.full_name ?? profile.full_name,
+          headline: fetched.headline ?? profile.headline,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
+          location: fetched.location ?? profile.location,
+          avatar_url: fetched.avatar_url ?? profile.avatar_url,
+          about: fetched.about ?? profile.about,
+          github_handle: fetched.github_handle ?? profile.github_handle,
+          x_handle: fetched.x_handle ?? profile.x_handle,
+          last_synced_at: new Date().toISOString(),
+          next_sync_at: nextSync,
         })
-        .select("*")
-        .single();
+        .eq("id", profileId);
       if (error) throw error;
-
-      if (classification!.status) {
-        await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
-      }
-      return data;
     });
 
-    await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
-    return { changed: true, eventCreated: true, type: classification.type };
+    if (diffs.length === 0 && !stored) return { changed: false };
+    return { changed: diffs.length > 0, eventCreated, type: classification?.type };
   },
 );
 
@@ -179,14 +190,48 @@ export const refreshProfile = inngest.createFunction(
 export const notifyEvent = inngest.createFunction(
   { id: "notify-event", retries: 5 },
   { event: "event/created" },
-  async ({ event }) => {
-    return dispatchEvent(event.data.event_id);
+  async ({ event, step }) => {
+    return step.run("dispatch", async () => dispatchEvent(event.data.event_id));
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 24 * 7,
+  daily: 24,
+  hourly: 1,
+};
+
+async function resolveNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  const cadences = ((watchers ?? []) as Array<{
+    watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null;
+  }>)
+    .map((w) => {
+      const wl = w.watchlists;
+      if (!wl) return undefined;
+      const row = Array.isArray(wl) ? wl[0] : wl;
+      const org = row?.organizations;
+      if (!org) return undefined;
+      if (Array.isArray(org)) return org[0]?.refresh_cadence;
+      return org.refresh_cadence;
+    })
+    .filter((c): c is RefreshCadence => Boolean(c));
+
+  let hours = cadences.length > 0
+    ? Math.min(...cadences.map((c) => CADENCE_HOURS[c]))
+    : CADENCE_HOURS.weekly;
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    hours = Math.min(hours, 6);
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }

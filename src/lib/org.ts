@@ -33,7 +33,13 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
   if (error || !org) throw error ?? new Error("failed to create org");
   const orgRow = org as Organization;
 
-  await db.from("org_members").insert({ org_id: orgRow.id, user_id: userId, role: "owner" });
+  const { error: memberErr } = await db
+    .from("org_members")
+    .insert({ org_id: orgRow.id, user_id: userId, role: "owner" });
+  if (memberErr) {
+    await db.from("organizations").delete().eq("id", orgRow.id);
+    throw memberErr;
+  }
 
   // Default email channel: alerts go to the signup email.
   if (email) {
