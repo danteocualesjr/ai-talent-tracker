@@ -2,6 +2,32 @@ import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { EventRow, Lab, Profile } from "@/types/db";
 
+export async function countDistinctOrgProfiles(orgId: string): Promise<number> {
+  if (!isSupabaseConfigured()) return 0;
+  const db = createAdminClient();
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  return new Set(((data ?? []) as { profile_id: string }[]).map((r) => r.profile_id)).size;
+}
+
+export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", orgId);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return false;
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("profile_id")
+    .eq("profile_id", profileId)
+    .in("watchlist_id", ids)
+    .limit(1)
+    .maybeSingle();
+  return !!data;
+}
+
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();

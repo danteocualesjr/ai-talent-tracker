@@ -6,6 +6,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
+import { countDistinctOrgProfiles, isProfileOnOrgWatchlist } from "@/lib/queries";
 import type { Profile, Watchlist } from "@/types/db";
 
 const AddSchema = z.object({ linkedin_url: z.string().min(1) });
@@ -26,11 +27,8 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   const url = normalizeLinkedInUrl(parsed.data.linkedin_url);
   if (!url) return { error: "Please paste a full https://www.linkedin.com/in/... URL." };
 
-  const { count } = await db
-    .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
-    .eq("watchlists.org_id", org.id);
-  if ((count ?? 0) >= org.profile_limit) {
+  const profileCount = await countDistinctOrgProfiles(org.id);
+  if (profileCount >= org.profile_limit) {
     return { error: `Plan limit reached (${org.profile_limit}). Upgrade to add more.` };
   }
 
@@ -88,6 +86,15 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const allowed = await isProfileOnOrgWatchlist(org.id, profileId);
+  if (!allowed) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
