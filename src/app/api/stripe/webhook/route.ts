@@ -48,13 +48,37 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
-async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
-  const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
-  const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+const ACTIVE_SUB_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
 
-  await db
+async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = sub.customer as string;
+
+  if (!ACTIVE_SUB_STATUSES.has(sub.status)) {
+    const { error } = await db
+      .from("organizations")
+      .update({
+        plan: "free",
+        profile_limit: 5,
+        refresh_cadence: "weekly",
+        stripe_subscription_id: null,
+      })
+      .eq("stripe_customer_id", customerId);
+    if (error) console.error("[stripe] downgrade failed", error);
+    return;
+  }
+
+  const priceId = sub.items.data[0]?.price.id;
+  if (!priceId) {
+    console.warn("[stripe] subscription missing price", sub.id);
+    return;
+  }
+  const mapping = PRICE_PLAN_MAP[priceId];
+  if (!mapping) {
+    console.warn("[stripe] unmapped price", priceId);
+    return;
+  }
+
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +86,6 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe] apply subscription failed", error);
 }
