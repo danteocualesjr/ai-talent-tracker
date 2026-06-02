@@ -19,7 +19,6 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   if (profErr || !prof) throw profErr ?? new Error("profile not found");
   const profile = prof as Profile;
 
-  // Find every org watching this profile.
   const { data: watchers } = await db
     .from("watchlist_profiles")
     .select("watchlist_id, watchlists(org_id)")
@@ -45,29 +44,52 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
     .in("org_id", orgIds)
     .eq("is_active", true);
 
+  const { data: priorDeliveries } = await db
+    .from("notification_deliveries")
+    .select("channel_id, status")
+    .eq("event_id", event.id);
+
+  const alreadySent = new Set(
+    ((priorDeliveries ?? []) as { channel_id: string; status: string }[])
+      .filter((d) => d.status === "sent")
+      .map((d) => d.channel_id),
+  );
+
   let dispatched = 0;
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
+    if (alreadySent.has(ch.id)) continue;
 
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
+      const { error: insErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status: "sent",
         delivered_at: new Date().toISOString(),
       });
+      if (insErr && !isUniqueViolation(insErr)) throw insErr;
       dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
+      const message = e instanceof Error ? e.message : String(e);
+      const { error: failErr } = await db.from("notification_deliveries").upsert(
+        {
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "failed",
+          error: message,
+          delivered_at: null,
+        },
+        { onConflict: "channel_id,event_id", ignoreDuplicates: false },
+      );
+      if (failErr && !isUniqueViolation(failErr)) throw failErr;
     }
   }
   return { dispatched };
+}
+
+function isUniqueViolation(error: { code?: string }): boolean {
+  return error.code === "23505";
 }
 
 async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {

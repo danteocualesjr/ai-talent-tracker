@@ -28,12 +28,15 @@ export async function POST(req: NextRequest) {
     const sub = await loadSubscription(event);
     if (sub) await applySubscription(db, sub);
   }
-  if (event.type === "customer.subscription.deleted") {
-    const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+  if (
+    event.type === "customer.subscription.deleted" ||
+    event.type === "invoice.payment_failed"
+  ) {
+    const customerId =
+      event.type === "invoice.payment_failed"
+        ? stripeCustomerId((event.data.object as Stripe.Invoice).customer)
+        : stripeCustomerId((event.data.object as Stripe.Subscription).customer);
+    if (customerId) await downgradeOrg(db, customerId);
   }
 
   return NextResponse.json({ received: true });
@@ -48,7 +51,16 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = sub.customer as string;
+
+  if (!ACTIVE_SUBSCRIPTION_STATUSES.has(sub.status)) {
+    await downgradeOrg(db, customerId);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
@@ -62,5 +74,24 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+}
+
+function stripeCustomerId(
+  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null,
+): string | null {
+  if (!customer) return null;
+  return typeof customer === "string" ? customer : customer.id;
+}
+
+async function downgradeOrg(db: ReturnType<typeof createAdminClient>, customerId: string) {
+  await db
+    .from("organizations")
+    .update({
+      plan: "free",
+      profile_limit: 5,
+      refresh_cadence: "weekly",
+      stripe_subscription_id: null,
+    })
+    .eq("stripe_customer_id", customerId);
 }

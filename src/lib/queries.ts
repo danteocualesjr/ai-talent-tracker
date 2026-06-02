@@ -46,7 +46,9 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
     .eq("is_public", true)
     .order("detected_at", { ascending: false })
     .limit(limit);
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return ((data ?? []) as unknown as (EventRow & { profile: Profile })[]).filter(
+    (row) => !row.profile?.is_opted_out,
+  );
 }
 
 export async function listLabs(): Promise<Lab[]> {
