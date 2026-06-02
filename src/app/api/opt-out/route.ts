@@ -10,10 +10,13 @@ export async function POST(req: NextRequest) {
   if (!url || !email) return NextResponse.json({ error: "missing" }, { status: 400 });
 
   const db = createAdminClient();
-  await db.from("profiles").update({ is_opted_out: true }).eq("linkedin_url", url);
-
-  // In production, also email the team. Logged for now.
-  console.log("[opt-out] received", { url, email, notes });
+  const { data: profile } = await db.from("profiles").select("id, is_opted_out").eq("linkedin_url", url).maybeSingle();
+  if (profile && !profile.is_opted_out) {
+    await db.from("profiles").update({ is_opted_out: true }).eq("id", profile.id);
+    console.log("[opt-out] applied", { url, email, notes });
+  } else {
+    console.log("[opt-out] received (no tracked profile)", { url, email, notes });
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -41,3 +41,42 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Blocks open redirects (e.g. `//evil.com`) in post-login `next` params. */
+export function safeRedirectPath(raw: string | null | undefined, fallback = "/app"): string {
+  if (!raw) return fallback;
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return fallback;
+  if (trimmed.includes("@") || trimmed.includes("\\")) return fallback;
+  try {
+    const parsed = new URL(trimmed, "https://example.com");
+    if (parsed.origin !== "https://example.com") return fallback;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Escape `]]>` so RSS CDATA sections stay well-formed. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+/** Reject webhook URLs that target loopback, RFC1918, or link-local hosts. */
+export function isSafeWebhookUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".localhost")) return false;
+    if (host === "127.0.0.1" || host.startsWith("127.")) return false;
+    if (host === "[::1]" || host === "::1") return false;
+    if (/^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
+      return false;
+    }
+    if (host.startsWith("169.254.") || host === "metadata.google.internal") return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
