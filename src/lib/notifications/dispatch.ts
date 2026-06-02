@@ -45,18 +45,29 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
     .in("org_id", orgIds)
     .eq("is_active", true);
 
+  const { data: priorDeliveries } = await db
+    .from("notification_deliveries")
+    .select("channel_id")
+    .eq("event_id", event.id)
+    .eq("status", "sent");
+  const sentChannelIds = new Set(
+    ((priorDeliveries ?? []) as { channel_id: string }[]).map((d) => d.channel_id),
+  );
+
   let dispatched = 0;
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
+    if (sentChannelIds.has(ch.id)) continue;
 
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
+      const { error: insertErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status: "sent",
         delivered_at: new Date().toISOString(),
       });
+      if (insertErr && !insertErr.message.includes("duplicate")) throw insertErr;
       dispatched++;
     } catch (e) {
       await db.from("notification_deliveries").insert({
