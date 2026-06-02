@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { isProfileOnOrgWatchlist } from "@/lib/queries";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -50,15 +51,18 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
   const watchlistRow = wl as Watchlist;
 
-  await db.from("watchlist_profiles").upsert(
+  const { error: wlErr } = await db.from("watchlist_profiles").upsert(
     { watchlist_id: watchlistRow.id, profile_id: profileRow.id, added_by: user.id },
     { onConflict: "watchlist_id,profile_id" },
   );
+  if (wlErr) return { error: wlErr.message };
 
-  try {
-    await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
-  } catch (e) {
-    console.warn("[inngest] send failed", e);
+  if (!profileRow.is_opted_out) {
+    try {
+      await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
+    } catch (e) {
+      console.warn("[inngest] send failed", e);
+    }
   }
 
   revalidatePath("/app/watchlist");
@@ -88,6 +92,18 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await isProfileOnOrgWatchlist(org.id, profileId))) return;
+
+  const db = createAdminClient();
+  const { data: profile } = await db.from("profiles").select("is_opted_out").eq("id", profileId).maybeSingle();
+  if (profile?.is_opted_out) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
