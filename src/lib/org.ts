@@ -5,28 +5,20 @@ import type { Organization } from "@/types/db";
 /**
  * Ensures the user has a personal org. Returns the org row. Idempotent.
  */
-function orgFromMemberRow(row: { organizations?: unknown }): Organization | null {
-  if (!row.organizations) return null;
-  const o = row.organizations;
-  return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
-}
+export async function ensureOrgForUser(userId: string, email: string | null): Promise<Organization> {
+  const db = createAdminClient();
 
-async function fetchOrgForUser(db: ReturnType<typeof createAdminClient>, userId: string): Promise<Organization | null> {
   const { data: existing } = await db
     .from("org_members")
     .select("org_id, organizations(*)")
     .eq("user_id", userId)
     .limit(1)
     .maybeSingle();
-  if (!existing) return null;
-  return orgFromMemberRow(existing as { organizations?: unknown });
-}
 
-export async function ensureOrgForUser(userId: string, email: string | null): Promise<Organization> {
-  const db = createAdminClient();
-
-  const found = await fetchOrgForUser(db, userId);
-  if (found) return found;
+  if (existing && (existing as { organizations?: unknown }).organizations) {
+    const o = (existing as { organizations: unknown }).organizations;
+    return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
+  }
 
   const slug = (email?.split("@")[0] || `u-${userId.slice(0, 8)}`)
     .toLowerCase()
@@ -38,17 +30,20 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .insert({ name: email ? `${email.split("@")[0]}'s workspace` : "My workspace", slug })
     .select("*")
     .single();
-
   if (error) {
-    // Concurrent first-login requests can race on slug insert; re-fetch membership.
-    const retry = await fetchOrgForUser(db, userId);
-    if (retry) return retry;
+    if (error.code === "23505") {
+      const existing = await getOrgForUser(userId);
+      if (existing) return existing;
+    }
     throw error;
   }
   if (!org) throw new Error("failed to create org");
   const orgRow = org as Organization;
 
-  await db.from("org_members").insert({ org_id: orgRow.id, user_id: userId, role: "owner" });
+  await db.from("org_members").upsert(
+    { org_id: orgRow.id, user_id: userId, role: "owner" },
+    { onConflict: "org_id,user_id" },
+  );
 
   // Default email channel: alerts go to the signup email.
   if (email) {

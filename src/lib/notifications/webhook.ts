@@ -9,5 +9,7 @@ export async function sendWebhook(url: string, secret: string | undefined, paylo
     headers["x-tracker-signature"] = `sha256=${sig}`;
   }
   const res = await fetch(url, { method: "POST", headers, body });
-  if (!res.ok) throw new Error(`Outbound webhook failed: ${res.status}`);
+  if (!res.ok) {
+    throw new Error(`Webhook delivery failed (${res.status})`);
+  }
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import { isProfileOnOrgWatchlist } from "@/lib/queries";
+import { isProfileOnOrgWatchlist } from "@/lib/access";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -38,9 +38,18 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
-    if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
-    profile = ins.data;
+    if (ins.error) {
+      if (ins.error.code === "23505") {
+        const refetch = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+        profile = refetch.data;
+      } else {
+        return { error: ins.error.message };
+      }
+    } else {
+      profile = ins.data;
+    }
   }
+  if (!profile) return { error: "Could not add profile." };
   const profileRow = profile as Profile;
   if (profileRow.is_opted_out) {
     return { error: "This person has opted out of tracking." };
@@ -99,10 +108,6 @@ export async function refreshNowForm(formData: FormData): Promise<void> {
 
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   if (!(await isProfileOnOrgWatchlist(org.id, profileId))) return;
-
-  const db = createAdminClient();
-  const { data: profile } = await db.from("profiles").select("is_opted_out").eq("id", profileId).maybeSingle();
-  if (profile?.is_opted_out) return;
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });

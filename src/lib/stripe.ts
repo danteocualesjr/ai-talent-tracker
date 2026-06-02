@@ -12,7 +12,13 @@ export const PRICE_PLAN_MAP: Record<string, { plan: Plan; profile_limit: number;
   [process.env.STRIPE_PRICE_TEAM || "price_team"]: { plan: "team", profile_limit: 1000, cadence: "hourly" },
 };
 
-export const ALLOWED_CHECKOUT_PRICE_IDS = new Set(Object.keys(PRICE_PLAN_MAP));
+export function isAllowedCheckoutPriceId(priceId: string): boolean {
+  const configured = [process.env.STRIPE_PRICE_PRO, process.env.STRIPE_PRICE_TEAM].filter(
+    (id): id is string => Boolean(id),
+  );
+  if (configured.length > 0) return configured.includes(priceId);
+  return priceId in PRICE_PLAN_MAP;
+}
 
 export const PLAN_DETAILS: Record<Plan, { name: string; price_monthly: number; profile_limit: number; features: string[] }> = {
   free:       { name: "Free",       price_monthly: 0,    profile_limit: 5,    features: ["Public departure feed", "5 watchlist profiles", "Weekly refresh"] },

@@ -49,15 +49,31 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
-  const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) {
-    console.error("[stripe webhook] subscription missing price id", sub.id);
-    throw new Error("subscription missing price");
+  const customerId = sub.customer as string;
+  const active = sub.status === "active" || sub.status === "trialing";
+
+  if (!active) {
+    const { data, error } = await db
+      .from("organizations")
+      .update({
+        plan: "free",
+        profile_limit: 5,
+        refresh_cadence: "weekly",
+        stripe_subscription_id: null,
+      })
+      .eq("stripe_customer_id", customerId)
+      .select("id");
+    if (error) console.error("[stripe] downgrade failed", error);
+    else if (!data?.length) console.error("[stripe] no org for customer", customerId);
+    return;
   }
+
+  const priceId = sub.items.data[0]?.price.id;
+  if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) {
-    console.error("[stripe webhook] unmapped price id", priceId, sub.id);
-    throw new Error(`unmapped price: ${priceId}`);
+    console.error("[stripe] unknown price", priceId);
+    return;
   }
 
   const { data, error } = await db
@@ -68,15 +84,8 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string)
+    .eq("stripe_customer_id", customerId)
     .select("id");
-
-  if (error) {
-    console.error("[stripe webhook] org update failed", error.message, sub.customer);
-    throw error;
-  }
-  if (!data?.length) {
-    console.error("[stripe webhook] no org matched customer", sub.customer);
-    throw new Error("organization not found for customer");
-  }
+  if (error) console.error("[stripe] apply subscription failed", error);
+  else if (!data?.length) console.error("[stripe] no org for customer", customerId);
 }

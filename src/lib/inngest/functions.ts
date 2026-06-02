@@ -63,6 +63,7 @@ export const refreshProfile = inngest.createFunction(
 
     if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
 
+    const isFirstSync = !profile.last_synced_at;
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -91,7 +92,7 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await nextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
@@ -110,7 +111,23 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    if (!stored) {
+      const { data: existingSnap } = await db
+        .from("profile_snapshots")
+        .select("fetched_at")
+        .eq("profile_id", profileId)
+        .eq("content_hash", hash)
+        .maybeSingle();
+      if (!existingSnap) return { changed: false };
+      const { data: eventAfterSnap } = await db
+        .from("events")
+        .select("id")
+        .eq("profile_id", profileId)
+        .gte("detected_at", existingSnap.fetched_at)
+        .limit(1)
+        .maybeSingle();
+      if (eventAfterSnap) return { changed: false };
+    }
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -125,6 +142,7 @@ export const refreshProfile = inngest.createFunction(
     };
     const diffs = diffProfiles(prev, fetched);
     if (diffs.length === 0) return { changed: false };
+    if (isFirstSync) return { changed: true, eventCreated: false, baseline: true };
 
     let classification = classifyByRules(
       diffs,
@@ -186,9 +204,34 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<string, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let hours = CADENCE_HOURS.weekly;
+  for (const row of watchers ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] | null } | null })
+      .watchlists;
+    const org = wl && !Array.isArray(wl) ? wl.organizations : null;
+    const cadence = (Array.isArray(org) ? org[0]?.refresh_cadence : org?.refresh_cadence) ?? "weekly";
+    hours = Math.min(hours, CADENCE_HOURS[cadence] ?? CADENCE_HOURS.weekly);
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    hours = Math.min(hours, 6);
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }

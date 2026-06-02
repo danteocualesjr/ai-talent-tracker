@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
-import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { isProfileOnOrgWatchlist } from "@/lib/access";
 import { ensureOrgForUser } from "@/lib/org";
-import { isProfileOnOrgWatchlist } from "@/lib/queries";
+import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
@@ -20,6 +20,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   if (!user) notFound();
+
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   if (!(await isProfileOnOrgWatchlist(org.id, id))) notFound();
 
@@ -27,6 +28,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
   const p = profile as Profile;
+  if (p.is_opted_out) notFound();
 
   const [{ data: events }, { data: snaps }] = await Promise.all([
     db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(50),

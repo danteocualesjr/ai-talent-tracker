@@ -42,13 +42,17 @@ export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
 
-/** Same-origin relative path only — blocks open redirects after auth. */
+/** Allow only same-origin relative paths (blocks open redirects). */
 export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
   if (!next) return fallback;
-  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
+  const path = next.trim();
+  if (!path.startsWith("/") || path.startsWith("//")) return fallback;
+  if (/[\r\n]/.test(path)) return fallback;
+  if (/^\/\\/.test(path)) return fallback;
   try {
-    const { pathname, search, hash } = new URL(next, "http://localhost");
-    return pathname + search + hash;
+    const parsed = new URL(path, "http://localhost");
+    if (parsed.hostname !== "localhost") return fallback;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
   } catch {
     return fallback;
   }
