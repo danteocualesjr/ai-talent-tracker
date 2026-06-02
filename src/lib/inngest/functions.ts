@@ -19,10 +19,17 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: watched, error: watchErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = Array.from(new Set((watched ?? []).map((w) => w.profile_id as string)));
+      if (watchedIds.length === 0) return [] as { id: string }[];
+
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .in("id", watchedIds)
+        .or(`next_sync_at.lte.${now},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -61,6 +68,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,14 +98,14 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await nextSyncAt(db, profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -106,6 +115,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +194,44 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<string, number> = { weekly: 168, daily: 24, hourly: 1 };
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  if (profile.status === "left" || profile.status === "stealth") {
+    return new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+  }
+
+  const { data: rows } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(org_id)")
+    .eq("profile_id", profileId);
+
+  const orgIds = Array.from(
+    new Set(
+      ((rows ?? []) as Array<{ watchlists?: { org_id?: string } | { org_id?: string }[] | null }>)
+        .map((r) => {
+          const wl = r.watchlists;
+          if (!wl) return undefined;
+          if (Array.isArray(wl)) return wl[0]?.org_id;
+          return wl.org_id;
+        })
+        .filter((x): x is string => Boolean(x)),
+    ),
+  );
+
+  let hours = 24;
+  if (orgIds.length > 0) {
+    const { data: orgs } = await db.from("organizations").select("refresh_cadence").in("id", orgIds);
+    hours = 168;
+    for (const org of orgs ?? []) {
+      const cadence = (org as { refresh_cadence: string }).refresh_cadence;
+      hours = Math.min(hours, CADENCE_HOURS[cadence] ?? 168);
+    }
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { renderEventEmail, sendEventEmail } from "./email";
 import { sendSlack } from "./slack";
 import { sendWebhook } from "./webhook";
+import { NotificationSkipped } from "./errors";
 import type { EventRow, NotificationChannel, Profile } from "@/types/db";
 
 interface EmailConfig { to: string }
@@ -49,6 +50,14 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: existing } = await db
+      .from("notification_deliveries")
+      .select("status")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .maybeSingle();
+    if (existing?.status === "sent") continue;
+
     try {
       await deliver(ch, event, profile);
       await db.from("notification_deliveries").insert({
@@ -59,10 +68,11 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
       });
       dispatched++;
     } catch (e) {
+      const status = e instanceof NotificationSkipped ? "skipped" : "failed";
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
-        status: "failed",
+        status,
         error: e instanceof Error ? e.message : String(e),
       });
     }
