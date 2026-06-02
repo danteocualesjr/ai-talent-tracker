@@ -58,8 +58,12 @@ export const refreshProfile = inngest.createFunction(
     const profile = await step.run("load-profile", async () => {
       const { data, error } = await db.from("profiles").select("*").eq("id", profileId).single();
       if (error) throw error;
-      return data as Profile;
+      const row = data as Profile;
+      if (row.is_opted_out) return null;
+      return row;
     });
+    if (!profile) return { changed: false, skipped: "opted_out" };
+    const isFirstSync = !profile.last_synced_at;
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -83,7 +87,10 @@ export const refreshProfile = inngest.createFunction(
         })
         .select("*")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505") return null;
+        throw error;
+      }
       return data as ProfileSnapshot;
     });
 
@@ -109,6 +116,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First sync establishes baseline only — avoid false "joined company" events.
+    if (isFirstSync) return { changed: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {

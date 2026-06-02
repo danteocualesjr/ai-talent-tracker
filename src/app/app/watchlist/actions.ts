@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { ensureOrgForUser } from "@/lib/org";
+import { ensureOrgForUser, isProfileOnOrgWatchlist } from "@/lib/org";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -26,21 +26,36 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   const url = normalizeLinkedInUrl(parsed.data.linkedin_url);
   if (!url) return { error: "Please paste a full https://www.linkedin.com/in/... URL." };
 
-  const { count } = await db
+  const { data: watchedRows } = await db
     .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .select("profile_id, watchlists!inner(org_id)")
     .eq("watchlists.org_id", org.id);
-  if ((count ?? 0) >= org.profile_limit) {
+  const watchedCount = new Set(
+    ((watchedRows ?? []) as { profile_id: string }[]).map((r) => r.profile_id),
+  ).size;
+  if (watchedCount >= org.profile_limit) {
     return { error: `Plan limit reached (${org.profile_limit}). Upgrade to add more.` };
   }
 
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
-    if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
-    profile = ins.data;
+    if (ins.error) {
+      if (ins.error.code === "23505") {
+        const { data: existing } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+        if (!existing) return { error: "Could not load profile." };
+        profile = existing;
+      } else {
+        return { error: ins.error.message ?? "Insert failed" };
+      }
+    } else if (!ins.data) {
+      return { error: "Insert failed" };
+    } else {
+      profile = ins.data;
+    }
   }
   const profileRow = profile as Profile;
+  if (profileRow.is_opted_out) return { error: "This profile has opted out of tracking." };
 
   let { data: wl } = await db.from("watchlists").select("*").eq("org_id", org.id).limit(1).maybeSingle();
   if (!wl) {
@@ -88,6 +103,18 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await isProfileOnOrgWatchlist(org.id, profileId))) return;
+
+  const db = createAdminClient();
+  const { data: profile } = await db.from("profiles").select("is_opted_out").eq("id", profileId).maybeSingle();
+  if (profile?.is_opted_out) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
