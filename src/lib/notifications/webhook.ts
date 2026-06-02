@@ -8,5 +8,8 @@ export async function sendWebhook(url: string, secret: string | undefined, paylo
     const sig = createHmac("sha256", secret).update(body).digest("hex");
     headers["x-tracker-signature"] = `sha256=${sig}`;
   }
-  await fetch(url, { method: "POST", headers, body });
+  const res = await fetch(url, { method: "POST", headers, body });
+  if (!res.ok) {
+    throw new Error(`Webhook delivery failed: HTTP ${res.status}`);
+  }
 }

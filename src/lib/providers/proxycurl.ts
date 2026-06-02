@@ -43,7 +43,7 @@ export class ProxycurlProvider implements ProfileProvider {
     }
     const data = (await res.json()) as ProxycurlResponse;
 
-    const current = (data.experiences || []).find((e) => !e.ends_at) || (data.experiences || [])[0];
+    const current = (data.experiences || []).find((e) => !e.ends_at);
 
     return {
       linkedin_url: linkedinUrl,
