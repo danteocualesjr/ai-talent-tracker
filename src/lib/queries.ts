@@ -2,6 +2,21 @@ import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { EventRow, Lab, Profile } from "@/types/db";
 
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+export async function isProfileOnOrgWatchlist(
+  db: AdminClient,
+  orgId: string,
+  profileId: string,
+): Promise<boolean> {
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId);
+  return (count ?? 0) > 0;
+}
+
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();

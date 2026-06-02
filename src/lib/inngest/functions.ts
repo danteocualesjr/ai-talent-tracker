@@ -19,9 +19,17 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: watched, error: watchErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = Array.from(
+        new Set(((watched ?? []) as { profile_id: string }[]).map((w) => w.profile_id)),
+      );
+      if (watchedIds.length === 0) return [];
+
       const { data, error } = await db
         .from("profiles")
         .select("id")
+        .in("id", watchedIds)
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -60,6 +68,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
       return data as Profile;
     });
+
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -177,7 +187,11 @@ export const refreshProfile = inngest.createFunction(
  * this profile.
  */
 export const notifyEvent = inngest.createFunction(
-  { id: "notify-event", retries: 5 },
+  {
+    id: "notify-event",
+    retries: 5,
+    idempotency: "event.data.event_id",
+  },
   { event: "event/created" },
   async ({ event }) => {
     return dispatchEvent(event.data.event_id);
