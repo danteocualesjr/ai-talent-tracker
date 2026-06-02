@@ -1,0 +1,3 @@
+-- Restrict anon/authenticated reads on events to public rows only.
+drop policy if exists "events are readable" on public.events;
+create policy "events are readable" on public.events for select using (is_public = true);
