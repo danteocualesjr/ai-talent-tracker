@@ -1,5 +1,5 @@
 import { getPublicEvents } from "@/lib/queries";
-import { siteUrl } from "@/lib/utils";
+import { escapeCdata, siteUrl } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -13,7 +13,7 @@ export async function GET() {
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
-        <description><![CDATA[${e.summary}]]></description>
+        <description><![CDATA[${escapeCdata(e.summary)}]]></description>
       </item>`;
   }).join("");
 
