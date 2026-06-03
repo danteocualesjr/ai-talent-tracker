@@ -10,9 +10,17 @@ function resend(): Resend | null {
   return cached;
 }
 
+export class EmailNotConfiguredError extends Error {
+  constructor() {
+    super("RESEND_API_KEY is not configured");
+    this.name = "EmailNotConfiguredError";
+  }
+}
+
 export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
   const r = resend();
   if (!r) {
+    if (process.env.NODE_ENV === "production") throw new EmailNotConfiguredError();
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
     return;
   }
