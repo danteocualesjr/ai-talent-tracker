@@ -49,18 +49,46 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 }
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = sub.customer as string;
+
+  if (!["active", "trialing"].includes(sub.status)) {
+    await db
+      .from("organizations")
+      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+      .eq("stripe_customer_id", customerId);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const update = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const { data: byCustomer } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(update)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if ((byCustomer ?? []).length > 0) return;
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (customer.deleted) return;
+  const orgId = customer.metadata?.org_id;
+  if (!orgId) {
+    console.warn("[stripe] subscription update: org not found for customer", customerId);
+    return;
+  }
+
+  const { error } = await db
+    .from("organizations")
+    .update({ ...update, stripe_customer_id: customerId })
+    .eq("id", orgId);
+  if (error) console.error("[stripe] failed to apply subscription to org", orgId, error.message);
 }
