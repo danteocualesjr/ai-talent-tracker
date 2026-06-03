@@ -12,6 +12,7 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .from("org_members")
     .select("org_id, organizations(*)")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
 
@@ -56,6 +57,7 @@ export async function getOrgForUser(userId: string): Promise<Organization | null
     .from("org_members")
     .select("organizations(*)")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   if (!data || !(data as { organizations?: unknown }).organizations) return null;
