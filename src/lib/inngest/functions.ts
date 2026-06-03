@@ -19,10 +19,11 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${now}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -61,8 +62,19 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
+
+    const hadPriorSnapshot = await step.run("check-prior-snapshot", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return (count ?? 0) > 0;
+    });
 
     const stored = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
@@ -83,14 +95,17 @@ export const refreshProfile = inngest.createFunction(
         })
         .select("*")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505") return null;
+        throw error;
+      }
       return data as ProfileSnapshot;
     });
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,11 +121,13 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
+    if (!hadPriorSnapshot) return { changed: false, firstSync: true };
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
+    // Diff vs profile row prior to this refresh (reflects last stored snapshot).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
       headline: profile.headline,
