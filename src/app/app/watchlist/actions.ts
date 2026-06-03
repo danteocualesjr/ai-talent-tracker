@@ -37,10 +37,24 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
-    if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
-    profile = ins.data;
+    if (ins.error) {
+      if (ins.error.code === "23505") {
+        const { data: existing } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+        if (!existing) return { error: "Profile exists but could not be loaded." };
+        profile = existing;
+      } else {
+        return { error: ins.error.message };
+      }
+    } else if (!ins.data) {
+      return { error: "Insert failed" };
+    } else {
+      profile = ins.data;
+    }
   }
   const profileRow = profile as Profile;
+  if (profileRow.is_opted_out) {
+    return { error: "This person has opted out of tracking." };
+  }
 
   let { data: wl } = await db.from("watchlists").select("*").eq("org_id", org.id).limit(1).maybeSingle();
   if (!wl) {
@@ -50,10 +64,11 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
   const watchlistRow = wl as Watchlist;
 
-  await db.from("watchlist_profiles").upsert(
+  const { error: wlErr } = await db.from("watchlist_profiles").upsert(
     { watchlist_id: watchlistRow.id, profile_id: profileRow.id, added_by: user.id },
     { onConflict: "watchlist_id,profile_id" },
   );
+  if (wlErr) return { error: wlErr.message };
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
@@ -88,6 +103,28 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return;
+
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .in("watchlist_id", ids);
+  if ((count ?? 0) === 0) return;
+
+  const { data: profile } = await db.from("profiles").select("is_opted_out").eq("id", profileId).maybeSingle();
+  if (profile?.is_opted_out) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
