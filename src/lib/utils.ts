@@ -41,3 +41,45 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+const BLOCKED_WEBHOOK_HOSTS = new Set([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "metadata.google.internal",
+  "169.254.169.254",
+]);
+
+/** Block SSRF-prone webhook targets (private networks, metadata endpoints). */
+export function isSafeWebhookUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (BLOCKED_WEBHOOK_HOSTS.has(host)) return false;
+    if (host.endsWith(".local") || host.endsWith(".internal")) return false;
+    // IPv4 private/link-local ranges
+    const m = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (m) {
+      const a = Number(m[1]);
+      const b = Number(m[2]);
+      if (a === 10) return false;
+      if (a === 127) return false;
+      if (a === 169 && b === 254) return false;
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      if (a === 192 && b === 168) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Reject open redirects; only same-origin relative paths are allowed. */
+export function safeNextPath(next: string | null | undefined): string {
+  if (!next) return "/app";
+  const trimmed = next.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return "/app";
+  if (trimmed.includes("://") || trimmed.includes("\\")) return "/app";
+  return trimmed;
+}
