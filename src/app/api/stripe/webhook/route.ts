@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.updated" ||
     event.type === "customer.subscription.created"
   ) {
-    const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    const { sub, orgId } = await loadSubscription(event);
+    if (sub) await applySubscription(db, sub, orgId);
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -39,28 +39,40 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
-async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscription | null> {
+async function loadSubscription(event: Stripe.Event): Promise<{ sub: Stripe.Subscription | null; orgId?: string }> {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    if (!session.subscription) return null;
-    return await stripe.subscriptions.retrieve(session.subscription as string);
+    if (!session.subscription) return { sub: null };
+    const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+    const orgId = session.metadata?.org_id ?? sub.metadata?.org_id;
+    return { sub, orgId };
   }
-  return event.data.object as Stripe.Subscription;
+  const sub = event.data.object as Stripe.Subscription;
+  return { sub, orgId: sub.metadata?.org_id };
 }
 
-async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+async function applySubscription(
+  db: ReturnType<typeof createAdminClient>,
+  sub: Stripe.Subscription,
+  orgId?: string,
+) {
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
-    .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+  const patch = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+    stripe_customer_id: sub.customer as string,
+  };
+
+  if (orgId) {
+    await db.from("organizations").update(patch).eq("id", orgId);
+    return;
+  }
+
+  await db.from("organizations").update(patch).eq("stripe_customer_id", sub.customer as string);
 }
