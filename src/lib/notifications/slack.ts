@@ -15,10 +15,24 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${payload.linkedinUrl}|${payload.name}>* — _${payload.type.replace(/_/g, " ")}_\n${payload.summary}`,
+            text: `*<${escapeSlackUrl(payload.linkedinUrl)}|${escapeSlackMrkdwn(payload.name)}>* — _${escapeSlackMrkdwn(payload.type.replace(/_/g, " "))}_\n${escapeSlackMrkdwn(payload.summary)}`,
           },
         },
       ],
     }),
   });
+}
+
+function escapeSlackMrkdwn(s: string): string {
+  return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));
+}
+
+function escapeSlackUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:" || !u.hostname.includes("linkedin.com")) return "https://www.linkedin.com";
+    return u.href.replace(/[|<>]/g, "");
+  } catch {
+    return "https://www.linkedin.com";
+  }
 }
