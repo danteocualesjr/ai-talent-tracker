@@ -16,6 +16,38 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
   }));
 }
 
+export async function orgWatchesProfile(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("watchlists.org_id", orgId)
+    .eq("profile_id", profileId);
+  return (count ?? 0) > 0;
+}
+
+export async function countOrgEventsLast30Days(orgId: string): Promise<number> {
+  if (!isSupabaseConfigured()) return 0;
+  const db = createAdminClient();
+
+  const { data: watched } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  if (ids.length === 0) return 0;
+
+  const since = new Date(Date.now() - 30 * 86400000).toISOString();
+  const { count, error } = await db
+    .from("events")
+    .select("id", { count: "exact", head: true })
+    .in("profile_id", ids)
+    .gte("detected_at", since);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
