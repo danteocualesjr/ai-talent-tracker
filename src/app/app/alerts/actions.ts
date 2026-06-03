@@ -29,8 +29,10 @@ export async function addChannel(formData: FormData): Promise<void> {
     if (!r.success) return;
     config = r.data;
   } else if (type === "webhook") {
+    if (org.plan !== "team" && org.plan !== "enterprise") return;
     const r = WebhookSchema.safeParse({ url: formData.get("url"), secret: formData.get("secret") || undefined });
     if (!r.success) return;
+    if (!isPublicWebhookUrl(r.data.url)) return;
     config = r.data;
   } else {
     return;
@@ -51,4 +53,20 @@ export async function removeChannel(formData: FormData): Promise<void> {
   const db = createAdminClient();
   await db.from("notification_channels").delete().eq("id", id).eq("org_id", org.id);
   revalidatePath("/app/alerts");
+}
+
+function isPublicWebhookUrl(raw: string): boolean {
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:") return false;
+    const host = url.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".local")) return false;
+    if (host === "127.0.0.1" || host === "0.0.0.0" || host === "::1") return false;
+    if (host.startsWith("10.") || host.startsWith("192.168.")) return false;
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false;
+    if (host.startsWith("169.254.") || host.endsWith(".internal")) return false;
+    return true;
+  } catch {
+    return false;
+  }
 }
