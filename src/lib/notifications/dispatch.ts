@@ -59,27 +59,25 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
       dispatched++;
       continue;
     }
+    if (prior?.status === "skipped") continue;
 
     try {
-      await deliver(ch, event, profile);
+      const result = await deliver(ch, event, profile);
+      const row = {
+        status: result === "skipped" ? "skipped" : "sent",
+        error: null as string | null,
+        delivered_at: result === "skipped" ? null : new Date().toISOString(),
+      };
       if (prior) {
-        await db
-          .from("notification_deliveries")
-          .update({
-            status: "sent",
-            error: null,
-            delivered_at: new Date().toISOString(),
-          })
-          .eq("id", prior.id);
+        await db.from("notification_deliveries").update(row).eq("id", prior.id);
       } else {
         await db.from("notification_deliveries").insert({
           channel_id: ch.id,
           event_id: event.id,
-          status: "sent",
-          delivered_at: new Date().toISOString(),
+          ...row,
         });
       }
-      dispatched++;
+      if (result === "sent") dispatched++;
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       if (prior) {
@@ -97,7 +95,7 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   return { dispatched };
 }
 
-async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
+async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<"sent" | "skipped"> {
   const payload = {
     name: profile.full_name || profile.linkedin_url,
     summary: event.summary,
@@ -109,13 +107,12 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
     const { subject, html } = renderEventEmail(payload);
-    await sendEventEmail(cfg.to, subject, html);
-    return;
+    return sendEventEmail(cfg.to, subject, html);
   }
   if (ch.type === "slack") {
     const cfg = ch.config as unknown as SlackConfig;
     await sendSlack(cfg.webhook_url, payload);
-    return;
+    return "sent";
   }
   if (ch.type === "webhook") {
     const cfg = ch.config as unknown as WebhookConfig;
@@ -124,6 +121,7 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
       profile_id: profile.id,
       ...payload,
     });
-    return;
+    return "sent";
   }
+  return "skipped";
 }
