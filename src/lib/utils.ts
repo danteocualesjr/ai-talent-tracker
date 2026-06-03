@@ -41,3 +41,9 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths after OAuth. */
+export function safeRedirectPath(next: string, fallback = "/app"): string {
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
+  return next;
+}

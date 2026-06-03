@@ -52,7 +52,19 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.warn("[stripe] unknown price id:", priceId);
+    return;
+  }
+
+  const active = sub.status === "active" || sub.status === "trialing";
+  if (!active) {
+    await db
+      .from("organizations")
+      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+      .eq("stripe_customer_id", sub.customer as string);
+    return;
+  }
 
   await db
     .from("organizations")
