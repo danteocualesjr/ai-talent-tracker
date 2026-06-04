@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
+const ACTIVE_STATUSES = new Set<Stripe.Subscription.Status>(["active", "trialing"]);
+
 export async function POST(req: NextRequest) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = req.headers.get("stripe-signature");
@@ -26,14 +28,17 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (ACTIVE_STATUSES.has(sub.status)) {
+        await applySubscription(db, sub);
+      } else {
+        await downgradeOrg(db, sub.customer as string);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    await downgradeOrg(db, sub.customer as string);
   }
 
   return NextResponse.json({ received: true });
@@ -48,13 +53,27 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+async function downgradeOrg(db: ReturnType<typeof createAdminClient>, customerId: string) {
+  const { error } = await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe webhook] downgrade failed", error);
+}
+
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe webhook] subscription missing price id", sub.id);
+    return;
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe webhook] unknown price id", priceId, "for customer", sub.customer);
+    return;
+  }
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +82,5 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) console.error("[stripe webhook] apply subscription failed", error);
 }
