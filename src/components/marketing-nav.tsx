@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
@@ -31,14 +31,14 @@ export function MarketingNav() {
       className={cn(
         "sticky top-0 z-30 w-full transition-all duration-300",
         scrolled
-          ? "border-b border-border/70 bg-background/75 shadow-[0_1px_0_0_hsl(var(--border)/0.5),0_12px_40px_-20px_hsl(var(--foreground)/0.08)] backdrop-blur-xl"
+          ? "border-b border-border/70 bg-background/70 shadow-[0_1px_0_0_hsl(var(--border)/0.5),0_12px_40px_-20px_hsl(var(--foreground)/0.08)] backdrop-blur-xl"
           : "border-b border-transparent bg-background/40 backdrop-blur-md",
       )}
     >
       <div className="container flex h-[60px] items-center justify-between">
         <Logo />
 
-        <nav className="hidden items-center gap-0.5 text-sm md:flex">
+        <nav className="hidden items-center gap-1 text-sm md:flex">
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
@@ -46,13 +46,19 @@ export function MarketingNav() {
                 key={l.href}
                 href={l.href}
                 className={cn(
-                  "rounded-lg px-3.5 py-2 transition-colors",
+                  "relative rounded-lg px-3.5 py-2 transition-colors",
                   active
-                    ? "bg-accent font-semibold text-foreground"
-                    : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
+                    ? "font-semibold text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {l.label}
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-3 bottom-0.5 h-px bg-gradient-to-r from-transparent via-foreground to-transparent"
+                  />
+                )}
               </Link>
             );
           })}
@@ -63,8 +69,11 @@ export function MarketingNav() {
           >
             Log in
           </Link>
-          <Button asChild size="sm" className="ml-2">
-            <Link href="/login">Start tracking</Link>
+          <Button asChild size="sm" className="ml-2 group">
+            <Link href="/login">
+              Start tracking
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </Button>
         </nav>
 

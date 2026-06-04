@@ -1,5 +1,18 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Bell, Building2, Check, Globe2, LineChart, Lock, Sparkles, Workflow } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Bell,
+  Building2,
+  Check,
+  Globe2,
+  LineChart,
+  Lock,
+  Quote,
+  Sparkles,
+  Workflow,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MarketingNav } from "@/components/marketing-nav";
@@ -7,6 +20,7 @@ import { MarketingFooter } from "@/components/marketing-footer";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { DashboardPreview } from "@/components/dashboard-preview";
 import { LogoMarquee } from "@/components/logo-marquee";
+import { LiveTicker } from "@/components/live-ticker";
 
 const DEFAULT_LABS = [
   "OpenAI", "Anthropic", "Google DeepMind", "Meta AI", "xAI", "Mistral AI",
@@ -129,6 +143,49 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       </section>
 
+      {/* Live activity ticker */}
+      <section className="relative overflow-hidden border-b border-border/60 bg-card/40">
+        <div className="pointer-events-none absolute inset-0 dot-bg dot-fade opacity-50" />
+        <div className="container relative grid items-center gap-12 py-20 md:grid-cols-[1.05fr_1fr] md:py-24">
+          <div>
+            <div className="label-caps">Live activity</div>
+            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+              The feed that{" "}
+              <span className="font-serif italic font-normal text-gradient-signal">moves first</span>.
+            </h2>
+            <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
+              Headline changes, stealth flips, and founding signals — surfaced minutes after they happen,
+              not weeks after they hit the press.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild size="lg" variant="outline" className="group">
+                <Link href="/feed">
+                  Browse public feed
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="ghost" className="group">
+                <Link href="/feed/rss.xml">
+                  Subscribe via RSS
+                  <ArrowUpRight className="h-4 w-4 opacity-60 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </Link>
+              </Button>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-2">
+              <span className="chip"><span className="h-1 w-1 rounded-full bg-signal" /> Headline changes</span>
+              <span className="chip"><span className="h-1 w-1 rounded-full bg-amber-accent" /> Stealth flips</span>
+              <span className="chip"><span className="h-1 w-1 rounded-full bg-violet-accent" /> Founding signals</span>
+              <span className="chip">+ 6 more types</span>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
+            <LiveTicker />
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="border-b border-border/60">
         <div className="container py-20 md:py-28">
@@ -203,10 +260,32 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       </section>
 
+      {/* Testimonial / pull-quote */}
+      <section className="border-b border-border/60 bg-muted/20">
+        <div className="container py-20 md:py-24">
+          <div className="mx-auto max-w-3xl text-center">
+            <Quote className="mx-auto h-7 w-7 text-foreground/20" />
+            <blockquote className="mt-6 text-balance font-serif text-2xl italic leading-snug text-foreground md:text-3xl">
+              &ldquo;We closed two researchers from a single Slack ping. The departure feed
+              is the closest thing to a cheat code we&apos;ve seen for AI sourcing.&rdquo;
+            </blockquote>
+            <div className="mt-7 flex items-center justify-center gap-3 text-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background">
+                CA
+              </div>
+              <div className="text-left">
+                <div className="font-semibold">Casey Aldridge</div>
+                <div className="text-xs text-muted-foreground">Founding recruiter · stealth seed-stage AI lab</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section>
         <div className="container py-20 md:py-28">
-          <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-foreground text-background shadow-soft">
+          <div className="cta-halo relative overflow-hidden rounded-2xl bg-foreground text-background">
             <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-signal/25 blur-[80px]" />
             <div
               className="pointer-events-none absolute inset-0 opacity-[0.06]"
@@ -220,9 +299,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             />
             <div className="relative grid items-center gap-10 p-10 md:grid-cols-[1.2fr_1fr] md:p-16">
               <div>
-                <Badge variant="outline" className="border-background/25 bg-background/10 text-background/90">
-                  Get started
-                </Badge>
+                <div className="inline-flex items-center gap-2 rounded-full border border-background/20 bg-background/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-background/80">
+                  <Zap className="h-3 w-3" /> Get started
+                </div>
                 <h2 className="mt-5 text-balance text-3xl font-bold tracking-tight md:text-5xl">
                   Start with 5 free profiles.
                 </h2>
@@ -232,7 +311,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </div>
               <div className="flex flex-col gap-3 sm:flex-row md:justify-end">
                 <Button asChild size="lg" variant="outline" className="border-background/25 bg-background text-foreground hover:bg-background/95">
-                  <Link href="/login">Get started</Link>
+                  <Link href="/login">
+                    Get started
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost" className="text-background/90 hover:bg-background/10 hover:text-background">
                   <Link href="/pricing">See pricing</Link>
@@ -250,7 +332,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group surface-elevated relative rounded-2xl border border-border/60 bg-card p-7 transition-all duration-300 hover:border-foreground/15 hover:shadow-soft">
+    <div className="group surface-card surface-card-hover relative p-7">
+      <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
         {icon}
       </div>
@@ -262,9 +345,12 @@ function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: stri
 
 function Step({ n, title, body }: { n: number; title: string; body: string }) {
   return (
-    <div className="group surface-elevated relative rounded-2xl border border-border/60 bg-card p-7 transition-all hover:border-foreground/15">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background">
-        {n}
+    <div className="group surface-card surface-card-hover relative p-7">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background">
+          {n}
+        </div>
+        <div className="label-caps text-[10px]">Step {n}</div>
       </div>
       <h3 className="mt-5 text-lg font-bold tracking-tight">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>

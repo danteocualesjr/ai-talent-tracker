@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { listLabs } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,8 @@ export default async function LabsIndexPage() {
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <PageHeader
         title="Lab rosters"
+        eyebrow="Tracking"
+        icon={<Sparkles className="h-4 w-4" />}
         description="Curated employee lists for top AI labs. Click to view and bulk-add."
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -19,8 +21,9 @@ export default async function LabsIndexPage() {
           <Link
             key={l.id}
             href={`/app/labs/${l.slug}`}
-            className="hover-lift group surface-elevated overflow-hidden rounded-2xl border border-border/60 bg-card p-6"
+            className="group surface-card surface-card-hover relative overflow-hidden p-6"
           >
+            <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="flex items-center justify-between">
               {l.logo_url ? (
                 <img src={l.logo_url} alt={l.name} className="h-11 w-11 rounded-xl border border-border/60 bg-muted object-contain p-1" />

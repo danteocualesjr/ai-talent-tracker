@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Activity, Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { getOrgEvents } from "@/lib/queries";
@@ -18,7 +18,12 @@ export default async function EventsPage() {
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
-      <PageHeader title="Events" description="All detected changes across your watchlists." />
+      <PageHeader
+        title="Events"
+        eyebrow="Tracking"
+        icon={<Activity className="h-4 w-4" />}
+        description="All detected changes across your watchlists."
+      />
 
       <Panel
         title={

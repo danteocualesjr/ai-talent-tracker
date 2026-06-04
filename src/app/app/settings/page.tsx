@@ -1,3 +1,4 @@
+import { Settings as SettingsIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { PageHeader } from "@/components/page-header";
@@ -12,7 +13,12 @@ export default async function SettingsPage() {
 
   return (
     <div className="container max-w-3xl space-y-8 px-4 py-8 md:px-6 md:py-10">
-      <PageHeader title="Settings" description="Workspace identifiers and account info." />
+      <PageHeader
+        title="Settings"
+        eyebrow="Workspace"
+        icon={<SettingsIcon className="h-4 w-4" />}
+        description="Workspace identifiers and account info."
+      />
 
       <Panel title="Workspace" bodyClassName="divide-y divide-border/60">
         <Row label="Name" value={org.name} />

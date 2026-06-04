@@ -22,7 +22,12 @@ export default async function AlertsPage() {
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
-      <PageHeader title="Alerts" description="Where we deliver detected change events." />
+      <PageHeader
+        title="Alerts"
+        eyebrow="Workspace"
+        icon={<Bell className="h-4 w-4" />}
+        description="Where we deliver detected change events."
+      />
 
       <Panel title="Active channels" bodyClassName={channels.length === 0 ? undefined : "divide-y divide-border/60"}>
         {channels.length === 0 ? (
@@ -115,7 +120,7 @@ export default async function AlertsPage() {
 
 function ChannelCard({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6">
+    <div className="surface-card surface-card-hover p-6">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm">
           {icon}

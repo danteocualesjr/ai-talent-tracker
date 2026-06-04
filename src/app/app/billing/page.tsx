@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, CreditCard } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { PageHeader } from "@/components/page-header";
@@ -18,7 +18,12 @@ export default async function BillingPage() {
 
   return (
     <div className="container max-w-3xl space-y-8 px-4 py-8 md:px-6 md:py-10">
-      <PageHeader title="Billing" description="Manage your subscription and plan limits." />
+      <PageHeader
+        title="Billing"
+        eyebrow="Workspace"
+        icon={<CreditCard className="h-4 w-4" />}
+        description="Manage your subscription and plan limits."
+      />
 
       <Panel bodyClassName="p-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">

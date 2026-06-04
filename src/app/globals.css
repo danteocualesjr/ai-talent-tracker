@@ -4,54 +4,64 @@
 
 @layer base {
   :root {
-    --background: 220 20% 98%;
-    --foreground: 224 28% 8%;
+    /* Slightly warm, paper-like neutrals — feels less clinical than pure gray */
+    --background: 36 24% 98%;
+    --foreground: 222 28% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 224 28% 8%;
+    --card-foreground: 222 28% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 28% 8%;
-    --primary: 224 28% 8%;
-    --primary-foreground: 220 20% 98%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 224 20% 12%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 224 10% 42%;
-    --accent: 220 16% 94%;
-    --accent-foreground: 224 20% 12%;
+    --popover-foreground: 222 28% 8%;
+    --primary: 222 28% 8%;
+    --primary-foreground: 36 24% 98%;
+    --secondary: 32 14% 95%;
+    --secondary-foreground: 222 20% 12%;
+    --muted: 32 14% 95%;
+    --muted-foreground: 222 8% 42%;
+    --accent: 32 16% 93%;
+    --accent-foreground: 222 20% 12%;
     --destructive: 0 72% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 90%;
-    --input: 220 14% 90%;
-    --ring: 224 28% 8%;
+    --border: 32 12% 88%;
+    --input: 32 12% 88%;
+    --ring: 222 28% 8%;
     --radius: 0.75rem;
 
-    --signal: 162 72% 36%;
+    /* Signal: emerald-teal, more saturated for vibrancy */
+    --signal: 162 76% 34%;
     --signal-foreground: 0 0% 100%;
+
+    /* Subtle accent for ornament/gradients */
+    --accent-violet: 252 58% 60%;
+    --accent-amber: 36 88% 56%;
   }
 
   .dark {
-    --background: 224 22% 5%;
-    --foreground: 220 20% 96%;
-    --card: 224 18% 8%;
-    --card-foreground: 220 20% 96%;
-    --popover: 224 18% 8%;
-    --popover-foreground: 220 20% 96%;
-    --primary: 220 20% 96%;
+    /* Deep midnight with cool undertone */
+    --background: 224 24% 5%;
+    --foreground: 220 18% 96%;
+    --card: 224 20% 8%;
+    --card-foreground: 220 18% 96%;
+    --popover: 224 20% 8%;
+    --popover-foreground: 220 18% 96%;
+    --primary: 220 18% 96%;
     --primary-foreground: 224 28% 8%;
     --secondary: 224 14% 12%;
-    --secondary-foreground: 220 20% 96%;
+    --secondary-foreground: 220 18% 96%;
     --muted: 224 14% 12%;
-    --muted-foreground: 220 8% 58%;
+    --muted-foreground: 220 8% 60%;
     --accent: 224 12% 14%;
-    --accent-foreground: 220 20% 96%;
+    --accent-foreground: 220 18% 96%;
     --destructive: 0 62% 48%;
     --destructive-foreground: 0 0% 100%;
     --border: 224 12% 16%;
     --input: 224 12% 16%;
     --ring: 220 16% 80%;
 
-    --signal: 162 68% 48%;
-    --signal-foreground: 224 22% 5%;
+    --signal: 162 70% 48%;
+    --signal-foreground: 224 24% 5%;
+
+    --accent-violet: 252 70% 70%;
+    --accent-amber: 36 92% 64%;
   }
 }
 
@@ -61,7 +71,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -78,6 +88,10 @@
   }
   input, textarea, select, button {
     font: inherit;
+  }
+  /* Refined focus rings, consistent everywhere */
+  :focus-visible {
+    outline: none;
   }
 }
 
@@ -97,22 +111,49 @@
     text-wrap: pretty;
   }
 
+  /* ────────────────────────────────────────────────────────────────
+   * Background ornament utilities
+   * ──────────────────────────────────────────────────────────────── */
+
   .noise {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.035 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   }
 
   .hero-backdrop {
     background:
-      radial-gradient(ellipse 120% 80% at 50% -20%, hsl(var(--signal) / 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse 80% 50% at 80% 20%, hsl(224 28% 8% / 0.04) 0%, transparent 45%),
-      radial-gradient(ellipse 60% 40% at 10% 60%, hsl(var(--signal) / 0.05) 0%, transparent 40%);
+      radial-gradient(ellipse 100% 70% at 50% -10%, hsl(var(--signal) / 0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 85% 25%, hsl(var(--accent-violet) / 0.07) 0%, transparent 45%),
+      radial-gradient(ellipse 60% 40% at 10% 60%, hsl(var(--signal) / 0.06) 0%, transparent 40%);
   }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, hsl(var(--foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+  .grid-fade {
+    mask-image: radial-gradient(ellipse 75% 55% at 50% 25%, black 0%, transparent 88%);
+    -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 25%, black 0%, transparent 88%);
+  }
+  .dot-bg {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .dot-fade {
+    mask-image: radial-gradient(ellipse 60% 45% at 50% 35%, black 0%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 60% 45% at 50% 35%, black 0%, transparent 80%);
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Typography / text effects
+   * ──────────────────────────────────────────────────────────────── */
 
   .text-gradient-hero {
     background: linear-gradient(
-      120deg,
+      115deg,
       hsl(var(--foreground)) 0%,
-      hsl(var(--foreground) / 0.75) 40%,
+      hsl(var(--foreground) / 0.72) 38%,
       hsl(var(--signal)) 100%
     );
     -webkit-background-clip: text;
@@ -120,58 +161,100 @@
     color: transparent;
   }
 
+  .text-gradient-signal {
+    background: linear-gradient(120deg, hsl(var(--signal)) 0%, hsl(162 80% 52%) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Surfaces / elevation
+   * ──────────────────────────────────────────────────────────────── */
+
   .surface-glass {
     @apply border border-border/60 bg-background/70 shadow-sm backdrop-blur-xl;
   }
 
   .surface-elevated {
     box-shadow:
-      0 0 0 1px hsl(var(--border) / 0.8),
+      0 0 0 1px hsl(var(--border) / 0.6),
       0 1px 2px hsl(var(--foreground) / 0.04),
-      0 12px 40px -16px hsl(var(--foreground) / 0.12);
+      0 16px 40px -20px hsl(var(--foreground) / 0.12);
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-border/60 bg-card;
+    box-shadow:
+      0 1px 0 0 hsl(var(--background) / 0.6) inset,
+      0 1px 2px hsl(var(--foreground) / 0.03),
+      0 8px 24px -16px hsl(var(--foreground) / 0.08);
+  }
+
+  .surface-card-hover {
+    @apply transition-all duration-300;
+  }
+  .surface-card-hover:hover {
+    transform: translateY(-1px);
+    border-color: hsl(var(--foreground) / 0.14);
+    box-shadow:
+      0 1px 0 0 hsl(var(--background) / 0.6) inset,
+      0 2px 4px hsl(var(--foreground) / 0.04),
+      0 16px 36px -16px hsl(var(--foreground) / 0.14);
   }
 
   .preview-glow {
     box-shadow:
       0 0 0 1px hsl(var(--border) / 0.9),
       0 2px 4px hsl(var(--foreground) / 0.03),
-      0 32px 80px -24px hsl(var(--foreground) / 0.18),
-      0 0 140px -48px hsl(var(--signal) / 0.2);
+      0 36px 90px -28px hsl(var(--foreground) / 0.22),
+      0 0 160px -52px hsl(var(--signal) / 0.28);
   }
 
   .preview-tilt {
-    transform: perspective(1600px) rotateX(1.5deg);
+    transform: perspective(1800px) rotateX(1.5deg);
     transform-origin: center top;
   }
+
+  /* Halo behind a CTA / hero card */
+  .cta-halo {
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--background) / 0.08),
+      0 30px 80px -30px hsl(var(--foreground) / 0.6),
+      0 0 0 1px hsl(var(--foreground) / 0.6);
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Animation
+   * ──────────────────────────────────────────────────────────────── */
 
   @media (prefers-reduced-motion: no-preference) {
     .animate-fade-up {
       animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
       opacity: 0;
     }
-    .animate-fade-up-delay-1 { animation-delay: 0.1s; }
-    .animate-fade-up-delay-2 { animation-delay: 0.2s; }
-    .animate-fade-up-delay-3 { animation-delay: 0.3s; }
-    .animate-fade-up-delay-4 { animation-delay: 0.4s; }
+    .animate-fade-up-delay-1 { animation-delay: 0.08s; }
+    .animate-fade-up-delay-2 { animation-delay: 0.16s; }
+    .animate-fade-up-delay-3 { animation-delay: 0.24s; }
+    .animate-fade-up-delay-4 { animation-delay: 0.32s; }
+    .animate-fade-up-delay-5 { animation-delay: 0.40s; }
+
+    .animate-fade-in {
+      animation: fade-in 0.6s ease forwards;
+      opacity: 0;
+    }
   }
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 
   .marquee-pause:hover .animate-marquee {
     animation-play-state: paused;
-  }
-
-  .grid-bg {
-    background-image:
-      linear-gradient(to right, hsl(var(--foreground) / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
-    background-size: 72px 72px;
-  }
-  .grid-fade {
-    mask-image: radial-gradient(ellipse 75% 55% at 50% 25%, black 0%, transparent 88%);
-    -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 25%, black 0%, transparent 88%);
   }
 
   .animate-marquee {
@@ -182,6 +265,14 @@
     to   { transform: translateX(-50%); }
   }
 
+  .animate-marquee-vertical {
+    animation: marquee-vertical 28s linear infinite;
+  }
+  @keyframes marquee-vertical {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-50%); }
+  }
+
   .animate-pulse-dot {
     animation: pulse-dot 2s ease-in-out infinite;
   }
@@ -190,9 +281,45 @@
     50%      { opacity: 0.35; transform: scale(0.85); }
   }
 
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--foreground) / 0.06) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.4s linear infinite;
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+
+  /* Soft spotlight pulse on data points / signal accents */
+  .signal-pulse {
+    box-shadow: 0 0 0 0 hsl(var(--signal) / 0.45);
+    animation: signal-pulse 2.4s ease-out infinite;
+  }
+  @keyframes signal-pulse {
+    0%   { box-shadow: 0 0 0 0 hsl(var(--signal) / 0.45); }
+    70%  { box-shadow: 0 0 0 8px hsl(var(--signal) / 0); }
+    100% { box-shadow: 0 0 0 0 hsl(var(--signal) / 0); }
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Color tokens
+   * ──────────────────────────────────────────────────────────────── */
+
   .text-signal { color: hsl(var(--signal)); }
   .bg-signal { background-color: hsl(var(--signal)); color: hsl(var(--signal-foreground)); }
   .ring-signal { --tw-ring-color: hsl(var(--signal)); }
+  .text-violet-accent { color: hsl(var(--accent-violet)); }
+  .text-amber-accent { color: hsl(var(--accent-amber)); }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Typographic numerals & micro-labels
+   * ──────────────────────────────────────────────────────────────── */
 
   .tnum {
     font-variant-numeric: tabular-nums;
@@ -203,16 +330,24 @@
     @apply text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground;
   }
 
+  /* ────────────────────────────────────────────────────────────────
+   * Navigation accents
+   * ──────────────────────────────────────────────────────────────── */
+
   .nav-active-rail {
     @apply relative before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-signal;
   }
 
   .app-shell-bg {
     background:
-      radial-gradient(ellipse 100% 60% at 100% 0%, hsl(var(--signal) / 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse 80% 50% at 0% 100%, hsl(var(--foreground) / 0.02) 0%, transparent 45%),
+      radial-gradient(ellipse 100% 60% at 100% 0%, hsl(var(--signal) / 0.045) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 50% at 0% 100%, hsl(var(--foreground) / 0.025) 0%, transparent 45%),
       hsl(var(--background));
   }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Misc
+   * ──────────────────────────────────────────────────────────────── */
 
   .prose-legal {
     @apply text-pretty text-sm leading-relaxed text-muted-foreground;
@@ -250,10 +385,33 @@
     @apply font-medium text-foreground underline-offset-4 transition-colors hover:underline;
   }
 
+  /* Progress */
   .progress-track {
     @apply h-1.5 w-full overflow-hidden rounded-full bg-muted/80;
   }
   .progress-fill {
-    @apply h-full rounded-full bg-gradient-to-r from-foreground/80 to-foreground transition-all duration-500;
+    @apply h-full rounded-full bg-gradient-to-r from-signal/90 to-signal transition-all duration-500;
+  }
+
+  /* Keyboard cap visual */
+  .kbd {
+    @apply inline-flex h-5 min-w-[20px] items-center justify-center rounded-md border border-border/80 bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border)/0.7)];
+  }
+
+  /* Section divider with center sparkle */
+  .section-divider {
+    background: linear-gradient(to right, transparent, hsl(var(--border)) 50%, transparent);
+    height: 1px;
+  }
+
+  /* Chip style for tags / pills */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground;
+  }
+
+  /* Subtle "ring of dots" pattern useful for empty-states / icons */
+  .ring-dots {
+    background:
+      radial-gradient(hsl(var(--border)) 1px, transparent 1.5px) center / 14px 14px;
   }
 }

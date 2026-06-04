@@ -34,9 +34,11 @@ export default async function WatchlistPage() {
     <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <PageHeader
         title="Watchlist"
+        eyebrow="Tracking"
+        icon={<ListChecks className="h-4 w-4" />}
         description="Profiles you're tracking across your organization."
       >
-        <div className="w-full min-w-[260px] rounded-2xl border border-border/60 bg-card p-4 sm:w-auto">
+        <div className="w-full min-w-[260px] surface-card p-4 sm:w-auto">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
               <span className="tnum font-bold text-foreground">{profiles.length}</span> /{" "}

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { AppSidebar } from "@/components/app-sidebar";
+import { AppTopbar } from "@/components/app-topbar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supa = await createClient();
@@ -11,8 +12,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
-      <AppSidebar orgName={org.name} orgPlan={org.plan} email={user.email ?? ""} />
-      <main className="app-shell-bg min-w-0">{children}</main>
+      <AppSidebar orgName={org.name} orgPlan={org.plan} />
+      <div className="app-shell-bg flex min-w-0 flex-col">
+        <AppTopbar email={user.email ?? ""} orgPlan={org.plan} />
+        <main className="flex-1 min-w-0">{children}</main>
+      </div>
     </div>
   );
 }

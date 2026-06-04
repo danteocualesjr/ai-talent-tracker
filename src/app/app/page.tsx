@@ -1,5 +1,17 @@
 import Link from "next/link";
-import { Activity, AlertTriangle, Bell, Plus, Sparkles, TrendingUp, Users2 } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  ArrowUpRight,
+  Bell,
+  Building2,
+  Plus,
+  Sparkles,
+  TrendingUp,
+  Users2,
+  Zap,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { getOrgEvents, listOrgProfiles } from "@/lib/queries";
@@ -7,6 +19,7 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
+import { Sparkline, buildTrendSeries } from "@/components/sparkline";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
 export const metadata = { title: "Dashboard" };
@@ -23,6 +36,8 @@ export default async function DashboardPage() {
   const founders = profiles.filter((p) => p.status === "founder").length;
   const left = profiles.filter((p) => p.status === "left").length;
   const last30 = events.filter((e) => new Date(e.detected_at).getTime() > Date.now() - 30 * 86400000).length;
+  const last7 = events.filter((e) => new Date(e.detected_at).getTime() > Date.now() - 7 * 86400000).length;
+  const fill = Math.min(100, (profiles.length / org.profile_limit) * 100);
 
   return (
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -34,6 +49,14 @@ export default async function DashboardPage() {
             <span className="tnum">{org.profile_limit}</span> profiles
             <span className="mx-2 text-border">·</span>
             Refresh: <span className="font-medium text-foreground">{org.refresh_cadence}</span>
+            <span className="mx-2 text-border">·</span>
+            <span className="inline-flex items-center gap-1.5 text-signal">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+              <span className="font-medium">Live</span>
+            </span>
           </>
         }
       >
@@ -42,19 +65,77 @@ export default async function DashboardPage() {
         </Button>
       </PageHeader>
 
+      {/* Stat cards with sparklines */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Tracked profiles" value={profiles.length} icon={<Users2 className="h-3.5 w-3.5" />} sub={`Limit ${org.profile_limit}`} />
-        <StatCard label="Events (30d)" value={last30} icon={<Activity className="h-3.5 w-3.5" />} sub="across watchlists" />
-        <StatCard label="Stealth + founders" value={stealth + founders} icon={<Sparkles className="h-3.5 w-3.5" />} sub={`${stealth} stealth · ${founders} founder`} />
-        <StatCard label="Departures" value={left} icon={<AlertTriangle className="h-3.5 w-3.5" />} sub="flagged left" />
+        <StatCard
+          label="Tracked profiles"
+          value={profiles.length}
+          icon={<Users2 className="h-3.5 w-3.5" />}
+          sub={`Limit ${org.profile_limit}`}
+          accent="text-foreground/70"
+          series={buildTrendSeries(profiles.length || 1, 14, 0.4)}
+        />
+        <StatCard
+          label="Events (7d)"
+          value={last7}
+          icon={<Activity className="h-3.5 w-3.5" />}
+          sub={`${last30} in last 30 days`}
+          accent="text-signal"
+          series={buildTrendSeries(last7 || 2, 14, 0.6)}
+        />
+        <StatCard
+          label="Stealth + founders"
+          value={stealth + founders}
+          icon={<Sparkles className="h-3.5 w-3.5" />}
+          sub={`${stealth} stealth · ${founders} founder`}
+          accent="text-amber-accent"
+          series={buildTrendSeries(stealth + founders || 1, 14, 0.5)}
+        />
+        <StatCard
+          label="Departures"
+          value={left}
+          icon={<AlertTriangle className="h-3.5 w-3.5" />}
+          sub="flagged left"
+          accent="text-violet-accent"
+          series={buildTrendSeries(left || 1, 14, 0.5)}
+        />
       </div>
 
+      {/* Plan-capacity bar */}
+      <div className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/5 text-foreground">
+            <Building2 className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold capitalize">{org.name}</div>
+            <div className="text-[11px] text-muted-foreground capitalize">{plan.name} plan</div>
+          </div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="text-muted-foreground">Watchlist capacity</span>
+            <span className="tnum font-semibold">
+              {profiles.length}
+              <span className="text-muted-foreground"> / {org.profile_limit}</span>
+            </span>
+          </div>
+          <div className="progress-track mt-2">
+            <div className="progress-fill" style={{ width: `${fill}%` }} />
+          </div>
+        </div>
+        <Button asChild variant="outline" size="sm" className="shrink-0">
+          <Link href="/app/billing">Manage <ArrowUpRight className="h-3 w-3" /></Link>
+        </Button>
+      </div>
+
+      {/* Activity feed */}
       <Panel
         title="Recent activity"
         description="Latest detected changes across your watchlists"
         action={
           <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-            <Link href="/app/events">View all →</Link>
+            <Link href="/app/events">View all <ArrowRight className="h-3 w-3" /></Link>
           </Button>
         }
         bodyClassName={events.length === 0 ? undefined : "divide-y divide-border/60"}
@@ -67,18 +148,19 @@ export default async function DashboardPage() {
             cta={<Button asChild><Link href="/app/watchlist">Add profiles</Link></Button>}
           />
         ) : (
-          events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
+          events.slice(0, 8).map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
         )}
       </Panel>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6">
+      {/* Plan + nudge */}
+      <div className="grid gap-5 md:grid-cols-3">
+        <div className="surface-card md:col-span-2 flex flex-col p-6">
           <div className="flex items-center justify-between">
             <div className="label-caps flex items-center gap-2">
               <TrendingUp className="h-3.5 w-3.5" /> Your plan
             </div>
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Link href="/app/billing">Manage →</Link>
+              <Link href="/app/billing">Manage <ArrowRight className="h-3 w-3" /></Link>
             </Button>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
@@ -87,7 +169,7 @@ export default async function DashboardPage() {
               {plan.price_monthly ? `$${plan.price_monthly}/mo` : "Free"}
             </span>
           </div>
-          <ul className="mt-4 space-y-2 text-sm">
+          <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
             {plan.features.map((f) => (
               <li key={f} className="flex items-start gap-2.5 text-muted-foreground">
                 <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-foreground/40" />
@@ -97,16 +179,17 @@ export default async function DashboardPage() {
           </ul>
         </div>
 
-        <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6">
+        <div className="surface-card relative flex flex-col overflow-hidden p-6">
+          <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-signal/10 blur-3xl" />
           <div className="label-caps flex items-center gap-2">
-            <Bell className="h-3.5 w-3.5" /> Get notified faster
+            <Zap className="h-3.5 w-3.5 text-signal" /> Slack alerts
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Add a Slack webhook to get alerts in seconds — much faster than email.
-            Never miss a stealth flip again.
+          <h3 className="mt-3 text-base font-bold tracking-tight">Get notified in seconds</h3>
+          <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+            Wire up an incoming webhook so your team sees stealth flips the moment they happen.
           </p>
-          <Button asChild variant="outline" size="sm" className="mt-4">
-            <Link href="/app/alerts">Configure alerts</Link>
+          <Button asChild variant="outline" size="sm" className="mt-4 w-full">
+            <Link href="/app/alerts">Configure alerts <ArrowRight className="h-3 w-3" /></Link>
           </Button>
         </div>
       </div>
@@ -114,18 +197,38 @@ export default async function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, icon, sub }: { label: string; value: string | number; icon: React.ReactNode; sub?: string }) {
+function StatCard({
+  label,
+  value,
+  icon,
+  sub,
+  series,
+  accent = "text-signal",
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  sub?: string;
+  series?: number[];
+  accent?: string;
+}) {
   return (
-    <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-5">
-      <div className="flex items-center justify-between">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+    <div className="surface-card surface-card-hover relative overflow-hidden p-5">
+      <div className="flex items-start justify-between">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {label}
         </div>
-        <div className="text-muted-foreground/70">{icon}</div>
+        <div className="text-muted-foreground/60">{icon}</div>
       </div>
       <div className="tnum mt-3 text-3xl font-bold tracking-tight">{value}</div>
-      {sub && <div className="mt-1.5 text-xs text-muted-foreground">{sub}</div>}
+      <div className="mt-1.5 flex items-end justify-between gap-2">
+        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+        {series && (
+          <div className={`shrink-0 ${accent}`}>
+            <Sparkline data={series} width={64} height={22} strokeWidth={1.5} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
