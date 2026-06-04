@@ -2,6 +2,23 @@ import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { EventRow, Lab, Profile } from "@/types/db";
 
+export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", orgId);
+  const watchlistIds = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (watchlistIds.length === 0) return false;
+
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("profile_id")
+    .eq("profile_id", profileId)
+    .in("watchlist_id", watchlistIds)
+    .limit(1)
+    .maybeSingle();
+  return Boolean(data);
+}
+
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
