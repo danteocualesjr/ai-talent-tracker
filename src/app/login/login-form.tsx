@@ -7,11 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export function LoginForm({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string; error?: string }>;
+}) {
   const params = use(searchParams);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const authError = params.error === "auth";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,6 +46,11 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   return (
     <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+      {authError && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          Sign-in failed. Please request a new magic link.
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input

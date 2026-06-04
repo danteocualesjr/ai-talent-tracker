@@ -5,7 +5,11 @@ import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Log in" };
 
-export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string; error?: string }>;
+}) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
       <div className="absolute right-4 top-4 z-10 md:right-6 md:top-6">

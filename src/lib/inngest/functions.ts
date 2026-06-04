@@ -31,6 +31,12 @@ export const scheduleRefreshes = inngest.createFunction(
 
     if (due.length === 0) return { refreshed: 0 };
 
+    // Lock profiles before fan-out so hourly cron doesn't re-enqueue the same rows.
+    const lockUntil = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await step.run("lock-profiles", async () => {
+      await db.from("profiles").update({ next_sync_at: lockUntil }).in("id", due.map((p) => p.id));
+    });
+
     await step.sendEvent(
       "fan-out",
       due.map((p) => ({ name: "profile/refresh.requested", data: { profile_id: p.id, reason: "cron" } })),
@@ -60,6 +66,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
       return data as Profile;
     });
+
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -95,8 +103,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -109,6 +117,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First sync only seeds profile data — skip spurious change events.
+    if (!profile.last_synced_at) return { changed: true, eventCreated: false };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {

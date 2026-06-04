@@ -10,7 +10,17 @@ export function formatRelative(date: Date | string | null | undefined) {
   const d = typeof date === "string" ? new Date(date) : date;
   if (Number.isNaN(d.getTime())) return "unknown";
   const diff = Date.now() - d.getTime();
-  if (diff < 0) return "just now";
+  if (diff < 0) {
+    const ahead = Math.abs(diff);
+    const sec = Math.floor(ahead / 1000);
+    if (sec < 60) return `in ${sec}s`;
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `in ${min}m`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `in ${hr}h`;
+    const day = Math.floor(hr / 24);
+    return `in ${day}d`;
+  }
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}s ago`;
   const min = Math.floor(sec / 60);
@@ -22,6 +32,19 @@ export function formatRelative(date: Date | string | null | undefined) {
   const mo = Math.floor(day / 30);
   if (mo < 12) return `${mo}mo ago`;
   return `${Math.floor(mo / 12)}y ago`;
+}
+
+/** Restrict post-login redirects to same-origin relative paths. */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next) return fallback;
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
+  try {
+    const url = new URL(next, "http://local");
+    if (url.origin !== "http://local") return fallback;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return fallback;
+  }
 }
 
 export function normalizeLinkedInUrl(url: string): string | null {
