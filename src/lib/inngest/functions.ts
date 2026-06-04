@@ -110,6 +110,9 @@ export const refreshProfile = inngest.createFunction(
 
     if (!stored) return { changed: false };
 
+    // First sync only establishes a baseline — avoid false-positive events.
+    if (!profile.last_synced_at) return { changed: true, eventCreated: false, baseline: true };
+
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
