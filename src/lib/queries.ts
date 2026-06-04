@@ -7,8 +7,9 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
   const db = createAdminClient();
   const { data } = await db
     .from("watchlist_profiles")
-    .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
-    .eq("watchlists.org_id", orgId);
+    .select("watchlist_id, profiles!inner(*), watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId)
+    .eq("profiles.is_opted_out", false);
 
   return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
     ...(r.profiles as Profile),
@@ -20,19 +21,28 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
 
-  const { data: watched } = await db
+  const { data: watched, error: watchErr } = await db
     .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
-    .eq("watchlists.org_id", orgId);
+    .select("profile_id, profiles!inner(is_opted_out), watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId)
+    .eq("profiles.is_opted_out", false);
+  if (watchErr) {
+    console.error("[getOrgEvents] watchlist query failed", watchErr);
+    return [];
+  }
   const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
   if (ids.length === 0) return [];
 
-  const { data } = await db
+  const { data, error } = await db
     .from("events")
     .select("*, profile:profiles(*)")
     .in("profile_id", ids)
     .order("detected_at", { ascending: false })
     .limit(limit);
+  if (error) {
+    console.error("[getOrgEvents] events query failed", error);
+    return [];
+  }
 
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
 }
