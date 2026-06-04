@@ -50,17 +50,41 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.warn("[stripe] subscription missing price id", sub.id);
+    return;
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.warn("[stripe] unmapped price id", priceId);
+    return;
+  }
 
-  await db
+  const payload = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const customerId = sub.customer as string;
+  const { data, error } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(payload)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+
+  if (error) {
+    console.error("[stripe] failed to update org for customer", customerId, error.message);
+    return;
+  }
+  if (!data?.length) {
+    const orgId = sub.metadata?.org_id;
+    if (orgId) {
+      const { error: fallbackErr } = await db.from("organizations").update(payload).eq("id", orgId);
+      if (fallbackErr) console.error("[stripe] fallback org update failed", orgId, fallbackErr.message);
+    } else {
+      console.warn("[stripe] no org matched customer", customerId);
+    }
+  }
 }
