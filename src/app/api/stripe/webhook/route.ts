@@ -54,13 +54,28 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const update = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const { data, error } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(update)
+    .eq("stripe_customer_id", sub.customer as string)
+    .select("id");
+  if (error) throw error;
+
+  if (!data?.length) {
+    const customer = await stripe.customers.retrieve(sub.customer as string);
+    const orgId = !("deleted" in customer && customer.deleted) ? customer.metadata?.org_id : undefined;
+    if (!orgId) {
+      console.error("[stripe] no org matched for customer", sub.customer);
+      return;
+    }
+    const { error: fallbackErr } = await db.from("organizations").update(update).eq("id", orgId);
+    if (fallbackErr) throw fallbackErr;
+  }
 }

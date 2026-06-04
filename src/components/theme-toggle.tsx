@@ -18,6 +18,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   const isDark = mounted && resolvedTheme === "dark";
 
   function toggleTheme() {
+    if (!mounted) return;
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
   }
 
@@ -26,18 +27,20 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       type="button"
       aria-label="Toggle theme"
       suppressHydrationWarning
+      disabled={!mounted}
       onClick={toggleTheme}
       className={cn(
         "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors",
         "hover:border-foreground/15 hover:bg-card hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+        "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
     >
       {mounted ? (
         isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />
       ) : (
-        <Moon className="h-4 w-4" />
+        <span className="h-4 w-4" aria-hidden />
       )}
     </button>
   );
