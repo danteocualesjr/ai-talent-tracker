@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutDashboard; label: string }[] }[] = [
@@ -56,13 +57,16 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
       {/* Mobile header */}
       <div className="sticky top-0 z-30 flex h-[60px] items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl md:hidden">
         <Logo href="/app" />
-        <button
-          onClick={() => setOpen(!open)}
-          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent"
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <button
+            onClick={() => setOpen(!open)}
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent"
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {open && (

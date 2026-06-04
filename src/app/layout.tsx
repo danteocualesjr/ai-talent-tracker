@@ -3,6 +3,7 @@ import { Instrument_Serif, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/g
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogAnalytics } from "@/components/analytics";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -41,9 +42,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background font-sans antialiased" suppressHydrationWarning>
-        {children}
-        <Toaster position="top-right" richColors toastOptions={{ className: "font-sans" }} />
-        <PostHogAnalytics />
+        <ThemeProvider>
+          {children}
+          <Toaster position="top-right" richColors toastOptions={{ className: "font-sans" }} />
+          <PostHogAnalytics />
+        </ThemeProvider>
       </body>
     </html>
   );

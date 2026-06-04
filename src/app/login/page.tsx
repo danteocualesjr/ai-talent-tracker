@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Log in" };
@@ -7,6 +8,9 @@ export const metadata = { title: "Log in" };
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
+      <div className="absolute right-4 top-4 z-10 md:right-6 md:top-6">
+        <ThemeToggle />
+      </div>
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
       <div className="pointer-events-none absolute inset-x-0 top-1/3 -z-0 mx-auto h-72 w-[480px] rounded-full bg-signal/12 blur-[120px]" />

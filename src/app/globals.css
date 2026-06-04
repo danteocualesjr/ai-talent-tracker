@@ -35,7 +35,8 @@
     --accent-amber: 36 88% 56%;
   }
 
-  .dark {
+  .dark,
+  :root.dark {
     /* Deep midnight with cool undertone */
     --background: 224 24% 5%;
     --foreground: 220 18% 96%;

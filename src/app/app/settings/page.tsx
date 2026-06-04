@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { PageHeader } from "@/components/page-header";
 import { Panel } from "@/components/panel";
+import { ThemeSettings } from "@/components/theme-settings";
 
 export const metadata = { title: "Settings" };
 
@@ -19,6 +20,10 @@ export default async function SettingsPage() {
         icon={<SettingsIcon className="h-4 w-4" />}
         description="Workspace identifiers and account info."
       />
+
+      <Panel title="Appearance" description="Choose how the app looks on this device.">
+        <ThemeSettings />
+      </Panel>
 
       <Panel title="Workspace" bodyClassName="divide-y divide-border/60">
         <Row label="Name" value={org.name} />

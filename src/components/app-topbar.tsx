@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Kbd } from "@/components/ui/kbd";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -129,6 +130,8 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
             <Kbd>K</Kbd>
           </span>
         </button>
+
+        <ThemeToggle />
 
         <button
           type="button"

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -63,6 +64,7 @@ export function MarketingNav() {
             );
           })}
           <span className="mx-2 h-4 w-px bg-border/80" />
+          <ThemeToggle />
           <Link
             href="/login"
             className="rounded-lg px-3.5 py-2 text-muted-foreground transition-colors hover:bg-accent/80 hover:text-foreground"
@@ -113,6 +115,10 @@ export function MarketingNav() {
           >
             Log in
           </Link>
+          <div className="flex items-center gap-2 px-3 py-2">
+            <span className="text-sm text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
           <Button asChild className="mt-2">
             <Link href="/login">Start tracking</Link>
           </Button>
