@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -16,5 +16,11 @@ export async function POST() {
     customer: org.stripe_customer_id,
     return_url: `${siteUrl()}/app/billing`,
   });
-  return NextResponse.json({ url: session.url });
+  if (!session.url) return NextResponse.json({ error: "portal unavailable" }, { status: 500 });
+
+  const accept = req.headers.get("accept") ?? "";
+  if (accept.includes("application/json")) {
+    return NextResponse.json({ url: session.url });
+  }
+  return NextResponse.redirect(session.url, 303);
 }
