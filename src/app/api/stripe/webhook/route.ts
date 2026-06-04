@@ -26,7 +26,10 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      const active = sub.status === "active" || sub.status === "trialing";
+      if (active) await applySubscription(db, sub);
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -50,17 +53,37 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe] subscription missing price id", sub.id);
+    return;
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unmapped price id", priceId, "for subscription", sub.id);
+    return;
+  }
 
-  await db
-    .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+  const customerId = sub.customer as string;
+  const updates = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+    stripe_customer_id: customerId,
+  };
+
+  const customer = await stripe.customers.retrieve(customerId);
+  const orgId =
+    !("deleted" in customer && customer.deleted) && customer.metadata?.org_id
+      ? customer.metadata.org_id
+      : null;
+
+  if (orgId) {
+    const { error } = await db.from("organizations").update(updates).eq("id", orgId);
+    if (error) console.error("[stripe] failed to update org by metadata", orgId, error);
+    return;
+  }
+
+  const { error } = await db.from("organizations").update(updates).eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe] failed to update org by customer id", customerId, error);
 }
