@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { isAllowedPriceId, stripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
@@ -7,6 +7,9 @@ import { ensureOrgForUser } from "@/lib/org";
 export async function POST(req: NextRequest) {
   const { priceId } = (await req.json()) as { priceId?: string };
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
+  if (!isAllowedPriceId(priceId)) {
+    return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
+  }
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
@@ -34,5 +37,8 @@ export async function POST(req: NextRequest) {
     allow_promotion_codes: true,
   });
 
+  if (!session.url) {
+    return NextResponse.json({ error: "checkout session missing url" }, { status: 500 });
+  }
   return NextResponse.json({ url: session.url });
 }
