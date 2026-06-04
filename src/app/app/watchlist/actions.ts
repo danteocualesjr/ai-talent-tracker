@@ -6,6 +6,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
+import { isProfileOnOrgWatchlist } from "@/lib/profile-access";
 import type { Profile, Watchlist } from "@/types/db";
 
 const AddSchema = z.object({ linkedin_url: z.string().min(1) });
@@ -35,6 +36,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
 
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+  if (profile?.is_opted_out) {
+    return { error: "This profile has opted out of tracking." };
+  }
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
     if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
@@ -88,6 +92,18 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+  if (!(await isProfileOnOrgWatchlist(db, profileId, org.id))) return;
+
+  const { data: profile } = await db.from("profiles").select("is_opted_out").eq("id", profileId).maybeSingle();
+  if (profile?.is_opted_out) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {

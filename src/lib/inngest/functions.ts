@@ -90,18 +90,19 @@ export const refreshProfile = inngest.createFunction(
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
+      const isManual = provider.name === "manual";
       await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
+          headline: isManual ? profile.headline : (fetched.headline ?? profile.headline),
+          current_company: isManual ? profile.current_company : fetched.current_company,
+          current_title: isManual ? profile.current_title : fetched.current_title,
+          location: isManual ? profile.location : (fetched.location ?? profile.location),
+          avatar_url: isManual ? profile.avatar_url : (fetched.avatar_url ?? profile.avatar_url),
+          about: isManual ? profile.about : (fetched.about ?? profile.about),
+          github_handle: isManual ? profile.github_handle : (fetched.github_handle ?? profile.github_handle),
+          x_handle: isManual ? profile.x_handle : (fetched.x_handle ?? profile.x_handle),
           last_synced_at: new Date().toISOString(),
           next_sync_at: next,
         })
@@ -109,6 +110,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // Manual provider has no real profile data; avoid false departure alerts.
+    if (provider.name === "manual") return { changed: true, eventCreated: false };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
