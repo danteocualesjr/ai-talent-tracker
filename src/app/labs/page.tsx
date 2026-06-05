@@ -35,6 +35,20 @@ export default async function PublicLabsPage() {
             <LabMetric label="Domains mapped" value={domainCount} />
           </div>
 
+          <div className="surface-card grid gap-4 p-5 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <div className="text-sm font-semibold">Roster playbook</div>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Start with featured labs, bulk-add priority researchers, then route stealth and departure alerts into your team workflow.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 md:justify-end">
+              <span className="chip">Bulk watchlist</span>
+              <span className="chip">Lab changes</span>
+              <span className="chip">Hiring maps</span>
+            </div>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {labs.map((l) => (
               <Link
