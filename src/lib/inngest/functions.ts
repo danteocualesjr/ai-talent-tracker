@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,7 +91,7 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await nextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
@@ -109,6 +111,13 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // Skip event creation on baseline ingestion (first snapshot only).
+    const { count: snapshotCount } = await db
+      .from("profile_snapshots")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", profileId);
+    if ((snapshotCount ?? 0) <= 1) return { changed: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -184,9 +193,41 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<string, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists!inner(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let hours = CADENCE_HOURS.weekly;
+  for (const row of data ?? []) {
+    const watchlists = (row as { watchlists: unknown }).watchlists;
+    const wl = Array.isArray(watchlists) ? watchlists[0] : watchlists;
+    if (!wl || typeof wl !== "object") continue;
+    const orgs = (wl as { organizations?: unknown }).organizations;
+    const org = Array.isArray(orgs) ? orgs[0] : orgs;
+    const cadence =
+      org && typeof org === "object" && "refresh_cadence" in org
+        ? String((org as { refresh_cadence: string }).refresh_cadence)
+        : null;
+    if (!cadence) continue;
+    const h = CADENCE_HOURS[cadence] ?? CADENCE_HOURS.weekly;
+    if (h < hours) hours = h;
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    hours = Math.min(hours, 6);
+  }
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }
