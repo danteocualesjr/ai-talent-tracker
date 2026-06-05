@@ -7,10 +7,17 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_place
   typescript: true,
 });
 
+const PRO_PRICE = process.env.STRIPE_PRICE_PRO;
+const TEAM_PRICE = process.env.STRIPE_PRICE_TEAM;
+
 export const PRICE_PLAN_MAP: Record<string, { plan: Plan; profile_limit: number; cadence: "weekly" | "daily" | "hourly" }> = {
-  [process.env.STRIPE_PRICE_PRO || "price_pro"]:   { plan: "pro",  profile_limit: 100,  cadence: "daily"  },
-  [process.env.STRIPE_PRICE_TEAM || "price_team"]: { plan: "team", profile_limit: 1000, cadence: "hourly" },
+  ...(PRO_PRICE ? { [PRO_PRICE]: { plan: "pro" as const, profile_limit: 100, cadence: "daily" as const } } : {}),
+  ...(TEAM_PRICE ? { [TEAM_PRICE]: { plan: "team" as const, profile_limit: 1000, cadence: "hourly" as const } } : {}),
 };
+
+export function isAllowedCheckoutPrice(priceId: string): boolean {
+  return priceId in PRICE_PLAN_MAP;
+}
 
 export const PLAN_DETAILS: Record<Plan, { name: string; price_monthly: number; profile_limit: number; features: string[] }> = {
   free:       { name: "Free",       price_monthly: 0,    profile_limit: 5,    features: ["Public departure feed", "5 watchlist profiles", "Weekly refresh"] },

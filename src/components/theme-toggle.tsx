@@ -18,7 +18,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   const isDark = mounted && resolvedTheme === "dark";
 
   function toggleTheme() {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    if (!mounted) return;
+    setTheme(isDark ? "light" : "dark");
   }
 
   return (

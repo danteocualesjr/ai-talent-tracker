@@ -50,11 +50,14 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) throw new Error("subscription missing price id");
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe webhook] unknown price id:", priceId);
+    throw new Error(`unknown price id: ${priceId}`);
+  }
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +66,5 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
 }
