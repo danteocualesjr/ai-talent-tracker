@@ -110,6 +110,17 @@ export const refreshProfile = inngest.createFunction(
 
     if (!stored) return { changed: false };
 
+    const hasPriorSnapshot = await step.run("check-prior-snapshot", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId)
+        .neq("id", stored.id);
+      if (error) throw error;
+      return (count ?? 0) > 0;
+    });
+    if (!hasPriorSnapshot) return { changed: true, eventCreated: false };
+
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
