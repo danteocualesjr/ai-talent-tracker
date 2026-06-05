@@ -52,7 +52,10 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.warn(`[stripe] unmapped price id: ${priceId} for customer ${sub.customer}`);
+    return;
+  }
 
   await db
     .from("organizations")
