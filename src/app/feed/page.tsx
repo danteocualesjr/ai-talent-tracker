@@ -17,6 +17,10 @@ export const revalidate = 300;
 
 export default async function PublicFeedPage() {
   const events = await getPublicEvents(100);
+  const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
+  const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
+  const foundingSignals = events.filter((event) => event.type === "headline_signals_founding" || event.type === "went_stealth").length;
+
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
@@ -40,7 +44,13 @@ export default async function PublicFeedPage() {
           </Button>
         </MarketingHero>
 
-        <section className="container max-w-3xl py-10 md:py-12">
+        <section className="container max-w-3xl space-y-5 py-10 md:py-12">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <FeedStat label="Last 7 days" value={last7} />
+            <FeedStat label="High confidence" value={highConfidence} />
+            <FeedStat label="Founder signals" value={foundingSignals} />
+          </div>
+
           <Panel
             title={
               <>
@@ -62,6 +72,15 @@ export default async function PublicFeedPage() {
         </section>
       </main>
       <MarketingFooter />
+    </div>
+  );
+}
+
+function FeedStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="surface-card p-4">
+      <div className="tnum text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }
