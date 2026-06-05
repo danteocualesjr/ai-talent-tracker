@@ -19,6 +19,11 @@ export default async function AlertsPage() {
   const db = createAdminClient();
   const { data } = await db.from("notification_channels").select("*").eq("org_id", org.id).order("created_at");
   const channels = (data ?? []) as NotificationChannel[];
+  const channelCounts = {
+    email: channels.filter((channel) => channel.type === "email").length,
+    slack: channels.filter((channel) => channel.type === "slack").length,
+    webhook: channels.filter((channel) => channel.type === "webhook").length,
+  };
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -28,6 +33,12 @@ export default async function AlertsPage() {
         icon={<Bell className="h-4 w-4" />}
         description="Where we deliver detected change events."
       />
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <ChannelMetric label="Email" value={channelCounts.email} />
+        <ChannelMetric label="Slack" value={channelCounts.slack} />
+        <ChannelMetric label="Webhooks" value={channelCounts.webhook} />
+      </div>
 
       <Panel title="Active channels" bodyClassName={channels.length === 0 ? undefined : "divide-y divide-border/60"}>
         {channels.length === 0 ? (
@@ -114,6 +125,15 @@ export default async function AlertsPage() {
           </form>
         </ChannelCard>
       </div>
+    </div>
+  );
+}
+
+function ChannelMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="surface-card p-4">
+      <div className="tnum text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }
