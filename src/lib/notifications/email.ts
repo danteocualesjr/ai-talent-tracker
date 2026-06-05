@@ -1,5 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
+import { escapeHtml, safeHttpsUrl } from "@/lib/utils";
 
 const FROM = process.env.RESEND_FROM || "AI Talent Tracker <alerts@example.com>";
 
@@ -27,15 +28,16 @@ export function renderEventEmail(args: {
   detectedAt: string;
 }): { subject: string; html: string } {
   const subject = `[Tracker] ${args.name} — ${labelFor(args.type)}`;
+  const linkedinUrl = safeHttpsUrl(args.linkedinUrl) ?? "#";
   const html = `
     <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px;margin:auto;padding:24px">
       <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666">${labelFor(args.type)}</div>
       <h2 style="margin:8px 0 16px">${escapeHtml(args.name)}</h2>
       <p style="font-size:15px;line-height:1.5">${escapeHtml(args.summary)}</p>
       <p style="margin-top:24px">
-        <a href="${args.linkedinUrl}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
+        <a href="${escapeHtml(linkedinUrl)}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
       </p>
-      <p style="color:#888;font-size:12px;margin-top:32px">Detected ${args.detectedAt}</p>
+      <p style="color:#888;font-size:12px;margin-top:32px">Detected ${escapeHtml(args.detectedAt)}</p>
     </div>`;
   return { subject, html };
 }
@@ -52,6 +54,3 @@ function labelFor(type: string): string {
   }
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
-}
