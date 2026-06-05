@@ -19,9 +19,15 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: watched, error: watchErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = [...new Set((watched ?? []).map((w) => (w as { profile_id: string }).profile_id))];
+      if (watchedIds.length === 0) return [];
+
       const { data, error } = await db
         .from("profiles")
         .select("id")
+        .in("id", watchedIds)
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -61,6 +67,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -71,7 +79,15 @@ export const refreshProfile = inngest.createFunction(
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { snapshot: null, isBaseline: false };
+
+      const { data: prior } = await db
+        .from("profile_snapshots")
+        .select("id")
+        .eq("profile_id", profileId)
+        .limit(1)
+        .maybeSingle();
+      const isBaseline = !prior;
 
       const { data, error } = await db
         .from("profile_snapshots")
@@ -83,8 +99,11 @@ export const refreshProfile = inngest.createFunction(
         })
         .select("*")
         .single();
-      if (error) throw error;
-      return data as ProfileSnapshot;
+      if (error) {
+        if (error.code === "23505") return { snapshot: null, isBaseline: false };
+        throw error;
+      }
+      return { snapshot: data as ProfileSnapshot, isBaseline };
     });
 
     // Always bump last_synced_at + reschedule.
@@ -108,7 +127,8 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    if (!stored.snapshot) return { changed: false };
+    if (stored.isBaseline) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
