@@ -15,6 +15,9 @@ export const revalidate = 600;
 
 export default async function PublicLabsPage() {
   const labs = await listLabs();
+  const featuredCount = labs.filter((lab) => lab.is_featured).length;
+  const domainCount = labs.filter((lab) => lab.domain).length;
+
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
@@ -25,7 +28,13 @@ export default async function PublicLabsPage() {
           description="Click a lab to see its live roster, departures, and stealth flips."
         />
 
-        <section className="container py-12 md:py-16">
+        <section className="container space-y-6 py-12 md:py-16">
+          <div className="grid gap-3 md:grid-cols-3">
+            <LabMetric label="Labs indexed" value={labs.length} />
+            <LabMetric label="Featured rosters" value={featuredCount} />
+            <LabMetric label="Domains mapped" value={domainCount} />
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {labs.map((l) => (
               <Link
@@ -57,6 +66,15 @@ export default async function PublicLabsPage() {
         </section>
       </main>
       <MarketingFooter />
+    </div>
+  );
+}
+
+function LabMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="surface-card p-4">
+      <div className="tnum text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }
