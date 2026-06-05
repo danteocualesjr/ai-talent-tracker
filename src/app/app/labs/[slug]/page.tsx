@@ -15,6 +15,8 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
 
   const stealth = people.filter((p) => p.status === "stealth").length;
   const left = people.filter((p) => p.status === "left").length;
+  const founders = people.filter((p) => p.status === "founder").length;
+  const active = people.filter((p) => p.status === "active").length;
 
   return (
     <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -45,6 +47,20 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
           <Stat label="Stealth" value={stealth} tone="signal" />
           <Stat label="Left" value={left} tone="muted" />
         </div>
+      </div>
+
+      <div className="surface-card grid gap-3 p-5 sm:grid-cols-4">
+        {[
+          ["Active", active],
+          ["Stealth", stealth],
+          ["Founders", founders],
+          ["Departed", left],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-xl border border-border/60 bg-background p-4">
+            <div className="tnum text-2xl font-bold">{value}</div>
+            <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          </div>
+        ))}
       </div>
 
       <Panel title="Employees" bodyClassName={people.length === 0 ? undefined : "divide-y divide-border/60"}>

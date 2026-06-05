@@ -15,6 +15,9 @@ export default async function EventsPage() {
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const events = await getOrgEvents(org.id, 200);
+  const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
+  const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
+  const publicEvents = events.filter((event) => event.is_public).length;
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -24,6 +27,25 @@ export default async function EventsPage() {
         icon={<Activity className="h-4 w-4" />}
         description="All detected changes across your watchlists."
       />
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <EventMetric label="Last 7 days" value={last7} />
+        <EventMetric label="High confidence" value={highConfidence} />
+        <EventMetric label="Public feed" value={publicEvents} />
+      </div>
+
+      <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
+        {[
+          ["Review", "Open high-confidence stealth and founding signals first."],
+          ["Qualify", "Compare the summary with the profile timeline before outreach."],
+          ["Route", "Send public signals to the feed and private signals to Slack or webhook channels."],
+        ].map(([title, body]) => (
+          <div key={title}>
+            <div className="text-sm font-semibold">{title}</div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+          </div>
+        ))}
+      </div>
 
       <Panel
         title={
@@ -56,6 +78,15 @@ export default async function EventsPage() {
           events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
         )}
       </Panel>
+    </div>
+  );
+}
+
+function EventMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="surface-card p-4">
+      <div className="tnum text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }

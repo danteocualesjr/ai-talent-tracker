@@ -27,6 +27,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
   const eventList = (events ?? []) as EventRow[];
   const snapshotList = (snaps ?? []) as ProfileSnapshot[];
+  const latestConfidence = eventList[0] ? `${Math.round(eventList[0].confidence * 100)}%` : "—";
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -78,6 +79,12 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         )}
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        <ProfileMetric label="Events" value={eventList.length} />
+        <ProfileMetric label="Snapshots" value={snapshotList.length} />
+        <ProfileMetric label="Latest confidence" value={latestConfidence} />
+      </div>
+
       <Panel title="Event timeline" bodyClassName="p-6">
           {eventList.length === 0 ? (
             <div className="text-center text-sm text-muted-foreground">No changes detected yet.</div>
@@ -104,6 +111,15 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
             </div>
           ))}
       </Panel>
+    </div>
+  );
+}
+
+function ProfileMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="surface-card p-4">
+      <div className="tnum text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }

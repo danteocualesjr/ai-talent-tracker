@@ -123,6 +123,34 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             ))}
           </div>
 
+          <div className="animate-fade-up animate-fade-up-delay-5 mx-auto mt-5 max-w-2xl rounded-2xl border border-border/60 bg-background/70 p-3 text-left shadow-sm backdrop-blur-xl">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-signal/10 text-signal">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Daily signal brief</div>
+                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                    A ranked digest of stealth flips, founders, and high-confidence moves across your watchlist.
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center sm:w-[260px]">
+                {[
+                  ["7", "urgent"],
+                  ["18", "warm"],
+                  ["4", "founders"],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-xl border border-border/60 bg-card px-3 py-2">
+                    <div className="tnum text-lg font-bold">{value}</div>
+                    <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="relative mx-auto mt-14 max-w-5xl">
             <div className="absolute inset-x-16 -bottom-10 -z-10 h-40 rounded-full bg-signal/15 blur-[80px]" />
             <div className="absolute inset-x-24 -bottom-6 -z-10 h-24 rounded-full bg-foreground/6 blur-3xl" />
@@ -182,6 +210,36 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="relative">
             <div className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
             <LiveTicker />
+          </div>
+        </div>
+      </section>
+
+      {/* Signal intelligence */}
+      <section className="border-b border-border/60">
+        <div className="container py-20 md:py-24">
+          <div className="grid items-start gap-10 md:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <div className="label-caps">Signal intelligence</div>
+              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+                Turn profile noise into ranked next actions.
+              </h2>
+              <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
+                Every detected change is scored, classified, and routed so your team knows what to do first.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                ["01", "Classify", "Label departures, stealth pivots, founder language, and joiners automatically."],
+                ["02", "Prioritize", "Bubble up high-confidence moves from your target labs and active hiring maps."],
+                ["03", "Route", "Send the right brief to Slack, email, webhook, or the public feed."],
+              ].map(([step, title, body]) => (
+                <div key={step} className="surface-card surface-card-hover p-5">
+                  <div className="tnum text-xs font-semibold text-signal">{step}</div>
+                  <h3 className="mt-3 text-base font-bold tracking-tight">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

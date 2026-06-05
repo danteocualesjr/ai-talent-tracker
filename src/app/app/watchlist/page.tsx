@@ -29,6 +29,12 @@ export default async function WatchlistPage() {
   const profiles = await listOrgProfiles(org.id);
 
   const fill = Math.min(100, (profiles.length / org.profile_limit) * 100);
+  const statusCounts = {
+    active: profiles.filter((profile) => profile.status === "active").length,
+    stealth: profiles.filter((profile) => profile.status === "stealth").length,
+    founder: profiles.filter((profile) => profile.status === "founder").length,
+    left: profiles.filter((profile) => profile.status === "left").length,
+  };
 
   return (
     <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -52,9 +58,41 @@ export default async function WatchlistPage() {
         </div>
       </PageHeader>
 
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          ["Active", statusCounts.active],
+          ["Stealth", statusCounts.stealth],
+          ["Founder", statusCounts.founder],
+          ["Left", statusCounts.left],
+        ].map(([label, value]) => (
+          <div key={label} className="surface-card p-4">
+            <div className="tnum text-2xl font-bold">{value}</div>
+            <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          </div>
+        ))}
+      </div>
+
       <Panel title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
         <AddProfileForm />
       </Panel>
+
+      <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
+        {[
+          ["1", "Paste priority profiles", "Start with researchers, founders, or hiring targets your team already tracks."],
+          ["2", "Refresh immediately", "Use the row action after adding a profile to pull the latest public snapshot."],
+          ["3", "Route alerts", "Connect Slack, email, or webhooks so changes reach the right channel."],
+        ].map(([step, title, body]) => (
+          <div key={step} className="flex gap-3">
+            <div className="tnum flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">
+              {step}
+            </div>
+            <div>
+              <div className="text-sm font-semibold">{title}</div>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <Panel
         title="Tracked profiles"

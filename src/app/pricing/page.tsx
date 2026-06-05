@@ -38,6 +38,32 @@ export default function PricingPage() {
             </p>
           </div>
         </section>
+
+        <section className="container max-w-6xl py-14 md:py-16">
+          <div className="surface-card overflow-hidden">
+            <div className="border-b border-border/60 p-6 md:p-8">
+              <div className="label-caps">Plan guide</div>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">
+                Pick the workspace that matches your signal volume.
+              </h2>
+            </div>
+            <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
+              {[
+                ["Scout", "Free", "Validate a handful of strategic researchers before committing budget."],
+                ["Operator", "Pro", "Monitor one target market with Slack alerts and a larger watchlist."],
+                ["Team", "Team", "Coordinate sourcing, competitive intel, and webhooks across a recruiting pod."],
+              ].map(([persona, plan, description]) => (
+                <div key={persona} className="p-6">
+                  <div className="text-sm font-semibold">{persona}</div>
+                  <div className="mt-2 inline-flex rounded-full border border-border/60 bg-muted/60 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    Best fit: {plan}
+                  </div>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
       <MarketingFooter />
     </div>

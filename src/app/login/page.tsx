@@ -14,25 +14,45 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
       <div className="pointer-events-none absolute inset-x-0 top-1/3 -z-0 mx-auto h-72 w-[480px] rounded-full bg-signal/12 blur-[120px]" />
-      <div className="relative w-full max-w-[400px]">
+      <div className="relative w-full max-w-4xl">
         <div className="mb-10 flex justify-center">
           <Logo />
         </div>
-        <div className="surface-card surface-elevated relative overflow-hidden p-8">
-          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
-          <h1 className="text-balance text-2xl font-bold tracking-tight">Sign in</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            We&apos;ll email you a magic link &mdash; no password required.
-          </p>
-          <LoginForm searchParams={searchParams} />
+        <div className="grid gap-5 md:grid-cols-[400px_1fr]">
+          <div>
+            <div className="surface-card surface-elevated relative overflow-hidden p-8">
+              <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+              <h1 className="text-balance text-2xl font-bold tracking-tight">Sign in</h1>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                We&apos;ll email you a magic link &mdash; no password required.
+              </p>
+              <LoginForm searchParams={searchParams} />
+            </div>
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+              By signing in you agree to our{" "}
+              <Link href="/privacy" className="link-subtle">
+                privacy policy
+              </Link>
+              .
+            </p>
+          </div>
+          <div className="surface-card hidden p-8 md:block">
+            <div className="label-caps">After sign-in</div>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight">Your watchlist starts warming immediately.</h2>
+            <div className="mt-6 space-y-4">
+              {[
+                ["Paste profiles", "Add individual LinkedIn URLs or browse curated lab rosters."],
+                ["Review changes", "See classified events, confidence scores, and profile snapshots."],
+                ["Route alerts", "Send high-signal changes to Slack, email, or signed webhooks."],
+              ].map(([title, body]) => (
+                <div key={title} className="rounded-xl border border-border/60 bg-muted/30 p-4">
+                  <div className="text-sm font-semibold">{title}</div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          By signing in you agree to our{" "}
-          <Link href="/privacy" className="link-subtle">
-            privacy policy
-          </Link>
-          .
-        </p>
       </div>
     </div>
   );

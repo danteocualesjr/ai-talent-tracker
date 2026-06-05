@@ -38,6 +38,14 @@ export default async function DashboardPage() {
   const last30 = events.filter((e) => new Date(e.detected_at).getTime() > Date.now() - 30 * 86400000).length;
   const last7 = events.filter((e) => new Date(e.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const fill = Math.min(100, (profiles.length / org.profile_limit) * 100);
+  const staleProfiles = profiles.filter((profile) => {
+    if (!profile.last_synced_at) return true;
+    return new Date(profile.last_synced_at).getTime() < Date.now() - 7 * 86400000;
+  }).length;
+  const freshProfiles = Math.max(0, profiles.length - staleProfiles);
+  const priorityEvents = events
+    .filter((event) => event.confidence >= 0.8 || event.type === "went_stealth" || event.type === "headline_signals_founding")
+    .slice(0, 3);
 
   return (
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -127,6 +135,51 @@ export default async function DashboardPage() {
         <Button asChild variant="outline" size="sm" className="shrink-0">
           <Link href="/app/billing">Manage <ArrowUpRight className="h-3 w-3" /></Link>
         </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {[
+          ["Fresh profiles", freshProfiles, "Synced within the last 7 days"],
+          ["Needs refresh", staleProfiles, "Missing or older profile snapshots"],
+          ["Cadence", org.refresh_cadence, "Current workspace refresh schedule"],
+        ].map(([label, value, description]) => (
+          <div key={label} className="surface-card p-5">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
+            <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="surface-card overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-border/60 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="label-caps">Priority moves</div>
+            <h2 className="mt-1 text-lg font-bold tracking-tight">Highest-confidence changes to review first</h2>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/app/events">Open event inbox <ArrowRight className="h-3 w-3" /></Link>
+          </Button>
+        </div>
+        <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
+          {priorityEvents.length === 0 ? (
+            <div className="p-5 text-sm text-muted-foreground md:col-span-3">
+              No priority moves yet. Add profiles and high-confidence stealth or founding signals will appear here.
+            </div>
+          ) : (
+            priorityEvents.map((event) => (
+              <Link key={event.id} href={`/app/profiles/${event.profile.id}`} className="group block p-5 transition-colors hover:bg-muted/30">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="truncate text-sm font-semibold">{event.profile.full_name ?? event.profile.linkedin_handle}</div>
+                  <span className="tnum rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">
+                    {Math.round(event.confidence * 100)}%
+                  </span>
+                </div>
+                <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
+              </Link>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Activity feed */}
