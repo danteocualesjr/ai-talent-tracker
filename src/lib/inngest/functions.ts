@@ -19,14 +19,18 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
+        .from("watchlist_profiles")
+        .select("profile_id, profiles!inner(id, next_sync_at, is_opted_out)")
+        .eq("profiles.is_opted_out", false)
+        .or(`profiles.next_sync_at.lte.${now},profiles.next_sync_at.is.null`)
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as { id: string }[];
+      const ids = Array.from(
+        new Set(((data ?? []) as { profile_id: string }[]).map((r) => r.profile_id)),
+      );
+      return ids.map((id) => ({ id }));
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -60,6 +64,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
       return data as Profile;
     });
+
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -95,8 +101,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -109,6 +115,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First baseline sync — store snapshot but don't alert on empty → populated diffs.
+    if (!profile.last_synced_at) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
