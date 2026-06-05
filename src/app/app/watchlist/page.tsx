@@ -56,6 +56,24 @@ export default async function WatchlistPage() {
         <AddProfileForm />
       </Panel>
 
+      <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
+        {[
+          ["1", "Paste priority profiles", "Start with researchers, founders, or hiring targets your team already tracks."],
+          ["2", "Refresh immediately", "Use the row action after adding a profile to pull the latest public snapshot."],
+          ["3", "Route alerts", "Connect Slack, email, or webhooks so changes reach the right channel."],
+        ].map(([step, title, body]) => (
+          <div key={step} className="flex gap-3">
+            <div className="tnum flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">
+              {step}
+            </div>
+            <div>
+              <div className="text-sm font-semibold">{title}</div>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <Panel
         title="Tracked profiles"
         action={<span className="tnum text-xs text-muted-foreground">{profiles.length} total</span>}
