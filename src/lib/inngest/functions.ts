@@ -19,10 +19,11 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${now}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -90,7 +91,7 @@ export const refreshProfile = inngest.createFunction(
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,6 +107,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
