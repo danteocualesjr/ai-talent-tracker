@@ -78,9 +78,10 @@ export function classifyByRules(
     const left = prev.current_company;
     const joined = next.current_company;
     if (left && !joined) {
+      const onlyCompanyChanged = diffs.length === 1;
       return {
         type: "left_company",
-        confidence: 0.8,
+        confidence: onlyCompanyChanged ? 0.4 : 0.8,
         status: "left",
         summary: `Left ${left}. Current company removed from profile.`,
       };
