@@ -214,6 +214,36 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       </section>
 
+      {/* Signal intelligence */}
+      <section className="border-b border-border/60">
+        <div className="container py-20 md:py-24">
+          <div className="grid items-start gap-10 md:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <div className="label-caps">Signal intelligence</div>
+              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+                Turn profile noise into ranked next actions.
+              </h2>
+              <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
+                Every detected change is scored, classified, and routed so your team knows what to do first.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                ["01", "Classify", "Label departures, stealth pivots, founder language, and joiners automatically."],
+                ["02", "Prioritize", "Bubble up high-confidence moves from your target labs and active hiring maps."],
+                ["03", "Route", "Send the right brief to Slack, email, webhook, or the public feed."],
+              ].map(([step, title, body]) => (
+                <div key={step} className="surface-card surface-card-hover p-5">
+                  <div className="tnum text-xs font-semibold text-signal">{step}</div>
+                  <h3 className="mt-3 text-base font-bold tracking-tight">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="border-b border-border/60">
         <div className="container py-20 md:py-28">
