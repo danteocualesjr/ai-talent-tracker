@@ -34,6 +34,19 @@ export default async function EventsPage() {
         <EventMetric label="Public feed" value={publicEvents} />
       </div>
 
+      <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
+        {[
+          ["Review", "Open high-confidence stealth and founding signals first."],
+          ["Qualify", "Compare the summary with the profile timeline before outreach."],
+          ["Route", "Send public signals to the feed and private signals to Slack or webhook channels."],
+        ].map(([title, body]) => (
+          <div key={title}>
+            <div className="text-sm font-semibold">{title}</div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+          </div>
+        ))}
+      </div>
+
       <Panel
         title={
           <>
