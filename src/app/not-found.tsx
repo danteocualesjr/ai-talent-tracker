@@ -31,6 +31,18 @@ export default function NotFound() {
               <Link href="/feed">Browse feed</Link>
             </Button>
           </div>
+          <div className="mx-auto mt-10 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
+            {[
+              ["/labs", "Browse labs", "Open curated AI lab rosters."],
+              ["/pricing", "Compare plans", "Pick the right alert volume."],
+              ["/login", "Sign in", "Return to your dashboard."],
+            ].map(([href, title, body]) => (
+              <Link key={href} href={href} className="surface-card surface-card-hover block p-4">
+                <div className="text-sm font-semibold">{title}</div>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </main>
     </div>
