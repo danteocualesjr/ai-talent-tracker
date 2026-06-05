@@ -55,6 +55,12 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
     { onConflict: "watchlist_id,profile_id" },
   );
 
+  // Prevent the hourly cron from double-queuing while the immediate refresh runs.
+  await db
+    .from("profiles")
+    .update({ next_sync_at: new Date(Date.now() + 60 * 60 * 1000).toISOString() })
+    .eq("id", profileRow.id);
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
   } catch (e) {
@@ -88,6 +94,31 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return;
+
+  const { data: membership } = await db
+    .from("watchlist_profiles")
+    .select("profile_id")
+    .eq("profile_id", profileId)
+    .in("watchlist_id", ids)
+    .maybeSingle();
+  if (!membership) return;
+
+  await db
+    .from("profiles")
+    .update({ next_sync_at: new Date(Date.now() + 60 * 60 * 1000).toISOString() })
+    .eq("id", profileId);
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
