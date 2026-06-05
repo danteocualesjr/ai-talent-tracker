@@ -52,15 +52,31 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.warn("[stripe] unmapped price id:", priceId);
+    return;
+  }
 
-  await db
-    .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+  const update = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+    stripe_customer_id: sub.customer as string,
+  };
+
+  const orgId = sub.metadata?.org_id;
+  if (orgId) {
+    await db.from("organizations").update(update).eq("id", orgId);
+    return;
+  }
+
+  const customerId = sub.customer as string;
+  const customer = await stripe.customers.retrieve(customerId);
+  if (!customer.deleted && customer.metadata?.org_id) {
+    await db.from("organizations").update(update).eq("id", customer.metadata.org_id);
+    return;
+  }
+
+  await db.from("organizations").update(update).eq("stripe_customer_id", customerId);
 }

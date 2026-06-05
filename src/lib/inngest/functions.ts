@@ -9,6 +9,8 @@ import { dispatchEvent } from "@/lib/notifications/dispatch";
 import type { Profile, ProfileSnapshot } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
+const SNAPSHOT_FIELDS_KEY = "_fields";
+
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
  * cadence of any org watching them, then fan out refresh events.
@@ -19,11 +21,19 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: links, error: linkErr } = await db.from("watchlist_profiles").select("profile_id");
+      if (linkErr) throw linkErr;
+      const watchedIds = Array.from(new Set(((links ?? []) as { profile_id: string }[]).map((l) => l.profile_id)));
+      if (watchedIds.length === 0) return [] as { id: string }[];
+
+      const now = new Date().toISOString();
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .in("id", watchedIds)
+        .or(`next_sync_at.lte.${now},next_sync_at.is.null`)
         .eq("is_opted_out", false)
+        .order("next_sync_at", { ascending: true, nullsFirst: true })
         .limit(500);
       if (error) throw error;
       return (data ?? []) as { id: string }[];
@@ -46,7 +56,10 @@ export const scheduleRefreshes = inngest.createFunction(
 export const refreshProfile = inngest.createFunction(
   {
     id: "refresh-profile",
-    concurrency: { limit: 10 },
+    concurrency: [
+      { limit: 10 },
+      { limit: 1, key: "event.data.profile_id" },
+    ],
     retries: 3,
   },
   { event: "profile/refresh.requested" },
@@ -61,72 +74,85 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    const snapshotResult = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
-        .select("id")
+        .select("*")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
+      if (existing) return { snapshot: existing as ProfileSnapshot, isNew: false };
 
       const { data, error } = await db
         .from("profile_snapshots")
         .insert({
           profile_id: profileId,
           source: provider.name,
-          raw: fetched.raw as object,
+          raw: { ...(fetched.raw as object), [SNAPSHOT_FIELDS_KEY]: projectionFields(fetched) },
           content_hash: hash,
         })
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { snapshot: data as ProfileSnapshot, isNew: true };
     });
 
-    // Always bump last_synced_at + reschedule.
-    await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
-        .from("profiles")
-        .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
-          last_synced_at: new Date().toISOString(),
-          next_sync_at: next,
-        })
-        .eq("id", profileId);
+    const isBaseline = await step.run("check-baseline", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return (count ?? 0) <= 1;
     });
 
-    if (!stored) return { changed: false };
+    if (isBaseline) {
+      await step.run("touch-profile", async () => {
+        await touchProfile(db, profileId, profile, fetched);
+      });
+      return { changed: false, baseline: true };
+    }
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
-    const prev: Partial<ProviderProfile> = {
-      full_name: profile.full_name,
-      headline: profile.headline,
-      current_company: profile.current_company,
-      current_title: profile.current_title,
-      location: profile.location,
-      about: profile.about,
-      github_handle: profile.github_handle,
-      x_handle: profile.x_handle,
-    };
+    const prev = await step.run("load-prev-projection", async () =>
+      loadPreviousProjection(db, profileId, hash, profile),
+    );
+
     const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+    if (diffs.length === 0) {
+      await step.run("touch-profile", async () => {
+        await touchProfile(db, profileId, profile, fetched);
+      });
+      return { changed: false };
+    }
+
+    if (!snapshotResult.isNew) {
+      const alreadyProcessed = await step.run("check-processed", async () => {
+        const { data, error } = await db
+          .from("events")
+          .select("id")
+          .eq("profile_id", profileId)
+          .gte("detected_at", snapshotResult.snapshot.fetched_at)
+          .limit(1)
+          .maybeSingle();
+        if (error) throw error;
+        return Boolean(data);
+      });
+      if (alreadyProcessed) {
+        await step.run("touch-profile", async () => {
+          await touchProfile(db, profileId, profile, fetched);
+        });
+        return { changed: false };
+      }
+    }
 
     let classification = classifyByRules(
       diffs,
-      { current_company: profile.current_company, headline: profile.headline },
+      { current_company: prev.current_company ?? profile.current_company, headline: prev.headline ?? profile.headline },
       { current_company: fetched.current_company, headline: fetched.headline },
     );
 
@@ -142,7 +168,12 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification) {
+      await step.run("touch-profile", async () => {
+        await touchProfile(db, profileId, profile, fetched);
+      });
+      return { changed: true, eventCreated: false };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
@@ -162,9 +193,14 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
 
       if (classification!.status) {
-        await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        const { error: statusErr } = await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        if (statusErr) throw statusErr;
       }
       return data;
+    });
+
+    await step.run("touch-profile", async () => {
+      await touchProfile(db, profileId, profile, fetched);
     });
 
     await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
@@ -183,6 +219,78 @@ export const notifyEvent = inngest.createFunction(
     return dispatchEvent(event.data.event_id);
   },
 );
+
+function projectionFields(p: ProviderProfile): Record<string, string | null> {
+  return {
+    full_name: p.full_name,
+    headline: p.headline,
+    current_company: p.current_company,
+    current_title: p.current_title,
+    location: p.location,
+    about: p.about,
+    github_handle: p.github_handle,
+    x_handle: p.x_handle,
+  };
+}
+
+async function loadPreviousProjection(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  currentHash: string,
+  fallback: Profile,
+): Promise<Partial<ProviderProfile>> {
+  const { data: snaps } = await db
+    .from("profile_snapshots")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("fetched_at", { ascending: false })
+    .limit(2);
+
+  const list = (snaps ?? []) as ProfileSnapshot[];
+  const prevSnap = list[0]?.content_hash === currentHash ? list[1] : list[0];
+  if (prevSnap) {
+    const raw = prevSnap.raw as Record<string, unknown>;
+    const fields = raw[SNAPSHOT_FIELDS_KEY] as Record<string, string | null> | undefined;
+    if (fields) return fields;
+  }
+
+  return {
+    full_name: fallback.full_name,
+    headline: fallback.headline,
+    current_company: fallback.current_company,
+    current_title: fallback.current_title,
+    location: fallback.location,
+    about: fallback.about,
+    github_handle: fallback.github_handle,
+    x_handle: fallback.x_handle,
+  };
+}
+
+async function touchProfile(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+  fetched: ProviderProfile,
+): Promise<void> {
+  const next = nextSyncAt(profile);
+  const { error } = await db
+    .from("profiles")
+    .update({
+      full_name: fetched.full_name ?? profile.full_name,
+      headline: fetched.headline ?? profile.headline,
+      current_company: fetched.current_company ?? profile.current_company,
+      current_title: fetched.current_title ?? profile.current_title,
+      location: fetched.location ?? profile.location,
+      avatar_url: fetched.avatar_url ?? profile.avatar_url,
+      about: fetched.about ?? profile.about,
+      github_handle: fetched.github_handle ?? profile.github_handle,
+      x_handle: fetched.x_handle ?? profile.x_handle,
+      last_synced_at: new Date().toISOString(),
+      next_sync_at: next,
+    })
+    .eq("id", profileId);
+  if (error) throw error;
+}
 
 function nextSyncAt(profile: Profile): string {
   // Cadence is the *fastest* cadence among orgs watching this profile.

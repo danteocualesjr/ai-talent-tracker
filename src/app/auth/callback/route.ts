@@ -2,10 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 
+/** Only allow same-origin relative paths to prevent open redirects. */
+function safeNext(next: string): string {
+  if (!next.startsWith("/") || next.startsWith("//")) return "/app";
+  return next;
+}
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/app";
+  const next = safeNext(url.searchParams.get("next") || "/app");
 
   if (!code) return NextResponse.redirect(new URL("/login", request.url));
 
