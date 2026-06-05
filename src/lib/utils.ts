@@ -41,3 +41,33 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths (blocks open redirects like //evil.com). */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next) return fallback;
+  if (!next.startsWith("/") || next.startsWith("//") || next.includes("://")) return fallback;
+  if (next.includes("\\") || next.includes("\0")) return fallback;
+  return next;
+}
+
+/** Prevent CDATA terminator injection in RSS feeds. */
+export function escapeRssCdata(value: string): string {
+  return value.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+/** Block server-side requests to private/metadata endpoints via user webhooks. */
+export function isPublicWebhookUrl(urlString: string): boolean {
+  try {
+    const u = new URL(urlString);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".local") || host === "[::1]") return false;
+    if (/^127\./.test(host) || host === "0.0.0.0" || /^169\.254\./.test(host)) return false;
+    if (/^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}

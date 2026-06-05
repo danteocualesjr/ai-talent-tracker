@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -95,8 +97,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -142,7 +144,9 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification || classification.confidence < 0.6) {
+      return { changed: true, eventCreated: false };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
