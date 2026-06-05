@@ -51,6 +51,21 @@ export default async function PublicFeedPage() {
             <FeedStat label="Founder signals" value={foundingSignals} />
           </div>
 
+          <div className="surface-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-sm font-semibold">Scan by signal type</div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Prioritize departures, stealth pivots, and founding headlines from the public stream.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              <span className="chip">Departures</span>
+              <span className="chip">Stealth</span>
+              <span className="chip">Founders</span>
+              <span className="chip">Joiners</span>
+            </div>
+          </div>
+
           <Panel
             title={
               <>
