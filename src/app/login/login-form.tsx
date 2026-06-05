@@ -19,7 +19,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
     try {
       const supa = createClient();
       const origin = window.location.origin;
-      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(params.next ?? "/app")}`;
+      const redirect = `${origin}/auth/callback?next=${encodeURIComponent(safeRedirectPath(params.next))}`;
       const { error } = await supa.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
       if (error) throw error;
       setSent(true);
