@@ -29,6 +29,12 @@ export default async function WatchlistPage() {
   const profiles = await listOrgProfiles(org.id);
 
   const fill = Math.min(100, (profiles.length / org.profile_limit) * 100);
+  const statusCounts = {
+    active: profiles.filter((profile) => profile.status === "active").length,
+    stealth: profiles.filter((profile) => profile.status === "stealth").length,
+    founder: profiles.filter((profile) => profile.status === "founder").length,
+    left: profiles.filter((profile) => profile.status === "left").length,
+  };
 
   return (
     <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -51,6 +57,20 @@ export default async function WatchlistPage() {
           </div>
         </div>
       </PageHeader>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          ["Active", statusCounts.active],
+          ["Stealth", statusCounts.stealth],
+          ["Founder", statusCounts.founder],
+          ["Left", statusCounts.left],
+        ].map(([label, value]) => (
+          <div key={label} className="surface-card p-4">
+            <div className="tnum text-2xl font-bold">{value}</div>
+            <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          </div>
+        ))}
+      </div>
 
       <Panel title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
         <AddProfileForm />
