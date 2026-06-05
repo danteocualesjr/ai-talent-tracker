@@ -3,11 +3,15 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { addChannel, removeChannel } from "./actions";
+import { removeChannel } from "./actions";
+import {
+  AddChannelForm,
+  EmailChannelFields,
+  SlackChannelFields,
+  WebhookChannelFields,
+} from "./add-channel-form";
 import type { NotificationChannel } from "@/types/db";
 
 export const metadata = { title: "Alerts" };
@@ -64,54 +68,21 @@ export default async function AlertsPage() {
 
       <div className="grid gap-5 md:grid-cols-3">
         <ChannelCard icon={<Mail className="h-4 w-4" />} title="Email" description="Single inbox delivery via Resend.">
-          <form action={addChannel} className="space-y-3">
-            <input type="hidden" name="type" value="email" />
-            <div className="space-y-1.5">
-              <Label htmlFor="to" className="text-xs font-semibold">
-                Email
-              </Label>
-              <Input id="to" name="to" type="email" required placeholder="alerts@you.com" />
-            </div>
-            <Button type="submit" className="w-full" size="sm">
-              Add email
-            </Button>
-          </form>
+          <AddChannelForm type="email" submitLabel="Add email">
+            <EmailChannelFields />
+          </AddChannelForm>
         </ChannelCard>
 
         <ChannelCard icon={<MessageSquare className="h-4 w-4" />} title="Slack" description="Incoming webhook URL.">
-          <form action={addChannel} className="space-y-3">
-            <input type="hidden" name="type" value="slack" />
-            <div className="space-y-1.5">
-              <Label htmlFor="webhook_url" className="text-xs font-semibold">
-                Webhook URL
-              </Label>
-              <Input id="webhook_url" name="webhook_url" type="url" required placeholder="https://hooks.slack.com/..." />
-            </div>
-            <Button type="submit" className="w-full" size="sm">
-              Add Slack
-            </Button>
-          </form>
+          <AddChannelForm type="slack" submitLabel="Add Slack">
+            <SlackChannelFields />
+          </AddChannelForm>
         </ChannelCard>
 
         <ChannelCard icon={<Webhook className="h-4 w-4" />} title="Webhook" description="HMAC-signed POST. Team+.">
-          <form action={addChannel} className="space-y-3">
-            <input type="hidden" name="type" value="webhook" />
-            <div className="space-y-1.5">
-              <Label htmlFor="url" className="text-xs font-semibold">
-                URL
-              </Label>
-              <Input id="url" name="url" type="url" required placeholder="https://api.you.com/events" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="secret" className="text-xs font-semibold">
-                Secret (optional)
-              </Label>
-              <Input id="secret" name="secret" type="text" placeholder="signing secret" />
-            </div>
-            <Button type="submit" className="w-full" size="sm">
-              Add webhook
-            </Button>
-          </form>
+          <AddChannelForm type="webhook" submitLabel="Add webhook">
+            <WebhookChannelFields />
+          </AddChannelForm>
         </ChannelCard>
       </div>
     </div>
