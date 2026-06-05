@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+import { PLAN_DETAILS } from "@/lib/plans";
 
 const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutDashboard; label: string }[] }[] = [
   {
@@ -160,7 +161,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
                 <span className="text-xs font-semibold tracking-tight">Upgrade to Pro</span>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-                Real-time alerts, 250 profiles, and Slack delivery.
+                Real-time alerts, {PLAN_DETAILS.pro.profile_limit} profiles, and Slack delivery.
               </p>
               <Button asChild size="sm" className="mt-3 h-7 w-full text-[11px]">
                 <Link href="/app/billing">

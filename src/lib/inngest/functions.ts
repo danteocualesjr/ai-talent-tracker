@@ -9,6 +9,8 @@ import { dispatchEvent } from "@/lib/notifications/dispatch";
 import type { Profile, ProfileSnapshot } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
+const CADENCE_HOURS: Record<string, number> = { hourly: 1, daily: 24, weekly: 168 };
+
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
  * cadence of any org watching them, then fan out refresh events.
@@ -61,6 +63,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -87,10 +91,9 @@ export const refreshProfile = inngest.createFunction(
       return data as ProfileSnapshot;
     });
 
-    // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await computeNextSyncAt(db, profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,11 +109,21 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
+    const snapshotCount = await step.run("count-snapshots", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return count ?? 0;
+    });
+    if (snapshotCount <= 1) return { changed: true, eventCreated: false, baseline: true };
+
     const prev: Partial<ProviderProfile> = {
       full_name: profile.full_name,
       headline: profile.headline,
@@ -130,7 +143,6 @@ export const refreshProfile = inngest.createFunction(
       { current_company: fetched.current_company, headline: fetched.headline },
     );
 
-    // Escalate ambiguous results to the LLM.
     if (!classification || classification.confidence < 0.6) {
       const llm = await step.run("llm-classify", async () =>
         classifyWithLLM({
@@ -162,7 +174,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
 
       if (classification!.status) {
-        await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        const { error: statusErr } = await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        if (statusErr) throw statusErr;
       }
       return data;
     });
@@ -184,9 +197,29 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+async function computeNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists!inner(organizations!inner(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let minHours = CADENCE_HOURS.weekly;
+  for (const row of data ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] } }).watchlists;
+    const org = wl?.organizations;
+    const cadence = Array.isArray(org) ? org[0]?.refresh_cadence : org?.refresh_cadence;
+    if (cadence && cadence in CADENCE_HOURS) {
+      minHours = Math.min(minHours, CADENCE_HOURS[cadence]);
+    }
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    minHours = Math.min(minHours, 6);
+  }
+
+  return new Date(Date.now() + minHours * 60 * 60 * 1000).toISOString();
 }
