@@ -40,6 +40,27 @@ export default async function AlertsPage() {
         <ChannelMetric label="Webhooks" value={channelCounts.webhook} />
       </div>
 
+      <div className="surface-card overflow-hidden">
+        <div className="border-b border-border/60 px-5 py-4">
+          <div className="label-caps">Preview</div>
+          <h2 className="mt-1 text-lg font-bold tracking-tight">Sample alert payload</h2>
+        </div>
+        <div className="grid gap-4 p-5 md:grid-cols-[1fr_1.2fr]">
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>Alerts include a concise summary, confidence score, profile context, and the changed fields.</p>
+            <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
+          </div>
+          <div className="rounded-xl border border-border/60 bg-muted/40 p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">
+            <div>{"{"}</div>
+            <div className="pl-3">&quot;type&quot;: &quot;went_stealth&quot;,</div>
+            <div className="pl-3">&quot;confidence&quot;: 0.92,</div>
+            <div className="pl-3">&quot;profile&quot;: &quot;Jane Researcher&quot;,</div>
+            <div className="pl-3">&quot;summary&quot;: &quot;Headline changed to building something new&quot;</div>
+            <div>{"}"}</div>
+          </div>
+        </div>
+      </div>
+
       <Panel title="Active channels" bodyClassName={channels.length === 0 ? undefined : "divide-y divide-border/60"}>
         {channels.length === 0 ? (
           <EmptyPanel
