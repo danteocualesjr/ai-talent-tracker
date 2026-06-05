@@ -46,7 +46,10 @@ export const scheduleRefreshes = inngest.createFunction(
 export const refreshProfile = inngest.createFunction(
   {
     id: "refresh-profile",
-    concurrency: { limit: 10 },
+    concurrency: [
+      { limit: 10 },
+      { key: "event.data.profile_id", limit: 1 },
+    ],
     retries: 3,
   },
   { event: "profile/refresh.requested" },
@@ -62,7 +65,8 @@ export const refreshProfile = inngest.createFunction(
     });
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
-    const hash = hashSnapshot(fetched);
+    const merged = mergeFetched(profile, fetched);
+    const hash = hashSnapshot(merged);
 
     const stored = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
@@ -78,7 +82,7 @@ export const refreshProfile = inngest.createFunction(
         .insert({
           profile_id: profileId,
           source: provider.name,
-          raw: fetched.raw as object,
+          raw: merged.raw as object,
           content_hash: hash,
         })
         .select("*")
@@ -89,19 +93,19 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await computeNextSyncAt(db, profileId, profile);
       await db
         .from("profiles")
         .update({
-          full_name: fetched.full_name ?? profile.full_name,
-          headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
-          location: fetched.location ?? profile.location,
-          avatar_url: fetched.avatar_url ?? profile.avatar_url,
-          about: fetched.about ?? profile.about,
-          github_handle: fetched.github_handle ?? profile.github_handle,
-          x_handle: fetched.x_handle ?? profile.x_handle,
+          full_name: merged.full_name,
+          headline: merged.headline,
+          current_company: merged.current_company,
+          current_title: merged.current_title,
+          location: merged.location,
+          avatar_url: merged.avatar_url,
+          about: merged.about,
+          github_handle: merged.github_handle,
+          x_handle: merged.x_handle,
           last_synced_at: new Date().toISOString(),
           next_sync_at: next,
         })
@@ -121,13 +125,13 @@ export const refreshProfile = inngest.createFunction(
       github_handle: profile.github_handle,
       x_handle: profile.x_handle,
     };
-    const diffs = diffProfiles(prev, fetched);
+    const diffs = diffProfiles(prev, merged);
     if (diffs.length === 0) return { changed: false };
 
     let classification = classifyByRules(
       diffs,
       { current_company: profile.current_company, headline: profile.headline },
-      { current_company: fetched.current_company, headline: fetched.headline },
+      { current_company: merged.current_company, headline: merged.headline },
     );
 
     // Escalate ambiguous results to the LLM.
@@ -136,7 +140,7 @@ export const refreshProfile = inngest.createFunction(
         classifyWithLLM({
           diffs,
           prev: prev as Record<string, string | null>,
-          next: fetched as unknown as Record<string, string | null>,
+          next: merged as unknown as Record<string, string | null>,
         }),
       );
       if (llm) classification = llm;
@@ -153,7 +157,7 @@ export const refreshProfile = inngest.createFunction(
           confidence: classification!.confidence,
           summary: classification!.summary,
           before: prev as object,
-          after: fetched as unknown as object,
+          after: merged as unknown as object,
           is_public: ["left_company", "went_stealth", "headline_signals_founding"].includes(classification!.type)
             && classification!.confidence >= 0.7,
         })
@@ -184,9 +188,46 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+function mergeFetched(profile: Profile, fetched: ProviderProfile): ProviderProfile {
+  return {
+    ...fetched,
+    full_name: fetched.full_name ?? profile.full_name,
+    headline: fetched.headline ?? profile.headline,
+    current_company: fetched.current_company ?? profile.current_company,
+    current_title: fetched.current_title ?? profile.current_title,
+    location: fetched.location ?? profile.location,
+    avatar_url: fetched.avatar_url ?? profile.avatar_url,
+    about: fetched.about ?? profile.about,
+    github_handle: fetched.github_handle ?? profile.github_handle,
+    x_handle: fetched.x_handle ?? profile.x_handle,
+  };
+}
+
+const CADENCE_HOURS: Record<string, number> = { weekly: 168, daily: 24, hourly: 1 };
+
+async function computeNextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profileId: string,
+  profile: Profile,
+): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  let minHours = 168;
+  for (const row of watchers ?? []) {
+    const wl = (row as { watchlists?: { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] | null } | null }).watchlists;
+    const org = wl && !Array.isArray(wl) ? wl.organizations : Array.isArray(wl) ? wl[0]?.organizations : null;
+    const cadence = org && !Array.isArray(org) ? org.refresh_cadence : Array.isArray(org) ? org[0]?.refresh_cadence : null;
+    if (cadence && CADENCE_HOURS[cadence]) {
+      minHours = Math.min(minHours, CADENCE_HOURS[cadence]);
+    }
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    minHours = Math.min(minHours, 6);
+  }
+
+  return new Date(Date.now() + minHours * 60 * 60 * 1000).toISOString();
 }

@@ -41,3 +41,41 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths (blocks protocol-relative //evil.com redirects). */
+export function safeRedirectPath(next: string | null | undefined, fallback = "/app"): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
+    return fallback;
+  }
+  return next;
+}
+
+/** Escape text embedded inside RSS CDATA sections. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/\]\]>/g, "]]]]><![CDATA[>");
+}
+
+/** Block SSRF-prone webhook targets (private networks, link-local, non-HTTPS). */
+export function isSafeOutboundUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".localhost")) return false;
+    if (host === "[::1]" || host === "::1") return false;
+
+    const ipMatch = host.match(/^\[?([\da-f.:]+)\]?$/i);
+    if (ipMatch) {
+      const ip = ipMatch[1];
+      if (ip.startsWith("127.") || ip === "0.0.0.0") return false;
+      if (ip.startsWith("10.")) return false;
+      if (ip.startsWith("192.168.")) return false;
+      if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return false;
+      if (ip.startsWith("169.254.")) return false;
+      if (ip.startsWith("fc") || ip.startsWith("fd") || ip.startsWith("fe80")) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}

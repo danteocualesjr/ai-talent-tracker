@@ -4,11 +4,15 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { isSafeOutboundUrl } from "@/lib/utils";
 import type { ChannelType } from "@/types/db";
 
 const EmailSchema = z.object({ to: z.string().email() });
 const SlackSchema = z.object({ webhook_url: z.string().url().startsWith("https://hooks.slack.com/") });
-const WebhookSchema = z.object({ url: z.string().url(), secret: z.string().optional() });
+const WebhookSchema = z.object({
+  url: z.string().url().refine(isSafeOutboundUrl, "Webhook URL must be a public HTTPS endpoint."),
+  secret: z.string().optional(),
+});
 
 export async function addChannel(formData: FormData): Promise<void> {
   const type = String(formData.get("type") ?? "") as ChannelType;
