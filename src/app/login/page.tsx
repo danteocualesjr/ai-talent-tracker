@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Log in" };
 
-export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
       <div className="absolute right-4 top-4 z-10 md:right-6 md:top-6">
@@ -24,7 +25,9 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
           <p className="mt-1.5 text-sm text-muted-foreground">
             We&apos;ll email you a magic link &mdash; no password required.
           </p>
-          <LoginForm searchParams={searchParams} />
+          <Suspense fallback={<div className="mt-6 h-24 animate-pulse rounded-xl bg-muted" />}>
+            <LoginForm />
+          </Suspense>
         </div>
         <p className="mt-6 text-center text-xs text-muted-foreground">
           By signing in you agree to our{" "}
