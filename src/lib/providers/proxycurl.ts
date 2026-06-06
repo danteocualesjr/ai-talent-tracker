@@ -43,7 +43,7 @@ export class ProxycurlProvider implements ProfileProvider {
     }
     const data = (await res.json()) as ProxycurlResponse;
 
-    const current = (data.experiences || []).find((e) => !e.ends_at) || (data.experiences || [])[0];
+    const current = pickCurrentExperience(data.experiences || []);
 
     return {
       linkedin_url: linkedinUrl,
@@ -59,6 +59,18 @@ export class ProxycurlProvider implements ProfileProvider {
       raw: data,
     };
   }
+}
+
+function pickCurrentExperience(experiences: ProxycurlExperience[]): ProxycurlExperience | undefined {
+  const open = experiences.find((e) => !e.ends_at);
+  if (open) return open;
+  if (experiences.length === 0) return undefined;
+  return [...experiences].sort((a, b) => experienceSortKey(b) - experienceSortKey(a))[0];
+}
+
+function experienceSortKey(e: ProxycurlExperience): number {
+  if (!e.ends_at) return Number.MAX_SAFE_INTEGER;
+  return new Date(e.ends_at.year, e.ends_at.month - 1, e.ends_at.day).getTime();
 }
 
 function extractHandle(url: string | undefined, host: string | RegExp): string | null {
