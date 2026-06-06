@@ -420,7 +420,7 @@
     @apply h-1.5 w-full overflow-hidden rounded-full bg-muted/80;
   }
   .progress-fill {
-    @apply h-full rounded-full bg-gradient-to-r from-signal/90 to-signal transition-all duration-500;
+    @apply h-full rounded-full bg-gradient-to-r from-signal/90 to-signal motion-safe:transition-all motion-safe:duration-500;
   }
 
   /* Keyboard cap visual */
