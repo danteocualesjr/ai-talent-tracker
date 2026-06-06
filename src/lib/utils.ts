@@ -24,10 +24,15 @@ export function formatRelative(date: Date | string | null | undefined) {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
+function isLinkedInHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^www\./, "");
+  return host === "linkedin.com" || host.endsWith(".linkedin.com");
+}
+
 export function normalizeLinkedInUrl(url: string): string | null {
   try {
     const u = new URL(url.trim());
-    if (!u.hostname.includes("linkedin.com")) return null;
+    if (!isLinkedInHost(u.hostname)) return null;
     const parts = u.pathname.split("/").filter(Boolean);
     const inIdx = parts.indexOf("in");
     if (inIdx === -1 || !parts[inIdx + 1]) return null;
@@ -40,4 +45,23 @@ export function normalizeLinkedInUrl(url: string): string | null {
 
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+}
+
+/** Only allow same-origin relative paths for post-login redirects. */
+export function safeRedirectPath(path: string | null | undefined, fallback = "/app"): string {
+  if (!path) return fallback;
+  try {
+    const decoded = decodeURIComponent(path);
+    if (!decoded.startsWith("/") || decoded.startsWith("//")) return fallback;
+    const pathOnly = decoded.split(/[?#]/)[0];
+    if (pathOnly.includes("\\") || /^[a-z][a-z0-9+.-]*:/i.test(decoded)) return fallback;
+    return decoded;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Prevent CDATA terminator sequences from breaking RSS item bodies. */
+export function escapeRssCdata(s: string): string {
+  return s.replace(/]]>/g, "]]]]><![CDATA[>");
 }
