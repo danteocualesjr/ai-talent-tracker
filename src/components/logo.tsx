@@ -6,7 +6,7 @@ export function Logo({ className, href = "/", showWordmark = true }: { className
     <Link
       href={href}
       className={cn(
-        "group inline-flex items-center gap-2.5 font-semibold tracking-tight text-foreground",
+        "group inline-flex items-center gap-2.5 font-semibold tracking-tight text-foreground rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
         className,
       )}
     >
