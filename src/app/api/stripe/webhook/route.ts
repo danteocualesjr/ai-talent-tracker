@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe, PRICE_PLAN_MAP } from "@/lib/stripe";
+import {
+  isActiveSubscriptionStatus,
+  isInactiveSubscriptionStatus,
+  PRICE_PLAN_MAP,
+  stripe,
+} from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -26,14 +31,17 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      if (isActiveSubscriptionStatus(sub.status)) {
+        await applySubscription(db, sub);
+      } else if (isInactiveSubscriptionStatus(sub.status)) {
+        await downgradeSubscription(db, sub);
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    await downgradeSubscription(db, sub);
   }
 
   return NextResponse.json({ received: true });
@@ -54,7 +62,7 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +71,13 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
+}
+
+async function downgradeSubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const { error } = await db
+    .from("organizations")
+    .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+    .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
 }
