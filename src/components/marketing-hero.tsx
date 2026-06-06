@@ -21,7 +21,7 @@ export function MarketingHero({
     <section className={cn("relative overflow-hidden border-b border-border/60", className)}>
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
-      <div className="container relative py-14 md:py-20">
+      <div className="container relative py-12 md:py-20">
         <div
           className={cn(
             "flex flex-wrap gap-6",
