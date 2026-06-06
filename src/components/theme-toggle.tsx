@@ -24,7 +24,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   return (
     <button
       type="button"
-      aria-label="Toggle theme"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-pressed={isDark}
       suppressHydrationWarning
       onClick={toggleTheme}
       className={cn(
