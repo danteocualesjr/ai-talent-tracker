@@ -68,7 +68,7 @@ export function MarketingNav() {
           <ThemeToggle />
           <Link
             href="/login"
-            className="rounded-lg px-3.5 py-2 text-muted-foreground transition-colors hover:bg-accent/80 hover:text-foreground"
+            className="rounded-lg px-3.5 py-2 text-muted-foreground transition-colors hover:bg-accent/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             Log in
           </Link>
