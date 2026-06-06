@@ -50,15 +50,19 @@ const FALLBACK = [
  */
 export async function LiveTicker() {
   const events = await getPublicEvents(16);
-  const items: Array<{ name: string; type: EventType; summary: string; when: string }> =
-    events.length >= 6
-      ? events.map((e) => ({
-          name: e.profile.full_name || e.profile.linkedin_handle || "Unknown",
-          type: e.type,
-          summary: e.summary,
-          when: formatRelative(e.detected_at),
-        }))
-      : FALLBACK;
+  const realItems = events.map((e) => ({
+    name: e.profile.full_name || e.profile.linkedin_handle || "Unknown",
+    type: e.type,
+    summary: e.summary,
+    when: formatRelative(e.detected_at),
+  }));
+
+  const items =
+    realItems.length === 0
+      ? FALLBACK
+      : realItems.length >= 6
+        ? realItems
+        : [...realItems, ...FALLBACK.slice(0, 6 - realItems.length)];
 
   const half = Math.ceil(items.length / 2);
   const colA = items.slice(0, half);
