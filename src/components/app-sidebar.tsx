@@ -88,7 +88,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
           <Logo href="/app" />
           <button
             onClick={() => setOpen(false)}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-accent md:hidden"
+            className="rounded-lg p-1 text-muted-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
