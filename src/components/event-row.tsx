@@ -119,7 +119,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
           {event.summary}
         </p>
         {profile.headline && (
-          <p className="mt-1 truncate text-xs text-muted-foreground/60">{profile.headline}</p>
+          <p className="mt-1 truncate text-xs text-muted-foreground/70">{profile.headline}</p>
         )}
       </div>
 
