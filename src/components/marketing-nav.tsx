@@ -46,6 +46,7 @@ export function MarketingNav() {
               <Link
                 key={l.href}
                 href={l.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative rounded-lg px-3.5 py-2 transition-colors",
                   active
