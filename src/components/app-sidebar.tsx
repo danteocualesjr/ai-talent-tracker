@@ -113,7 +113,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
           </div>
         </div>
 
-        <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4 text-sm">
+        <nav aria-label="App" className="flex-1 space-y-5 overflow-y-auto px-3 pb-4 text-sm">
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="space-y-0.5">
               <div className="label-caps px-2 pb-1.5 text-[10px]">{section.label}</div>
