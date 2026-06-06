@@ -65,7 +65,7 @@ export async function LiveTicker() {
   const colB = items.slice(half).concat(items.slice(0, Math.max(0, half - (items.length - half))));
 
   return (
-    <div aria-live="polite" aria-atomic="true" className="relative">
+    <div className="relative">
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="relative flex h-1.5 w-1.5">
@@ -84,6 +84,7 @@ export async function LiveTicker() {
         </Link>
       </div>
       <div
+        aria-hidden="true"
         className="grid h-[300px] grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2"
         style={{
           maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",

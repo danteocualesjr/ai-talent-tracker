@@ -63,7 +63,10 @@ export function EmptyPanel({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-30 ring-dots [mask-image:radial-gradient(ellipse_60%_50%_at_center,black,transparent)]"
       />
-      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-background text-muted-foreground shadow-sm">
+      <div
+        aria-hidden="true"
+        className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-background text-muted-foreground shadow-sm"
+      >
         {icon}
       </div>
       <div className="relative text-sm font-bold">{title}</div>
