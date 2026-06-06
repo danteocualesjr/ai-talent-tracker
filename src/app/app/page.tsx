@@ -239,7 +239,7 @@ export default async function DashboardPage() {
           </ul>
         </div>
 
-        <div className="surface-card relative flex flex-col overflow-hidden p-6">
+        <div className="surface-card relative flex flex-col overflow-hidden p-6 lg:p-7">
           <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-signal/10 blur-3xl" />
           <div className="label-caps flex items-center gap-2">
             <Zap className="h-3.5 w-3.5 text-signal" /> Slack alerts
