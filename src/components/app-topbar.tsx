@@ -121,6 +121,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
             pressed && "ring-2 ring-signal/40",
           )}
+          aria-keyshortcuts="Meta+K"
           aria-label="Search"
         >
           <Search className="h-3.5 w-3.5" />
