@@ -30,7 +30,7 @@ export function CheckoutButton({ priceId, label }: { priceId: string; label: str
   }
 
   return (
-    <Button className="w-full" onClick={go} disabled={loading}>
+    <Button className="w-full" onClick={go} disabled={loading} aria-busy={loading}>
       {loading ? "Loading..." : label}
     </Button>
   );
