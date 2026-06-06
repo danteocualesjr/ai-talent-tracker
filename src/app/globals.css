@@ -412,7 +412,7 @@
   }
 
   .link-subtle {
-    @apply font-medium text-foreground underline-offset-4 transition-colors hover:underline;
+    @apply font-medium text-foreground underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm;
   }
 
   /* Progress */
