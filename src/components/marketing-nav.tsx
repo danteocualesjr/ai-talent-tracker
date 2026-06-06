@@ -39,7 +39,7 @@ export function MarketingNav() {
       <div className="container flex h-[60px] items-center justify-between">
         <Logo />
 
-        <nav className="hidden items-center gap-1 text-sm md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-1 text-sm md:flex">
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
