@@ -29,7 +29,7 @@ export function Panel({
       )}
     >
       {hasHeader && (
-        <div className="flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4">
+        <div className="flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
           <div className="min-w-0">
             {title && <div className="text-sm font-bold leading-tight tracking-tight">{title}</div>}
             {description && (
