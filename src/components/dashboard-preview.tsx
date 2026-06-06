@@ -5,7 +5,7 @@ import { Bell, LineChart, ListChecks, Search, Settings, Sparkles, Users } from "
 
 export function DashboardPreview() {
   return (
-    <div className="preview-tilt preview-glow overflow-hidden rounded-2xl border border-border/80 bg-card">
+    <div aria-hidden="true" className="preview-tilt preview-glow overflow-hidden rounded-2xl border border-border/80 bg-card">
       {/* Browser chrome */}
       <div className="flex items-center gap-3 border-b border-border/60 bg-muted/30 px-4 py-3">
         <div className="flex gap-1.5">
