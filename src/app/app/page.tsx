@@ -110,7 +110,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Plan-capacity bar */}
-      <div className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6">
+      <div className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6 lg:p-5">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/5 text-foreground">
             <Building2 className="h-4 w-4" />
