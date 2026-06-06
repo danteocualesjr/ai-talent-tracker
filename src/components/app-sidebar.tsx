@@ -80,7 +80,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border/60 bg-card/95 backdrop-blur-xl transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border/60 bg-card/95 backdrop-blur-xl motion-safe:transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
