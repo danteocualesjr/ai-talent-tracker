@@ -81,7 +81,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
     .join("") || "U";
 
   return (
-    <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/60 bg-background/75 px-5 backdrop-blur-xl md:flex">
+    <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl md:flex">
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
