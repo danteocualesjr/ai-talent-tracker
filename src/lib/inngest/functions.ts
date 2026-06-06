@@ -73,6 +73,12 @@ export const refreshProfile = inngest.createFunction(
         .maybeSingle();
       if (existing) return null;
 
+      const { count: priorCount } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      const isFirst = (priorCount ?? 0) === 0;
+
       const { data, error } = await db
         .from("profile_snapshots")
         .insert({
@@ -84,7 +90,7 @@ export const refreshProfile = inngest.createFunction(
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { snapshot: data as ProfileSnapshot, isFirst };
     });
 
     // Always bump last_synced_at + reschedule.
@@ -109,6 +115,7 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+    if (stored.isFirst) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
