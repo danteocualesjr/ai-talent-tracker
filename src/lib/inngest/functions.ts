@@ -61,6 +61,16 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
+    const hasPriorSnapshots = await step.run("check-prior-snapshots", async () => {
+      const { count } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      return (count ?? 0) > 0;
+    });
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -109,6 +119,9 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // First snapshot is a baseline only — skip diffing to avoid false-positive alerts.
+    if (!hasPriorSnapshots) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {

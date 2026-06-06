@@ -1,5 +1,9 @@
 import "server-only";
 
+function escapeMrkdwn(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 export async function sendSlack(webhookUrl: string, payload: {
   name: string;
   summary: string;
@@ -15,7 +19,7 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${payload.linkedinUrl}|${payload.name}>* — _${payload.type.replace(/_/g, " ")}_\n${payload.summary}`,
+            text: `*<${payload.linkedinUrl}|${escapeMrkdwn(payload.name)}>* — _${payload.type.replace(/_/g, " ")}_\n${escapeMrkdwn(payload.summary)}`,
           },
         },
       ],
