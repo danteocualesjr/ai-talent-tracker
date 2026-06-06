@@ -139,7 +139,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
           className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
-          <Bell className="h-4 w-4" />
+          <Bell aria-hidden="true" className="h-4 w-4" />
           {unreadCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-signal px-1 text-[9px] font-bold text-[hsl(var(--signal-foreground))]">
               {unreadCount > 9 ? "9+" : unreadCount}
