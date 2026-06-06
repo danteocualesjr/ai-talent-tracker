@@ -53,7 +53,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
           placeholder="you@company.com"
         />
       </div>
-      <Button type="submit" className="w-full" disabled={loading || !email}>
+      <Button type="submit" className="w-full" disabled={loading || !email} aria-busy={loading}>
         {loading ? "Sending..." : "Send magic link"}
       </Button>
     </form>
