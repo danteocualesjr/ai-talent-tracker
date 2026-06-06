@@ -115,7 +115,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
           <Badge variant={meta.tone}>{meta.label}</Badge>
           <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
         </div>
-        <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {event.summary}
         </p>
         {profile.headline && (
