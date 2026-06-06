@@ -124,7 +124,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           aria-keyshortcuts="Meta+K"
           aria-label="Search"
         >
-          <Search className="h-3.5 w-3.5" />
+          <Search aria-hidden="true" className="h-3.5 w-3.5" />
           <span className="hidden lg:inline">Search…</span>
           <span className="ml-1 hidden items-center gap-0.5 lg:inline-flex">
             <Kbd>⌘</Kbd>
