@@ -12,7 +12,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 py-20">
+      <main aria-labelledby="not-found-title" className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 py-20">
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
         <div className="relative text-center">
