@@ -55,7 +55,7 @@ export function MarketingFooter() {
           {SECTIONS.map((s) => (
             <div key={s.title}>
               <h4 className="label-caps">{s.title}</h4>
-              <ul className="mt-4 space-y-3 text-sm">
+              <ul className="mt-4 space-y-2.5 text-sm">
                 {s.links.map((l) => (
                   <li key={l.href}>
                     <Link
