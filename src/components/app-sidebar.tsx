@@ -175,7 +175,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
           <div className="px-3 pb-3">
             <Link
               href="/feed"
-              className="group flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground"
+              className="group flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
