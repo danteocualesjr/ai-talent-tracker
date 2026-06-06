@@ -11,7 +11,7 @@ export function BackLink({ href, children, className }: { href: string; children
         className,
       )}
     >
-      <ArrowLeft className="h-4 w-4" />
+      <ArrowLeft aria-hidden="true" className="h-4 w-4" />
       {children}
     </Link>
   );
