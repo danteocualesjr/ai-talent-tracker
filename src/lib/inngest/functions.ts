@@ -6,6 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
+import { getFastestRefreshHours } from "@/lib/queries";
 import type { Profile, ProfileSnapshot } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
@@ -19,21 +20,29 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = new Date().toISOString();
       const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
-        .limit(500);
+        .from("watchlist_profiles")
+        .select("profile_id, profiles!inner(id, next_sync_at, is_opted_out)")
+        .eq("profiles.is_opted_out", false);
       if (error) throw error;
-      return (data ?? []) as { id: string }[];
+
+      const seen = new Set<string>();
+      const dueIds: string[] = [];
+      for (const row of (data ?? []) as Array<{ profile_id: string; profiles: { id: string; next_sync_at: string | null; is_opted_out: boolean } | { id: string; next_sync_at: string | null; is_opted_out: boolean }[] }>) {
+        const prof = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+        if (!prof || prof.is_opted_out || seen.has(prof.id)) continue;
+        seen.add(prof.id);
+        if (!prof.next_sync_at || prof.next_sync_at <= now) dueIds.push(prof.id);
+      }
+      return dueIds.slice(0, 500);
     });
 
     if (due.length === 0) return { refreshed: 0 };
 
     await step.sendEvent(
       "fan-out",
-      due.map((p) => ({ name: "profile/refresh.requested", data: { profile_id: p.id, reason: "cron" } })),
+      due.map((profile_id) => ({ name: "profile/refresh.requested", data: { profile_id, reason: "cron" } })),
     );
     return { refreshed: due.length };
   },
@@ -58,8 +67,11 @@ export const refreshProfile = inngest.createFunction(
     const profile = await step.run("load-profile", async () => {
       const { data, error } = await db.from("profiles").select("*").eq("id", profileId).single();
       if (error) throw error;
-      return data as Profile;
+      const row = data as Profile;
+      if (row.is_opted_out) return null;
+      return row;
     });
+    if (!profile) return { skipped: true, reason: "opted_out_or_missing" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -89,8 +101,8 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await nextSyncAt(profileId, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,6 +118,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +197,10 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+async function nextSyncAt(profileId: string, profile: Profile): Promise<string> {
+  const baseHours = await getFastestRefreshHours(profileId);
+  const hours = profile.status === "left" || profile.status === "stealth"
+    ? Math.min(baseHours, 6)
+    : baseHours;
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }

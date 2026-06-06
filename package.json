@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "inngest": "inngest-cli dev",
+    "inngest": "npx inngest-cli dev",
     "seed": "tsx scripts/seed-labs.ts"
   },
   "dependencies": {
