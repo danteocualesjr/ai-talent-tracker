@@ -62,7 +62,8 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
           <button
             onClick={() => setOpen(!open)}
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent"
-            aria-label="Toggle menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
