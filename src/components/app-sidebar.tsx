@@ -61,7 +61,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent"
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
