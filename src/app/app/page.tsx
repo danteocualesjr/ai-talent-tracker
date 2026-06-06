@@ -128,7 +128,14 @@ export default async function DashboardPage() {
               <span className="text-muted-foreground"> / {org.profile_limit}</span>
             </span>
           </div>
-          <div className="progress-track mt-2">
+          <div
+            className="progress-track mt-2"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={org.profile_limit}
+            aria-valuenow={profiles.length}
+            aria-label="Watchlist capacity"
+          >
             <div className="progress-fill" style={{ width: `${fill}%` }} />
           </div>
         </div>
