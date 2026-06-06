@@ -32,7 +32,7 @@ export function MarketingHero({
             {eyebrow}
             <h1 className="mt-4 text-balance text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
             {description && (
-              <div className="mt-4 text-pretty text-muted-foreground md:text-lg">{description}</div>
+              <div className="mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">{description}</div>
             )}
           </div>
           {children}
