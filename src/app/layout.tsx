@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`h-full scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-full bg-background font-sans antialiased" suppressHydrationWarning>
+      <body className="min-h-full bg-background font-sans antialiased text-foreground" suppressHydrationWarning>
         <ThemeProvider>
           {children}
           <Toaster position="top-right" richColors toastOptions={{ className: "font-sans" }} />
