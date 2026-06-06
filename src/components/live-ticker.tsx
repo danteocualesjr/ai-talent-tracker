@@ -65,7 +65,7 @@ export async function LiveTicker() {
   const colB = items.slice(half).concat(items.slice(0, Math.max(0, half - (items.length - half))));
 
   return (
-    <div className="relative">
+    <div aria-live="polite" aria-atomic="true" className="relative">
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="relative flex h-1.5 w-1.5">
