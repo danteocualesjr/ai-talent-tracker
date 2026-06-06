@@ -38,7 +38,7 @@ export function MarketingFooter() {
       <div className="container grid gap-12 py-16 md:grid-cols-[1.4fr_2fr]">
         <div>
           <Logo />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
             Real-time monitoring of LinkedIn profiles at top AI labs. Know who&apos;s moving
             before anyone else.
           </p>
