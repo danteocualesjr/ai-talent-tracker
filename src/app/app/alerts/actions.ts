@@ -19,6 +19,9 @@ export async function addChannel(formData: FormData): Promise<void> {
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   const db = createAdminClient();
 
+  if (type === "slack" && org.plan === "free") return;
+  if (type === "webhook" && org.plan !== "team" && org.plan !== "enterprise") return;
+
   let config: unknown;
   if (type === "email") {
     const r = EmailSchema.safeParse({ to: formData.get("to") });

@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { ensureOrgForUser } from "@/lib/org";
+import { isProfileOnOrgWatchlist } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
@@ -14,14 +15,35 @@ import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) redirect("/login");
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const watched = await isProfileOnOrgWatchlist(org.id, id);
+
   const db = createAdminClient();
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
   const p = profile as Profile;
 
+  const labBrowseOnly = !watched && Boolean(p.current_company_lab_id);
+  if (!watched && !labBrowseOnly) notFound();
+
+  const eventsQuery = db
+    .from("events")
+    .select("*")
+    .eq("profile_id", id)
+    .order("detected_at", { ascending: false })
+    .limit(50);
+  if (labBrowseOnly) eventsQuery.eq("is_public", true);
+
   const [{ data: events }, { data: snaps }] = await Promise.all([
-    db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(50),
-    db.from("profile_snapshots").select("*").eq("profile_id", id).order("fetched_at", { ascending: false }).limit(10),
+    eventsQuery,
+    watched
+      ? db.from("profile_snapshots").select("*").eq("profile_id", id).order("fetched_at", { ascending: false }).limit(10)
+      : Promise.resolve({ data: [] as ProfileSnapshot[] }),
   ]);
 
   const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
@@ -31,7 +53,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
-      <BackLink href="/app/watchlist">Back to watchlist</BackLink>
+      <BackLink href={watched ? "/app/watchlist" : "/app/labs"}>
+        {watched ? "Back to watchlist" : "Back to labs"}
+      </BackLink>
 
       <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
         <div className="flex items-start gap-5">
@@ -66,9 +90,11 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                 </Button>
               )}
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Last synced {formatRelative(p.last_synced_at)} · next sync {formatRelative(p.next_sync_at)}
-            </p>
+            {watched && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Last synced {formatRelative(p.last_synced_at)} · next sync {formatRelative(p.next_sync_at)}
+              </p>
+            )}
           </div>
         </div>
         {p.about && (
@@ -79,15 +105,19 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <ProfileMetric label="Events" value={eventList.length} />
-        <ProfileMetric label="Snapshots" value={snapshotList.length} />
-        <ProfileMetric label="Latest confidence" value={latestConfidence} />
-      </div>
+      {watched && (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <ProfileMetric label="Events" value={eventList.length} />
+          <ProfileMetric label="Snapshots" value={snapshotList.length} />
+          <ProfileMetric label="Latest confidence" value={latestConfidence} />
+        </div>
+      )}
 
       <Panel title="Event timeline" bodyClassName="p-6">
           {eventList.length === 0 ? (
-            <div className="text-center text-sm text-muted-foreground">No changes detected yet.</div>
+            <div className="text-center text-sm text-muted-foreground">
+              {labBrowseOnly ? "No public changes detected yet." : "No changes detected yet."}
+            </div>
           ) : (
             <div className="relative">
               <div className="absolute bottom-3 left-[14px] top-3 w-px bg-border" />
@@ -100,17 +130,19 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
           )}
       </Panel>
 
-      <Panel title="Recent snapshots" bodyClassName="divide-y divide-border/60">
-          {snapshotList.length === 0 ? (
-            <div className="px-5 py-6 text-center text-sm text-muted-foreground">No snapshots yet.</div>
-          ) : snapshotList.map((s) => (
-            <div key={s.id} className="flex items-center justify-between px-5 py-3 text-xs">
-              <span className="font-mono">{s.content_hash.slice(0, 12)}</span>
-              <span className="text-muted-foreground">source: {s.source}</span>
-              <span className="text-muted-foreground">{formatRelative(s.fetched_at)}</span>
-            </div>
-          ))}
-      </Panel>
+      {watched && (
+        <Panel title="Recent snapshots" bodyClassName="divide-y divide-border/60">
+            {snapshotList.length === 0 ? (
+              <div className="px-5 py-6 text-center text-sm text-muted-foreground">No snapshots yet.</div>
+            ) : snapshotList.map((s) => (
+              <div key={s.id} className="flex items-center justify-between px-5 py-3 text-xs">
+                <span className="font-mono">{s.content_hash.slice(0, 12)}</span>
+                <span className="text-muted-foreground">source: {s.source}</span>
+                <span className="text-muted-foreground">{formatRelative(s.fetched_at)}</span>
+              </div>
+            ))}
+        </Panel>
+      )}
     </div>
   );
 }

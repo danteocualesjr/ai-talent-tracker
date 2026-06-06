@@ -1,6 +1,47 @@
 import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import type { EventRow, Lab, Profile } from "@/types/db";
+import type { EventRow, Lab, Profile, RefreshCadence } from "@/types/db";
+
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  weekly: 168,
+  daily: 24,
+  hourly: 1,
+};
+
+export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId);
+  return (count ?? 0) > 0;
+}
+
+export async function getFastestRefreshHours(profileId: string): Promise<number> {
+  if (!isSupabaseConfigured()) return CADENCE_HOURS.weekly;
+  const db = createAdminClient();
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profileId);
+
+  const cadences = ((data ?? []) as Array<{ watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null }>)
+    .map((row) => {
+      const wl = row.watchlists;
+      if (!wl) return undefined;
+      const w = Array.isArray(wl) ? wl[0] : wl;
+      const org = w?.organizations;
+      if (!org) return undefined;
+      const o = Array.isArray(org) ? org[0] : org;
+      return o?.refresh_cadence;
+    })
+    .filter((c): c is RefreshCadence => Boolean(c));
+
+  if (cadences.length === 0) return CADENCE_HOURS.weekly;
+  return Math.min(...cadences.map((c) => CADENCE_HOURS[c]));
+}
 
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
