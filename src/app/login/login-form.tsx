@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { safeRedirectPath } from "@/lib/utils";
 
 export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const params = use(searchParams);
