@@ -91,7 +91,7 @@ export function MarketingNav() {
       </div>
 
       <div className={cn("border-t border-border/60 bg-background/95 backdrop-blur-xl md:hidden", open ? "block" : "hidden")}>
-        <nav className="container flex flex-col gap-1 py-4 text-sm">
+        <nav aria-label="Primary mobile" className="container flex flex-col gap-1 py-4 text-sm">
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
