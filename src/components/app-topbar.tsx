@@ -134,8 +134,8 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
 
         <ThemeToggle />
 
-        <button
-          type="button"
+        <Link
+          href="/app/events"
           aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
           className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
@@ -145,7 +145,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
-        </button>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

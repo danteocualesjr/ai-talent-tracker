@@ -23,7 +23,7 @@ export default function NotFound() {
           <p className="mx-auto mt-4 max-w-sm text-muted-foreground">
             That page doesn&apos;t exist or may have moved.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <Button asChild size="lg">
               <Link href="/">Go home</Link>
             </Button>
