@@ -17,7 +17,7 @@ export default function NotFound() {
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
         <div className="relative text-center">
           <p className="label-caps">Error 404</p>
-          <h1 className="mt-4 font-serif text-7xl font-normal italic tracking-tight text-foreground md:text-8xl">
+          <h1 id="not-found-title" className="mt-4 font-serif text-7xl font-normal italic tracking-tight text-foreground md:text-8xl">
             Lost signal
           </h1>
           <p className="mx-auto mt-4 max-w-sm text-muted-foreground">
