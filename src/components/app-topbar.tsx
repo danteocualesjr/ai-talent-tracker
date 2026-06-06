@@ -59,10 +59,14 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
   // Cmd+K placeholder behavior: focuses the trigger so users
   // get visual feedback even before a palette is wired up.
   const [pressed, setPressed] = useState(false);
+  const [isMac, setIsMac] = useState(true);
+  useEffect(() => {
+    setIsMac(navigator.platform.toLowerCase().includes("mac"));
+  }, []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toLowerCase().includes("mac");
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "k") {
+      const mac = navigator.platform.toLowerCase().includes("mac");
+      if ((mac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPressed(true);
         setTimeout(() => setPressed(false), 400);
@@ -85,6 +89,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
+          aria-label="Dashboard"
           className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-colors hover:text-foreground"
         >
           <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5" />
@@ -121,21 +126,21 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
             pressed && "ring-2 ring-signal/40",
           )}
-          aria-keyshortcuts="Meta+K"
+          aria-keyshortcuts={isMac ? "Meta+K" : "Control+K"}
           aria-label="Search"
         >
           <Search aria-hidden="true" className="h-3.5 w-3.5" />
           <span className="hidden lg:inline">Search…</span>
           <span className="ml-1 hidden items-center gap-0.5 lg:inline-flex">
-            <Kbd>⌘</Kbd>
+            {isMac ? <Kbd>⌘</Kbd> : <Kbd>Ctrl</Kbd>}
             <Kbd>K</Kbd>
           </span>
         </button>
 
         <ThemeToggle />
 
-        <button
-          type="button"
+        <Link
+          href="/app/alerts"
           aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
           className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
@@ -145,12 +150,13 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
-        </button>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
+              aria-label={`Account menu for ${email}`}
               className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 pl-1.5 pr-2.5 text-sm shadow-sm transition-colors hover:border-foreground/15 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
