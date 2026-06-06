@@ -126,6 +126,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={cn(
                       "group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150",
