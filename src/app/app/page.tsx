@@ -151,7 +151,7 @@ export default async function DashboardPage() {
           ["Cadence", org.refresh_cadence, "Current workspace refresh schedule"],
         ].map(([label, value, description]) => (
           <div key={label} className="surface-card p-5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
             <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
           </div>
