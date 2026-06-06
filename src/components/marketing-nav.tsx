@@ -82,7 +82,7 @@ export function MarketingNav() {
 
         <button
           onClick={() => setOpen(!open)}
-          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent md:hidden"
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
         >
