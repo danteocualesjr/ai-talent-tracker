@@ -436,7 +436,7 @@
 
   /* Chip style for tags / pills */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40;
   }
 
   /* Subtle "ring of dots" pattern useful for empty-states / icons */
