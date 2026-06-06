@@ -60,7 +60,7 @@ export function MarketingFooter() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="group inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+                      className="group inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm"
                     >
                       {l.label}
                       {l.external && (
