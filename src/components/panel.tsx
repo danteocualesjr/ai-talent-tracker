@@ -24,7 +24,7 @@ export function Panel({
     <div
       className={cn(
         "surface-card overflow-hidden",
-        tone === "muted" && "bg-muted/40",
+        tone === "muted" && "bg-muted/35",
         className,
       )}
     >
