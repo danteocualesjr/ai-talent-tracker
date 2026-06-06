@@ -45,19 +45,19 @@ export async function classifyWithLLM(input: {
     after: input.next,
   };
 
-  const resp = await client.chat.completions.create({
-    model,
-    response_format: { type: "json_object" },
-    temperature: 0,
-    messages: [
-      { role: "system", content: SYSTEM },
-      { role: "user", content: JSON.stringify(payload) },
-    ],
-  });
-
-  const content = resp.choices[0]?.message?.content;
-  if (!content) return null;
   try {
+    const resp = await client.chat.completions.create({
+      model,
+      response_format: { type: "json_object" },
+      temperature: 0,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: JSON.stringify(payload) },
+      ],
+    });
+
+    const content = resp.choices[0]?.message?.content;
+    if (!content) return null;
     return ResponseSchema.parse(JSON.parse(content));
   } catch {
     return null;

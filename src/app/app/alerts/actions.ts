@@ -36,7 +36,11 @@ export async function addChannel(formData: FormData): Promise<void> {
     return;
   }
 
-  await db.from("notification_channels").insert({ org_id: org.id, type, config: config as object });
+  const { error } = await db.from("notification_channels").insert({ org_id: org.id, type, config: config as object });
+  if (error) {
+    console.error("[alerts] channel insert failed", error);
+    return;
+  }
   revalidatePath("/app/alerts");
 }
 
