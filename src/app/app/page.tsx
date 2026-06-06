@@ -214,7 +214,7 @@ export default async function DashboardPage() {
 
       {/* Plan + nudge */}
       <div className="grid gap-5 md:grid-cols-3">
-        <div className="surface-card md:col-span-2 flex flex-col p-6">
+        <div className="surface-card md:col-span-2 flex flex-col p-6 lg:p-7">
           <div className="flex items-center justify-between">
             <div className="label-caps flex items-center gap-2">
               <TrendingUp className="h-3.5 w-3.5" /> Your plan
