@@ -32,7 +32,7 @@ const SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="relative border-t bg-card/40">
+    <footer aria-label="Site footer" className="relative border-t bg-card/40">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="container grid gap-12 py-16 md:grid-cols-[1.4fr_2fr]">
