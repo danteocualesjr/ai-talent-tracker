@@ -87,7 +87,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-muted/40">
+    <div className="group relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-muted/40 focus-within:bg-muted/30">
       {/* Accent rail on hover */}
       <span
         aria-hidden
