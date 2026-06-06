@@ -36,7 +36,7 @@ export function AddProfileForm() {
           className="h-11 pl-10"
         />
       </div>
-      <Button type="submit" disabled={pending} className="h-11 shrink-0 px-6">
+      <Button type="submit" disabled={pending} aria-busy={pending} className="h-11 shrink-0 px-6">
         {pending ? "Adding..." : "Track profile"}
       </Button>
     </form>
