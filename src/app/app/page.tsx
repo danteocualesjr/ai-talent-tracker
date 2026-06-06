@@ -48,7 +48,7 @@ export default async function DashboardPage() {
     .slice(0, 3);
 
   return (
-    <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+    <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10 lg:space-y-10">
       <PageHeader
         title="Dashboard"
         description={
