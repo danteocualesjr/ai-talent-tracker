@@ -95,7 +95,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
       />
 
       <div className="relative shrink-0">
-        <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm">
+        <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
           {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.full_name ?? ""} /> : null}
           <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
         </Avatar>
