@@ -389,8 +389,12 @@
   .hover-lift {
     @apply transition-all duration-300;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .hover-lift:hover {
+      transform: translateY(-2px);
+    }
+  }
   .hover-lift:hover {
-    transform: translateY(-2px);
     box-shadow:
       0 0 0 1px hsl(var(--border) / 0.8),
       0 8px 24px -8px hsl(var(--foreground) / 0.12);
