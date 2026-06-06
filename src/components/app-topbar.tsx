@@ -87,7 +87,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           href="/app"
           className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-colors hover:text-foreground"
         >
-          <LayoutDashboard className="h-3.5 w-3.5" />
+          <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5" />
           <span className="hidden lg:inline">Dashboard</span>
         </Link>
         {segments.slice(1).map((seg, i) => {
