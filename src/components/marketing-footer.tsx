@@ -76,7 +76,7 @@ export function MarketingFooter() {
       </div>
 
       <div className="border-t border-border/60">
-        <div className="container flex flex-col items-start justify-between gap-2 py-6 text-xs text-muted-foreground md:flex-row md:items-center">
+        <div className="container flex flex-col items-start justify-between gap-3 py-5 text-xs text-muted-foreground md:flex-row md:items-center md:py-6">
           <div>© {new Date().getFullYear()} AI Talent Tracker. All rights reserved.</div>
           <div className="font-mono text-[11px] opacity-70">Next.js · Supabase · Inngest · Stripe</div>
         </div>
