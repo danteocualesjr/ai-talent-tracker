@@ -268,8 +268,10 @@
     to   { transform: translateX(-50%); }
   }
 
-  .animate-marquee-vertical {
-    animation: marquee-vertical 28s linear infinite;
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-marquee-vertical {
+      animation: marquee-vertical 28s linear infinite;
+    }
   }
   @keyframes marquee-vertical {
     from { transform: translateY(0); }
