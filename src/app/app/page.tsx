@@ -273,7 +273,7 @@ function StatCard({
   accent?: string;
 }) {
   return (
-    <div className="surface-card surface-card-hover relative overflow-hidden p-5">
+    <div className="surface-card surface-card-hover relative overflow-hidden p-5 motion-safe:transition-shadow">
       <div className="flex items-start justify-between">
         <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {label}
