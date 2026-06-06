@@ -30,7 +30,7 @@ export function MarketingNav() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 w-full transition-all duration-300",
+        "sticky top-0 z-30 w-full motion-safe:transition-all motion-safe:duration-300",
         scrolled
           ? "border-b border-border/70 bg-background/70 shadow-[0_1px_0_0_hsl(var(--border)/0.5),0_12px_40px_-20px_hsl(var(--foreground)/0.08)] backdrop-blur-xl"
           : "border-b border-transparent bg-background/40 backdrop-blur-md",
