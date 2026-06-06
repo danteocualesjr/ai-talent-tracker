@@ -32,7 +32,7 @@ export function PageHeader({
         {eyebrow && <div className="label-caps mb-2">{eyebrow}</div>}
         <div className="flex items-center gap-3">
           {icon && (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-card text-foreground shadow-sm">
+            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-card text-foreground shadow-sm">
               {icon}
             </span>
           )}
