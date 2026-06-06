@@ -96,7 +96,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           const label = SEGMENT_LABELS[seg] ?? prettify(seg);
           return (
             <span key={href} className="flex min-w-0 items-center gap-1.5">
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+              <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground/50" />
               {last ? (
                 <span className="truncate font-semibold text-foreground" aria-current="page">{label}</span>
               ) : (
