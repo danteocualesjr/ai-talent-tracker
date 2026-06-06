@@ -288,15 +288,17 @@
     50%      { opacity: 0.35; transform: scale(0.85); }
   }
 
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsl(var(--foreground) / 0.06) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2.4s linear infinite;
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-shimmer {
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        hsl(var(--foreground) / 0.06) 50%,
+        transparent 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 2.4s linear infinite;
+    }
   }
   @keyframes shimmer {
     from { background-position: 200% 0; }
