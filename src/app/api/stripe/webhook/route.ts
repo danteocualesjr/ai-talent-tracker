@@ -50,17 +50,37 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) throw new Error("subscription missing price id");
+
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error(`[stripe] unknown price id: ${priceId}`);
+    throw new Error(`unknown price id: ${priceId}`);
+  }
+
+  const updates = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const { data: byCustomer } = await db
+    .from("organizations")
+    .update(updates)
+    .eq("stripe_customer_id", sub.customer as string)
+    .select("id");
+
+  if (byCustomer?.length) return;
+
+  const orgId = sub.metadata?.org_id;
+  if (!orgId) {
+    console.error(`[stripe] no org found for customer ${sub.customer}`);
+    throw new Error("organization not found for subscription");
+  }
 
   await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update({ ...updates, stripe_customer_id: sub.customer as string })
+    .eq("id", orgId);
 }
