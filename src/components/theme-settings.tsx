@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -12,11 +13,14 @@ const OPTIONS = [
 
 export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="grid gap-2 px-5 py-4 sm:grid-cols-3">
       {OPTIONS.map(({ value, label, icon: Icon }) => {
-        const active = theme === value;
+        const active = mounted && theme === value;
         return (
           <button
             key={value}
