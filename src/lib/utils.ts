@@ -41,3 +41,40 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Reject open-redirect targets; only allow same-origin relative paths. */
+export function safeRedirectPath(path: string, fallback = "/app"): string {
+  if (!path.startsWith("/") || path.startsWith("//")) return fallback;
+  try {
+    const resolved = new URL(path, siteUrl());
+    const base = new URL(siteUrl());
+    if (resolved.origin !== base.origin) return fallback;
+    return resolved.pathname + resolved.search + resolved.hash;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Block SSRF targets for user-configured outbound webhooks. */
+export function isAllowedWebhookUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".localhost")) return false;
+    if (host === "metadata.google.internal") return false;
+    if (host === "169.254.169.254") return false;
+
+    const ipMatch = host.match(/^\[?([0-9a-f:.]+)\]?$/i);
+    if (!ipMatch) return true;
+
+    const ip = ipMatch[1];
+    if (ip === "::1" || ip.startsWith("127.") || ip.startsWith("10.") || ip.startsWith("192.168.")) return false;
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return false;
+    if (ip.startsWith("fe80:") || ip.startsWith("fc") || ip.startsWith("fd")) return false;
+    if (ip.startsWith("169.254.")) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
