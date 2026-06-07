@@ -138,14 +138,14 @@ export default async function WatchlistPage() {
                 <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                   <form action={refreshNowForm}>
                     <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
-                      <RefreshCw className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" title="Refresh now" aria-label="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
+                      <RefreshCw className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </form>
                   <form action={removeProfileForm}>
                     <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Remove" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" title="Remove" aria-label="Remove profile" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </form>
                 </div>

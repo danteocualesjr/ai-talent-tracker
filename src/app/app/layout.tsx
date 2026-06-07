@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { PLAN_DETAILS } from "@/lib/stripe";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 
@@ -12,7 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
-      <AppSidebar orgName={org.name} orgPlan={org.plan} />
+      <AppSidebar orgName={org.name} orgPlan={org.plan} proProfileLimit={PLAN_DETAILS.pro.profile_limit} />
       <div className="app-shell-bg flex min-w-0 flex-col">
         <AppTopbar email={user.email ?? ""} orgPlan={org.plan} />
         <main id="main-content" className="flex-1 min-w-0">{children}</main>

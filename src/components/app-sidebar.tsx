@@ -45,9 +45,10 @@ const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutD
 interface Props {
   orgName: string;
   orgPlan: string;
+  proProfileLimit: number;
 }
 
-export function AppSidebar({ orgName, orgPlan }: Props) {
+export function AppSidebar({ orgName, orgPlan, proProfileLimit }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const isFree = orgPlan === "free";
@@ -162,11 +163,11 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
                 <span className="text-xs font-semibold tracking-tight">Upgrade to Pro</span>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-                Real-time alerts, 250 profiles, and Slack delivery.
+                Real-time alerts, {proProfileLimit} profiles, and Slack delivery.
               </p>
               <Button asChild size="sm" className="mt-3 h-7 w-full text-[11px]">
                 <Link href="/app/billing">
-                  See plans <ArrowUpRight className="h-3 w-3" />
+                  See plans <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
                 </Link>
               </Button>
             </div>

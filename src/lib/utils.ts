@@ -41,3 +41,55 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths (blocks open redirects). */
+export function safeRedirectPath(raw: string | null | undefined, fallback = "/app"): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.includes(":")) {
+    return fallback;
+  }
+  return raw;
+}
+
+/** Prevent CDATA breakout in RSS item text. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+/** Block SSRF targets for user-configured webhook URLs. */
+export function isSafeWebhookUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    if (url.protocol !== "https:") return false;
+
+    const hostname = url.hostname.toLowerCase();
+    if (
+      hostname === "localhost" ||
+      hostname.endsWith(".localhost") ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("127.") ||
+      hostname === "0.0.0.0" ||
+      hostname === "[::1]" ||
+      hostname === "::1" ||
+      hostname === "169.254.169.254" ||
+      hostname === "metadata.google.internal" ||
+      hostname.endsWith(".internal")
+    ) {
+      return false;
+    }
+
+    const ipMatch = hostname.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+    if (ipMatch) {
+      const a = Number(ipMatch[1]);
+      const b = Number(ipMatch[2]);
+      if (a === 10) return false;
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      if (a === 192 && b === 168) return false;
+      if (a === 169 && b === 254) return false;
+      if (a === 127) return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -19,7 +19,7 @@ export function Logo({ className, href = "/", showWordmark = true }: { className
 export function LogoMark({ className }: { className?: string }) {
   return (
     <span
-      aria-hidden
+      aria-hidden="true"
       className={cn(
         "relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-foreground text-background shadow-sm transition-transform duration-200 group-hover:scale-[1.03]",
         className,
@@ -27,7 +27,7 @@ export function LogoMark({ className }: { className?: string }) {
     >
       <span className="absolute inset-0 bg-gradient-to-br from-signal/35 via-transparent to-transparent opacity-90" />
       <span
-        aria-hidden
+        aria-hidden="true"
         className="absolute -bottom-3 -right-3 h-7 w-7 rounded-full bg-signal/40 blur-md transition-opacity duration-300 group-hover:opacity-90"
       />
       <svg
@@ -36,7 +36,7 @@ export function LogoMark({ className }: { className?: string }) {
         height="14"
         fill="none"
         className="relative h-3.5 w-3.5 shrink-0"
-        aria-hidden
+        aria-hidden="true"
       >
         <path
           d="M5 19 L11 11 L15 14 L19 6"

@@ -26,11 +26,12 @@ export function AddProfileForm() {
   return (
     <form ref={ref} action={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <div className="relative flex-1">
-        <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <Input
           name="linkedin_url"
           type="url"
           required
+          aria-label="LinkedIn profile URL"
           placeholder="https://www.linkedin.com/in/jane-researcher"
           autoComplete="off"
           className="h-11 pl-10"
