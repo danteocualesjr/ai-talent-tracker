@@ -11,7 +11,7 @@ export interface ClassifiedEvent {
 const STEALTH_PATTERNS = [
   /stealth/i,
   /building (?:something|the future)/i,
-  /\bbuilding\b.*\b(ai|agi)\b/i,
+  /\bbuilding (?:an? )?(?:ai|agi) (?:startup|company|venture|product)/i,
   /undisclosed/i,
   /coming soon/i,
 ];
