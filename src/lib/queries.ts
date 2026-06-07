@@ -5,10 +5,11 @@ import type { EventRow, Lab, Profile } from "@/types/db";
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
-  const { data } = await db
+  const { data, error } = await db
     .from("watchlist_profiles")
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
+  if (error) throw error;
 
   return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
     ...(r.profiles as Profile),
@@ -20,21 +21,29 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
 
-  const { data: watched } = await db
+  const { data: watched, error: watchErr } = await db
     .from("watchlist_profiles")
     .select("profile_id, watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
+  if (watchErr) throw watchErr;
   const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
   if (ids.length === 0) return [];
 
-  const { data } = await db
-    .from("events")
-    .select("*, profile:profiles(*)")
-    .in("profile_id", ids)
-    .order("detected_at", { ascending: false })
-    .limit(limit);
-
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  const all: (EventRow & { profile: Profile })[] = [];
+  const chunkSize = 100;
+  for (let i = 0; i < ids.length; i += chunkSize) {
+    const chunk = ids.slice(i, i + chunkSize);
+    const { data, error } = await db
+      .from("events")
+      .select("*, profile:profiles(*)")
+      .in("profile_id", chunk)
+      .order("detected_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    all.push(...((data ?? []) as unknown as (EventRow & { profile: Profile })[]));
+  }
+  all.sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime());
+  return all.slice(0, limit);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
