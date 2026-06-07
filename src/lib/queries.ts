@@ -27,14 +27,23 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
   if (ids.length === 0) return [];
 
-  const { data } = await db
-    .from("events")
-    .select("*, profile:profiles(*)")
-    .in("profile_id", ids)
-    .order("detected_at", { ascending: false })
-    .limit(limit);
+  const CHUNK = 100;
+  const all: (EventRow & { profile: Profile })[] = [];
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const chunk = ids.slice(i, i + CHUNK);
+    const { data, error } = await db
+      .from("events")
+      .select("*, profile:profiles(*)")
+      .in("profile_id", chunk)
+      .order("detected_at", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    all.push(...((data ?? []) as unknown as (EventRow & { profile: Profile })[]));
+  }
 
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return all
+    .sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime())
+    .slice(0, limit);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {

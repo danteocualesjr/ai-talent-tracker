@@ -22,6 +22,8 @@ export function ThemeSettings() {
             key={value}
             type="button"
             onClick={() => setTheme(value)}
+            aria-pressed={active}
+            aria-label={`${label} theme`}
             className={cn(
               "flex flex-col items-center gap-2 rounded-xl border px-4 py-4 text-sm transition-colors",
               active

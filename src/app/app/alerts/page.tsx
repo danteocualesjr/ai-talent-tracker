@@ -85,7 +85,7 @@ export default async function AlertsPage() {
               </div>
               <form action={removeChannel}>
                 <input type="hidden" name="id" value={c.id} />
-                <Button variant="ghost" size="icon" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                <Button variant="ghost" size="icon" aria-label="Remove channel" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </form>

@@ -52,7 +52,14 @@ export default async function WatchlistPage() {
             </span>
             <span className="font-medium text-foreground">{org.refresh_cadence}</span>
           </div>
-          <div className="progress-track mt-3">
+          <div
+            className="progress-track mt-3"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={org.profile_limit}
+            aria-valuenow={profiles.length}
+            aria-label="Watchlist capacity"
+          >
             <div className="progress-fill" style={{ width: `${fill}%` }} />
           </div>
         </div>
@@ -135,16 +142,16 @@ export default async function WatchlistPage() {
                     Last synced {formatRelative(p.last_synced_at)} · {p.current_company ?? "no current company"}
                   </p>
                 </div>
-                <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <form action={refreshNowForm}>
                     <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" size="icon" title="Refresh now" aria-label="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
                       <RefreshCw className="h-4 w-4" />
                     </Button>
                   </form>
                   <form action={removeProfileForm}>
                     <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Remove" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                    <Button variant="ghost" size="icon" title="Remove" aria-label="Remove from watchlist" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </form>
