@@ -1,5 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
+import { safeLinkedInHref } from "@/lib/utils";
 
 const FROM = process.env.RESEND_FROM || "AI Talent Tracker <alerts@example.com>";
 
@@ -12,11 +13,9 @@ function resend(): Resend | null {
 
 export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
   const r = resend();
-  if (!r) {
-    console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
-  }
-  await r.emails.send({ from: FROM, to, subject, html });
+  if (!r) throw new Error("RESEND_API_KEY not configured");
+  const { error } = await r.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(error.message);
 }
 
 export function renderEventEmail(args: {
@@ -33,7 +32,7 @@ export function renderEventEmail(args: {
       <h2 style="margin:8px 0 16px">${escapeHtml(args.name)}</h2>
       <p style="font-size:15px;line-height:1.5">${escapeHtml(args.summary)}</p>
       <p style="margin-top:24px">
-        <a href="${args.linkedinUrl}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
+        <a href="${safeLinkedInHref(args.linkedinUrl)}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
       </p>
       <p style="color:#888;font-size:12px;margin-top:32px">Detected ${args.detectedAt}</p>
     </div>`;
