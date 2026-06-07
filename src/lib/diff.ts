@@ -36,6 +36,9 @@ function norm(v: string | null | undefined): string {
 
 export function hashSnapshot(p: ProviderProfile): string {
   const subset: Record<string, unknown> = {};
-  for (const f of DIFFED_FIELDS) subset[f] = p[f];
+  for (const f of DIFFED_FIELDS) {
+    const val = p[f];
+    subset[f] = typeof val === "string" ? norm(val) || null : val;
+  }
   return createHash("sha256").update(JSON.stringify(subset)).digest("hex");
 }
