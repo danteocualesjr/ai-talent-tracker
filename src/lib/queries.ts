@@ -10,10 +10,23 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile | null }>)
+    .filter((r): r is { watchlist_id: string; profiles: Profile } => r.profiles != null)
+    .map((r) => ({
+      ...r.profiles,
+      watchlist_id: r.watchlist_id,
+    }));
+}
+
+export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId);
+  return (count ?? 0) > 0;
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
