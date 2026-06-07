@@ -34,7 +34,8 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
     .order("detected_at", { ascending: false })
     .limit(limit);
 
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return ((data ?? []) as unknown as (EventRow & { profile: Profile | null })[])
+    .filter((e): e is EventRow & { profile: Profile } => e.profile != null);
 }
 
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
@@ -46,7 +47,8 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
     .eq("is_public", true)
     .order("detected_at", { ascending: false })
     .limit(limit);
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return ((data ?? []) as unknown as (EventRow & { profile: Profile | null })[])
+    .filter((e): e is EventRow & { profile: Profile } => e.profile != null);
 }
 
 export async function listLabs(): Promise<Lab[]> {
