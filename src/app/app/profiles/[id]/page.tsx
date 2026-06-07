@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { ensureOrgForUser } from "@/lib/org";
+import { isProfileWatchedByOrg } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
@@ -14,14 +16,22 @@ import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) notFound();
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await isProfileWatchedByOrg(org.id, id))) notFound();
+
   const db = createAdminClient();
   const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
   if (!profile) notFound();
   const p = profile as Profile;
 
-  const [{ data: events }, { data: snaps }] = await Promise.all([
+  const [{ data: events }, { data: snaps }, { count: snapshotCount }] = await Promise.all([
     db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(50),
     db.from("profile_snapshots").select("*").eq("profile_id", id).order("fetched_at", { ascending: false }).limit(10),
+    db.from("profile_snapshots").select("id", { count: "exact", head: true }).eq("profile_id", id),
   ]);
 
   const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
@@ -81,7 +91,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
 
       <div className="grid gap-3 sm:grid-cols-3">
         <ProfileMetric label="Events" value={eventList.length} />
-        <ProfileMetric label="Snapshots" value={snapshotList.length} />
+        <ProfileMetric label="Snapshots" value={snapshotCount ?? snapshotList.length} />
         <ProfileMetric label="Latest confidence" value={latestConfidence} />
       </div>
 
