@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { countDistinctOrgProfiles, isProfileWatchedByOrg } from "@/lib/queries";
 import { normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Profile, Watchlist } from "@/types/db";
@@ -26,11 +27,8 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   const url = normalizeLinkedInUrl(parsed.data.linkedin_url);
   if (!url) return { error: "Please paste a full https://www.linkedin.com/in/... URL." };
 
-  const { count } = await db
-    .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
-    .eq("watchlists.org_id", org.id);
-  if ((count ?? 0) >= org.profile_limit) {
+  const watchedCount = await countDistinctOrgProfiles(org.id);
+  if (watchedCount >= org.profile_limit) {
     return { error: `Plan limit reached (${org.profile_limit}). Upgrade to add more.` };
   }
 
@@ -41,6 +39,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
     profile = ins.data;
   }
   const profileRow = profile as Profile;
+  if (profileRow.is_opted_out) {
+    return { error: "This person has opted out of tracking." };
+  }
 
   let { data: wl } = await db.from("watchlists").select("*").eq("org_id", org.id).limit(1).maybeSingle();
   if (!wl) {
@@ -88,6 +89,18 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  if (!(await isProfileWatchedByOrg(org.id, profileId))) return;
+
+  const db = createAdminClient();
+  const { data: profile } = await db.from("profiles").select("is_opted_out").eq("id", profileId).maybeSingle();
+  if ((profile as { is_opted_out?: boolean } | null)?.is_opted_out) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
