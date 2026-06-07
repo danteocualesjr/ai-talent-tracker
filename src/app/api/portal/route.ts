@@ -12,9 +12,14 @@ export async function POST() {
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   if (!org.stripe_customer_id) return NextResponse.json({ error: "no customer" }, { status: 400 });
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: org.stripe_customer_id,
-    return_url: `${siteUrl()}/app/billing`,
-  });
-  return NextResponse.json({ url: session.url });
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: org.stripe_customer_id,
+      return_url: `${siteUrl()}/app/billing`,
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (e) {
+    console.error("[portal]", e);
+    return NextResponse.json({ error: "portal failed" }, { status: 500 });
+  }
 }
