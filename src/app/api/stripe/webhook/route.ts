@@ -30,6 +30,14 @@ export async function POST(req: NextRequest) {
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
+    const { data: org } = await db
+      .from("organizations")
+      .select("stripe_subscription_id")
+      .eq("stripe_customer_id", sub.customer as string)
+      .maybeSingle();
+    if (org?.stripe_subscription_id && org.stripe_subscription_id !== sub.id) {
+      return NextResponse.json({ received: true });
+    }
     await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
@@ -52,15 +60,33 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unknown price id", priceId);
+    return;
+  }
 
-  await db
+  const update = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const customerId = sub.customer as string;
+  const { data: updated } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(update)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+
+  if (updated?.length) return;
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (customer.deleted) return;
+  const orgId = customer.metadata?.org_id;
+  if (!orgId) {
+    console.error("[stripe] no org matched for customer", customerId);
+    return;
+  }
+  await db.from("organizations").update(update).eq("id", orgId);
 }
