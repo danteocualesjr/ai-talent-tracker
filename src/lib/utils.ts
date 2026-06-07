@@ -41,3 +41,16 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Blocks open redirects via protocol-relative or absolute URLs in post-login `next`. */
+export function safeRedirectPath(raw: string | null | undefined): string {
+  if (!raw) return "/app";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/app";
+  if (raw.includes("\\") || raw.includes(":")) return "/app";
+  return raw;
+}
+
+/** Prevent `]]>` from breaking RSS CDATA sections. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]&gt;");
+}
