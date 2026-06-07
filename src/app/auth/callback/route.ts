@@ -5,7 +5,7 @@ import { ensureOrgForUser } from "@/lib/org";
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/app";
+  const next = safeRedirectPath(url.searchParams.get("next"));
 
   if (!code) return NextResponse.redirect(new URL("/login", request.url));
 
@@ -17,4 +17,12 @@ export async function GET(request: NextRequest) {
   await ensureOrgForUser(data.user.id, data.user.email ?? null);
 
   return NextResponse.redirect(new URL(next, request.url));
+}
+
+/** Allow only same-origin relative paths to prevent open redirects. */
+function safeRedirectPath(next: string | null): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
+    return "/app";
+  }
+  return next;
 }
