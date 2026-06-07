@@ -24,6 +24,12 @@ export function formatRelative(date: Date | string | null | undefined) {
   return `${Math.floor(mo / 12)}y ago`;
 }
 
+/** Only allow same-origin relative paths to prevent open redirects after auth. */
+export function safeRedirectPath(next: string | null | undefined): string {
+  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+  return "/app";
+}
+
 export function normalizeLinkedInUrl(url: string): string | null {
   try {
     const u = new URL(url.trim());
