@@ -51,20 +51,28 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
 
     try {
       await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
-      });
+      await db.from("notification_deliveries").upsert(
+        {
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "sent",
+          delivered_at: new Date().toISOString(),
+          error: null,
+        },
+        { onConflict: "channel_id,event_id" },
+      );
       dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
-        channel_id: ch.id,
-        event_id: event.id,
-        status: "failed",
-        error: e instanceof Error ? e.message : String(e),
-      });
+      await db.from("notification_deliveries").upsert(
+        {
+          channel_id: ch.id,
+          event_id: event.id,
+          status: "failed",
+          error: e instanceof Error ? e.message : String(e),
+          delivered_at: null,
+        },
+        { onConflict: "channel_id,event_id" },
+      );
     }
   }
   return { dispatched };
