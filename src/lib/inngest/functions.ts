@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -19,14 +19,28 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const now = Date.now();
       const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
-        .limit(500);
+        .from("watchlist_profiles")
+        .select("profile_id, profiles!inner(id, next_sync_at, is_opted_out)");
       if (error) throw error;
-      return (data ?? []) as { id: string }[];
+
+      const seen = new Set<string>();
+      const dueProfiles: { id: string }[] = [];
+      for (const row of data ?? []) {
+        const raw = (row as { profiles: unknown }).profiles;
+        const p = (Array.isArray(raw) ? raw[0] : raw) as {
+          id: string;
+          next_sync_at: string | null;
+          is_opted_out: boolean;
+        } | undefined;
+        if (!p || p.is_opted_out || seen.has(p.id)) continue;
+        seen.add(p.id);
+        const dueAt = p.next_sync_at ? new Date(p.next_sync_at).getTime() : 0;
+        if (dueAt <= now) dueProfiles.push({ id: p.id });
+        if (dueProfiles.length >= 500) break;
+      }
+      return dueProfiles;
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -61,6 +75,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,8 +105,8 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await nextSyncAt(db, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,6 +122,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +201,29 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  hourly: 1,
+  daily: 24,
+  weekly: 168,
+};
+
+async function nextSyncAt(db: ReturnType<typeof createAdminClient>, profile: Profile): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profile.id);
+
+  let minHours = CADENCE_HOURS.weekly;
+  for (const row of watchers ?? []) {
+    const cadence = (row as {
+      watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | null } | null;
+    }).watchlists?.organizations?.refresh_cadence;
+    if (cadence) minHours = Math.min(minHours, CADENCE_HOURS[cadence]);
+  }
+
+  if (profile.status === "left" || profile.status === "stealth") {
+    minHours = Math.min(minHours, 6);
+  }
+
+  return new Date(Date.now() + minHours * 60 * 60 * 1000).toISOString();
 }
