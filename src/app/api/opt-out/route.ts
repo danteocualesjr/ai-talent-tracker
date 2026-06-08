@@ -10,7 +10,15 @@ export async function POST(req: NextRequest) {
   if (!url || !email) return NextResponse.json({ error: "missing" }, { status: 400 });
 
   const db = createAdminClient();
-  await db.from("profiles").update({ is_opted_out: true }).eq("linkedin_url", url);
+  const { data, error } = await db
+    .from("profiles")
+    .update({ is_opted_out: true })
+    .eq("linkedin_url", url)
+    .select("id");
+  if (error) return NextResponse.json({ error: "failed" }, { status: 500 });
+  if (!data?.length) return NextResponse.json({ error: "profile_not_found" }, { status: 404 });
+
+  await db.from("profile_snapshots").delete().eq("profile_id", data[0].id);
 
   // In production, also email the team. Logged for now.
   console.log("[opt-out] received", { url, email, notes });

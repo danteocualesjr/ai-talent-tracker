@@ -50,10 +50,11 @@ const FALLBACK = [
  */
 export async function LiveTicker() {
   const events = await getPublicEvents(16);
+  const validEvents = events.filter((e) => e.profile);
   const items: Array<{ name: string; type: EventType; summary: string; when: string }> =
-    events.length >= 6
-      ? events.map((e) => ({
-          name: e.profile.full_name || e.profile.linkedin_handle || "Unknown",
+    validEvents.length >= 6
+      ? validEvents.map((e) => ({
+          name: e.profile!.full_name || e.profile!.linkedin_handle || "Unknown",
           type: e.type,
           summary: e.summary,
           when: formatRelative(e.detected_at),
