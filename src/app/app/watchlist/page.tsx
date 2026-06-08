@@ -72,7 +72,7 @@ export default async function WatchlistPage() {
         ))}
       </div>
 
-      <Panel title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
+      <Panel id="add" title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
         <AddProfileForm />
       </Panel>
 
