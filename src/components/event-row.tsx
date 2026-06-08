@@ -113,6 +113,18 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
             {profile.full_name || profile.linkedin_handle}
           </Link>
           <Badge variant={meta.tone}>{meta.label}</Badge>
+          {event.confidence >= 0.7 && (
+            <span
+              className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                event.confidence >= 0.8
+                  ? "bg-signal/10 text-signal"
+                  : "bg-muted text-muted-foreground"
+              }`}
+              title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
+            >
+              {Math.round(event.confidence * 100)}%
+            </span>
+          )}
           <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
         </div>
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
@@ -146,6 +158,18 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
       </div>
       <div className="flex items-center gap-2">
         <Badge variant={meta.tone}>{meta.label}</Badge>
+        {event.confidence >= 0.7 && (
+          <span
+            className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+              event.confidence >= 0.8
+                ? "bg-signal/10 text-signal"
+                : "bg-muted text-muted-foreground"
+            }`}
+            title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
+          >
+            {Math.round(event.confidence * 100)}%
+          </span>
+        )}
         <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
       </div>
       <p className="mt-1.5 text-pretty text-sm leading-relaxed">{event.summary}</p>
