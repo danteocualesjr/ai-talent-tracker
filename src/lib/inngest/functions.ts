@@ -22,7 +22,7 @@ export const scheduleRefreshes = inngest.createFunction(
       const { data, error } = await db
         .from("profiles")
         .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
+        .or(`next_sync_at.lte."${new Date().toISOString()}",next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
@@ -60,6 +60,8 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
       return data as Profile;
     });
+
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -109,6 +111,17 @@ export const refreshProfile = inngest.createFunction(
     });
 
     if (!stored) return { changed: false };
+
+    // Skip event creation on the first snapshot — no prior baseline to diff against.
+    const priorCount = await step.run("count-prior-snapshots", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return count ?? 0;
+    });
+    if (priorCount <= 1) return { changed: true, eventCreated: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
