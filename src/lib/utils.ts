@@ -41,3 +41,8 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Escape text for safe embedding inside an XML CDATA section. */
+export function xmlCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}

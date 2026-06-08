@@ -50,15 +50,16 @@ const FALLBACK = [
  */
 export async function LiveTicker() {
   const events = await getPublicEvents(16);
+  const usingSample = events.length === 0;
   const items: Array<{ name: string; type: EventType; summary: string; when: string }> =
-    events.length >= 6
-      ? events.map((e) => ({
+    usingSample
+      ? FALLBACK
+      : events.map((e) => ({
           name: e.profile.full_name || e.profile.linkedin_handle || "Unknown",
           type: e.type,
           summary: e.summary,
           when: formatRelative(e.detected_at),
-        }))
-      : FALLBACK;
+        }));
 
   const half = Math.ceil(items.length / 2);
   const colA = items.slice(0, half);
@@ -72,8 +73,8 @@ export async function LiveTicker() {
             <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
           </span>
-          <span className="font-semibold text-foreground">Live activity</span>
-          <span>· refreshed continuously</span>
+          <span className="font-semibold text-foreground">{usingSample ? "Sample activity" : "Live activity"}</span>
+          <span>{usingSample ? "· illustrative examples" : "· refreshed continuously"}</span>
         </div>
         <Link
           href="/feed"

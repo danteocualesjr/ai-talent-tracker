@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingHero } from "@/components/marketing-hero";
 import { listLabs } from "@/lib/queries";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
+import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
@@ -14,6 +16,7 @@ export const metadata = {
 export const revalidate = 600;
 
 export default async function PublicLabsPage() {
+  const dbReady = isSupabaseConfigured();
   const labs = await listLabs();
   const featuredCount = labs.filter((lab) => lab.is_featured).length;
   const domainCount = labs.filter((lab) => lab.domain).length;
@@ -49,6 +52,19 @@ export default async function PublicLabsPage() {
             </div>
           </div>
 
+          {labs.length === 0 ? (
+            <Panel>
+              <EmptyPanel
+                icon={<Building2 className="h-5 w-5" />}
+                title={dbReady ? "No labs indexed yet" : "Lab rosters not connected"}
+                body={
+                  dbReady
+                    ? "Run the lab seed migration to populate curated AI lab rosters."
+                    : "Connect Supabase in .env.local to load curated AI lab rosters."
+                }
+              />
+            </Panel>
+          ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {labs.map((l) => (
               <Link
@@ -77,6 +93,7 @@ export default async function PublicLabsPage() {
               </Link>
             ))}
           </div>
+          )}
         </section>
       </main>
       <MarketingFooter />

@@ -7,6 +7,7 @@ import { EventListItem } from "@/components/event-row";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { getPublicEvents } from "@/lib/queries";
+import { isSupabaseConfigured } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "AI lab departure feed",
@@ -16,6 +17,7 @@ export const metadata = {
 export const revalidate = 300;
 
 export default async function PublicFeedPage() {
+  const dbReady = isSupabaseConfigured();
   const events = await getPublicEvents(100);
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
@@ -77,8 +79,12 @@ export default async function PublicFeedPage() {
             {events.length === 0 ? (
               <EmptyPanel
                 icon={<Rss className="h-5 w-5" />}
-                title="Feed is warming up"
-                body="We're indexing the first departures. Check back soon or subscribe via RSS."
+                title={dbReady ? "Feed is warming up" : "Feed not connected"}
+                body={
+                  dbReady
+                    ? "We're indexing the first departures. Check back soon or subscribe via RSS."
+                    : "Connect Supabase in .env.local to populate the public departure feed."
+                }
               />
             ) : (
               events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} href={`/feed/${e.id}`} />)
