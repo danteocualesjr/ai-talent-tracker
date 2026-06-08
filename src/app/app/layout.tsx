@@ -12,6 +12,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:border focus:border-border/60 focus:bg-background focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      >
+        Skip to main content
+      </a>
       <AppSidebar orgName={org.name} orgPlan={org.plan} />
       <div className="app-shell-bg flex min-w-0 flex-col">
         <AppTopbar email={user.email ?? ""} orgPlan={org.plan} />
