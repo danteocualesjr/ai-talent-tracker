@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import {
   Bell,
   ChevronRight,
@@ -25,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Kbd } from "@/components/ui/kbd";
+import { AppCommandMenu, useCommandMenu } from "@/components/app-command-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
@@ -56,21 +56,8 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
 
-  // Cmd+K placeholder behavior: focuses the trigger so users
-  // get visual feedback even before a palette is wired up.
-  const [pressed, setPressed] = useState(false);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toLowerCase().includes("mac");
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setPressed(true);
-        setTimeout(() => setPressed(false), 400);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  // Cmd+K opens the command palette for quick navigation.
+  const { open: commandOpen, setOpen: setCommandOpen } = useCommandMenu();
 
   const initials = email
     .split("@")[0]
@@ -81,7 +68,9 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
     .join("") || "U";
 
   return (
-    <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl md:flex">
+    <>
+      <AppCommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
+      <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl md:flex">
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
@@ -115,17 +104,19 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
       <div className="ml-auto flex items-center gap-2">
         <button
           type="button"
+          onClick={() => setCommandOpen(true)}
           className={cn(
             "group inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
             "hover:border-foreground/15 hover:bg-card hover:text-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-            pressed && "ring-2 ring-signal/40",
+            commandOpen && "ring-2 ring-signal/40",
           )}
           aria-keyshortcuts="Meta+K"
-          aria-label="Search"
+          aria-label="Open command menu"
+          aria-expanded={commandOpen}
         >
           <Search aria-hidden="true" className="h-3.5 w-3.5" />
-          <span className="hidden lg:inline">Search…</span>
+          <span className="hidden lg:inline">Jump to…</span>
           <span className="ml-1 hidden items-center gap-0.5 lg:inline-flex">
             <Kbd>⌘</Kbd>
             <Kbd>K</Kbd>
@@ -217,6 +208,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
         </DropdownMenu>
       </div>
     </div>
+    </>
   );
 }
 
