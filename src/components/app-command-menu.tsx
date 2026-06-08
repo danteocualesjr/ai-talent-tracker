@@ -33,7 +33,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/alerts", label: "Alerts", icon: Bell, keywords: ["slack", "email", "webhook"], group: "Navigate" },
   { href: "/app/billing", label: "Billing", icon: CreditCard, keywords: ["plan", "upgrade", "subscription"], group: "Navigate" },
   { href: "/app/settings", label: "Settings", icon: Settings, keywords: ["account", "workspace"], group: "Navigate" },
-  { href: "/app/watchlist", label: "Add profile", icon: Plus, keywords: ["new", "track", "linkedin"], group: "Actions" },
+  { href: "/app/watchlist?add=1", label: "Add profile", icon: Plus, keywords: ["new", "track", "linkedin"], group: "Actions" },
 ];
 
 type AppCommandMenuProps = {
@@ -54,7 +54,7 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
     return COMMANDS.filter(
       (item) =>
         item.label.toLowerCase().includes(q) ||
-        item.keywords?.some((keyword) => keyword.includes(q)),
+        item.keywords?.some((keyword) => keyword.toLowerCase().includes(q)),
     );
   }, [query]);
 
@@ -199,6 +199,14 @@ export function useCommandMenu() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.closest("input, textarea, select, [contenteditable='true']"))
+      ) {
+        return;
+      }
       const isMac = navigator.platform.toLowerCase().includes("mac");
       if ((isMac ? event.metaKey : event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();

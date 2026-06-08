@@ -40,6 +40,36 @@ export function classifyByRules(
   const headline = next.headline ?? "";
   const companyChanged = diffs.some((d) => d.field === "current_company");
   const headlineChanged = diffs.some((d) => d.field === "headline");
+  const aboutChanged = diffs.some((d) => d.field === "about");
+
+  if (companyChanged) {
+    const left = prev.current_company;
+    const joined = next.current_company;
+    if (left && !joined) {
+      return {
+        type: "left_company",
+        confidence: 0.8,
+        status: "left",
+        summary: `Left ${left}. Current company removed from profile.`,
+      };
+    }
+    if (left && joined && norm(left) !== norm(joined)) {
+      return {
+        type: "joined_company",
+        confidence: 0.75,
+        status: "active",
+        summary: `Moved from ${left} to ${joined}.`,
+      };
+    }
+    if (!left && joined) {
+      return {
+        type: "joined_company",
+        confidence: 0.6,
+        status: "active",
+        summary: `Joined ${joined}.`,
+      };
+    }
+  }
 
   for (const re of STEALTH_PATTERNS) {
     if (re.test(headline)) {
@@ -74,33 +104,12 @@ export function classifyByRules(
     }
   }
 
-  if (companyChanged) {
-    const left = prev.current_company;
-    const joined = next.current_company;
-    if (left && !joined) {
-      return {
-        type: "left_company",
-        confidence: 0.8,
-        status: "left",
-        summary: `Left ${left}. Current company removed from profile.`,
-      };
-    }
-    if (left && joined && norm(left) !== norm(joined)) {
-      return {
-        type: "joined_company",
-        confidence: 0.75,
-        status: "active",
-        summary: `Moved from ${left} to ${joined}.`,
-      };
-    }
-    if (!left && joined) {
-      return {
-        type: "joined_company",
-        confidence: 0.6,
-        status: "active",
-        summary: `Joined ${joined}.`,
-      };
-    }
+  if (aboutChanged) {
+    return {
+      type: "about_changed",
+      confidence: 0.55,
+      summary: "About section updated.",
+    };
   }
 
   if (headlineChanged) {
