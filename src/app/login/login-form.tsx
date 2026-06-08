@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import { Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +34,32 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   if (sent) {
     return (
-      <div className="mt-6 rounded-xl border border-signal/20 bg-signal/5 p-4 text-sm leading-relaxed">
-        Check <span className="font-semibold text-foreground">{email}</span> for a magic link. You can close this tab.
+      <div className="mt-6 rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
+            <Mail className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-semibold text-foreground">Check your inbox</p>
+            <p className="mt-1 text-muted-foreground">
+              We sent a magic link to{" "}
+              <span className="font-medium text-foreground">{email}</span>. Click it to sign in — you can close this tab afterward.
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-3 h-8 px-0 text-xs text-muted-foreground hover:text-foreground"
+              disabled={loading}
+              onClick={() => {
+                setSent(false);
+                toast.message("Enter your email again to resend the link.");
+              }}
+            >
+              Use a different email
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
