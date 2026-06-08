@@ -41,6 +41,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
     profile = ins.data;
   }
   const profileRow = profile as Profile;
+  if (profileRow.is_opted_out) {
+    return { error: "This profile has opted out of tracking." };
+  }
 
   let { data: wl } = await db.from("watchlists").select("*").eq("org_id", org.id).limit(1).maybeSingle();
   if (!wl) {

@@ -1,10 +1,17 @@
 import "server-only";
 import type { ProfileProvider, ProviderProfile } from "./types";
 
+interface ProxycurlDate {
+  day: number;
+  month: number;
+  year: number;
+}
+
 interface ProxycurlExperience {
   company?: string;
   title?: string;
-  ends_at?: { day: number; month: number; year: number } | null;
+  starts_at?: ProxycurlDate | null;
+  ends_at?: ProxycurlDate | null;
 }
 
 interface ProxycurlResponse {
@@ -43,7 +50,7 @@ export class ProxycurlProvider implements ProfileProvider {
     }
     const data = (await res.json()) as ProxycurlResponse;
 
-    const current = (data.experiences || []).find((e) => !e.ends_at) || (data.experiences || [])[0];
+    const current = pickCurrentExperience(data.experiences ?? []);
 
     return {
       linkedin_url: linkedinUrl,
@@ -59,6 +66,17 @@ export class ProxycurlProvider implements ProfileProvider {
       raw: data,
     };
   }
+}
+
+function pickCurrentExperience(experiences: ProxycurlExperience[]): ProxycurlExperience | undefined {
+  const active = experiences.filter((e) => !e.ends_at);
+  if (active.length === 0) return undefined;
+  return active.reduce((best, e) => (dateValue(e.starts_at) > dateValue(best.starts_at) ? e : best));
+}
+
+function dateValue(d: ProxycurlDate | null | undefined): number {
+  if (!d) return 0;
+  return d.year * 10000 + d.month * 100 + d.day;
 }
 
 function extractHandle(url: string | undefined, host: string | RegExp): string | null {
