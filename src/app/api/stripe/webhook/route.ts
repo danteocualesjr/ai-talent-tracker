@@ -50,17 +50,40 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe webhook] subscription missing price id", sub.id);
+    return;
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe webhook] unknown price id", priceId);
+    return;
+  }
+
+  const update = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const { data: updated } = await db
+    .from("organizations")
+    .update(update)
+    .eq("stripe_customer_id", sub.customer as string)
+    .select("id");
+
+  if ((updated?.length ?? 0) > 0) return;
+
+  const customer = await stripe.customers.retrieve(sub.customer as string);
+  const orgId = !("deleted" in customer && customer.deleted) ? customer.metadata?.org_id : undefined;
+  if (!orgId) {
+    console.error("[stripe webhook] no org found for customer", sub.customer);
+    return;
+  }
 
   await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update({ ...update, stripe_customer_id: sub.customer as string })
+    .eq("id", orgId);
 }

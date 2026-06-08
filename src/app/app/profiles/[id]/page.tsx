@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, Github } from "lucide-react";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { createAdminClient, createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { userWatchesProfile } from "@/lib/profile-access";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
@@ -14,8 +15,19 @@ import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) notFound();
+  if (!(await userWatchesProfile(user.id, id))) notFound();
+
   const db = createAdminClient();
-  const { data: profile } = await db.from("profiles").select("*").eq("id", id).maybeSingle();
+  const { data: profile } = await db
+    .from("profiles")
+    .select("*")
+    .eq("id", id)
+    .eq("is_opted_out", false)
+    .maybeSingle();
   if (!profile) notFound();
   const p = profile as Profile;
 
