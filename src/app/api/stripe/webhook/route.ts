@@ -30,10 +30,16 @@ export async function POST(req: NextRequest) {
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+    const customerId = sub.customer as string;
+    const remaining = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
+    if (remaining.data.length > 0) {
+      await applySubscription(db, remaining.data[0]);
+    } else {
+      await db
+        .from("organizations")
+        .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+        .eq("stripe_customer_id", customerId);
+    }
   }
 
   return NextResponse.json({ received: true });
@@ -52,7 +58,10 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe webhook] unmapped price", { priceId, subscriptionId: sub.id });
+    return;
+  }
 
   await db
     .from("organizations")
