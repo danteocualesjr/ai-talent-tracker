@@ -20,20 +20,26 @@ export async function POST(req: NextRequest) {
 
   const db = createAdminClient();
 
-  if (
-    event.type === "checkout.session.completed" ||
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.created"
-  ) {
-    const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
-  }
-  if (event.type === "customer.subscription.deleted") {
-    const sub = event.data.object as Stripe.Subscription;
-    await db
-      .from("organizations")
-      .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+  try {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.created"
+    ) {
+      const sub = await loadSubscription(event);
+      if (sub) await applySubscription(db, sub);
+    }
+    if (event.type === "customer.subscription.deleted") {
+      const sub = event.data.object as Stripe.Subscription;
+      const { error } = await db
+        .from("organizations")
+        .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
+        .eq("stripe_customer_id", sub.customer as string);
+      if (error) throw error;
+    }
+  } catch (e) {
+    console.error("[stripe webhook]", e);
+    return NextResponse.json({ error: "webhook handler failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
@@ -50,17 +56,50 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
-  const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!priceId) throw new Error("subscription missing price id");
 
-  await db
+  const mapping = PRICE_PLAN_MAP[priceId];
+  if (!mapping) throw new Error(`unknown price id: ${priceId}`);
+
+  const update = {
+    plan: mapping.plan,
+    profile_limit: mapping.profile_limit,
+    refresh_cadence: mapping.cadence,
+    stripe_subscription_id: sub.id,
+  };
+
+  const customerId = sub.customer as string;
+  const { data: byCustomer, error: customerErr } = await db
     .from("organizations")
-    .update({
-      plan: mapping.plan,
-      profile_limit: mapping.profile_limit,
-      refresh_cadence: mapping.cadence,
-      stripe_subscription_id: sub.id,
-    })
-    .eq("stripe_customer_id", sub.customer as string);
+    .update(update)
+    .eq("stripe_customer_id", customerId)
+    .select("id");
+  if (customerErr) throw customerErr;
+  if (byCustomer && byCustomer.length > 0) return;
+
+  const orgId = sub.metadata?.org_id;
+  if (orgId) {
+    const { data: byOrg, error: orgErr } = await db
+      .from("organizations")
+      .update({ ...update, stripe_customer_id: customerId })
+      .eq("id", orgId)
+      .select("id");
+    if (orgErr) throw orgErr;
+    if (byOrg && byOrg.length > 0) return;
+  }
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (customer.deleted) throw new Error("stripe customer deleted");
+  const fallbackOrgId = customer.metadata?.org_id;
+  if (fallbackOrgId) {
+    const { data: byMeta, error: metaErr } = await db
+      .from("organizations")
+      .update({ ...update, stripe_customer_id: customerId })
+      .eq("id", fallbackOrgId)
+      .select("id");
+    if (metaErr) throw metaErr;
+    if (byMeta && byMeta.length > 0) return;
+  }
+
+  throw new Error(`no organization matched for customer ${customerId}`);
 }
