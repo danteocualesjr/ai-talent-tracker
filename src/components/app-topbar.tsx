@@ -26,7 +26,7 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { AppCommandMenu, useCommandMenu } from "@/components/app-command-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { cn } from "@/lib/utils";
+import { cn, isUuid } from "@/lib/utils";
 
 interface Props {
   email: string;
@@ -82,7 +82,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
         {segments.slice(1).map((seg, i) => {
           const href = "/" + segments.slice(0, i + 2).join("/");
           const last = i === segments.length - 2;
-          const label = SEGMENT_LABELS[seg] ?? prettify(seg);
+          const label = SEGMENT_LABELS[seg] ?? (isUuid(seg) ? "Details" : prettify(seg));
           return (
             <span key={href} className="flex min-w-0 items-center gap-1.5">
               <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground/50" />
@@ -125,9 +125,9 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
 
         <ThemeToggle />
 
-        <button
-          type="button"
-          aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
+        <Link
+          href="/app/events"
+          aria-label={unreadCount > 0 ? `${unreadCount} unread events` : "View events"}
           className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
           <Bell aria-hidden="true" className="h-4 w-4" />
@@ -136,7 +136,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
-        </button>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

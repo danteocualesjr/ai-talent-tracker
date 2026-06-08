@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,12 @@ import { addProfile } from "./actions";
 export function AddProfileForm() {
   const [pending, start] = useTransition();
   const ref = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (window.location.hash !== "#add-profile") return;
+    document.getElementById("add-profile")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    ref.current?.querySelector("input")?.focus();
+  }, []);
 
   function onSubmit(formData: FormData) {
     start(async () => {

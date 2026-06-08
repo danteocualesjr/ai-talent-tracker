@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 export function Panel({
+  id,
   title,
   description,
   action,
@@ -9,6 +10,7 @@ export function Panel({
   bodyClassName,
   tone = "default",
 }: {
+  id?: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
@@ -22,6 +24,7 @@ export function Panel({
 
   return (
     <div
+      id={id}
       className={cn(
         "surface-card overflow-hidden",
         tone === "muted" && "bg-muted/35",
