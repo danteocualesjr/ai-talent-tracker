@@ -18,6 +18,7 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   const { data: prof, error: profErr } = await db.from("profiles").select("*").eq("id", event.profile_id).single();
   if (profErr || !prof) throw profErr ?? new Error("profile not found");
   const profile = prof as Profile;
+  if (profile.is_opted_out) return { dispatched: 0 };
 
   // Find every org watching this profile.
   const { data: watchers } = await db
@@ -49,15 +50,24 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   for (const ch of (channels ?? []) as NotificationChannel[]) {
     if (!ch.event_types.includes(event.type)) continue;
 
+    const { data: prior } = await db
+      .from("notification_deliveries")
+      .select("id")
+      .eq("channel_id", ch.id)
+      .eq("event_id", event.id)
+      .eq("status", "sent")
+      .maybeSingle();
+    if (prior) continue;
+
     try {
-      await deliver(ch, event, profile);
+      const result = await deliver(ch, event, profile);
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
+        status: result === "skipped" ? "skipped" : "sent",
+        delivered_at: result === "skipped" ? null : new Date().toISOString(),
       });
-      dispatched++;
+      if (result === "sent") dispatched++;
     } catch (e) {
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
@@ -70,7 +80,7 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   return { dispatched };
 }
 
-async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
+async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<"sent" | "skipped"> {
   const payload = {
     name: profile.full_name || profile.linkedin_url,
     summary: event.summary,
@@ -82,13 +92,12 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
     const { subject, html } = renderEventEmail(payload);
-    await sendEventEmail(cfg.to, subject, html);
-    return;
+    return sendEventEmail(cfg.to, subject, html);
   }
   if (ch.type === "slack") {
     const cfg = ch.config as unknown as SlackConfig;
     await sendSlack(cfg.webhook_url, payload);
-    return;
+    return "sent";
   }
   if (ch.type === "webhook") {
     const cfg = ch.config as unknown as WebhookConfig;
@@ -97,6 +106,7 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
       profile_id: profile.id,
       ...payload,
     });
-    return;
+    return "sent";
   }
+  return "skipped";
 }
