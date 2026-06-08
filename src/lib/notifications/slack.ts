@@ -6,7 +6,7 @@ export async function sendSlack(webhookUrl: string, payload: {
   type: string;
   linkedinUrl: string;
 }): Promise<void> {
-  await fetch(webhookUrl, {
+  const response = await fetch(webhookUrl, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -21,4 +21,8 @@ export async function sendSlack(webhookUrl: string, payload: {
       ],
     }),
   });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`Slack webhook failed (${response.status}): ${body.slice(0, 200)}`);
+  }
 }

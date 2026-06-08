@@ -6,7 +6,7 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
 /**
@@ -61,6 +61,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { skipped: true, reason: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,8 +91,8 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await nextSyncAt(db, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -106,9 +108,21 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
+
+    const snapshotCount = await step.run("count-snapshots", async () => {
+      const { count, error } = await db
+        .from("profile_snapshots")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", profileId);
+      if (error) throw error;
+      return count ?? 0;
+    });
+    // First snapshot is baseline ingestion — skip spurious change events.
+    if (snapshotCount <= 1) return { changed: false, baseline: true };
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -184,9 +198,41 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  hourly: 1,
+  daily: 24,
+  weekly: 168,
+};
+
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profile: Profile,
+): Promise<string> {
+  if (profile.status === "left" || profile.status === "stealth") {
+    return new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+  }
+
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profile.id);
+
+  const cadences = ((watchers ?? []) as Array<{ watchlists?: { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null } | { organizations?: { refresh_cadence?: RefreshCadence } | { refresh_cadence?: RefreshCadence }[] | null }[] | null }>)
+    .flatMap((w) => {
+      const wl = w.watchlists;
+      if (!wl) return [];
+      const rows = Array.isArray(wl) ? wl : [wl];
+      return rows.flatMap((row) => {
+        const org = row.organizations;
+        if (!org) return [];
+        const orgs = Array.isArray(org) ? org : [org];
+        return orgs.map((o) => o.refresh_cadence).filter(Boolean) as RefreshCadence[];
+      });
+    });
+
+  const hours = cadences.length > 0
+    ? Math.min(...cadences.map((c) => CADENCE_HOURS[c]))
+    : CADENCE_HOURS.daily;
+
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 }

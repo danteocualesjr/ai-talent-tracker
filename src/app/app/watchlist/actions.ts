@@ -37,8 +37,17 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
-    if (ins.error || !ins.data) return { error: ins.error?.message ?? "Insert failed" };
-    profile = ins.data;
+    if (ins.error || !ins.data) {
+      if (ins.error?.code === "23505") {
+        const { data: existing } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+        if (!existing) return { error: "Insert failed" };
+        profile = existing;
+      } else {
+        return { error: ins.error?.message ?? "Insert failed" };
+      }
+    } else {
+      profile = ins.data;
+    }
   }
   const profileRow = profile as Profile;
 
@@ -88,6 +97,25 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return;
+
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .in("watchlist_id", ids);
+  if ((count ?? 0) === 0) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {

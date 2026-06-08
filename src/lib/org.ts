@@ -12,6 +12,7 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .from("org_members")
     .select("org_id, organizations(*)")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
 
@@ -56,9 +57,20 @@ export async function getOrgForUser(userId: string): Promise<Organization | null
     .from("org_members")
     .select("organizations(*)")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   if (!data || !(data as { organizations?: unknown }).organizations) return null;
   const o = (data as { organizations: unknown }).organizations;
   return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
+}
+
+export async function isProfileWatchedByOrg(profileId: string, orgId: string): Promise<boolean> {
+  const db = createAdminClient();
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId);
+  return (count ?? 0) > 0;
 }
