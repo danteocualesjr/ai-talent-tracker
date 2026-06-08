@@ -33,7 +33,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/alerts", label: "Alerts", icon: Bell, keywords: ["slack", "email", "webhook"], group: "Navigate" },
   { href: "/app/billing", label: "Billing", icon: CreditCard, keywords: ["plan", "upgrade", "subscription"], group: "Navigate" },
   { href: "/app/settings", label: "Settings", icon: Settings, keywords: ["account", "workspace"], group: "Navigate" },
-  { href: "/app/watchlist", label: "Add profile", icon: Plus, keywords: ["new", "track", "linkedin"], group: "Actions" },
+  { href: "/app/watchlist?add=1", label: "Add profile", icon: Plus, keywords: ["new", "track", "linkedin"], group: "Actions" },
 ];
 
 type AppCommandMenuProps = {

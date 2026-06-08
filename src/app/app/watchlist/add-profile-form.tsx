@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,15 @@ import { addProfile } from "./actions";
 export function AddProfileForm() {
   const [pending, start] = useTransition();
   const ref = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("add") === "1") {
+      inputRef.current?.focus();
+      inputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  }, [searchParams]);
 
   function onSubmit(formData: FormData) {
     start(async () => {
@@ -28,6 +38,7 @@ export function AddProfileForm() {
       <div className="relative flex-1">
         <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
+          ref={inputRef}
           name="linkedin_url"
           type="url"
           required
