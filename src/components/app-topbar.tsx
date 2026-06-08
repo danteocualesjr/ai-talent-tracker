@@ -79,12 +79,13 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5" />
           <span className="hidden lg:inline">Dashboard</span>
         </Link>
-        {segments.slice(1).map((seg, i) => {
-          const href = "/" + segments.slice(0, i + 2).join("/");
-          const last = i === segments.length - 2;
-          const label = SEGMENT_LABELS[seg] ?? prettify(seg);
+        {segments.slice(1).map((seg, i, crumbs) => {
+          const last = i === crumbs.length - 1;
+          const isProfileDetail = crumbs[i - 1] === "profiles" && isUuid(seg);
+          const href = seg === "profiles" ? "/app/watchlist" : "/" + segments.slice(0, i + 2).join("/");
+          const label = isProfileDetail ? "Profile" : (SEGMENT_LABELS[seg] ?? prettify(seg));
           return (
-            <span key={href} className="flex min-w-0 items-center gap-1.5">
+            <span key={`${href}-${seg}`} className="flex min-w-0 items-center gap-1.5">
               <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground/50" />
               {last ? (
                 <span className="truncate font-semibold text-foreground" aria-current="page">{label}</span>
@@ -125,8 +126,8 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
 
         <ThemeToggle />
 
-        <button
-          type="button"
+        <Link
+          href="/app/events"
           aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
           className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
@@ -136,7 +137,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
-        </button>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -214,6 +215,10 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
 
 function prettify(seg: string) {
   return seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " ");
+}
+
+function isUuid(seg: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(seg);
 }
 
 function signOut() {

@@ -7,6 +7,7 @@ export function Panel({
   children,
   className,
   bodyClassName,
+  id,
   tone = "default",
 }: {
   title?: React.ReactNode;
@@ -15,6 +16,7 @@ export function Panel({
   children: React.ReactNode;
   className?: string;
   bodyClassName?: string;
+  id?: string;
   /** "default" uses the standard card surface, "muted" applies a subtle tinted background */
   tone?: "default" | "muted";
 }) {
@@ -22,6 +24,7 @@ export function Panel({
 
   return (
     <div
+      id={id}
       className={cn(
         "surface-card overflow-hidden",
         tone === "muted" && "bg-muted/35",
