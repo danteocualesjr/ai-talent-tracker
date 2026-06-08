@@ -50,6 +50,18 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
   return orgRow;
 }
 
+export async function profileBelongsToOrg(profileId: string, orgId: string): Promise<boolean> {
+  const db = createAdminClient();
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("profile_id", profileId)
+    .eq("watchlists.org_id", orgId)
+    .limit(1)
+    .maybeSingle();
+  return !!data;
+}
+
 export async function getOrgForUser(userId: string): Promise<Organization | null> {
   const db = createAdminClient();
   const { data } = await db
