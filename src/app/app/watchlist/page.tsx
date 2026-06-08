@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ListChecks, RefreshCw, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -73,7 +74,9 @@ export default async function WatchlistPage() {
       </div>
 
       <Panel title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
-        <AddProfileForm />
+        <Suspense fallback={null}>
+          <AddProfileForm />
+        </Suspense>
       </Panel>
 
       <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
