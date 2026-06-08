@@ -41,3 +41,29 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths for post-auth redirects. */
+export function safeRedirectPath(next: string): string {
+  if (next.startsWith("/") && !next.startsWith("//") && !next.includes("://")) {
+    return next;
+  }
+  return "/app";
+}
+
+/** Block private/internal hosts for outbound webhook delivery. */
+export function isSafeWebhookUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) return false;
+    if (host === "127.0.0.1" || host.startsWith("127.")) return false;
+    if (host === "0.0.0.0" || host === "[::1]") return false;
+    if (host.startsWith("10.") || host.startsWith("192.168.")) return false;
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false;
+    if (host === "169.254.169.254" || host.endsWith(".metadata.google.internal")) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
