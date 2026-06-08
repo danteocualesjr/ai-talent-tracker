@@ -37,6 +37,27 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
 }
 
+export async function countRecentOrgEvents(orgId: string, days = 7): Promise<number> {
+  if (!isSupabaseConfigured()) return 0;
+  const db = createAdminClient();
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+
+  const { data: watched } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  if (ids.length === 0) return 0;
+
+  const { count } = await db
+    .from("events")
+    .select("*", { count: "exact", head: true })
+    .in("profile_id", ids)
+    .gte("detected_at", since);
+
+  return count ?? 0;
+}
+
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();

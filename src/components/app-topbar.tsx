@@ -126,8 +126,12 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
         <ThemeToggle />
 
         <Link
-          href="/app/alerts"
-          aria-label={unreadCount > 0 ? `${unreadCount} unread notifications — open alerts` : "Open alerts"}
+          href="/app/events"
+          aria-label={
+            unreadCount > 0
+              ? `${unreadCount} recent event${unreadCount === 1 ? "" : "s"} in the last 7 days — open events`
+              : "Open events"
+          }
           className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
           <Bell aria-hidden="true" className="h-4 w-4" />

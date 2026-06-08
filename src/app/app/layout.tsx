@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { countRecentOrgEvents } from "@/lib/queries";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 
@@ -9,6 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { data: { user } } = await supa.auth.getUser();
   if (!user) redirect("/login?next=/app");
   const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const recentEventCount = await countRecentOrgEvents(org.id);
 
   return (
     <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
@@ -20,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </a>
       <AppSidebar orgName={org.name} orgPlan={org.plan} />
       <div className="app-shell-bg flex min-w-0 flex-col">
-        <AppTopbar email={user.email ?? ""} orgPlan={org.plan} />
+        <AppTopbar email={user.email ?? ""} orgPlan={org.plan} unreadCount={recentEventCount} />
         <main id="main-content" className="flex-1 min-w-0">{children}</main>
       </div>
     </div>
