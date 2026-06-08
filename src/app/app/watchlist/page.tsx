@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddProfileForm } from "./add-profile-form";
 import { removeProfileForm, refreshNowForm } from "./actions";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, cn } from "@/lib/utils";
 
 export const metadata = { title: "Watchlist" };
 
@@ -29,6 +29,8 @@ export default async function WatchlistPage() {
   const profiles = await listOrgProfiles(org.id);
 
   const fill = Math.min(100, (profiles.length / org.profile_limit) * 100);
+  const capacityTone =
+    fill >= 100 ? "full" : fill >= 85 ? "warning" : "default";
   const statusCounts = {
     active: profiles.filter((profile) => profile.status === "active").length,
     stealth: profiles.filter((profile) => profile.status === "stealth").length,
@@ -52,9 +54,35 @@ export default async function WatchlistPage() {
             </span>
             <span className="font-medium text-foreground">{org.refresh_cadence}</span>
           </div>
-          <div className="progress-track mt-3">
-            <div className="progress-fill" style={{ width: `${fill}%` }} />
+          <div
+            className="progress-track mt-3"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={org.profile_limit}
+            aria-valuenow={profiles.length}
+            aria-label="Watchlist capacity"
+          >
+            <div
+              className={cn(
+                "progress-fill",
+                capacityTone === "warning" && "!from-amber-500/90 !to-amber-500",
+                capacityTone === "full" && "!from-destructive/90 !to-destructive",
+              )}
+              style={{ width: `${fill}%` }}
+            />
           </div>
+          {capacityTone !== "default" && (
+            <p
+              className={cn(
+                "mt-2 text-[11px] font-medium",
+                capacityTone === "full" ? "text-destructive" : "text-amber-700 dark:text-amber-400",
+              )}
+            >
+              {capacityTone === "full"
+                ? "Profile limit reached — remove profiles or upgrade your plan."
+                : "Almost at your profile limit."}
+            </p>
+          )}
         </div>
       </PageHeader>
 
@@ -135,7 +163,7 @@ export default async function WatchlistPage() {
                     Last synced {formatRelative(p.last_synced_at)} · {p.current_company ?? "no current company"}
                   </p>
                 </div>
-                <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                   <form action={refreshNowForm}>
                     <input type="hidden" name="profile_id" value={p.id} />
                     <Button variant="ghost" size="icon" title="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
