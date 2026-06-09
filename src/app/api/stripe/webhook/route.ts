@@ -52,9 +52,12 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unmapped subscription price", { priceId, customer: sub.customer });
+    throw new Error(`Unmapped Stripe price: ${priceId}`);
+  }
 
-  await db
+  const { data, error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -62,5 +65,11 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", sub.customer as string)
+    .select("id");
+  if (error) throw error;
+  if (!data?.length) {
+    console.error("[stripe] no org matched customer on subscription update", { customer: sub.customer });
+    throw new Error(`No organization for Stripe customer: ${sub.customer}`);
+  }
 }
