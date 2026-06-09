@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, ListChecks, Users } from "lucide-react";
+import { Bell, ListChecks, Users, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
@@ -41,11 +41,11 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
             <div className="label-caps">After sign-in</div>
             <h2 className="mt-3 text-2xl font-bold tracking-tight">Your watchlist starts warming immediately.</h2>
             <div className="mt-6 space-y-3">
-              {[
-                [ListChecks, "Paste profiles", "Add individual LinkedIn URLs or browse curated lab rosters."],
-                [Users, "Review changes", "See classified events, confidence scores, and profile snapshots."],
-                [Bell, "Route alerts", "Send high-signal changes to Slack, email, or signed webhooks."],
-              ].map(([Icon, title, body], i) => (
+              {([
+                { icon: ListChecks, title: "Paste profiles", body: "Add individual LinkedIn URLs or browse curated lab rosters." },
+                { icon: Users, title: "Review changes", body: "See classified events, confidence scores, and profile snapshots." },
+                { icon: Bell, title: "Route alerts", body: "Send high-signal changes to Slack, email, or signed webhooks." },
+              ] satisfies { icon: LucideIcon; title: string; body: string }[]).map(({ icon: Icon, title, body }, i) => (
                 <div key={title} className="flex gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12 hover:bg-muted/50">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
                     <Icon className="h-4 w-4" />
