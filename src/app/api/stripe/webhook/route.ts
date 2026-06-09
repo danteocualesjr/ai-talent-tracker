@@ -26,7 +26,14 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      try {
+        await applySubscription(db, sub);
+      } catch (e) {
+        console.error("[stripe] applySubscription failed", e);
+        return NextResponse.json({ error: "subscription update failed" }, { status: 500 });
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
@@ -50,11 +57,17 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
 
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
   const priceId = sub.items.data[0]?.price.id;
-  if (!priceId) return;
+  if (!priceId) {
+    console.error("[stripe] subscription missing price id", sub.id);
+    throw new Error("subscription missing price id");
+  }
   const mapping = PRICE_PLAN_MAP[priceId];
-  if (!mapping) return;
+  if (!mapping) {
+    console.error("[stripe] unknown price id", priceId, "known:", Object.keys(PRICE_PLAN_MAP));
+    throw new Error(`unknown price id: ${priceId}`);
+  }
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +76,8 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) {
+    console.error("[stripe] failed to update org for customer", sub.customer, error);
+    throw error;
+  }
 }
