@@ -3,17 +3,21 @@ import { siteUrl } from "@/lib/utils";
 
 export const revalidate = 300;
 
+function cdata(s: string): string {
+  return s.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
 export async function GET() {
   const events = await getPublicEvents(50);
   const items = events.map((e) => {
     const link = `${siteUrl()}/feed/${e.id}`;
     return `
       <item>
-        <title><![CDATA[${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}]]></title>
+        <title><![CDATA[${cdata(`${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}`)}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
-        <description><![CDATA[${e.summary}]]></description>
+        <description><![CDATA[${cdata(e.summary)}]]></description>
       </item>`;
   }).join("");
 

@@ -41,7 +41,7 @@ export function classifyByRules(
   const companyChanged = diffs.some((d) => d.field === "current_company");
   const headlineChanged = diffs.some((d) => d.field === "headline");
 
-  for (const re of STEALTH_PATTERNS) {
+  if (headlineChanged) for (const re of STEALTH_PATTERNS) {
     if (re.test(headline)) {
       return {
         type: "went_stealth",
@@ -52,7 +52,7 @@ export function classifyByRules(
     }
   }
 
-  for (const re of FOUNDER_PATTERNS) {
+  if (headlineChanged) for (const re of FOUNDER_PATTERNS) {
     if (re.test(headline)) {
       return {
         type: "headline_signals_founding",
@@ -63,7 +63,7 @@ export function classifyByRules(
     }
   }
 
-  for (const re of STAFF_FOUNDING_PATTERNS) {
+  if (headlineChanged) for (const re of STAFF_FOUNDING_PATTERNS) {
     if (re.test(headline)) {
       return {
         type: "headline_signals_founding",
