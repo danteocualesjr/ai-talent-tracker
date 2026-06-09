@@ -15,8 +15,20 @@ export default function NotFound() {
       <main aria-labelledby="not-found-title" className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 py-20">
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
+        <p
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 select-none text-center font-serif text-[clamp(8rem,28vw,16rem)] font-normal leading-none tracking-tighter text-foreground/[0.04]"
+        >
+          404
+        </p>
         <div className="relative text-center">
-          <p className="label-caps">Error 404</p>
+          <p className="label-caps inline-flex items-center gap-2">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+            </span>
+            Error 404
+          </p>
           <h1 id="not-found-title" className="mt-4 font-serif text-7xl font-normal italic tracking-tight text-foreground md:text-8xl">
             Lost signal
           </h1>
