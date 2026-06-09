@@ -12,6 +12,7 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .from("org_members")
     .select("org_id, organizations(*)")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
 
@@ -30,10 +31,20 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     .insert({ name: email ? `${email.split("@")[0]}'s workspace` : "My workspace", slug })
     .select("*")
     .single();
-  if (error || !org) throw error ?? new Error("failed to create org");
+
+  if (error || !org) {
+    const raced = await loadOrgForUser(db, userId);
+    if (raced) return raced;
+    throw error ?? new Error("failed to create org");
+  }
   const orgRow = org as Organization;
 
-  await db.from("org_members").insert({ org_id: orgRow.id, user_id: userId, role: "owner" });
+  const { error: memberErr } = await db.from("org_members").insert({ org_id: orgRow.id, user_id: userId, role: "owner" });
+  if (memberErr) {
+    const raced = await loadOrgForUser(db, userId);
+    if (raced) return raced;
+    throw memberErr;
+  }
 
   // Default email channel: alerts go to the signup email.
   if (email) {
@@ -52,10 +63,15 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
 
 export async function getOrgForUser(userId: string): Promise<Organization | null> {
   const db = createAdminClient();
+  return loadOrgForUser(db, userId);
+}
+
+async function loadOrgForUser(db: ReturnType<typeof createAdminClient>, userId: string): Promise<Organization | null> {
   const { data } = await db
     .from("org_members")
     .select("organizations(*)")
     .eq("user_id", userId)
+    .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   if (!data || !(data as { organizations?: unknown }).organizations) return null;
