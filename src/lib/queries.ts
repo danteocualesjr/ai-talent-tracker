@@ -10,10 +10,15 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  const seen = new Set<string>();
+  const out: (Profile & { watchlist_id: string })[] = [];
+  for (const r of (data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>) {
+    const p = r.profiles as Profile;
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    out.push({ ...p, watchlist_id: r.watchlist_id });
+  }
+  return out;
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
@@ -63,8 +68,9 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
+    .eq("profiles.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
