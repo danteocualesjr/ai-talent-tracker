@@ -35,9 +35,9 @@ export default async function AlertsPage() {
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <ChannelMetric label="Email" value={channelCounts.email} />
-        <ChannelMetric label="Slack" value={channelCounts.slack} />
-        <ChannelMetric label="Webhooks" value={channelCounts.webhook} />
+        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} />
+        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} />
+        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} />
       </div>
 
       <div className="surface-card overflow-hidden">
@@ -150,10 +150,13 @@ export default async function AlertsPage() {
   );
 }
 
-function ChannelMetric({ label, value }: { label: string; value: number }) {
+function ChannelMetric({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
   return (
-    <div className="surface-card p-4">
-      <div className="tnum text-2xl font-bold">{value}</div>
+    <div className="surface-card surface-card-hover p-4">
+      <div className="flex items-start justify-between">
+        <div className="tnum text-2xl font-bold">{value}</div>
+        {icon && <div className="text-muted-foreground/70">{icon}</div>}
+      </div>
       <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
