@@ -74,16 +74,19 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
   const plan = PLAN_DETAILS[slug];
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border bg-card p-7 transition-all duration-300 ${
+      className={`relative flex flex-col overflow-hidden rounded-2xl border bg-card p-7 transition-all duration-300 ${
         highlighted
-          ? "surface-elevated border-foreground/20 ring-1 ring-foreground/5"
+          ? "surface-elevated border-signal/30 ring-1 ring-signal/10"
           : "border-border/60 hover:border-foreground/15 hover:shadow-soft"
       }`}
     >
       {highlighted && (
-        <div className="absolute -top-3 left-6">
-          <Badge>Most popular</Badge>
-        </div>
+        <>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-signal/20 via-signal to-signal/20" />
+          <div className="absolute -top-3 left-6">
+            <Badge className="bg-signal text-signal-foreground shadow-sm">Most popular</Badge>
+          </div>
+        </>
       )}
       <div>
         <div className="text-sm font-semibold tracking-tight">{plan.name}</div>
@@ -101,7 +104,7 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
       <ul className="mt-7 flex-1 space-y-3 text-sm">
         {plan.features.map((f) => (
           <li key={f} className="flex items-start gap-2.5">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-foreground/70" />
+            <Check className={`mt-0.5 h-4 w-4 shrink-0 ${highlighted ? "text-signal" : "text-foreground/70"}`} />
             <span className="text-muted-foreground">{f}</span>
           </li>
         ))}
