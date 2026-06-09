@@ -26,11 +26,14 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   const url = normalizeLinkedInUrl(parsed.data.linkedin_url);
   if (!url) return { error: "Please paste a full https://www.linkedin.com/in/... URL." };
 
-  const { count } = await db
+  const { data: watchRows } = await db
     .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
+    .select("profile_id, watchlists!inner(org_id)")
     .eq("watchlists.org_id", org.id);
-  if ((count ?? 0) >= org.profile_limit) {
+  const trackedCount = new Set(
+    ((watchRows ?? []) as { profile_id: string }[]).map((r) => r.profile_id),
+  ).size;
+  if (trackedCount >= org.profile_limit) {
     return { error: `Plan limit reached (${org.profile_limit}). Upgrade to add more.` };
   }
 
@@ -41,6 +44,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
     profile = ins.data;
   }
   const profileRow = profile as Profile;
+  if (profileRow.is_opted_out) {
+    return { error: "This person has opted out of tracking and cannot be added." };
+  }
 
   let { data: wl } = await db.from("watchlists").select("*").eq("org_id", org.id).limit(1).maybeSingle();
   if (!wl) {
@@ -88,6 +94,25 @@ export async function removeProfileForm(formData: FormData): Promise<void> {
 export async function refreshNowForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return;
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
+  const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
+  if (ids.length === 0) return;
+
+  const { count } = await db
+    .from("watchlist_profiles")
+    .select("*", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .in("watchlist_id", ids);
+  if (!count) return;
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
