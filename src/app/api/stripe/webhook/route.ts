@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-      .eq("stripe_customer_id", sub.customer as string);
+      .eq("stripe_customer_id", stripeCustomerId(sub));
   }
 
   return NextResponse.json({ received: true });
@@ -48,7 +48,24 @@ async function loadSubscription(event: Stripe.Event): Promise<Stripe.Subscriptio
   return event.data.object as Stripe.Subscription;
 }
 
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing"]);
+
 async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  const customerId = stripeCustomerId(sub);
+
+  if (!ACTIVE_SUBSCRIPTION_STATUSES.has(sub.status)) {
+    await db
+      .from("organizations")
+      .update({
+        plan: "free",
+        profile_limit: 5,
+        refresh_cadence: "weekly",
+        stripe_subscription_id: sub.status === "canceled" ? null : sub.id,
+      })
+      .eq("stripe_customer_id", customerId);
+    return;
+  }
+
   const priceId = sub.items.data[0]?.price.id;
   if (!priceId) return;
   const mapping = PRICE_PLAN_MAP[priceId];
@@ -62,5 +79,9 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       refresh_cadence: mapping.cadence,
       stripe_subscription_id: sub.id,
     })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", customerId);
+}
+
+function stripeCustomerId(sub: Stripe.Subscription): string {
+  return typeof sub.customer === "string" ? sub.customer : sub.customer.id;
 }

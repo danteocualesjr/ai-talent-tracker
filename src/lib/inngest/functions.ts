@@ -19,14 +19,18 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
-      const { data, error } = await db
-        .from("profiles")
-        .select("id")
-        .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
-        .eq("is_opted_out", false)
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []) as { id: string }[];
+      const now = new Date().toISOString();
+      const [byTime, byNull] = await Promise.all([
+        db.from("profiles").select("id").eq("is_opted_out", false).lte("next_sync_at", now).limit(500),
+        db.from("profiles").select("id").eq("is_opted_out", false).is("next_sync_at", null).limit(500),
+      ]);
+      if (byTime.error) throw byTime.error;
+      if (byNull.error) throw byNull.error;
+      const ids = new Set<string>();
+      for (const row of [...(byTime.data ?? []), ...(byNull.data ?? [])] as { id: string }[]) {
+        ids.add(row.id);
+      }
+      return Array.from(ids, (id) => ({ id }));
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -95,8 +99,8 @@ export const refreshProfile = inngest.createFunction(
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -123,6 +127,9 @@ export const refreshProfile = inngest.createFunction(
     };
     const diffs = diffProfiles(prev, fetched);
     if (diffs.length === 0) return { changed: false };
+
+    // First sync establishes a baseline — skip event creation on initial scrape.
+    if (!profile.last_synced_at) return { changed: true, eventCreated: false, baseline: true };
 
     let classification = classifyByRules(
       diffs,
