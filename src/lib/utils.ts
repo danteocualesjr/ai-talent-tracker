@@ -41,3 +41,45 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths for post-login redirects. */
+export function safeRedirectPath(path: string | null | undefined, fallback = "/app"): string {
+  if (!path) return fallback;
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return fallback;
+  try {
+    const decoded = decodeURIComponent(path);
+    if (decoded.startsWith("//") || decoded.includes("://")) return fallback;
+  } catch {
+    return fallback;
+  }
+  return path;
+}
+
+/** Escape `]]>` sequences inside RSS CDATA sections. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+/** Reject webhook URLs that could target internal networks (SSRF). */
+export function isSafeWebhookUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".localhost")) return false;
+    if (host === "127.0.0.1" || host === "0.0.0.0" || host === "::1") return false;
+    if (host === "169.254.169.254" || host.endsWith(".internal")) return false;
+    const m = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (m) {
+      const a = Number(m[1]);
+      const b = Number(m[2]);
+      if (a === 10 || a === 127) return false;
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      if (a === 192 && b === 168) return false;
+      if (a === 169 && b === 254) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
