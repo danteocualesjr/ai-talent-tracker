@@ -88,12 +88,12 @@ export default async function WatchlistPage() {
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
-          ["Active", statusCounts.active],
-          ["Stealth", statusCounts.stealth],
-          ["Founder", statusCounts.founder],
-          ["Left", statusCounts.left],
-        ].map(([label, value]) => (
-          <div key={label} className="surface-card p-4">
+          ["Active", statusCounts.active, "border-l-foreground/20"],
+          ["Stealth", statusCounts.stealth, "border-l-amber-500/60"],
+          ["Founder", statusCounts.founder, "border-l-signal/60"],
+          ["Left", statusCounts.left, "border-l-violet-500/50"],
+        ].map(([label, value, accent]) => (
+          <div key={label} className={`surface-card border-l-2 p-4 ${accent}`}>
             <div className="tnum text-2xl font-bold">{value}</div>
             <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
           </div>
