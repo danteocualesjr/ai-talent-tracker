@@ -10,10 +10,14 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  const byId = new Map<string, Profile & { watchlist_id: string }>();
+  for (const r of (data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>) {
+    const prof = r.profiles as Profile;
+    if (!byId.has(prof.id)) {
+      byId.set(prof.id, { ...prof, watchlist_id: r.watchlist_id });
+    }
+  }
+  return Array.from(byId.values());
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
