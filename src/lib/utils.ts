@@ -41,3 +41,41 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Allow only same-origin relative paths for post-login redirects. */
+export function safeRedirectPath(path: string | null | undefined, fallback = "/app"): string {
+  if (!path || typeof path !== "string") return fallback;
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return fallback;
+  if (/^\/[^/]*:/.test(path)) return fallback;
+  return path;
+}
+
+/** Prevent CDATA terminator sequences from breaking RSS item bodies. */
+export function escapeRssCdata(text: string): string {
+  return text.replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+/** Reject URLs that could target internal networks (SSRF guard for outbound webhooks). */
+export function isPublicHttpUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+    const host = u.hostname.toLowerCase();
+    if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) return false;
+    if (host === "0.0.0.0" || host === "[::1]" || host === "::1") return false;
+    const ipv4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (ipv4) {
+      const a = Number(ipv4[1]);
+      const b = Number(ipv4[2]);
+      if (a === 10) return false;
+      if (a === 127) return false;
+      if (a === 169 && b === 254) return false;
+      if (a === 172 && b >= 16 && b <= 31) return false;
+      if (a === 192 && b === 168) return false;
+      if (a === 0) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
