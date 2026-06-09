@@ -50,17 +50,11 @@ export function MarketingNav() {
                 className={cn(
                   "relative rounded-lg px-3.5 py-2 transition-colors",
                   active
-                    ? "font-semibold text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "bg-foreground/[0.06] font-semibold text-foreground"
+                    : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                 )}
               >
                 {l.label}
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-3 bottom-0.5 h-px bg-gradient-to-r from-transparent via-foreground to-transparent"
-                  />
-                )}
               </Link>
             );
           })}
