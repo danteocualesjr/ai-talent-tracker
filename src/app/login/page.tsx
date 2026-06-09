@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Bell, ListChecks, Users } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
@@ -39,15 +40,23 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
           <div className="surface-card hidden p-8 md:block">
             <div className="label-caps">After sign-in</div>
             <h2 className="mt-3 text-2xl font-bold tracking-tight">Your watchlist starts warming immediately.</h2>
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-3">
               {[
-                ["Paste profiles", "Add individual LinkedIn URLs or browse curated lab rosters."],
-                ["Review changes", "See classified events, confidence scores, and profile snapshots."],
-                ["Route alerts", "Send high-signal changes to Slack, email, or signed webhooks."],
-              ].map(([title, body]) => (
-                <div key={title} className="rounded-xl border border-border/60 bg-muted/30 p-4">
-                  <div className="text-sm font-semibold">{title}</div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+                [ListChecks, "Paste profiles", "Add individual LinkedIn URLs or browse curated lab rosters."],
+                [Users, "Review changes", "See classified events, confidence scores, and profile snapshots."],
+                [Bell, "Route alerts", "Send high-signal changes to Slack, email, or signed webhooks."],
+              ].map(([Icon, title, body], i) => (
+                <div key={title} className="flex gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12 hover:bg-muted/50">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="tnum text-[10px] font-bold text-signal">0{i + 1}</span>
+                      <span className="text-sm font-semibold">{title}</span>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
+                  </div>
                 </div>
               ))}
             </div>
