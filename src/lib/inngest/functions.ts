@@ -19,9 +19,19 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      const { data: watched, error: watchErr } = await db
+        .from("watchlist_profiles")
+        .select("profile_id");
+      if (watchErr) throw watchErr;
+      const watchedIds = Array.from(
+        new Set((watched ?? []).map((w) => (w as { profile_id: string }).profile_id)),
+      );
+      if (watchedIds.length === 0) return [];
+
       const { data, error } = await db
         .from("profiles")
         .select("id")
+        .in("id", watchedIds)
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -61,6 +71,8 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
@@ -89,14 +101,14 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
-      await db
+      const next = await nextSyncAt(db, profile);
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -106,6 +118,7 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
     if (!stored) return { changed: false };
@@ -184,9 +197,28 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
+const CADENCE_HOURS: Record<string, number> = { weekly: 168, daily: 24, hourly: 1 };
+
+async function nextSyncAt(db: ReturnType<typeof createAdminClient>, profile: Profile): Promise<string> {
+  const { data: watchers } = await db
+    .from("watchlist_profiles")
+    .select("watchlists(organizations(refresh_cadence))")
+    .eq("profile_id", profile.id);
+
+  const cadences = ((watchers ?? []) as Array<{ watchlists?: { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] | null } | { organizations?: { refresh_cadence?: string } | { refresh_cadence?: string }[] | null }[] | null }>)
+    .flatMap((w) => {
+      const wl = w.watchlists;
+      if (!wl) return [];
+      const rows = Array.isArray(wl) ? wl : [wl];
+      return rows.flatMap((row) => {
+        const org = row.organizations;
+        if (!org) return [];
+        const orgs = Array.isArray(org) ? org : [org];
+        return orgs.map((o) => o.refresh_cadence).filter((c): c is string => Boolean(c));
+      });
+    });
+
+  const fastest = cadences.reduce((min, c) => Math.min(min, CADENCE_HOURS[c] ?? 168), 168);
+  const base = profile.status === "left" || profile.status === "stealth" ? Math.min(fastest, 6) : fastest;
   return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
 }
