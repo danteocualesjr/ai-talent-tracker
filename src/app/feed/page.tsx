@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Rss } from "lucide-react";
+import { Compass, Rss, Sparkles, TrendingUp } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { LiveBadge, MarketingHero } from "@/components/marketing-hero";
@@ -46,9 +46,9 @@ export default async function PublicFeedPage() {
 
         <section className="container max-w-3xl space-y-5 py-10 md:py-12">
           <div className="grid gap-3 sm:grid-cols-3">
-            <FeedStat label="Last 7 days" value={last7} />
-            <FeedStat label="High confidence" value={highConfidence} />
-            <FeedStat label="Founder signals" value={foundingSignals} />
+            <FeedStat label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
+            <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
+            <FeedStat label="Founder signals" value={foundingSignals} icon={<Compass className="h-3.5 w-3.5" />} accent="text-amber-accent" />
           </div>
 
           <div className="surface-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -91,10 +91,23 @@ export default async function PublicFeedPage() {
   );
 }
 
-function FeedStat({ label, value }: { label: string; value: number }) {
+function FeedStat({
+  label,
+  value,
+  icon,
+  accent = "text-muted-foreground",
+}: {
+  label: string;
+  value: number;
+  icon?: React.ReactNode;
+  accent?: string;
+}) {
   return (
-    <div className="surface-card p-4">
-      <div className="tnum text-2xl font-bold">{value}</div>
+    <div className="surface-card surface-card-hover p-4">
+      <div className="flex items-start justify-between">
+        <div className="tnum text-2xl font-bold">{value}</div>
+        {icon && <div className={`${accent} opacity-80`}>{icon}</div>}
+      </div>
       <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
