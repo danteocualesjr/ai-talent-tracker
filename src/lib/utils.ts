@@ -41,3 +41,27 @@ export function normalizeLinkedInUrl(url: string): string | null {
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }
+
+/** Reject open-redirect targets; allow only same-origin relative paths. */
+export function safeNextPath(next: string | null | undefined): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
+    return "/app";
+  }
+  return next;
+}
+
+export function formatFutureRelative(date: Date | string | null | undefined): string {
+  if (!date) return "unknown";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return "unknown";
+  const diff = d.getTime() - Date.now();
+  if (diff <= 0) return formatRelative(d);
+  const sec = Math.floor(diff / 1000);
+  if (sec < 60) return `in ${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `in ${min}m`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `in ${hr}h`;
+  const day = Math.floor(hr / 24);
+  return `in ${day}d`;
+}
