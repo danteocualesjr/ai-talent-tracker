@@ -12,10 +12,10 @@ export default async function SettingsPage() {
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const readiness = [
-    ["Workspace", org.name ? "Ready" : "Needs name"],
-    ["Plan", org.plan],
-    ["Cadence", org.refresh_cadence],
-  ];
+    ["Workspace", org.name ? "Ready" : "Needs name", org.name ? "ready" : "warn"],
+    ["Plan", org.plan, "ready"],
+    ["Cadence", org.refresh_cadence, "ready"],
+  ] as const;
 
   return (
     <div className="container max-w-3xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -31,9 +31,15 @@ export default async function SettingsPage() {
       </Panel>
 
       <Panel title="Workspace readiness" description="Quick setup status for this organization." bodyClassName="grid gap-3 p-5 sm:grid-cols-3">
-        {readiness.map(([label, value]) => (
+        {readiness.map(([label, value, status]) => (
           <div key={label} className="rounded-xl border border-border/60 bg-muted/30 p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+              <span
+                className={`h-2 w-2 shrink-0 rounded-full ${status === "ready" ? "bg-signal" : "bg-amber-500"}`}
+                aria-hidden
+              />
+            </div>
             <div className="mt-2 text-sm font-semibold capitalize">{value}</div>
           </div>
         ))}
