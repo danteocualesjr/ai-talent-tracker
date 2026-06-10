@@ -26,14 +26,25 @@ export async function POST(req: NextRequest) {
     event.type === "customer.subscription.created"
   ) {
     const sub = await loadSubscription(event);
-    if (sub) await applySubscription(db, sub);
+    if (sub) {
+      try {
+        await applySubscription(db, sub);
+      } catch (e) {
+        console.error("[stripe webhook] subscription update failed", e);
+        return NextResponse.json({ error: "db update failed" }, { status: 500 });
+      }
+    }
   }
   if (event.type === "customer.subscription.deleted") {
     const sub = event.data.object as Stripe.Subscription;
-    await db
+    const { error } = await db
       .from("organizations")
       .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
       .eq("stripe_customer_id", sub.customer as string);
+    if (error) {
+      console.error("[stripe webhook] subscription deleted update failed", error);
+      return NextResponse.json({ error: "db update failed" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ received: true });
@@ -54,7 +65,7 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
   const mapping = PRICE_PLAN_MAP[priceId];
   if (!mapping) return;
 
-  await db
+  const { error } = await db
     .from("organizations")
     .update({
       plan: mapping.plan,
@@ -63,4 +74,5 @@ async function applySubscription(db: ReturnType<typeof createAdminClient>, sub: 
       stripe_subscription_id: sub.id,
     })
     .eq("stripe_customer_id", sub.customer as string);
+  if (error) throw error;
 }
