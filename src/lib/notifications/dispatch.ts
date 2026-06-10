@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
-import { renderEventEmail, sendEventEmail } from "./email";
+import { NotificationSkippedError, renderEventEmail, sendEventEmail } from "./email";
 import { sendSlack } from "./slack";
 import { sendWebhook } from "./webhook";
 import type { EventRow, NotificationChannel, Profile } from "@/types/db";
@@ -59,10 +59,11 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
       });
       dispatched++;
     } catch (e) {
+      const skipped = e instanceof NotificationSkippedError;
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
-        status: "failed",
+        status: skipped ? "skipped" : "failed",
         error: e instanceof Error ? e.message : String(e),
       });
     }

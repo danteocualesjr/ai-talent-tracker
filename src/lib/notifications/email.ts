@@ -10,13 +10,18 @@ function resend(): Resend | null {
   return cached;
 }
 
+export class NotificationSkippedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotificationSkippedError";
+  }
+}
+
 export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
   const r = resend();
-  if (!r) {
-    console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
-  }
-  await r.emails.send({ from: FROM, to, subject, html });
+  if (!r) throw new NotificationSkippedError("RESEND_API_KEY not configured");
+  const { error } = await r.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(error.message);
 }
 
 export function renderEventEmail(args: {

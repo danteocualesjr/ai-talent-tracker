@@ -10,10 +10,15 @@ export async function listOrgProfiles(orgId: string): Promise<(Profile & { watch
     .select("watchlist_id, profiles(*), watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId);
 
-  return ((data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>).map((r) => ({
-    ...(r.profiles as Profile),
-    watchlist_id: r.watchlist_id,
-  }));
+  const rows = (data ?? []) as unknown as Array<{ watchlist_id: string; profiles: Profile }>;
+  const byId = new Map<string, Profile & { watchlist_id: string }>();
+  for (const r of rows) {
+    const profile = r.profiles as Profile;
+    if (!byId.has(profile.id)) {
+      byId.set(profile.id, { ...profile, watchlist_id: r.watchlist_id });
+    }
+  }
+  return Array.from(byId.values());
 }
 
 export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow & { profile: Profile })[]> {
@@ -67,7 +72,7 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
     .eq("is_public", true)
     .order("detected_at", { ascending: false })
     .limit(limit);
-  return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
+  return ((data ?? []) as unknown as (EventRow & { profile: Profile })[]).filter((e) => !e.profile.is_opted_out);
 }
 
 export async function listLabs(): Promise<Lab[]> {
