@@ -163,7 +163,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
                 <span className="text-xs font-semibold tracking-tight">Upgrade to Pro</span>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-                Real-time alerts, 250 profiles, and Slack delivery.
+                Real-time alerts, 100 profiles, and Slack delivery.
               </p>
               <Button asChild size="sm" className="mt-3 h-7 w-full text-[11px]">
                 <Link href="/app/billing">

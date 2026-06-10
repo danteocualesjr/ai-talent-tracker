@@ -9,6 +9,11 @@ import { dispatchEvent } from "@/lib/notifications/dispatch";
 import type { Profile, ProfileSnapshot } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
 
+type SnapshotRaw = {
+  provider?: unknown;
+  before?: Partial<ProviderProfile>;
+};
+
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
  * cadence of any org watching them, then fan out refresh events.
@@ -21,7 +26,7 @@ export const scheduleRefreshes = inngest.createFunction(
     const due = await step.run("find-due-profiles", async () => {
       const { data, error } = await db
         .from("profiles")
-        .select("id")
+        .select("id, watchlist_profiles!inner(profile_id)")
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
@@ -61,42 +66,60 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
+    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
 
-    const stored = await step.run("store-snapshot", async () => {
+    const snapshotResult = await step.run("store-snapshot", async () => {
       const { data: existing } = await db
         .from("profile_snapshots")
-        .select("id")
+        .select("*")
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
         .maybeSingle();
-      if (existing) return null;
 
+      if (existing) {
+        return { kind: "duplicate" as const, snapshot: existing as ProfileSnapshot };
+      }
+
+      const before = profileProjection(profile);
       const { data, error } = await db
         .from("profile_snapshots")
         .insert({
           profile_id: profileId,
           source: provider.name,
-          raw: fetched.raw as object,
+          raw: { provider: fetched.raw, before } as object,
           content_hash: hash,
         })
         .select("*")
         .single();
       if (error) throw error;
-      return data as ProfileSnapshot;
+      return { kind: "new" as const, snapshot: data as ProfileSnapshot };
+    });
+
+    const shouldProcessEvents = await step.run("should-process-events", async () => {
+      if (snapshotResult.kind === "new") return true;
+
+      const { count, error } = await db
+        .from("events")
+        .select("*", { count: "exact", head: true })
+        .eq("profile_id", profileId)
+        .gte("detected_at", snapshotResult.snapshot.fetched_at);
+      if (error) throw error;
+      return (count ?? 0) === 0;
     });
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = nextSyncAt(profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
           headline: fetched.headline ?? profile.headline,
-          current_company: fetched.current_company,
-          current_title: fetched.current_title,
+          current_company: fetched.current_company ?? profile.current_company,
+          current_title: fetched.current_title ?? profile.current_title,
           location: fetched.location ?? profile.location,
           avatar_url: fetched.avatar_url ?? profile.avatar_url,
           about: fetched.about ?? profile.about,
@@ -106,27 +129,21 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      if (error) throw error;
     });
 
-    if (!stored) return { changed: false };
+    if (!shouldProcessEvents) return { changed: false };
 
-    // Diff vs previous snapshot's projection (the profile row prior to update).
-    const prev: Partial<ProviderProfile> = {
-      full_name: profile.full_name,
-      headline: profile.headline,
-      current_company: profile.current_company,
-      current_title: profile.current_title,
-      location: profile.location,
-      about: profile.about,
-      github_handle: profile.github_handle,
-      x_handle: profile.x_handle,
-    };
+    const prev = snapshotResult.kind === "new"
+      ? profileProjection(profile)
+      : readBeforeProjection(snapshotResult.snapshot, profile);
+
     const diffs = diffProfiles(prev, fetched);
     if (diffs.length === 0) return { changed: false };
 
     let classification = classifyByRules(
       diffs,
-      { current_company: profile.current_company, headline: profile.headline },
+      { current_company: prev.current_company ?? null, headline: prev.headline ?? null },
       { current_company: fetched.current_company, headline: fetched.headline },
     );
 
@@ -183,6 +200,25 @@ export const notifyEvent = inngest.createFunction(
     return dispatchEvent(event.data.event_id);
   },
 );
+
+function profileProjection(profile: Profile): Partial<ProviderProfile> {
+  return {
+    full_name: profile.full_name,
+    headline: profile.headline,
+    current_company: profile.current_company,
+    current_title: profile.current_title,
+    location: profile.location,
+    about: profile.about,
+    github_handle: profile.github_handle,
+    x_handle: profile.x_handle,
+  };
+}
+
+function readBeforeProjection(snapshot: ProfileSnapshot, fallback: Profile): Partial<ProviderProfile> {
+  const raw = snapshot.raw as SnapshotRaw | null;
+  if (raw?.before) return raw.before;
+  return profileProjection(fallback);
+}
 
 function nextSyncAt(profile: Profile): string {
   // Cadence is the *fastest* cadence among orgs watching this profile.
