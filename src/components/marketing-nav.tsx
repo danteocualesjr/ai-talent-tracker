@@ -19,9 +19,14 @@ export function MarketingNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? Math.min(1, window.scrollY / docHeight) : 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -36,6 +41,11 @@ export function MarketingNav() {
           : "border-b border-transparent bg-background/40 backdrop-blur-md",
       )}
     >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left bg-gradient-to-r from-signal/60 via-signal to-signal/60 motion-safe:transition-transform motion-safe:duration-150"
+        style={{ transform: `scaleX(${scrollProgress})` }}
+        aria-hidden
+      />
       <div className="container flex h-[60px] items-center justify-between">
         <Logo />
 
@@ -50,7 +60,7 @@ export function MarketingNav() {
                 className={cn(
                   "relative rounded-lg px-3.5 py-2 transition-colors",
                   active
-                    ? "bg-foreground/[0.06] font-semibold text-foreground"
+                    ? "bg-foreground/[0.06] font-semibold text-foreground after:absolute after:inset-x-3.5 after:-bottom-[9px] after:h-0.5 after:rounded-full after:bg-signal"
                     : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                 )}
               >

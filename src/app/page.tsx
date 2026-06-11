@@ -108,15 +108,18 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           </div>
 
           <div className="animate-fade-up animate-fade-up-delay-4 mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4 rounded-2xl border border-border/60 bg-card/60 p-1 shadow-soft backdrop-blur-sm md:max-w-2xl">
-            {[
-              ["20+", "AI labs tracked"],
-              ["<15m", "avg. detection"],
-              ["3", "alert channels"],
-            ].map(([value, label], i) => (
+            {([
+              { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
+              { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
+              { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
+            ] as const).map(({ value, label, icon: Icon, accent }, i) => (
               <div
                 key={label}
-                className={`rounded-xl px-4 py-5 text-center ${i === 1 ? "border-x border-border/60 bg-background/80" : ""}`}
+                className={`group rounded-xl px-4 py-5 text-center transition-colors hover:bg-background/60 ${i === 1 ? "border-x border-border/60 bg-background/80" : ""}`}
               >
+                <div className={`mx-auto mb-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                  <Icon className="h-3.5 w-3.5" />
+                </div>
                 <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
                 <div className="mt-1.5 text-[11px] font-medium text-muted-foreground">{label}</div>
               </div>
