@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Building2, Globe2, Star } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingHero } from "@/components/marketing-hero";
@@ -30,9 +30,9 @@ export default async function PublicLabsPage() {
 
         <section className="container space-y-6 py-12 md:py-16">
           <div className="grid gap-3 md:grid-cols-3">
-            <LabMetric label="Labs indexed" value={labs.length} />
-            <LabMetric label="Featured rosters" value={featuredCount} />
-            <LabMetric label="Domains mapped" value={domainCount} />
+            <LabMetric label="Labs indexed" value={labs.length} icon={<Building2 className="h-3.5 w-3.5" />} accent="text-signal" />
+            <LabMetric label="Featured rosters" value={featuredCount} icon={<Star className="h-3.5 w-3.5" />} accent="text-amber-accent" />
+            <LabMetric label="Domains mapped" value={domainCount} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-violet-accent" />
           </div>
 
           <div className="surface-card grid gap-4 p-5 md:grid-cols-[1fr_auto] md:items-center">
@@ -54,8 +54,9 @@ export default async function PublicLabsPage() {
               <Link
                 key={l.id}
                 href={`/labs/${l.slug}`}
-                className="hover-lift group surface-elevated flex flex-col rounded-2xl border border-border/60 bg-card p-6"
+                className="hover-lift group surface-elevated relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6"
               >
+                <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="flex items-center justify-between">
                   {l.logo_url ? (
                     <img src={l.logo_url} alt={l.name} className="h-11 w-11 rounded-xl border border-border/60 bg-muted object-contain p-1" />
@@ -84,11 +85,30 @@ export default async function PublicLabsPage() {
   );
 }
 
-function LabMetric({ label, value }: { label: string; value: number }) {
+function LabMetric({
+  label,
+  value,
+  icon,
+  accent = "text-muted-foreground",
+}: {
+  label: string;
+  value: number;
+  icon?: React.ReactNode;
+  accent?: string;
+}) {
   return (
-    <div className="surface-card p-4">
-      <div className="tnum text-2xl font-bold">{value}</div>
-      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+    <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="tnum text-2xl font-bold">{value}</div>
+          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        </div>
+        {icon && (
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+            {icon}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
