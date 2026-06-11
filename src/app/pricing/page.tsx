@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Rocket, Users2, Zap } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingHero } from "@/components/marketing-hero";
@@ -25,7 +25,7 @@ export default function PricingPage() {
           description="Start free. Pay when you need real-time alerts at scale."
         />
 
-        <section className="border-b">
+        <section className="border-b bg-muted/20">
           <div className="container max-w-6xl py-14">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <PlanCard slug="free" priceEnv={null} ctaHref="/login" cta="Start free" />
@@ -48,12 +48,15 @@ export default function PricingPage() {
               </h2>
             </div>
             <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
-              {[
-                ["Scout", "Free", "Validate a handful of strategic researchers before committing budget."],
-                ["Operator", "Pro", "Monitor one target market with Slack alerts and a larger watchlist."],
-                ["Team", "Team", "Coordinate sourcing, competitive intel, and webhooks across a recruiting pod."],
-              ].map(([persona, plan, description]) => (
-                <div key={persona} className="p-6">
+              {([
+                { persona: "Scout", plan: "Free", description: "Validate a handful of strategic researchers before committing budget.", icon: Rocket, accent: "text-muted-foreground" },
+                { persona: "Operator", plan: "Pro", description: "Monitor one target market with Slack alerts and a larger watchlist.", icon: Zap, accent: "text-signal" },
+                { persona: "Team", plan: "Team", description: "Coordinate sourcing, competitive intel, and webhooks across a recruiting pod.", icon: Users2, accent: "text-violet-accent" },
+              ] as const).map(({ persona, plan, description, icon: Icon, accent }) => (
+                <div key={persona} className="group p-6 transition-colors hover:bg-muted/20">
+                  <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
                   <div className="text-sm font-semibold">{persona}</div>
                   <div className="mt-2 inline-flex rounded-full border border-border/60 bg-muted/60 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                     Best fit: {plan}
@@ -89,7 +92,14 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
         </>
       )}
       <div>
-        <div className="text-sm font-semibold tracking-tight">{plan.name}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-semibold tracking-tight">{plan.name}</div>
+          {slug !== "enterprise" && (
+            <span className="tnum rounded-full border border-border/60 bg-muted/50 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+              {plan.profile_limit.toLocaleString()} profiles
+            </span>
+          )}
+        </div>
         <div className="mt-4 flex items-baseline gap-1">
           {slug === "enterprise" ? (
             <span className="text-4xl font-semibold tracking-tight">Custom</span>
