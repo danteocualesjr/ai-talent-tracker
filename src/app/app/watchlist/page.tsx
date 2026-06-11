@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ListChecks, RefreshCw, Trash2 } from "lucide-react";
+import { Compass, ListChecks, LogOut, RefreshCw, Star, Trash2, Users2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { listOrgProfiles } from "@/lib/queries";
@@ -87,15 +87,23 @@ export default async function WatchlistPage() {
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          ["Active", statusCounts.active, "border-l-foreground/20"],
-          ["Stealth", statusCounts.stealth, "border-l-amber-500/60"],
-          ["Founder", statusCounts.founder, "border-l-signal/60"],
-          ["Left", statusCounts.left, "border-l-violet-500/50"],
-        ].map(([label, value, accent]) => (
-          <div key={label} className={`surface-card border-l-2 p-4 ${accent}`}>
-            <div className="tnum text-2xl font-bold">{value}</div>
-            <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        {([
+          { label: "Active", value: statusCounts.active, icon: Users2, accent: "text-foreground/70", border: "border-l-foreground/20" },
+          { label: "Stealth", value: statusCounts.stealth, icon: Compass, accent: "text-amber-accent", border: "border-l-amber-500/60" },
+          { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", border: "border-l-signal/60" },
+          { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", border: "border-l-violet-500/50" },
+        ] as const).map(({ label, value, icon: Icon, accent, border }) => (
+          <div key={label} className={`surface-card surface-card-hover group relative overflow-hidden border-l-2 p-4 ${border}`}>
+            <div className="pointer-events-none absolute -right-4 -top-4 h-14 w-14 rounded-full bg-signal/5 blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <div className="tnum text-2xl font-bold">{value}</div>
+                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+              </div>
+              <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                <Icon className="h-3.5 w-3.5" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -142,14 +150,18 @@ export default async function WatchlistPage() {
           profiles.map((p) => {
             const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
             return (
-              <div key={p.id} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
-                <Avatar className="h-10 w-10 ring-2 ring-background">
+              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
+                <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
                   {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
                   <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold hover:underline">
+                    <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
                       {p.full_name || p.linkedin_handle}
                     </Link>
                     <Badge variant={STATUS_TONE[p.status] ?? "secondary"} className="capitalize">
