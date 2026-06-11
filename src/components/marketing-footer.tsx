@@ -75,6 +75,24 @@ export function MarketingFooter() {
         </div>
       </div>
 
+      <div className="border-t border-border/60 bg-muted/20">
+        <div className="container flex flex-col items-start justify-between gap-4 py-8 md:flex-row md:items-center">
+          <div>
+            <div className="text-sm font-semibold tracking-tight">Stay ahead of the next move</div>
+            <p className="mt-1 max-w-md text-xs text-muted-foreground">
+              Get Slack alerts when researchers go stealth — before they hit your LinkedIn feed.
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2 text-xs font-semibold transition-colors hover:border-signal/30 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          >
+            Start tracking free
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+
       <div className="border-t border-border/60">
         <div className="container flex flex-col items-start justify-between gap-3 py-5 text-xs text-muted-foreground md:flex-row md:items-center md:py-6">
           <div>© {new Date().getFullYear()} AI Talent Tracker. All rights reserved.</div>

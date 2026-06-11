@@ -76,8 +76,8 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
     <div
       className={`relative flex flex-col overflow-hidden rounded-2xl border bg-card p-7 transition-all duration-300 ${
         highlighted
-          ? "surface-elevated border-signal/30 ring-1 ring-signal/10"
-          : "border-border/60 hover:border-foreground/15 hover:shadow-soft"
+          ? "surface-elevated border-signal/30 ring-1 ring-signal/10 hover-lift"
+          : "border-border/60 hover:border-foreground/15 hover:shadow-soft hover-lift"
       }`}
     >
       {highlighted && (

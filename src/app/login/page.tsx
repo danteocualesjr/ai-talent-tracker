@@ -45,9 +45,12 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
                 { icon: ListChecks, title: "Paste profiles", body: "Add individual LinkedIn URLs or browse curated lab rosters." },
                 { icon: Users, title: "Review changes", body: "See classified events, confidence scores, and profile snapshots." },
                 { icon: Bell, title: "Route alerts", body: "Send high-signal changes to Slack, email, or signed webhooks." },
-              ] satisfies { icon: LucideIcon; title: string; body: string }[]).map(({ icon: Icon, title, body }, i) => (
-                <div key={title} className="flex gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12 hover:bg-muted/50">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
+              ] satisfies { icon: LucideIcon; title: string; body: string }[]).map(({ icon: Icon, title, body }, i, arr) => (
+                <div key={title} className="relative flex gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12 hover:bg-muted/50">
+                  {i < arr.length - 1 && (
+                    <span className="pointer-events-none absolute -bottom-3 left-[22px] hidden h-3 w-px bg-gradient-to-b from-signal/40 to-transparent md:block" aria-hidden />
+                  )}
+                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal ring-4 ring-card">
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
