@@ -35,9 +35,9 @@ export default async function AlertsPage() {
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} />
-        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} />
-        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} />
+        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} accent="text-blue-600 dark:text-blue-400" />
+        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} accent="text-violet-accent" />
+        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} accent="text-amber-accent" />
       </div>
 
       <div className="surface-card overflow-hidden">
@@ -50,13 +50,13 @@ export default async function AlertsPage() {
             <p>Alerts include a concise summary, confidence score, profile context, and the changed fields.</p>
             <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-muted/40 p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">
-            <div>{"{"}</div>
-            <div className="pl-3">&quot;type&quot;: &quot;went_stealth&quot;,</div>
-            <div className="pl-3">&quot;confidence&quot;: 0.92,</div>
-            <div className="pl-3">&quot;profile&quot;: &quot;Jane Researcher&quot;,</div>
-            <div className="pl-3">&quot;summary&quot;: &quot;Headline changed to building something new&quot;</div>
-            <div>{"}"}</div>
+          <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed shadow-inner">
+            <div className="text-muted-foreground">{"{"}</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;confidence&quot;</span>: <span className="text-amber-accent">0.92</span>,</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;profile&quot;</span>: <span className="text-foreground/80">&quot;Jane Researcher&quot;</span>,</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;summary&quot;</span>: <span className="text-foreground/80">&quot;Headline changed to building something new&quot;</span></div>
+            <div className="text-muted-foreground">{"}"}</div>
           </div>
         </div>
       </div>
@@ -70,7 +70,7 @@ export default async function AlertsPage() {
           />
         ) : (
           channels.map((c) => (
-            <div key={c.id} className="flex items-center justify-between px-5 py-4">
+            <div key={c.id} className="group flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30">
               <div className="flex items-center gap-3">
                 <ChannelIcon type={c.type} />
                 <div>
@@ -150,23 +150,40 @@ export default async function AlertsPage() {
   );
 }
 
-function ChannelMetric({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
+function ChannelMetric({
+  label,
+  value,
+  icon,
+  accent = "text-muted-foreground",
+}: {
+  label: string;
+  value: number;
+  icon?: React.ReactNode;
+  accent?: string;
+}) {
   return (
-    <div className="surface-card surface-card-hover p-4">
-      <div className="flex items-start justify-between">
-        <div className="tnum text-2xl font-bold">{value}</div>
-        {icon && <div className="text-muted-foreground/70">{icon}</div>}
+    <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
+      <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative flex items-start justify-between">
+        <div>
+          <div className="tnum text-2xl font-bold">{value}</div>
+          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        </div>
+        {icon && (
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>
+            {icon}
+          </div>
+        )}
       </div>
-      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }
 
 function ChannelCard({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="surface-card surface-card-hover p-6">
+    <div className="surface-card surface-card-hover group p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-colors group-hover:border-signal/30 group-hover:bg-signal/5 group-hover:text-signal">
           {icon}
         </div>
         <div>
