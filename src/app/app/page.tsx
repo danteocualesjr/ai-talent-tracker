@@ -73,6 +73,22 @@ export default async function DashboardPage() {
         </Button>
       </PageHeader>
 
+      <div className="flex flex-wrap gap-2">
+        {[
+          { href: "/app/watchlist", label: "Add profiles", icon: Plus },
+          { href: "/app/events", label: "Review events", icon: Activity },
+          { href: "/app/alerts", label: "Configure alerts", icon: Bell },
+          { href: "/app/labs", label: "Browse labs", icon: Building2 },
+        ].map(({ href, label, icon: Icon }) => (
+          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs hover:border-signal/30 hover:bg-signal/5">
+            <Link href={href}>
+              <Icon className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal" />
+              {label}
+            </Link>
+          </Button>
+        ))}
+      </div>
+
       {/* Stat cards with sparklines */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
@@ -150,10 +166,10 @@ export default async function DashboardPage() {
           ["Needs refresh", staleProfiles, "Missing or older profile snapshots"],
           ["Cadence", org.refresh_cadence, "Current workspace refresh schedule"],
         ].map(([label, value, description]) => (
-          <div key={label} className="surface-card p-5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-            <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
-            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
+          <div key={label as string} className="surface-card surface-card-hover p-5">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label as string}</div>
+            <div className="tnum mt-2 text-2xl font-bold capitalize">{value as string | number}</div>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description as string}</p>
           </div>
         ))}
       </div>
@@ -170,8 +186,19 @@ export default async function DashboardPage() {
         </div>
         <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
           {priorityEvents.length === 0 ? (
-            <div className="p-5 text-sm text-muted-foreground md:col-span-3">
-              No priority moves yet. Add profiles and high-confidence stealth or founding signals will appear here.
+            <div className="flex flex-col items-center justify-center gap-3 p-10 text-center md:col-span-3">
+              <div className="ring-dots flex h-14 w-14 items-center justify-center rounded-2xl border border-border/60 bg-muted/40">
+                <Sparkles className="h-5 w-5 text-signal/70" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">No priority moves yet</div>
+                <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                  Add profiles and high-confidence stealth or founding signals will appear here first.
+                </p>
+              </div>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/app/watchlist">Build watchlist</Link>
+              </Button>
             </div>
           ) : (
             priorityEvents.map((event) => (
@@ -274,11 +301,14 @@ function StatCard({
 }) {
   return (
     <div className="surface-card surface-card-hover relative overflow-hidden p-5 motion-safe:transition-shadow">
-      <div className="flex items-start justify-between">
+      <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
+      <div className="relative flex items-start justify-between">
         <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           {label}
         </div>
-        <div className="text-muted-foreground/60">{icon}</div>
+        <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>
+          {icon}
+        </div>
       </div>
       <div className="tnum mt-3 text-3xl font-bold tracking-tight">{value}</div>
       <div className="mt-1.5 flex items-end justify-between gap-2">
