@@ -1,4 +1,4 @@
-import { Settings as SettingsIcon } from "lucide-react";
+import { Building2, Clock, CreditCard, Settings as SettingsIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { PageHeader } from "@/components/page-header";
@@ -12,10 +12,10 @@ export default async function SettingsPage() {
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const readiness = [
-    ["Workspace", org.name ? "Ready" : "Needs name", org.name ? "ready" : "warn"],
-    ["Plan", org.plan, "ready"],
-    ["Cadence", org.refresh_cadence, "ready"],
-  ] as const;
+    { label: "Workspace", value: org.name ? "Ready" : "Needs name", status: org.name ? "ready" : "warn", icon: Building2, accent: "text-signal" },
+    { label: "Plan", value: org.plan, status: "ready" as const, icon: CreditCard, accent: "text-violet-accent" },
+    { label: "Cadence", value: org.refresh_cadence, status: "ready" as const, icon: Clock, accent: "text-amber-accent" },
+  ];
 
   return (
     <div className="container max-w-3xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -31,16 +31,19 @@ export default async function SettingsPage() {
       </Panel>
 
       <Panel title="Workspace readiness" description="Quick setup status for this organization." bodyClassName="grid gap-3 p-5 sm:grid-cols-3">
-        {readiness.map(([label, value, status]) => (
-          <div key={label} className="rounded-xl border border-border/60 bg-muted/30 p-4">
+        {readiness.map(({ label, value, status, icon: Icon, accent }) => (
+          <div key={label} className="group surface-card-hover rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-background ${accent} shadow-sm transition-transform motion-safe:group-hover:scale-105`}>
+                <Icon className="h-3.5 w-3.5" />
+              </div>
               <span
-                className={`h-2 w-2 shrink-0 rounded-full ${status === "ready" ? "bg-signal" : "bg-amber-500"}`}
+                className={`h-2 w-2 shrink-0 rounded-full ${status === "ready" ? "bg-signal signal-pulse" : "bg-amber-500"}`}
                 aria-hidden
               />
             </div>
-            <div className="mt-2 text-sm font-semibold capitalize">{value}</div>
+            <div className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+            <div className="mt-1 text-sm font-semibold capitalize">{value}</div>
           </div>
         ))}
       </Panel>
@@ -63,7 +66,7 @@ export default async function SettingsPage() {
 
 function Row({ label, value, mono, capitalize }: { label: string; value: string; mono?: boolean; capitalize?: boolean }) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 text-sm">
+    <div className="flex items-center justify-between px-5 py-4 text-sm transition-colors hover:bg-muted/30">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className={`font-medium ${mono ? "font-mono text-xs text-muted-foreground" : ""} ${capitalize ? "capitalize" : ""}`}>
         {value}
