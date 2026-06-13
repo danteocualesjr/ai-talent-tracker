@@ -35,9 +35,9 @@ export default async function AlertsPage() {
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} accent="text-blue-600 dark:text-blue-400" />
-        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} accent="text-violet-accent" />
-        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} accent="text-amber-accent" />
+        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} accent="text-signal" bgAccent="bg-signal/10" />
+        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} accent="text-violet-accent" bgAccent="bg-violet-500/10" />
+        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} accent="text-amber-accent" bgAccent="bg-amber-500/10" />
       </div>
 
       <div className="surface-card overflow-hidden">
@@ -50,7 +50,7 @@ export default async function AlertsPage() {
             <p>Alerts include a concise summary, confidence score, profile context, and the changed fields.</p>
             <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed shadow-inner">
+          <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed shadow-inner ring-1 ring-inset ring-border/40">
             <div className="text-muted-foreground">{"{"}</div>
             <div className="pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
             <div className="pl-3"><span className="text-violet-accent">&quot;confidence&quot;</span>: <span className="text-amber-accent">0.92</span>,</div>
@@ -155,11 +155,13 @@ function ChannelMetric({
   value,
   icon,
   accent = "text-muted-foreground",
+  bgAccent = "bg-muted/80",
 }: {
   label: string;
   value: number;
   icon?: React.ReactNode;
   accent?: string;
+  bgAccent?: string;
 }) {
   return (
     <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
@@ -170,7 +172,7 @@ function ChannelMetric({
           <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${bgAccent} ${accent} transition-transform motion-safe:group-hover:scale-105`}>
             {icon}
           </div>
         )}
@@ -197,10 +199,15 @@ function ChannelCard({ icon, title, description, children }: { icon: React.React
 }
 
 function ChannelIcon({ type }: { type: string }) {
-  const icon = type === "email" ? <Mail className="h-4 w-4" /> : type === "slack" ? <MessageSquare className="h-4 w-4" /> : <Webhook className="h-4 w-4" />;
+  const config =
+    type === "email"
+      ? { icon: <Mail className="h-4 w-4" />, accent: "text-signal", bg: "bg-signal/10" }
+      : type === "slack"
+        ? { icon: <MessageSquare className="h-4 w-4" />, accent: "text-violet-accent", bg: "bg-violet-500/10" }
+        : { icon: <Webhook className="h-4 w-4" />, accent: "text-amber-accent", bg: "bg-amber-500/10" };
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm">
-      {icon}
+    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 ${config.bg} ${config.accent} shadow-sm`}>
+      {config.icon}
     </div>
   );
 }
