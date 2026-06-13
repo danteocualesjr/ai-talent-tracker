@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Building2, CreditCard, LogIn, type LucideIcon } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { Button } from "@/components/ui/button";
 
@@ -44,12 +45,15 @@ export default function NotFound() {
             </Button>
           </div>
           <div className="mx-auto mt-10 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
-            {[
-              ["/labs", "Browse labs", "Open curated AI lab rosters."],
-              ["/pricing", "Compare plans", "Pick the right alert volume."],
-              ["/login", "Sign in", "Return to your dashboard."],
-            ].map(([href, title, body]) => (
-              <Link key={href} href={href} className="surface-card surface-card-hover block p-4">
+            {([
+              ["/labs", "Browse labs", "Open curated AI lab rosters.", Building2],
+              ["/pricing", "Compare plans", "Pick the right alert volume.", CreditCard],
+              ["/login", "Sign in", "Return to your dashboard.", LogIn],
+            ] as [string, string, string, LucideIcon][]).map(([href, title, body, Icon]) => (
+              <Link key={href} href={href} className="surface-card surface-card-hover group block p-4">
+                <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-muted/50 text-muted-foreground transition-colors group-hover:border-signal/30 group-hover:bg-signal/10 group-hover:text-signal">
+                  <Icon className="h-4 w-4" />
+                </div>
                 <div className="text-sm font-semibold">{title}</div>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
               </Link>
