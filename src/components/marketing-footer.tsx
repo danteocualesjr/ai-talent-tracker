@@ -60,11 +60,14 @@ export function MarketingFooter() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="group inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm"
+                      className="group/link inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm"
                     >
-                      {l.label}
+                      <span className="relative">
+                        {l.label}
+                        <span className="absolute -bottom-px left-0 h-px w-0 bg-signal transition-all duration-200 group-hover/link:w-full" />
+                      </span>
                       {l.external && (
-                        <ArrowUpRight className="h-3 w-3 opacity-50 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                        <ArrowUpRight className="h-3 w-3 opacity-50 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 group-hover/link:opacity-100" />
                       )}
                     </Link>
                   </li>
@@ -85,10 +88,10 @@ export function MarketingFooter() {
           </div>
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2 text-xs font-semibold transition-colors hover:border-signal/30 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group/cta inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2 text-xs font-semibold shadow-sm transition-all hover:border-signal/40 hover:bg-signal/5 hover:text-foreground hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             Start tracking free
-            <ArrowUpRight className="h-3.5 w-3.5" />
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5" />
           </Link>
         </div>
       </div>
