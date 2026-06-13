@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,9 @@ export function OptOutForm() {
   if (sent) {
     return (
       <div className="rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+        <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal">
+          <Check className="h-4 w-4" aria-hidden />
+        </div>
         Request received. We&apos;ll confirm via email shortly. If you don&apos;t hear back within 30 days, email{" "}
         <a className="link-subtle" href="mailto:privacy@aitalenttracker.com">
           privacy@aitalenttracker.com
