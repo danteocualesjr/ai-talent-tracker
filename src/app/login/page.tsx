@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, ListChecks, Users, type LucideIcon } from "lucide-react";
+import { Bell, ListChecks, Shield, Users, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
@@ -23,11 +23,16 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
           <div>
             <div className="surface-card surface-elevated relative overflow-hidden p-8">
               <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
+              <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-signal/8 blur-3xl" />
               <h1 className="text-balance text-2xl font-bold tracking-tight">Sign in</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
                 We&apos;ll email you a magic link &mdash; no password required.
               </p>
               <LoginForm searchParams={searchParams} />
+              <div className="mt-6 flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2.5 text-[11px] text-muted-foreground">
+                <Shield className="h-3.5 w-3.5 shrink-0 text-signal" />
+                <span>Magic links expire in 15 minutes. We never store passwords.</span>
+              </div>
             </div>
             <p className="mt-6 text-center text-xs text-muted-foreground">
               By signing in you agree to our{" "}
@@ -46,7 +51,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
                 { icon: Users, title: "Review changes", body: "See classified events, confidence scores, and profile snapshots." },
                 { icon: Bell, title: "Route alerts", body: "Send high-signal changes to Slack, email, or signed webhooks." },
               ] satisfies { icon: LucideIcon; title: string; body: string }[]).map(({ icon: Icon, title, body }, i, arr) => (
-                <div key={title} className="relative flex gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12 hover:bg-muted/50">
+                <div key={title} className="relative flex gap-3 rounded-xl border border-border/60 bg-muted/30 p-4 transition-all duration-200 hover:border-signal/20 hover:bg-muted/50 hover:shadow-sm">
                   {i < arr.length - 1 && (
                     <span className="pointer-events-none absolute -bottom-3 left-[22px] hidden h-3 w-px bg-gradient-to-b from-signal/40 to-transparent md:block" aria-hidden />
                   )}
