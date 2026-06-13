@@ -87,15 +87,15 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-muted/40 focus-within:bg-muted/30">
+    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
       {/* Accent rail on hover */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${meta.rail}`}
+        className={`pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${meta.rail}`}
       />
 
       <div className="relative shrink-0">
-        <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
+        <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-all motion-safe:group-hover:scale-[1.03] motion-safe:group-hover:ring-signal/20">
           {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.full_name ?? ""} /> : null}
           <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
         </Avatar>
@@ -140,7 +140,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         target="_blank"
         rel="noreferrer noopener"
         aria-label={`Open ${profile.full_name || profile.linkedin_handle} on LinkedIn`}
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-70 shadow-sm transition-all hover:border-foreground/20 hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="inline-flex shrink-0 items-center gap-1 self-center rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-70 shadow-sm transition-all hover:border-signal/30 hover:bg-signal/5 hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>
