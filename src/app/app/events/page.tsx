@@ -26,6 +26,7 @@ export default async function EventsPage() {
         eyebrow="Tracking"
         icon={<Activity className="h-4 w-4" />}
         description="All detected changes across your watchlists."
+        divider
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
