@@ -113,9 +113,9 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
       </div>
       <ul className="mt-7 flex-1 space-y-3 text-sm">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-2.5">
-            <Check className={`mt-0.5 h-4 w-4 shrink-0 ${highlighted ? "text-signal" : "text-foreground/70"}`} />
-            <span className="text-muted-foreground">{f}</span>
+          <li key={f} className="group/feature flex items-start gap-2.5 rounded-lg px-1 py-0.5 transition-colors hover:bg-muted/30">
+            <Check className={`mt-0.5 h-4 w-4 shrink-0 transition-transform duration-200 motion-safe:group-hover/feature:scale-110 ${highlighted ? "text-signal" : "text-foreground/70"}`} />
+            <span className="text-muted-foreground transition-colors group-hover/feature:text-foreground">{f}</span>
           </li>
         ))}
       </ul>
