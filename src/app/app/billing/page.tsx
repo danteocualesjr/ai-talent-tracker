@@ -8,6 +8,7 @@ import { Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Billing" };
 
@@ -18,6 +19,8 @@ export default async function BillingPage() {
   const plan = PLAN_DETAILS[org.plan];
   const profiles = await listOrgProfiles(org.id);
   const fill = Math.min(100, (profiles.length / org.profile_limit) * 100);
+  const capacityTone =
+    fill >= 100 ? "full" : fill >= 85 ? "warning" : "default";
 
   return (
     <div className="container max-w-3xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -68,8 +71,27 @@ export default async function BillingPage() {
             </span>
           </div>
           <div className="progress-track mt-2" role="progressbar" aria-valuemin={0} aria-valuemax={org.profile_limit} aria-valuenow={profiles.length} aria-label="Watchlist capacity">
-            <div className="progress-fill" style={{ width: `${fill}%` }} />
+            <div
+              className={cn(
+                "progress-fill",
+                capacityTone === "warning" && "!from-amber-500/90 !to-amber-500",
+                capacityTone === "full" && "!from-destructive/90 !to-destructive",
+              )}
+              style={{ width: `${fill}%` }}
+            />
           </div>
+          {capacityTone !== "default" && (
+            <p
+              className={cn(
+                "mt-2 text-[11px] font-medium",
+                capacityTone === "full" ? "text-destructive" : "text-amber-700 dark:text-amber-400",
+              )}
+            >
+              {capacityTone === "full"
+                ? "Profile limit reached — upgrade or remove profiles."
+                : "Almost at your profile limit."}
+            </p>
+          )}
         </div>
       </div>
 
