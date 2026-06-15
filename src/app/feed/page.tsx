@@ -6,6 +6,8 @@ import { LiveBadge, MarketingHero } from "@/components/marketing-hero";
 import { EventListItem } from "@/components/event-row";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
+import { FeedFilterChips } from "@/components/feed-filter-chips";
+import { FeedMobileCta } from "@/components/feed-mobile-cta";
 import { getPublicEvents } from "@/lib/queries";
 
 export const metadata = {
@@ -44,7 +46,7 @@ export default async function PublicFeedPage() {
           </Button>
         </MarketingHero>
 
-        <section className="container max-w-3xl space-y-5 py-10 md:py-12">
+        <section className="container max-w-3xl space-y-5 py-10 pb-28 md:py-12 md:pb-12">
           <div className="grid gap-3 sm:grid-cols-3">
             <FeedStat label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
             <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
@@ -58,17 +60,7 @@ export default async function PublicFeedPage() {
                 Prioritize departures, stealth pivots, and founding headlines from the public stream.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 sm:justify-end">
-              {["Departures", "Stealth", "Founders", "Joiners"].map((chip) => (
-                <button
-                  key={chip}
-                  type="button"
-                  className="chip cursor-default hover:border-signal/25 hover:bg-signal/5 hover:text-foreground"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
+            <FeedFilterChips />
           </div>
 
           <Panel
@@ -91,6 +83,7 @@ export default async function PublicFeedPage() {
           </Panel>
         </section>
       </main>
+      <FeedMobileCta />
       <MarketingFooter />
     </div>
   );
@@ -114,7 +107,7 @@ function FeedStat({
       <div className="relative flex items-start justify-between">
         <div>
           <div className="tnum text-2xl font-bold tracking-tight">{value}</div>
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
           <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 transition-transform duration-200 motion-safe:group-hover:scale-110 ${accent}`}>
