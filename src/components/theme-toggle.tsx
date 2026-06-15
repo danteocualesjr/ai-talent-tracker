@@ -35,8 +35,10 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         className,
       )}
     >
-      {mounted ? (
-        isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />
+      {!mounted ? (
+        <span className="h-4 w-4 rounded-full bg-muted-foreground/25" aria-hidden />
+      ) : isDark ? (
+        <Sun className="h-4 w-4" />
       ) : (
         <Moon className="h-4 w-4" />
       )}
