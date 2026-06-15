@@ -454,8 +454,12 @@ function SampleAlert() {
             to <span className="font-medium">&ldquo;Building something new.&rdquo;</span>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1">View on LinkedIn</Button>
-            <Button size="sm" className="flex-1">Reach out</Button>
+            <Button size="sm" variant="outline" className="flex-1" asChild>
+              <Link href="/login">View on LinkedIn</Link>
+            </Button>
+            <Button size="sm" className="flex-1" asChild>
+              <Link href="/login">Reach out</Link>
+            </Button>
           </div>
         </div>
       </div>
