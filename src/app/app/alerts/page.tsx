@@ -32,6 +32,7 @@ export default async function AlertsPage() {
         eyebrow="Workspace"
         icon={<Bell className="h-4 w-4" />}
         description="Where we deliver detected change events."
+        divider
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
