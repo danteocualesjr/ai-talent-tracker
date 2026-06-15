@@ -29,6 +29,7 @@ export default async function BillingPage() {
         eyebrow="Workspace"
         icon={<CreditCard className="h-4 w-4" />}
         description="Manage your subscription and plan limits."
+        divider
       />
 
       <div className="surface-card overflow-hidden">
