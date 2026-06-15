@@ -4,6 +4,7 @@ import { ensureOrgForUser } from "@/lib/org";
 import { countRecentOrgEvents } from "@/lib/queries";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
+import { AppMobileTitle } from "@/components/app-mobile-title";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supa = await createClient();
@@ -23,6 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AppSidebar orgName={org.name} orgPlan={org.plan} />
       <div className="app-shell-bg flex min-w-0 flex-col">
         <AppTopbar email={user.email ?? ""} orgPlan={org.plan} unreadCount={recentEventCount} />
+        <AppMobileTitle />
         <main id="main-content" className="flex-1 min-w-0">{children}</main>
       </div>
     </div>
