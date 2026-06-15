@@ -314,7 +314,7 @@ function StatCard({
       <div className="mt-1.5 flex items-end justify-between gap-2">
         {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
         {series && (
-          <div className={`shrink-0 ${accent}`}>
+          <div className={`shrink-0 ${accent}`} aria-hidden>
             <Sparkline data={series} width={64} height={22} strokeWidth={1.5} />
           </div>
         )}
