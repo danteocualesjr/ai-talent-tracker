@@ -137,7 +137,7 @@ function ProfileMetric({
       <div className="flex items-start justify-between">
         <div>
           <div className="tnum text-2xl font-bold">{value}</div>
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
           <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
