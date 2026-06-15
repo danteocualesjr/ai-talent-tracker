@@ -45,6 +45,7 @@ export default async function WatchlistPage() {
         eyebrow="Tracking"
         icon={<ListChecks className="h-4 w-4" />}
         description="Profiles you're tracking across your organization."
+        divider
       >
         <div className="w-full min-w-[260px] surface-card p-4 sm:w-auto">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -98,7 +99,7 @@ export default async function WatchlistPage() {
             <div className="relative flex items-start justify-between">
               <div>
                 <div className="tnum text-2xl font-bold">{value}</div>
-                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+                <div className="mt-1 label-caps text-muted-foreground">{label}</div>
               </div>
               <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
                 <Icon className="h-3.5 w-3.5" />
