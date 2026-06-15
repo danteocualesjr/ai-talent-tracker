@@ -109,14 +109,15 @@ function FeedStat({
 }) {
   return (
     <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
-      <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl transition-opacity group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 scale-x-0 bg-gradient-to-r from-transparent via-signal/60 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
+      <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl opacity-60 transition-opacity group-hover:opacity-100" />
       <div className="relative flex items-start justify-between">
         <div>
-          <div className="tnum text-2xl font-bold">{value}</div>
+          <div className="tnum text-2xl font-bold tracking-tight">{value}</div>
           <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 transition-transform duration-200 motion-safe:group-hover:scale-110 ${accent}`}>
             {icon}
           </div>
         )}
