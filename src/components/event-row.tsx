@@ -152,8 +152,9 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
   const meta = TYPE_META[event.type] ?? TYPE_META.other;
   const Icon = meta.icon;
   return (
-    <div className="group relative pl-10">
-      <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm ${meta.ring}`}>
+    <div className="group relative pb-8 pl-10 last:pb-0">
+      <div className="absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent last:hidden" aria-hidden />
+      <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm transition-shadow motion-safe:group-hover:shadow-md ${meta.ring}`}>
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div className="flex items-center gap-2">
