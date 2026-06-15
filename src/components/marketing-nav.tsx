@@ -91,17 +91,30 @@ export function MarketingNav() {
           </Button>
         </nav>
 
-        <button
-          onClick={() => setOpen(!open)}
-          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+      <button
+        onClick={() => setOpen(!open)}
+        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
+        aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
+      >
+        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
       </div>
 
-      <div className={cn("border-t border-border/60 bg-background/95 backdrop-blur-xl md:hidden", open ? "block" : "hidden")}>
+      {open && (
+        <button
+          aria-label="Close menu"
+          className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm motion-safe:animate-fade-in md:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <div
+        className={cn(
+          "relative z-30 border-t border-border/60 bg-background/95 backdrop-blur-xl md:hidden motion-safe:transition-all motion-safe:duration-200",
+          open ? "visible max-h-[420px] opacity-100" : "invisible max-h-0 overflow-hidden opacity-0",
+        )}
+      >
         <nav aria-label="Primary mobile" className="container flex flex-col gap-1 py-4 text-sm">
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
