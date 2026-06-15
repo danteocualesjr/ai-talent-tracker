@@ -133,8 +133,8 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
                     className={cn(
                       "group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150",
                       active
-                        ? "nav-active-rail bg-signal/10 pl-3.5 font-semibold text-foreground"
-                        : "text-muted-foreground hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        ? "nav-active-rail bg-signal/10 pl-3.5 font-semibold text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.08)]"
+                        : "text-muted-foreground hover:bg-accent/60 hover:pl-3 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                     )}
                   >
                     <Icon
@@ -154,7 +154,7 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
         {/* Upgrade card */}
         {isFree ? (
           <div className="px-3 pb-3">
-            <div className="relative overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-card via-card to-signal/[0.06] p-4">
+            <div className="relative overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-card via-card to-signal/[0.06] p-4 transition-shadow hover:shadow-md hover:shadow-signal/5">
               <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-signal/10 blur-2xl" />
               <div className="flex items-center gap-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-signal/10 text-signal">
