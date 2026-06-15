@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Building2, Globe2, Star } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
@@ -59,7 +60,13 @@ export default async function PublicLabsPage() {
                 <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="flex items-center justify-between">
                   {l.logo_url ? (
-                    <img src={l.logo_url} alt={l.name} className="h-11 w-11 rounded-xl border border-border/60 bg-muted object-contain p-1" />
+                    <Image
+                      src={l.logo_url}
+                      alt={l.name}
+                      width={44}
+                      height={44}
+                      className="h-11 w-11 rounded-xl border border-border/60 bg-muted object-contain p-1"
+                    />
                   ) : (
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border/60 bg-muted text-lg font-bold text-muted-foreground">
                       {l.name.slice(0, 1)}
@@ -101,7 +108,7 @@ function LabMetric({
       <div className="flex items-start justify-between">
         <div>
           <div className="tnum text-2xl font-bold">{value}</div>
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
           <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
