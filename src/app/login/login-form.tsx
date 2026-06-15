@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { Mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,7 +79,14 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
         />
       </div>
       <Button type="submit" className="w-full" disabled={loading || !email} aria-busy={loading}>
-        {loading ? "Sending..." : "Send magic link"}
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Sending…
+          </>
+        ) : (
+          "Send magic link"
+        )}
       </Button>
     </form>
   );
