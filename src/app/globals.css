@@ -422,6 +422,12 @@
   .progress-fill {
     @apply h-full rounded-full bg-gradient-to-r from-signal/90 to-signal motion-safe:transition-all motion-safe:duration-500;
   }
+  .progress-fill-warning {
+    background: linear-gradient(to right, hsl(var(--accent-amber) / 0.9), hsl(var(--accent-amber)));
+  }
+  .progress-fill-critical {
+    background: linear-gradient(to right, hsl(var(--destructive) / 0.85), hsl(var(--destructive)));
+  }
 
   /* Keyboard cap visual */
   .kbd {

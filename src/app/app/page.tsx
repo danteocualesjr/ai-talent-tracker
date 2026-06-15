@@ -143,6 +143,11 @@ export default async function DashboardPage() {
             <span className="tnum font-semibold">
               {profiles.length}
               <span className="text-muted-foreground"> / {org.profile_limit}</span>
+              {profiles.length < org.profile_limit && (
+                <span className="ml-1.5 font-normal text-muted-foreground">
+                  · {org.profile_limit - profiles.length} left
+                </span>
+              )}
             </span>
           </div>
           <div
@@ -153,7 +158,10 @@ export default async function DashboardPage() {
             aria-valuenow={profiles.length}
             aria-label="Watchlist capacity"
           >
-            <div className="progress-fill" style={{ width: `${fill}%` }} />
+            <div
+              className={`progress-fill ${fill >= 90 ? "progress-fill-critical" : fill >= 70 ? "progress-fill-warning" : ""}`}
+              style={{ width: `${fill}%` }}
+            />
           </div>
         </div>
         <Button asChild variant="outline" size="sm" className="shrink-0">
