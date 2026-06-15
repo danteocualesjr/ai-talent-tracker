@@ -21,7 +21,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
         </div>
         <div className="grid gap-5 md:grid-cols-[400px_1fr] animate-fade-up animate-fade-up-delay-2">
           <div>
-            <div className="surface-card surface-elevated relative overflow-hidden p-8">
+            <div className="surface-card surface-elevated relative overflow-hidden p-8 ring-1 ring-border/40 transition-shadow focus-within:ring-signal/25">
               <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
               <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-signal/8 blur-3xl" />
               <h1 className="text-balance text-2xl font-bold tracking-tight">Sign in</h1>
