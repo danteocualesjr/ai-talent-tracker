@@ -24,6 +24,7 @@ export default async function SettingsPage() {
         eyebrow="Workspace"
         icon={<SettingsIcon className="h-4 w-4" />}
         description="Workspace identifiers and account info."
+        divider
       />
 
       <Panel title="Appearance" description="Choose how the app looks on this device.">
