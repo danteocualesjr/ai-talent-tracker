@@ -115,7 +115,7 @@ function Stat({
           <div className={`tnum text-[11px] font-semibold ${deltaColor}`}>{delta}</div>
         </div>
         {series && (
-          <div className={lineColor}>
+          <div className={lineColor} aria-hidden>
             <Sparkline data={series} width={48} height={18} strokeWidth={1.25} />
           </div>
         )}
