@@ -22,7 +22,7 @@ export default function NotFound() {
         >
           404
         </p>
-        <div className="relative text-center">
+        <div className="relative text-center animate-fade-up">
           <p className="label-caps inline-flex items-center gap-2">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
