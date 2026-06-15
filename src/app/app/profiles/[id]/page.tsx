@@ -5,7 +5,7 @@ import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
-import { Panel } from "@/components/panel";
+import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventTimelineItem } from "@/components/event-row";
 import { formatRelative } from "@/lib/utils";
@@ -88,27 +88,32 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
 
       <Panel title="Event timeline" bodyClassName="p-6">
           {eventList.length === 0 ? (
-            <div className="text-center text-sm text-muted-foreground">No changes detected yet.</div>
+            <EmptyPanel
+              icon={<Activity className="h-5 w-5" />}
+              title="No changes yet"
+              body="We'll surface job moves, stealth signals, and headline updates here after the next refresh."
+            />
           ) : (
-            <div className="relative">
-              <div className="absolute bottom-3 left-[14px] top-3 w-px bg-border" />
-              <div className="space-y-6">
-                {eventList.map((e) => (
-                  <EventTimelineItem key={e.id} event={e} profile={p} />
-                ))}
-              </div>
+            <div className="space-y-6">
+              {eventList.map((e) => (
+                <EventTimelineItem key={e.id} event={e} profile={p} />
+              ))}
             </div>
           )}
       </Panel>
 
       <Panel title="Recent snapshots" bodyClassName="divide-y divide-border/60">
           {snapshotList.length === 0 ? (
-            <div className="px-5 py-6 text-center text-sm text-muted-foreground">No snapshots yet.</div>
+            <EmptyPanel
+              icon={<Camera className="h-5 w-5" />}
+              title="No snapshots yet"
+              body="Profile snapshots appear after the first successful sync from our data provider."
+            />
           ) : snapshotList.map((s) => (
             <div key={s.id} className="flex items-center justify-between px-5 py-3 text-xs transition-colors hover:bg-muted/30">
-              <span className="font-mono">{s.content_hash.slice(0, 12)}</span>
+              <span className="font-medium text-foreground">Snapshot {formatRelative(s.fetched_at)}</span>
               <span className="text-muted-foreground">source: {s.source}</span>
-              <span className="text-muted-foreground">{formatRelative(s.fetched_at)}</span>
+              <span className="font-mono text-muted-foreground/70">{s.content_hash.slice(0, 8)}…</span>
             </div>
           ))}
       </Panel>
