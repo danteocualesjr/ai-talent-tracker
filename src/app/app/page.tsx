@@ -51,6 +51,7 @@ export default async function DashboardPage() {
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10 lg:space-y-10">
       <PageHeader
         title="Dashboard"
+        divider
         description={
           <>
             <span className="tnum font-semibold text-foreground">{profiles.length}</span> of{" "}
@@ -303,7 +304,7 @@ function StatCard({
     <div className="surface-card surface-card-hover relative overflow-hidden p-5 motion-safe:transition-shadow">
       <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
       <div className="relative flex items-start justify-between">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <div className="label-caps text-muted-foreground">
           {label}
         </div>
         <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>
