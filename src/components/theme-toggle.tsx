@@ -37,10 +37,21 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     >
       {!mounted ? (
         <span className="h-4 w-4 rounded-full bg-muted-foreground/25" aria-hidden />
-      ) : isDark ? (
-        <Sun className="h-4 w-4" />
       ) : (
-        <Moon className="h-4 w-4" />
+        <span className="relative block h-4 w-4" aria-hidden>
+          <Sun
+            className={cn(
+              "absolute inset-0 h-4 w-4 transition-all duration-300 motion-safe:rotate-0",
+              isDark ? "scale-100 opacity-100" : "scale-75 opacity-0 motion-safe:-rotate-90",
+            )}
+          />
+          <Moon
+            className={cn(
+              "absolute inset-0 h-4 w-4 transition-all duration-300 motion-safe:rotate-0",
+              isDark ? "scale-75 opacity-0 motion-safe:rotate-90" : "scale-100 opacity-100",
+            )}
+          />
+        </span>
       )}
     </button>
   );
