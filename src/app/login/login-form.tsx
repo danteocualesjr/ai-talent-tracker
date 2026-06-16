@@ -68,15 +68,19 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
     <form className="mt-6 space-y-4" onSubmit={onSubmit}>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          placeholder="you@company.com"
-        />
+        <div className="relative">
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" aria-hidden />
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="you@company.com"
+            className="pl-10"
+          />
+        </div>
       </div>
       <Button type="submit" className="w-full" disabled={loading || !email} aria-busy={loading}>
         {loading ? (
