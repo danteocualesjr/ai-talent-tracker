@@ -1,31 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const FILTERS = ["All", "Departures", "Stealth", "Founders", "Joiners"] as const;
+const FILTERS = [
+  { label: "All", param: null },
+  { label: "Departures", param: "departures" },
+  { label: "Stealth", param: "stealth" },
+  { label: "Founders", param: "founders" },
+  { label: "Joiners", param: "joiners" },
+] as const;
 
 export function FeedFilterChips() {
-  const [active, setActive] = useState<(typeof FILTERS)[number]>("All");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeParam = searchParams.get("type");
+
+  function selectFilter(param: (typeof FILTERS)[number]["param"]) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (param) next.set("type", param);
+    else next.delete("type");
+    const query = next.toString();
+    router.push(query ? `/feed?${query}` : "/feed", { scroll: false });
+  }
 
   return (
     <div className="flex flex-wrap gap-2 sm:justify-end" role="group" aria-label="Filter by signal type">
-      {FILTERS.map((chip) => (
-        <button
-          key={chip}
-          type="button"
-          aria-pressed={active === chip}
-          onClick={() => setActive(chip)}
-          className={cn(
-            "chip transition-colors",
-            active === chip
-              ? "border-signal/40 bg-signal/10 text-foreground ring-1 ring-signal/20"
-              : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
-          )}
-        >
-          {chip}
-        </button>
-      ))}
+      {FILTERS.map(({ label, param }) => {
+        const active = (param ?? null) === (activeParam ?? null);
+        return (
+          <button
+            key={label}
+            type="button"
+            aria-pressed={active}
+            onClick={() => selectFilter(param)}
+            className={cn(
+              "chip transition-colors",
+              active
+                ? "border-signal/40 bg-signal/10 text-foreground ring-1 ring-signal/20"
+                : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

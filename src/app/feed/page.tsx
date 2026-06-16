@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Compass, Rss, Sparkles, TrendingUp } from "lucide-react";
+import { Suspense } from "react";
+import { Compass, Filter, Rss, Sparkles, TrendingUp } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { LiveBadge, MarketingHero } from "@/components/marketing-hero";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { FeedFilterChips } from "@/components/feed-filter-chips";
 import { FeedMobileCta } from "@/components/feed-mobile-cta";
 import { getPublicEvents } from "@/lib/queries";
+import type { EventType } from "@/types/db";
 
 export const metadata = {
   title: "AI lab departure feed",
@@ -17,8 +19,31 @@ export const metadata = {
 
 export const revalidate = 300;
 
-export default async function PublicFeedPage() {
+const FILTER_TYPES: Record<string, EventType[]> = {
+  departures: ["left_company"],
+  stealth: ["went_stealth"],
+  founders: ["headline_signals_founding"],
+  joiners: ["joined_company"],
+};
+
+const FILTER_LABELS: Record<string, string> = {
+  departures: "departures",
+  stealth: "stealth moves",
+  founders: "founder signals",
+  joiners: "joiners",
+};
+
+export default async function PublicFeedPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const { type } = await searchParams;
   const events = await getPublicEvents(100);
+  const allowedTypes = type ? FILTER_TYPES[type] : undefined;
+  const filtered = allowedTypes ? events.filter((event) => allowedTypes.includes(event.type)) : events;
+  const filterLabel = type ? FILTER_LABELS[type] : null;
+
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
   const foundingSignals = events.filter((event) => event.type === "headline_signals_founding" || event.type === "went_stealth").length;
@@ -60,25 +85,47 @@ export default async function PublicFeedPage() {
                 Prioritize departures, stealth pivots, and founding headlines from the public stream.
               </p>
             </div>
-            <FeedFilterChips />
+            <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-full bg-muted/60" />}>
+              <FeedFilterChips />
+            </Suspense>
           </div>
 
           <Panel
             title={
-              <>
-                <span className="tnum">{events.length}</span> recent events
-              </>
+              filterLabel ? (
+                <>
+                  <span className="tnum">{filtered.length}</span> {filterLabel}
+                  <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                    of <span className="tnum">{events.length}</span> total
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="tnum">{events.length}</span> recent events
+                </>
+              )
             }
             bodyClassName="divide-y divide-border/60"
           >
-            {events.length === 0 ? (
+            {filtered.length === 0 ? (
               <EmptyPanel
-                icon={<Rss className="h-5 w-5" />}
-                title="Feed is warming up"
-                body="We're indexing the first departures. Check back soon or subscribe via RSS."
+                icon={filterLabel ? <Filter className="h-5 w-5" /> : <Rss className="h-5 w-5" />}
+                title={filterLabel ? `No ${filterLabel} in this window` : "Feed is warming up"}
+                body={
+                  filterLabel
+                    ? "Try another signal type or clear the filter to see the full stream."
+                    : "We're indexing the first departures. Check back soon or subscribe via RSS."
+                }
+                cta={
+                  filterLabel ? (
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/feed">Clear filter</Link>
+                    </Button>
+                  ) : undefined
+                }
               />
             ) : (
-              events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} href={`/feed/${e.id}`} />)
+              filtered.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} href={`/feed/${e.id}`} />)
             )}
           </Panel>
         </section>
