@@ -136,7 +136,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
         >
           <Bell aria-hidden="true" className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-signal px-1 text-[9px] font-bold text-[hsl(var(--signal-foreground))]">
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-signal px-1 text-[9px] font-bold text-[hsl(var(--signal-foreground))] signal-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
