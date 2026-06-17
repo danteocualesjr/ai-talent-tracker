@@ -131,7 +131,7 @@ function TickerCard({ event }: { event: { name: string; type: EventType; summary
     .join("")
     .toUpperCase();
   return (
-    <div className="surface-card flex items-start gap-3 p-3.5 transition-colors hover:border-foreground/15">
+    <div className="surface-card flex items-start gap-3 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-signal/25 hover:shadow-md hover:shadow-signal/5">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/40 text-[10px] font-bold text-foreground ring-2 ring-background">
         {initials || "??"}
       </div>
