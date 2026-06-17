@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card overflow-hidden",
+        "surface-card overflow-hidden transition-shadow duration-200 hover:shadow-sm",
         tone === "muted" && "bg-muted/35",
         className,
       )}
