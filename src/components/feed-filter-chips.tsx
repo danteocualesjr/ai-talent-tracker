@@ -35,9 +35,9 @@ export function FeedFilterChips() {
             aria-pressed={active}
             onClick={() => selectFilter(param)}
             className={cn(
-              "chip transition-colors",
+              "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 motion-safe:active:scale-95",
               active
-                ? "border-signal/40 bg-signal/10 text-foreground ring-1 ring-signal/20"
+                ? "border-signal/40 bg-signal/10 text-foreground shadow-sm ring-1 ring-signal/20"
                 : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
             )}
           >
