@@ -23,7 +23,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "group/header flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+        "group/header animate-fade-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
         divider && "pb-5 border-b border-border/60",
         className,
       )}
