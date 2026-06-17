@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUp, ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 const SECTIONS = [
@@ -99,7 +99,17 @@ export function MarketingFooter() {
       <div className="border-t border-border/60">
         <div className="container flex flex-col items-start justify-between gap-3 py-5 text-xs text-muted-foreground md:flex-row md:items-center md:py-6">
           <div>© {new Date().getFullYear()} AI Talent Tracker. All rights reserved.</div>
-          <div className="font-mono text-[11px] opacity-70">Next.js · Supabase · Inngest · Stripe</div>
+          <div className="flex items-center gap-4">
+            <a
+              href="#top"
+              className="group/top inline-flex items-center gap-1 font-medium transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm"
+            >
+              Back to top
+              <ArrowUp className="h-3 w-3 transition-transform motion-safe:group-hover/top:-translate-y-0.5" />
+            </a>
+            <span className="hidden h-3 w-px bg-border/80 sm:block" aria-hidden />
+            <div className="font-mono text-[11px] opacity-70">Next.js · Supabase · Inngest · Stripe</div>
+          </div>
         </div>
       </div>
     </footer>

@@ -38,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
+      id="top"
       className={`h-full scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
