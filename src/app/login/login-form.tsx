@@ -34,7 +34,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   if (sent) {
     return (
-      <div className="mt-6 rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+      <div className="mt-6 animate-fade-up rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
         <div className="flex items-start gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
             <Mail className="h-4 w-4" aria-hidden="true" />
