@@ -12,7 +12,10 @@ export function BackLink({ href, children, className }: { href: string; children
       )}
     >
       <ArrowLeft aria-hidden="true" className="h-4 w-4 transition-transform motion-safe:group-hover:-translate-x-0.5" />
-      {children}
+      <span className="relative">
+        {children}
+        <span className="absolute -bottom-px left-0 h-px w-0 bg-signal transition-all duration-200 group-hover:w-full" />
+      </span>
     </Link>
   );
 }
