@@ -29,13 +29,13 @@ export function MarketingHero({
           )}
         >
           <div className={cn(centered ? "max-w-2xl" : "max-w-2xl")}>
-            {eyebrow}
-            <h1 className="mt-4 text-balance text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
+            {eyebrow && <div className="animate-fade-up">{eyebrow}</div>}
+            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
             {description && (
-              <div className="mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">{description}</div>
+              <div className="animate-fade-up animate-fade-up-delay-2 mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">{description}</div>
             )}
           </div>
-          {children}
+          {children && <div className="animate-fade-up animate-fade-up-delay-3">{children}</div>}
         </div>
       </div>
     </section>
