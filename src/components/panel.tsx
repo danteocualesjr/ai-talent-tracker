@@ -58,7 +58,7 @@ export function EmptyPanel({
   cta?: React.ReactNode;
 }) {
   return (
-    <div role="status" className="relative flex flex-col items-center gap-3 px-6 py-16 text-center sm:py-20">
+    <div role="status" className="group relative flex flex-col items-center gap-3 px-6 py-16 text-center sm:py-20">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-30 ring-dots [mask-image:radial-gradient(ellipse_60%_50%_at_center,black,transparent)]"
