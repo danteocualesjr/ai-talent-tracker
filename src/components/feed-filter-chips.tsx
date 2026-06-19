@@ -41,6 +41,12 @@ export function FeedFilterChips() {
                 : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
             )}
           >
+            {active && (
+              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+            )}
             {label}
           </button>
         );
