@@ -127,7 +127,7 @@ export function MarketingNav() {
                 className={cn(
                   "rounded-lg px-3 py-2.5 transition-colors",
                   active
-                    ? "bg-accent font-semibold text-foreground"
+                    ? "nav-active-rail bg-signal/10 pl-4 font-semibold text-foreground"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
