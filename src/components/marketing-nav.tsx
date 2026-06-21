@@ -65,12 +65,18 @@ export function MarketingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative rounded-lg px-3.5 py-2 transition-colors",
+                  "relative inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 transition-colors",
                   active
                     ? "bg-foreground/[0.06] font-semibold text-foreground after:absolute after:inset-x-3.5 after:-bottom-[9px] after:h-0.5 after:rounded-full after:bg-signal"
                     : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                 )}
               >
+                {active && (
+                  <span className="relative flex h-1.5 w-1.5 shrink-0">
+                    <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                  </span>
+                )}
                 {l.label}
               </Link>
             );
