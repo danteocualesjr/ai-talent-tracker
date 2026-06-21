@@ -31,6 +31,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       className={cn(
         "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-all duration-200",
         "hover:border-foreground/15 hover:bg-card hover:text-foreground",
+        isDark && "border-signal/25 bg-signal/5 text-signal",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
         "motion-safe:active:scale-95",
         className,
