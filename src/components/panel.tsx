@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card overflow-hidden transition-shadow duration-200 hover:shadow-sm",
+        "surface-card group/panel overflow-hidden transition-shadow duration-200 hover:shadow-sm",
         tone === "muted" && "bg-muted/35",
         className,
       )}
@@ -32,7 +32,7 @@ export function Panel({
         <div className="relative flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
           <div className="min-w-0">
-            {title && <div className="text-sm font-bold leading-tight tracking-tight transition-colors">{title}</div>}
+            {title && <div className="text-sm font-bold leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">{title}</div>}
             {description && (
               <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
                 {description}
