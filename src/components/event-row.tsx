@@ -104,7 +104,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         </div>
       </div>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Link
             href={href ?? `/app/profiles/${profile.id}`}
