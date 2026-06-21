@@ -87,7 +87,10 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
             <span key={href} className="flex min-w-0 items-center gap-1.5">
               <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground/50" />
               {last ? (
-                <span className="truncate font-semibold text-foreground" aria-current="page">{label}</span>
+                <span className="flex min-w-0 items-center gap-1.5 truncate font-semibold text-foreground" aria-current="page">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal signal-pulse" aria-hidden />
+                  {label}
+                </span>
               ) : (
                 <Link
                   href={href}
