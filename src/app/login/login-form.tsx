@@ -82,7 +82,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
           />
         </div>
       </div>
-      <Button type="submit" className="w-full" disabled={loading || !email} aria-busy={loading}>
+      <Button type="submit" variant="signal" className="w-full" disabled={loading || !email} aria-busy={loading}>
         {loading ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
