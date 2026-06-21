@@ -21,7 +21,10 @@ export default function FeedLoading() {
       </div>
       <div className="animate-fade-up animate-fade-up-delay-2 space-y-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="surface-card h-20 rounded-2xl" />
+          <Skeleton
+            key={i}
+            className={`surface-card h-20 rounded-2xl animate-fade-up ${["", "animate-fade-up-delay-1", "animate-fade-up-delay-2", "animate-fade-up-delay-3", "animate-fade-up-delay-4", "animate-fade-up-delay-5"][i] ?? ""}`}
+          />
         ))}
       </div>
     </div>
