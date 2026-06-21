@@ -30,7 +30,7 @@ export function MarketingHero({
         >
           <div className={cn(centered ? "max-w-2xl" : "max-w-2xl")}>
             {eyebrow && <div className="animate-fade-up">{eyebrow}</div>}
-            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance text-4xl font-bold tracking-tight md:text-5xl">{title}</h1>
+            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance text-4xl font-bold tracking-tight text-gradient-hero md:text-5xl">{title}</h1>
             {description && (
               <div className="animate-fade-up animate-fade-up-delay-2 mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">{description}</div>
             )}
