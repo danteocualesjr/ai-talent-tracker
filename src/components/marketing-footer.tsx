@@ -78,7 +78,8 @@ export function MarketingFooter() {
         </div>
       </div>
 
-      <div className="border-t border-border/60 bg-muted/20">
+      <div className="relative border-t border-border/60 bg-muted/20">
+        <div className="pointer-events-none absolute inset-0 dot-bg opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden />
         <div className="container flex flex-col items-start justify-between gap-4 py-8 md:flex-row md:items-center">
           <div>
             <div className="text-sm font-semibold tracking-tight">Stay ahead of the next move</div>
