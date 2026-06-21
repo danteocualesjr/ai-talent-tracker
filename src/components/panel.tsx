@@ -29,7 +29,8 @@ export function Panel({
       )}
     >
       {hasHeader && (
-        <div className="flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
+        <div className="relative flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
           <div className="min-w-0">
             {title && <div className="text-sm font-bold leading-tight tracking-tight transition-colors">{title}</div>}
             {description && (
