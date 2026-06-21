@@ -38,7 +38,7 @@ export function PageHeader({
             </span>
           )}
           <h1 id="page-title" className="text-balance text-[28px] font-bold leading-tight tracking-tight md:text-[32px]">
-            {title}
+            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">{title}</span>
           </h1>
         </div>
         {description && (
