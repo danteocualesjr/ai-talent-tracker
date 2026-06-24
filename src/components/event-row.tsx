@@ -108,9 +108,10 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Link
             href={href ?? `/app/profiles/${profile.id}`}
-            className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
+            className="inline-flex min-w-0 max-w-full items-center gap-1 truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
           >
-            {profile.full_name || profile.linkedin_handle}
+            <span className="truncate">{profile.full_name || profile.linkedin_handle}</span>
+            <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100" />
           </Link>
           <Badge variant={meta.tone}>{meta.label}</Badge>
           {event.confidence >= 0.7 && (
