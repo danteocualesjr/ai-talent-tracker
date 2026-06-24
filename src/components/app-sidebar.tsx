@@ -143,6 +143,12 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
                         active ? "text-signal" : "text-muted-foreground/80 group-hover:text-foreground",
                       )}
                     />
+                    {active && (
+                      <span className="relative flex h-1.5 w-1.5 shrink-0">
+                        <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                      </span>
+                    )}
                     {item.label}
                   </Link>
                 );
