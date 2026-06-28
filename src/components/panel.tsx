@@ -64,14 +64,14 @@ export function EmptyPanel({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-30 ring-dots [mask-image:radial-gradient(ellipse_60%_50%_at_center,black,transparent)]"
       />
-      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-background text-muted-foreground shadow-sm ring-4 ring-signal/5 motion-safe:transition-transform motion-safe:group-hover:scale-105 motion-safe:group-hover:ring-signal/15">
+      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-background text-muted-foreground shadow-sm ring-4 ring-signal/5 motion-safe:transition-transform motion-safe:group-hover:scale-105 motion-safe:group-hover:ring-signal/15">
         {icon}
       </div>
-      <div className="relative text-sm font-bold tracking-tight">{title}</div>
-      <p className="relative max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
+      <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight">{title}</div>
+      <p className="animate-fade-up animate-fade-up-delay-2 relative max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
         {body}
       </p>
-      {cta && <div className="relative mt-1">{cta}</div>}
+      {cta && <div className="animate-fade-up animate-fade-up-delay-3 relative mt-1">{cta}</div>}
     </div>
   );
 }
