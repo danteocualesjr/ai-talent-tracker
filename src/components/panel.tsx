@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card group/panel overflow-hidden transition-shadow duration-200 hover:shadow-sm",
+        "surface-card group/panel overflow-hidden transition-shadow duration-200 hover:shadow-sm motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.35)]",
         tone === "muted" && "bg-muted/35",
         className,
       )}
