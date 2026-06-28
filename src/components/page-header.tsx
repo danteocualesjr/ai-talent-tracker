@@ -32,7 +32,7 @@ export function PageHeader({
         {eyebrow && <div className="label-caps mb-2">{eyebrow}</div>}
         <div className="flex items-center gap-3">
           {icon && (
-            <span aria-hidden="true" className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-gradient-to-br from-card to-muted/40 text-foreground shadow-sm">
+            <span aria-hidden="true" className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-gradient-to-br from-card to-muted/40 text-foreground shadow-sm motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover/header:scale-105">
               <span className="pointer-events-none absolute inset-0 rounded-xl bg-signal/5 opacity-0 transition-opacity group-hover/header:opacity-100" />
               {icon}
             </span>
