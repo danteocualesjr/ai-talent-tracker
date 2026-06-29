@@ -38,6 +38,41 @@ export function normalizeLinkedInUrl(url: string): string | null {
   }
 }
 
+const LINKEDIN_IN_REGEX = /(?:https?:\/\/)?(?:[\w-]+\.)?linkedin\.com\/in\/([\w-]+)/gi;
+const CSV_HEADER_RE = /^(linkedin(?:_url)?|url|profile(?:_url)?|link)$/i;
+
+/** Extract unique normalized LinkedIn /in/ URLs from plain text or CSV paste. */
+export function extractLinkedInUrlsFromText(text: string): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+
+  function add(raw: string) {
+    const normalized = normalizeLinkedInUrl(raw);
+    if (normalized && !seen.has(normalized)) {
+      seen.add(normalized);
+      urls.push(normalized);
+    }
+  }
+
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+
+    const cells = trimmed.includes(",") ? trimmed.split(",") : [trimmed];
+    for (const cell of cells) {
+      const value = cell.trim().replace(/^["']|["']$/g, "");
+      if (!value || CSV_HEADER_RE.test(value)) continue;
+      add(value);
+    }
+
+    for (const match of trimmed.matchAll(LINKEDIN_IN_REGEX)) {
+      add(`https://www.linkedin.com/in/${match[1]}`);
+    }
+  }
+
+  return urls;
+}
+
 export function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 }

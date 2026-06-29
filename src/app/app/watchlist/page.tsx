@@ -8,7 +8,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AddProfileForm } from "./add-profile-form";
+import { AddProfilesPanel } from "./add-profiles-panel";
 import { removeProfileForm, refreshNowForm } from "./actions";
 import { formatRelative, cn } from "@/lib/utils";
 
@@ -109,8 +109,8 @@ export default async function WatchlistPage() {
         ))}
       </div>
 
-      <Panel title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
-        <AddProfileForm />
+      <Panel title="Add profiles" description="Track a single URL or bulk-import a CSV roster. The first refresh runs immediately." bodyClassName="p-5">
+        <AddProfilesPanel />
       </Panel>
 
       <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
@@ -140,7 +140,7 @@ export default async function WatchlistPage() {
           <EmptyPanel
             icon={<ListChecks className="h-5 w-5" />}
             title="No profiles yet"
-            body="Paste a LinkedIn URL above or browse curated lab rosters to bulk-add."
+            body="Paste a LinkedIn URL above, import a CSV roster, or browse curated lab rosters to bulk-add."
             cta={
               <Button asChild variant="outline">
                 <Link href="/app/labs">Browse lab rosters</Link>
