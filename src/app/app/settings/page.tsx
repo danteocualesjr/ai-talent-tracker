@@ -67,9 +67,10 @@ export default async function SettingsPage() {
 
 function Row({ label, value, mono, capitalize }: { label: string; value: string; mono?: boolean; capitalize?: boolean }) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 text-sm transition-colors hover:bg-muted/30">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className={`font-medium ${mono ? "font-mono text-xs text-muted-foreground" : ""} ${capitalize ? "capitalize" : ""}`}>
+    <div className="group relative flex items-center justify-between px-5 py-4 text-sm transition-colors hover:bg-muted/30 focus-within:bg-muted/20">
+      <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
+      <dt className="text-muted-foreground transition-colors group-hover:text-foreground/80">{label}</dt>
+      <dd className={`font-medium transition-colors group-hover:text-foreground ${mono ? "font-mono text-xs text-muted-foreground group-hover:text-foreground/90" : ""} ${capitalize ? "capitalize" : ""}`}>
         {value}
       </dd>
     </div>
