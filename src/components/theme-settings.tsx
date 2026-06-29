@@ -21,12 +21,13 @@ export function ThemeSettings() {
           <button
             key={value}
             type="button"
+            aria-pressed={active}
             onClick={() => setTheme(value)}
             className={cn(
-              "group relative flex flex-col items-center gap-2 rounded-xl border px-4 py-4 text-sm transition-all duration-200",
+              "group relative flex flex-col items-center gap-2 rounded-xl border px-4 py-4 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               active
-                ? "border-signal/40 bg-signal/5 font-medium text-foreground shadow-sm ring-1 ring-signal/20 motion-safe:scale-[1.02]"
-                : "border-border/60 text-muted-foreground hover:border-foreground/15 hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                ? "border-signal/40 bg-signal/5 font-medium text-foreground shadow-sm ring-1 ring-signal/20 motion-safe:scale-[1.02] focus-visible:ring-signal/60"
+                : "border-border/60 text-muted-foreground hover:border-foreground/15 hover:bg-accent/60 hover:text-foreground focus-visible:ring-ring/40",
             )}
           >
             <span
