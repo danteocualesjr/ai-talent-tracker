@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card group/panel overflow-hidden transition-shadow duration-200 hover:shadow-sm motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.35)]",
+        "surface-card group/panel overflow-hidden transition-shadow duration-200 hover:shadow-sm motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.35)] focus-within:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.25)]",
         tone === "muted" && "bg-muted/35",
         className,
       )}
@@ -32,7 +32,12 @@ export function Panel({
         <div className="relative flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
           <div className="min-w-0">
-            {title && <div className="text-sm font-bold leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">{title}</div>}
+            {title && (
+              <div className="flex items-center gap-2 text-sm font-bold leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">
+                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal/60 opacity-0 transition-opacity group-hover/panel:opacity-100 motion-safe:group-focus-within/panel:opacity-100" />
+                {title}
+              </div>
+            )}
             {description && (
               <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
                 {description}
@@ -42,7 +47,7 @@ export function Panel({
           {action && <div className="shrink-0">{action}</div>}
         </div>
       )}
-      <div className={bodyClassName}>{children}</div>
+      <div className={cn(!bodyClassName && "px-5 py-5 sm:px-6", bodyClassName)}>{children}</div>
     </div>
   );
 }
@@ -64,7 +69,11 @@ export function EmptyPanel({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-30 ring-dots [mask-image:radial-gradient(ellipse_60%_50%_at_center,black,transparent)]"
       />
-      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-background text-muted-foreground shadow-sm ring-4 ring-signal/5 motion-safe:transition-transform motion-safe:group-hover:scale-105 motion-safe:group-hover:ring-signal/15">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[calc(50%-2rem)] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-signal/12 via-signal/5 to-transparent blur-2xl opacity-60 motion-safe:group-hover:opacity-90 motion-safe:transition-opacity"
+      />
+      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-gradient-to-br from-background to-muted/30 text-muted-foreground shadow-sm ring-4 ring-signal/5 motion-safe:transition-all motion-safe:group-hover:scale-105 motion-safe:group-hover:border-signal/25 motion-safe:group-hover:ring-signal/15">
         {icon}
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight">{title}</div>
