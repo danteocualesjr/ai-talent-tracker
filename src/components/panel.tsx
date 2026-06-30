@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card group/panel overflow-hidden transition-shadow duration-200 hover:shadow-sm motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.35)] focus-within:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.25)]",
+        "surface-card group/panel overflow-hidden transition-[box-shadow,transform] duration-200 hover:shadow-sm motion-safe:hover:-translate-y-px motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.35)] focus-within:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.25)]",
         tone === "muted" && "bg-muted/35",
         className,
       )}
@@ -39,7 +39,7 @@ export function Panel({
               </div>
             )}
             {description && (
-              <div className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              <div className="mt-1 text-xs leading-relaxed text-muted-foreground/90">
                 {description}
               </div>
             )}
@@ -76,7 +76,7 @@ export function EmptyPanel({
       <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-gradient-to-br from-background to-muted/30 text-muted-foreground shadow-sm ring-4 ring-signal/5 motion-safe:transition-all motion-safe:group-hover:scale-105 motion-safe:group-hover:border-signal/25 motion-safe:group-hover:ring-signal/15">
         {icon}
       </div>
-      <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight">{title}</div>
+      <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight text-foreground/90">{title}</div>
       <p className="animate-fade-up animate-fade-up-delay-2 relative max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
         {body}
       </p>
