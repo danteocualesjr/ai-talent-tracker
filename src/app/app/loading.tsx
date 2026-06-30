@@ -25,7 +25,7 @@ export default function AppLoading() {
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="surface-card h-28 rounded-2xl" />
+          <Skeleton key={i} className="surface-card h-28 rounded-2xl ring-1 ring-transparent motion-safe:animate-pulse motion-safe:ring-signal/10" />
         ))}
       </div>
       <Skeleton className="animate-fade-up animate-fade-up-delay-2 surface-card h-20 rounded-2xl" />
