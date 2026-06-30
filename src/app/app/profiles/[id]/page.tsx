@@ -86,6 +86,29 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         <ProfileMetric label="Latest confidence" value={latestConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-amber-accent" />
       </div>
 
+      {p.github_handle && (
+        <div className="surface-card flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm">
+          <div className="flex items-center gap-2 font-semibold">
+            <Github className="h-4 w-4 text-violet-accent" />
+            GitHub activity
+          </div>
+          <span className="text-muted-foreground">
+            {p.github_commits_30d != null ? (
+              <>
+                <span className="tnum font-semibold text-foreground">{p.github_commits_30d}</span> commits in last 30 days
+              </>
+            ) : (
+              "Not synced yet"
+            )}
+          </span>
+          {p.github_last_commit_at && (
+            <span className="text-muted-foreground">
+              Last commit {formatRelative(p.github_last_commit_at)}
+            </span>
+          )}
+        </div>
+      )}
+
       <Panel title="Event timeline" bodyClassName="p-6">
           {eventList.length === 0 ? (
             <EmptyPanel

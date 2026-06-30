@@ -63,6 +63,7 @@ cp .env.example .env.local
 #   - supabase/migrations/0001_init.sql
 #   - supabase/migrations/0002_rls.sql
 #   - supabase/migrations/0003_seed_labs.sql
+#   - supabase/migrations/0004_github_activity.sql
 
 # 4. dev
 npm run dev            # next.js
@@ -129,9 +130,9 @@ Built (MVP):
 - Proxycurl/manual provider abstraction, diff engine, rule + LLM classifier
 - Email / Slack / webhook delivery
 - Marketing site, public feed (+ RSS), lab pages, paywalled app
+- GitHub commit activity signal (`github_dark` event when activity drops off)
 
 Next:
-- GitHub commit activity signal (`github_dark` event)
 - X bio change + new-domain WHOIS signal
 - Multi-user team accounts (invites)
 - API access tier
