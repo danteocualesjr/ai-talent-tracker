@@ -24,12 +24,12 @@ export function PageHeader({
     <header
       className={cn(
         "group/header animate-fade-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
-        divider && "pb-5 border-b border-border/60",
+        divider && "pb-6 border-b border-border/50",
         className,
       )}
     >
       <div className="min-w-0">
-        {eyebrow && <div className="label-caps mb-2">{eyebrow}</div>}
+        {eyebrow && <div className="label-caps mb-2.5 text-muted-foreground/80">{eyebrow}</div>}
         <div className="flex items-center gap-3">
           {icon && (
             <span aria-hidden="true" className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-gradient-to-br from-card to-muted/40 text-foreground shadow-sm motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover/header:scale-105">
@@ -38,7 +38,7 @@ export function PageHeader({
             </span>
           )}
           <h1 id="page-title" className="text-balance text-[28px] font-bold leading-tight tracking-tight md:text-[32px]">
-            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">{title}</span>
+            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/65 bg-clip-text">{title}</span>
           </h1>
         </div>
         {description && (
