@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card group/panel overflow-hidden transition-[box-shadow,transform] duration-200 hover:shadow-sm motion-safe:hover:-translate-y-px motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.35)] focus-within:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.25)]",
+        "surface-card group/panel overflow-hidden transition-[box-shadow,transform] duration-200 hover:shadow-md motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.4)] focus-within:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.3)]",
         tone === "muted" && "bg-muted/35",
         className,
       )}
