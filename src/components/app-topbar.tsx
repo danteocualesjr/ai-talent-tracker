@@ -74,9 +74,9 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
-          className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-colors hover:text-foreground"
+          className="group/dash flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
         >
-          <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5" />
+          <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5 transition-transform motion-safe:group-hover/dash:scale-110" />
           <span className="hidden lg:inline">Dashboard</span>
         </Link>
         {segments.slice(1).map((seg, i) => {
@@ -94,7 +94,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               ) : (
                 <Link
                   href={href}
-                  className="truncate rounded-md px-1.5 py-1 text-muted-foreground transition-colors hover:text-foreground"
+                  className="truncate rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
                 >
                   {label}
                 </Link>
