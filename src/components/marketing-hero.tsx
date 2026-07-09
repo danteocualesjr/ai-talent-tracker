@@ -44,12 +44,12 @@ export function MarketingHero({
 
 export function LiveBadge() {
   return (
-    <div className="surface-glass inline-flex items-center gap-2 rounded-full border border-signal/20 px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-all duration-200 hover:border-signal/30 hover:shadow-[0_0_12px_-2px_hsl(var(--signal)/0.35)]">
+    <div className="surface-glass inline-flex items-center gap-2 rounded-full border border-signal/20 px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground shadow-sm transition-all duration-200 hover:border-signal/35 hover:shadow-[0_0_16px_-3px_hsl(var(--signal)/0.4)] motion-safe:hover:scale-[1.02]">
       <span className="relative flex h-1.5 w-1.5">
         <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
       </span>
-      <span className="font-semibold text-foreground">Live</span>
+      <span className="font-semibold tracking-wide text-foreground">Live</span>
     </div>
   );
 }
