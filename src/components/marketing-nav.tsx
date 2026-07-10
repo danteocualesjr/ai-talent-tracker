@@ -94,7 +94,7 @@ export function MarketingNav() {
           >
             Log in
           </Link>
-          <Button asChild size="sm" className="ml-2 group">
+          <Button asChild size="sm" className="ml-2 group shadow-sm hover:shadow-[0_0_20px_-4px_hsl(var(--signal)/0.45)]">
             <Link href="/login">
               Start tracking
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
