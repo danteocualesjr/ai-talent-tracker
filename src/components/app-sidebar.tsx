@@ -97,8 +97,8 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
 
         {/* Workspace card */}
         <div className="px-3 py-4">
-          <div className="surface-card flex items-center gap-3 rounded-xl px-3 py-2.5 transition-shadow duration-200 hover:shadow-md hover:shadow-signal/5">
-            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-foreground to-foreground/80 text-[11px] font-bold text-background ring-2 ring-signal/20">
+          <div className="group/workspace surface-card flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 hover:shadow-md hover:shadow-signal/5 motion-safe:hover:-translate-y-0.5">
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-foreground to-foreground/80 text-[11px] font-bold text-background ring-2 ring-signal/20 motion-safe:transition-transform motion-safe:group-hover/workspace:scale-105">
               {orgName.slice(0, 2).toUpperCase()}
               <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-card bg-signal signal-pulse" aria-hidden />
             </div>
