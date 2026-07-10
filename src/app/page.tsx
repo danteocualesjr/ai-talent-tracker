@@ -87,7 +87,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </p>
 
             <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" className="group min-w-[200px]">
+              <Button asChild size="lg" variant="destructive" className="group min-w-[200px]">
                 <Link href="/login">
                   Start tracking free
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
