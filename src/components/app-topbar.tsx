@@ -154,7 +154,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 pl-1.5 pr-2.5 text-sm shadow-sm transition-colors hover:border-foreground/15 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-signal/25 hover:bg-card hover:shadow-[0_0_12px_-3px_hsl(var(--signal)/0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
                 {initials}
