@@ -219,14 +219,27 @@ export default async function DashboardPage() {
             </div>
           ) : (
             priorityEvents.map((event) => (
-              <Link key={event.id} href={`/app/profiles/${event.profile.id}`} className="group block p-5 transition-colors hover:bg-muted/30">
+              <Link
+                key={event.id}
+                href={`/app/profiles/${event.profile.id}`}
+                className="group relative block p-5 transition-all duration-200 hover:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]"
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
                 <div className="flex items-center justify-between gap-3">
-                  <div className="truncate text-sm font-semibold">{event.profile.full_name ?? event.profile.linkedin_handle}</div>
-                  <span className="tnum rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">
+                  <div className="truncate text-sm font-semibold transition-colors group-hover:text-foreground">
+                    {event.profile.full_name ?? event.profile.linkedin_handle}
+                  </div>
+                  <span className="tnum shrink-0 rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">
                     {Math.round(event.confidence * 100)}%
                   </span>
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground opacity-70 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100 group-hover:text-signal">
+                  Review profile <ArrowRight className="h-3 w-3" />
+                </span>
               </Link>
             ))
           )}
@@ -301,6 +314,13 @@ export default async function DashboardPage() {
   );
 }
 
+const STAT_RAIL: Record<string, string> = {
+  "text-signal": "from-signal/0 via-signal/55 to-signal/0",
+  "text-foreground/70": "from-foreground/0 via-foreground/25 to-foreground/0",
+  "text-amber-accent": "from-amber-400/0 via-amber-400/70 to-amber-400/0 dark:via-amber-300/55",
+  "text-violet-accent": "from-violet-400/0 via-violet-400/65 to-violet-400/0 dark:via-violet-300/55",
+};
+
 function StatCard({
   label,
   value,
@@ -316,22 +336,28 @@ function StatCard({
   series?: number[];
   accent?: string;
 }) {
+  const rail = STAT_RAIL[accent] ?? STAT_RAIL["text-signal"];
+
   return (
-    <div className="surface-card surface-card-hover relative overflow-hidden p-5 motion-safe:transition-shadow">
-      <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-5">
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
+      />
+      <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-signal/8 to-transparent blur-2xl opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="relative flex items-start justify-between">
-        <div className="label-caps text-muted-foreground">
+        <div className="label-caps text-muted-foreground transition-colors group-hover:text-foreground/80">
           {label}
         </div>
-        <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>
+        <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-105`}>
           {icon}
         </div>
       </div>
-      <div className="tnum mt-3 text-3xl font-bold tracking-tight">{value}</div>
-      <div className="mt-1.5 flex items-end justify-between gap-2">
+      <div className="tnum relative mt-3 text-3xl font-bold tracking-tight">{value}</div>
+      <div className="relative mt-1.5 flex items-end justify-between gap-2">
         {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
         {series && (
-          <div className={`shrink-0 ${accent}`} aria-hidden>
+          <div className={`shrink-0 opacity-80 transition-opacity group-hover:opacity-100 ${accent}`} aria-hidden>
             <Sparkline data={series} width={64} height={22} strokeWidth={1.5} />
           </div>
         )}

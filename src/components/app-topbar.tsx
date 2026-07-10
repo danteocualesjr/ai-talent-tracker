@@ -135,7 +135,12 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               ? `${unreadCount} recent event${unreadCount === 1 ? "" : "s"} in the last 7 days — open events`
               : "Open events"
           }
-          className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          className={cn(
+            "relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-all duration-200",
+            "hover:border-foreground/15 hover:bg-card hover:text-foreground hover:shadow-[0_0_12px_-2px_hsl(var(--signal)/0.25)]",
+            unreadCount > 0 && "border-signal/20 bg-signal/5 text-signal",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+          )}
         >
           <Bell aria-hidden="true" className="h-4 w-4" />
           {unreadCount > 0 && (
