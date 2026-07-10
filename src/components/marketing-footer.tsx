@@ -42,7 +42,7 @@ export function MarketingFooter() {
             Real-time monitoring of LinkedIn profiles at top AI labs. Know who&apos;s moving
             before anyone else.
           </p>
-          <div className="mt-6 flex items-center gap-2 rounded-full border border-border/50 bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground">
+          <div className="mt-6 flex items-center gap-2 rounded-full border border-border/50 bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground transition-colors hover:border-signal/25 hover:bg-signal/5 hover:text-foreground">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
