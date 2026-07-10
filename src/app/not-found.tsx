@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Building2, CreditCard, LogIn, type LucideIcon } from "lucide-react";
+import { Building2, CreditCard, LogIn, ArrowUpRight, type LucideIcon } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { Button } from "@/components/ui/button";
 
@@ -54,7 +54,10 @@ export default function NotFound() {
                 <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-muted/50 text-muted-foreground transition-colors group-hover:border-signal/30 group-hover:bg-signal/10 group-hover:text-signal">
                   <Icon className="h-4 w-4" />
                 </div>
-                <div className="text-sm font-semibold">{title}</div>
+                <div className="flex items-center gap-1 text-sm font-semibold">
+                  {title}
+                  <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100 group-hover:text-signal" />
+                </div>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
               </Link>
             ))}
