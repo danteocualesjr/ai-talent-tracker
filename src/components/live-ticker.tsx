@@ -84,7 +84,7 @@ export async function LiveTicker() {
         </Link>
       </div>
       <div
-        className="grid h-[300px] grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2"
+        className="grid h-[300px] grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2 marquee-pause"
         style={{
           maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
           WebkitMaskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
