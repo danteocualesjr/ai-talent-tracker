@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddProfilesPanel } from "./add-profiles-panel";
+import { ExportWatchlistButton } from "./export-watchlist-button";
 import { RemoveProfileButton } from "./remove-profile-button";
 import { RefreshProfileButton } from "./refresh-profile-button";
 import { formatRelative, cn } from "@/lib/utils";
@@ -134,7 +135,12 @@ export default async function WatchlistPage() {
 
       <Panel
         title="Tracked profiles"
-        action={<span className="tnum text-xs text-muted-foreground">{profiles.length} total</span>}
+        action={
+          <div className="flex items-center gap-2">
+            {(org.plan === "team" || org.plan === "enterprise") && <ExportWatchlistButton />}
+            <span className="tnum text-xs text-muted-foreground">{profiles.length} total</span>
+          </div>
+        }
         bodyClassName={profiles.length === 0 ? undefined : "divide-y divide-border/60"}
       >
         {profiles.length === 0 ? (
