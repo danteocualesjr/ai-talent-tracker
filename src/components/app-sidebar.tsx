@@ -11,15 +11,17 @@ import {
   LayoutDashboard,
   ListChecks,
   Menu,
+  Search,
   Settings,
   Sparkles,
-  Users,
+  Activity,
   X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AppCommandMenu } from "@/components/app-command-menu";
 import { cn } from "@/lib/utils";
 
 const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutDashboard; label: string }[] }[] = [
@@ -28,7 +30,7 @@ const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutD
     items: [
       { href: "/app", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/app/watchlist", icon: ListChecks, label: "Watchlist" },
-      { href: "/app/events", icon: Users, label: "Events" },
+      { href: "/app/events", icon: Activity, label: "Events" },
       { href: "/app/labs", icon: Building2, label: "Lab rosters" },
     ],
   },
@@ -50,14 +52,24 @@ interface Props {
 export function AppSidebar({ orgName, orgPlan }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
   const isFree = orgPlan === "free";
 
   return (
     <>
+      <AppCommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
       {/* Mobile header */}
       <div className="sticky top-0 z-30 flex h-[60px] items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl md:hidden">
         <Logo href="/app" />
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setCommandOpen(true)}
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
+            aria-label="Open search and navigation"
+          >
+            <Search className="h-5 w-5" />
+          </button>
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}

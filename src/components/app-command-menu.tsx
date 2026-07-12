@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Activity,
   Bell,
   Building2,
   CreditCard,
@@ -10,7 +11,6 @@ import {
   ListChecks,
   Plus,
   Settings,
-  Users,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ type CommandItem = {
 const COMMANDS: CommandItem[] = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard, group: "Navigate" },
   { href: "/app/watchlist", label: "Watchlist", icon: ListChecks, keywords: ["profiles", "tracked"], group: "Navigate" },
-  { href: "/app/events", label: "Events", icon: Users, keywords: ["activity", "inbox", "changes"], group: "Navigate" },
+  { href: "/app/events", label: "Events", icon: Activity, keywords: ["activity", "inbox", "changes"], group: "Navigate" },
   { href: "/app/labs", label: "Lab rosters", icon: Building2, keywords: ["labs", "openai", "anthropic"], group: "Navigate" },
   { href: "/app/alerts", label: "Alerts", icon: Bell, keywords: ["slack", "email", "webhook"], group: "Navigate" },
   { href: "/app/billing", label: "Billing", icon: CreditCard, keywords: ["plan", "upgrade", "subscription"], group: "Navigate" },
