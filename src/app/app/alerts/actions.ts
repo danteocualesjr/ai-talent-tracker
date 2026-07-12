@@ -44,11 +44,29 @@ export async function addChannel(formData: FormData): Promise<ActionResult> {
     return { error: "Unknown channel type." };
   }
 
+  if (await channelExists(db, org.id, type, config as Record<string, unknown>)) {
+    return { error: "This channel is already configured." };
+  }
+
   const { error } = await db.from("notification_channels").insert({ org_id: org.id, type, config: config as object });
   if (error) return { error: "Could not add channel. Try again." };
 
   revalidatePath("/app/alerts");
   return { ok: true };
+}
+
+async function channelExists(
+  db: ReturnType<typeof createAdminClient>,
+  orgId: string,
+  type: ChannelType,
+  config: Record<string, unknown>,
+): Promise<boolean> {
+  const { data } = await db.from("notification_channels").select("id, config").eq("org_id", orgId).eq("type", type);
+  const rows = (data ?? []) as { id: string; config: Record<string, unknown> }[];
+  if (type === "email") return rows.some((row) => row.config.to === config.to);
+  if (type === "slack") return rows.some((row) => row.config.webhook_url === config.webhook_url);
+  if (type === "webhook") return rows.some((row) => row.config.url === config.url);
+  return false;
 }
 
 export async function removeChannel(formData: FormData): Promise<ActionResult> {
