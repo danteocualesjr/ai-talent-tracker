@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,12 @@ export function AddChannelForm({
     <form ref={ref} action={onSubmit} className="space-y-3">
       <input type="hidden" name="type" value={type} />
       {lockedMessage && (
-        <p className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{lockedMessage}</p>
+        <p className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          {lockedMessage}{" "}
+          <Link href="/pricing" className="font-medium text-foreground underline underline-offset-2">
+            View plans
+          </Link>
+        </p>
       )}
       {FIELDS[type].map((field) => (
         <div key={field.name} className="space-y-1.5">
