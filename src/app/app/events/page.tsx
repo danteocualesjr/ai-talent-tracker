@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Activity, Bell, Globe2, Route, Search, Sparkles, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -7,14 +8,30 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
+import { AppEventsFilterChips } from "./event-filter-chips";
+import type { EventType } from "@/types/db";
 
 export const metadata = { title: "Events" };
 
-export default async function EventsPage() {
+const FILTER_TYPES: Record<string, EventType[]> = {
+  departures: ["left_company"],
+  stealth: ["went_stealth"],
+  founders: ["headline_signals_founding"],
+  joiners: ["joined_company"],
+};
+
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
+  const { type } = await searchParams;
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const events = await getOrgEvents(org.id, 200);
+  const allowedTypes = type ? FILTER_TYPES[type] : undefined;
+  const filtered = allowedTypes ? events.filter((event) => allowedTypes.includes(event.type)) : events;
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
   const publicEvents = events.filter((event) => event.is_public).length;
@@ -28,6 +45,10 @@ export default async function EventsPage() {
         description="All detected changes across your watchlists."
         divider
       />
+
+      <Suspense fallback={null}>
+        <AppEventsFilterChips />
+      </Suspense>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
@@ -59,7 +80,7 @@ export default async function EventsPage() {
       <Panel
         title={
           <>
-            <span className="tnum">{events.length}</span> events
+            <span className="tnum">{filtered.length}</span> events
           </>
         }
         action={
@@ -70,13 +91,17 @@ export default async function EventsPage() {
             </Link>
           </span>
         }
-        bodyClassName={events.length === 0 ? undefined : "divide-y divide-border/60"}
+        bodyClassName={filtered.length === 0 ? undefined : "divide-y divide-border/60"}
       >
-        {events.length === 0 ? (
+        {filtered.length === 0 ? (
           <EmptyPanel
             icon={<Bell className="h-5 w-5" />}
-            title="No events yet"
-            body="Once a tracked profile changes company, headline, or location, you'll see it here."
+            title={type ? "No matching events" : "No events yet"}
+            body={
+              type
+                ? "Try a different filter or add more profiles to your watchlist."
+                : "Once a tracked profile changes company, headline, or location, you'll see it here."
+            }
             cta={
               <Button asChild>
                 <Link href="/app/watchlist">Add profiles</Link>
@@ -84,7 +109,7 @@ export default async function EventsPage() {
             }
           />
         ) : (
-          events.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
+          filtered.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
         )}
       </Panel>
     </div>
