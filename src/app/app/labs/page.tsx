@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { listLabs } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
+import { EmptyPanel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Lab rosters" };
@@ -18,6 +19,13 @@ export default async function LabsIndexPage() {
         description="Curated employee lists for top AI labs. Click to view and bulk-add."
         divider
       />
+      {labs.length === 0 ? (
+        <EmptyPanel
+          icon={<Sparkles className="h-5 w-5" />}
+          title="No lab rosters yet"
+          body="Curated lab lists appear here after the first sync. Check back soon or add profiles manually from the watchlist."
+        />
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {labs.map((l) => (
           <Link
@@ -52,6 +60,7 @@ export default async function LabsIndexPage() {
           </Link>
         ))}
       </div>
+      )}
     </div>
   );
 }
