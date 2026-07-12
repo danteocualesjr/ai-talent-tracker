@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Compass, ListChecks, LogOut, RefreshCw, Star, Users2 } from "lucide-react";
+import { Compass, ListChecks, LogOut, Star, Users2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { listOrgProfiles } from "@/lib/queries";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddProfilesPanel } from "./add-profiles-panel";
 import { RemoveProfileButton } from "./remove-profile-button";
-import { refreshNowForm } from "./actions";
+import { RefreshProfileButton } from "./refresh-profile-button";
 import { formatRelative, cn } from "@/lib/utils";
 
 export const metadata = { title: "Watchlist" };
@@ -178,12 +178,7 @@ export default async function WatchlistPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                  <form action={refreshNowForm}>
-                    <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  </form>
+                  <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} />
                   <RemoveProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} />
                 </div>
               </div>

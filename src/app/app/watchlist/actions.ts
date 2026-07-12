@@ -224,32 +224,42 @@ export async function addLabRosterToWatchlist(labId: string, labSlug?: string): 
   return { ok: true, added, skipped, invalid: 0, limitReached };
 }
 
-export async function removeProfileForm(formData: FormData): Promise<void> {
+export async function removeProfileForm(formData: FormData): Promise<ActionResult> {
   const profileId = String(formData.get("profile_id") ?? "");
-  if (!profileId) return;
+  if (!profileId) return { error: "Missing profile id." };
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
-  if (!user) return;
+  if (!user) return { error: "Not authenticated." };
 
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   const db = createAdminClient();
 
   const { data: wls } = await db.from("watchlists").select("id").eq("org_id", org.id);
   const ids = ((wls ?? []) as { id: string }[]).map((w) => w.id);
-  if (ids.length === 0) return;
-  await db.from("watchlist_profiles").delete().eq("profile_id", profileId).in("watchlist_id", ids);
+  if (ids.length === 0) return { error: "No watchlist found." };
+
+  const { error } = await db.from("watchlist_profiles").delete().eq("profile_id", profileId).in("watchlist_id", ids);
+  if (error) return { error: "Could not remove profile. Try again." };
 
   revalidatePath("/app/watchlist");
+  return { ok: true };
 }
 
-export async function refreshNowForm(formData: FormData): Promise<void> {
+export async function refreshNowForm(formData: FormData): Promise<ActionResult> {
   const profileId = String(formData.get("profile_id") ?? "");
-  if (!profileId) return;
+  if (!profileId) return { error: "Missing profile id." };
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
   } catch (e) {
     console.warn("[inngest] send failed", e);
+    return { error: "Refresh could not be queued. Try again shortly." };
   }
   revalidatePath("/app/watchlist");
+  return { ok: true };
 }

@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { removeProfileForm } from "./actions";
 
@@ -21,7 +22,9 @@ export function RemoveProfileButton({
     const formData = new FormData();
     formData.set("profile_id", profileId);
     start(async () => {
-      await removeProfileForm(formData);
+      const res = await removeProfileForm(formData);
+      if ("error" in res) toast.error(res.error);
+      else toast.success(`${label} removed from watchlist.`);
     });
   }
 
