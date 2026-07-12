@@ -60,7 +60,7 @@ export function ImportCsvForm() {
             onChange={onFileChange}
           />
         </label>
-        <Button type="submit" disabled={pending} aria-busy={pending} className="h-10 shrink-0 gap-2 px-5">
+        <Button type="submit" disabled={pending} aria-busy={pending} aria-label="Import roster from CSV" className="h-10 shrink-0 gap-2 px-5">
           <FileSpreadsheet className="h-4 w-4" />
           {pending ? "Importing..." : "Import roster"}
         </Button>
