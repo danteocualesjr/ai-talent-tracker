@@ -1,4 +1,4 @@
-import { Compass, LogOut, Star, Users2 } from "lucide-react";
+import { ArrowRight, Compass, LogOut, Star, Users2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BackLink } from "@/components/back-link";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { formatRelative } from "@/lib/utils";
 import { AddLabRosterButton } from "../add-lab-roster-button";
+import { TrackProfileButton } from "../track-profile-button";
 
 export default async function LabRosterPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -99,6 +100,9 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
                 <Badge variant="secondary" className="capitalize">
                   {p.status}
                 </Badge>
+                {p.linkedin_url && (
+                  <TrackProfileButton linkedinUrl={p.linkedin_url} profileName={p.full_name || p.linkedin_handle || "profile"} />
+                )}
                 <div className="tnum hidden font-mono text-xs text-muted-foreground sm:block">
                   {formatRelative(p.last_synced_at)}
                 </div>
