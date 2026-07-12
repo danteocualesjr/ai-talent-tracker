@@ -64,7 +64,10 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setCommandOpen(true)}
+            onClick={() => {
+              setCommandOpen(true);
+              setOpen(false);
+            }}
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
             aria-label="Open search and navigation"
           >
