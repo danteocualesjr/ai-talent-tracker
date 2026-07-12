@@ -77,6 +77,18 @@ export async function listLabs(): Promise<Lab[]> {
   return (data ?? []) as Lab[];
 }
 
+export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const db = createAdminClient();
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId)
+    .eq("profile_id", profileId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
 export async function getLabBySlug(slug: string): Promise<Lab | null> {
   if (!isSupabaseConfigured()) return null;
   const db = createAdminClient();
