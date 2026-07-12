@@ -17,6 +17,8 @@ export default async function AlertsPage() {
   const db = createAdminClient();
   const { data } = await db.from("notification_channels").select("*").eq("org_id", org.id).order("created_at");
   const channels = (data ?? []) as NotificationChannel[];
+  const canUseWebhooks = org.plan === "team" || org.plan === "enterprise";
+  const canUseSlack = org.plan !== "free";
   const channelCounts = {
     email: channels.filter((channel) => channel.type === "email").length,
     slack: channels.filter((channel) => channel.type === "slack").length,
@@ -94,11 +96,19 @@ export default async function AlertsPage() {
         </ChannelCard>
 
         <ChannelCard icon={<MessageSquare className="h-4 w-4" />} title="Slack" description="Incoming webhook URL.">
-          <AddChannelForm type="slack" />
+          <AddChannelForm
+            type="slack"
+            disabled={!canUseSlack}
+            lockedMessage={canUseSlack ? undefined : "Upgrade to Pro to add Slack channels."}
+          />
         </ChannelCard>
 
         <ChannelCard icon={<Webhook className="h-4 w-4" />} title="Webhook" description="HMAC-signed POST. Team+.">
-          <AddChannelForm type="webhook" />
+          <AddChannelForm
+            type="webhook"
+            disabled={!canUseWebhooks}
+            lockedMessage={canUseWebhooks ? undefined : "Upgrade to Team to add webhook channels."}
+          />
         </ChannelCard>
       </div>
     </div>

@@ -27,10 +27,16 @@ export async function addChannel(formData: FormData): Promise<ActionResult> {
     if (!r.success) return { error: "Enter a valid email address." };
     config = r.data;
   } else if (type === "slack") {
+    if (org.plan === "free") {
+      return { error: "Slack channels require a Pro plan or higher." };
+    }
     const r = SlackSchema.safeParse({ webhook_url: formData.get("webhook_url") });
     if (!r.success) return { error: "Slack URL must start with https://hooks.slack.com/" };
     config = r.data;
   } else if (type === "webhook") {
+    if (org.plan !== "team" && org.plan !== "enterprise") {
+      return { error: "Webhook channels require a Team plan or higher." };
+    }
     const r = WebhookSchema.safeParse({ url: formData.get("url"), secret: formData.get("secret") || undefined });
     if (!r.success) return { error: "Enter a valid webhook URL." };
     config = r.data;

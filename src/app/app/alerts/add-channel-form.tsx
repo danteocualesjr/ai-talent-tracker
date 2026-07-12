@@ -34,7 +34,15 @@ const LABELS: Record<ChannelType, string> = {
   webhook: "Add webhook",
 };
 
-export function AddChannelForm({ type }: { type: ChannelType }) {
+export function AddChannelForm({
+  type,
+  disabled = false,
+  lockedMessage,
+}: {
+  type: ChannelType;
+  disabled?: boolean;
+  lockedMessage?: string;
+}) {
   const [pending, start] = useTransition();
   const ref = useRef<HTMLFormElement>(null);
 
@@ -53,6 +61,9 @@ export function AddChannelForm({ type }: { type: ChannelType }) {
   return (
     <form ref={ref} action={onSubmit} className="space-y-3">
       <input type="hidden" name="type" value={type} />
+      {lockedMessage && (
+        <p className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{lockedMessage}</p>
+      )}
       {FIELDS[type].map((field) => (
         <div key={field.name} className="space-y-1.5">
           <Label htmlFor={`${type}-${field.id}`} className="text-xs font-semibold">
@@ -64,10 +75,11 @@ export function AddChannelForm({ type }: { type: ChannelType }) {
             type={field.type}
             required={field.required}
             placeholder={field.placeholder}
+            disabled={disabled}
           />
         </div>
       ))}
-      <Button type="submit" className="w-full" size="sm" disabled={pending} aria-busy={pending}>
+      <Button type="submit" className="w-full" size="sm" disabled={pending || disabled} aria-busy={pending}>
         {pending ? "Adding…" : LABELS[type]}
       </Button>
     </form>
