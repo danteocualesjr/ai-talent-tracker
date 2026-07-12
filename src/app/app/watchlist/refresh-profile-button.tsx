@@ -9,9 +9,11 @@ import { refreshNowForm } from "./actions";
 export function RefreshProfileButton({
   profileId,
   profileName,
+  labeled = false,
 }: {
   profileId: string;
   profileName: string;
+  labeled?: boolean;
 }) {
   const [pending, start] = useTransition();
 
@@ -28,16 +30,17 @@ export function RefreshProfileButton({
   return (
     <Button
       type="button"
-      variant="ghost"
-      size="icon"
+      variant={labeled ? "outline" : "ghost"}
+      size={labeled ? "sm" : "icon"}
       title="Refresh now"
-      className="rounded-lg text-muted-foreground hover:text-foreground"
+      className={labeled ? "gap-1.5" : "rounded-lg text-muted-foreground hover:text-foreground"}
       disabled={pending}
       aria-busy={pending}
       aria-label={`Refresh ${profileName || "profile"}`}
       onClick={onRefresh}
     >
       <RefreshCw className={`h-4 w-4 ${pending ? "animate-spin" : ""}`} />
+      {labeled ? (pending ? "Refreshing…" : "Refresh now") : null}
     </Button>
   );
 }

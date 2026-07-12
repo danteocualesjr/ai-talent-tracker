@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
 import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
+import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
 import { EventTimelineItem } from "@/components/event-row";
 import { formatRelative } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
@@ -54,6 +55,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               {p.location && <> · {p.location}</>}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
+              <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} labeled />
               <Button asChild size="sm" variant="outline">
                 <a href={p.linkedin_url} target="_blank" rel="noreferrer noopener">
                   LinkedIn <ExternalLink className="ml-1 h-3 w-3" />
