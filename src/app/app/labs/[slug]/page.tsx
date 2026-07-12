@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { formatRelative } from "@/lib/utils";
+import { AddLabRosterButton } from "../add-lab-roster-button";
 
 export default async function LabRosterPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -42,6 +43,7 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
               {lab.description} · {lab.domain}
             </p>
           </div>
+          <AddLabRosterButton labId={lab.id} labSlug={lab.slug} count={people.length} />
         </div>
         <div className="mt-6 grid grid-cols-3 gap-3">
           <Stat label="Indexed" value={people.length} />

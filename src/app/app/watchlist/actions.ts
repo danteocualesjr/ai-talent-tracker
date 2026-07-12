@@ -171,6 +171,59 @@ export async function importProfilesFromCsv(formData: FormData): Promise<ImportR
   return { ok: true, added, skipped, invalid, limitReached };
 }
 
+export async function addLabRosterToWatchlist(labId: string, labSlug?: string): Promise<ImportResult> {
+  if (!labId) return { error: "Missing lab id." };
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: profiles } = await db
+    .from("profiles")
+    .select("linkedin_url")
+    .eq("current_company_lab_id", labId)
+    .not("linkedin_url", "is", null)
+    .limit(500);
+
+  const urls = (profiles ?? []).map((p) => p.linkedin_url as string).filter(Boolean);
+
+  if (urls.length === 0) {
+    return { error: "No profiles indexed for this lab yet." };
+  }
+
+  const watchlist = await ensureWatchlist(db, org.id);
+  if (!watchlist) return { error: "Could not create watchlist." };
+
+  let currentCount = await getWatchlistCount(db, org.id);
+  let added = 0;
+  let skipped = 0;
+  let limitReached = false;
+
+  for (const url of urls) {
+    const { outcome, newCount } = await trackProfileUrl(db, org, user.id, watchlist, url, currentCount);
+    currentCount = newCount;
+
+    if (outcome === "added") added += 1;
+    else if (outcome === "already_tracked") skipped += 1;
+    else if (outcome === "limit_reached") {
+      limitReached = true;
+      break;
+    }
+  }
+
+  if (added === 0 && skipped === 0 && !limitReached) {
+    return { error: "No profiles could be added." };
+  }
+
+  revalidatePath("/app/watchlist");
+  revalidatePath("/app");
+  if (labSlug) revalidatePath(`/app/labs/${labSlug}`);
+  return { ok: true, added, skipped, invalid: 0, limitReached };
+}
+
 export async function removeProfileForm(formData: FormData): Promise<void> {
   const profileId = String(formData.get("profile_id") ?? "");
   if (!profileId) return;
