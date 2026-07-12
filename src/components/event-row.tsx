@@ -4,9 +4,40 @@ import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatRelative } from "@/lib/utils";
-import type { EventRow as EventRowT, Profile, EventType } from "@/types/db";
+import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db";
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
+
+const DIFF_FIELDS = ["company", "title", "headline", "location"] as const;
+
+function formatFieldChanges(before: Json | null, after: Json | null): string[] {
+  if (!before || !after || typeof before !== "object" || typeof after !== "object") return [];
+  const prev = before as Record<string, unknown>;
+  const next = after as Record<string, unknown>;
+  const lines: string[] = [];
+  for (const field of DIFF_FIELDS) {
+    const from = prev[field];
+    const to = next[field];
+    if (from != null && to != null && String(from) !== String(to)) {
+      lines.push(`${field.replace("_", " ")}: ${String(from)} → ${String(to)}`);
+    }
+  }
+  return lines;
+}
+
+function EventFieldDiff({ before, after }: { before: Json | null; after: Json | null }) {
+  const changes = formatFieldChanges(before, after);
+  if (changes.length === 0) return null;
+  return (
+    <ul className="mt-2 space-y-1 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+      {changes.map((line) => (
+        <li key={line} className="font-mono leading-relaxed">
+          {line}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone; ring: string; rail: string }> = {
   left_company: {
@@ -131,6 +162,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {event.summary}
         </p>
+        <EventFieldDiff before={event.before} after={event.after} />
         {profile.headline && (
           <p className="mt-1 truncate text-xs text-muted-foreground/70">{profile.headline}</p>
         )}
@@ -175,6 +207,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
         <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
       </div>
       <p className="mt-1.5 text-pretty text-sm leading-relaxed">{event.summary}</p>
+      <EventFieldDiff before={event.before} after={event.after} />
       <Link
         href={`/app/profiles/${profile.id}`}
         className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
