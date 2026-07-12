@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Loader2, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const params = use(searchParams);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (params.error === "auth") {
+      toast.error("Your sign-in link expired or is invalid. Request a new one.");
+    }
+  }, [params.error]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,6 +72,14 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   return (
     <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+      {params.error === "auth" && (
+        <div
+          role="alert"
+          className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed text-foreground"
+        >
+          Your magic link expired or is invalid. Enter your email below to get a new one.
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <div className="relative group rounded-lg transition-shadow focus-within:shadow-[0_0_0_3px_hsl(var(--signal)/0.12)]">
