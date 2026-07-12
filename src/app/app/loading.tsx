@@ -10,7 +10,7 @@ export default function AppLoading() {
   return (
     <div
       aria-busy="true"
-      aria-label="Loading dashboard"
+      aria-label="Loading page"
       className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10 lg:space-y-10"
     >
       <div className="animate-fade-up space-y-3 border-b border-border/60 pb-5">
