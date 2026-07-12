@@ -7,15 +7,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 import { CheckoutButton } from "./checkout-button";
+import { PricingStatusToast } from "./pricing-status-toast";
 
 export const metadata = {
   title: "Pricing",
   description: "Free, Pro $49/mo, Team $299/mo, and Enterprise tiers for AI Talent Tracker.",
 };
 
-export default function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
   return (
     <div className="flex min-h-screen flex-col">
+      <PricingStatusToast status={status} />
       <MarketingNav />
       <main className="flex-1">
         <MarketingHero

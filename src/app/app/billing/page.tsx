@@ -10,10 +10,16 @@ import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 import { PortalButton } from "./portal-button";
+import { BillingStatusToast } from "./billing-status-toast";
 
 export const metadata = { title: "Billing" };
 
-export default async function BillingPage() {
+export default async function BillingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
@@ -32,6 +38,8 @@ export default async function BillingPage() {
         description="Manage your subscription and plan limits."
         divider
       />
+
+      <BillingStatusToast status={status} />
 
       <div className="surface-card overflow-hidden">
         <div className="border-b border-border/60 bg-gradient-to-br from-card via-card to-signal/[0.04] p-6">
