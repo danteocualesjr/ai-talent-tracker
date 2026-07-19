@@ -3,6 +3,7 @@ import { Instrument_Serif, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/g
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogAnalytics } from "@/components/analytics";
+import { SkipLink } from "@/components/skip-link";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const sans = Plus_Jakarta_Sans({
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full bg-background font-sans antialiased text-foreground" suppressHydrationWarning>
         <ThemeProvider>
+          <SkipLink />
           {children}
           <Toaster position="top-right" richColors toastOptions={{ className: "font-sans" }} />
           <PostHogAnalytics />

@@ -21,6 +21,7 @@ import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { DashboardPreview } from "@/components/dashboard-preview";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTicker } from "@/components/live-ticker";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 const DEFAULT_LABS = [
   "OpenAI", "Anthropic", "Google DeepMind", "Meta AI", "xAI", "Mistral AI",
@@ -43,6 +44,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
 
+      <main id="main-content">
       {(setup === "missing-supabase-env" || !isSupabaseConfigured()) && (
         <div className="border-b border-amber-200/70 bg-gradient-to-r from-amber-50 via-amber-50/80 to-transparent px-4 py-2.5 text-center text-xs text-amber-950 dark:border-amber-900/50 dark:from-amber-950/50 dark:to-transparent dark:text-amber-100">
           Setup incomplete: add Supabase keys to{" "}
@@ -386,7 +388,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       </section>
 
+      </main>
       <MarketingFooter />
+      <ScrollToTop />
     </div>
   );
 }

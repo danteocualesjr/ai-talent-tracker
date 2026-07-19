@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 import { CheckoutButton } from "./checkout-button";
 import { PricingStatusToast } from "./pricing-status-toast";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 export const metadata = {
   title: "Pricing",
@@ -24,7 +25,7 @@ export default async function PricingPage({
     <div className="flex min-h-screen flex-col">
       <PricingStatusToast status={status} />
       <MarketingNav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <MarketingHero
           align="center"
           eyebrow={<div className="label-caps">Pricing</div>}
@@ -76,6 +77,7 @@ export default async function PricingPage({
         </section>
       </main>
       <MarketingFooter />
+      <ScrollToTop />
     </div>
   );
 }
