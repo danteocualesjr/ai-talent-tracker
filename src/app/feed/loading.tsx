@@ -16,10 +16,16 @@ export default function FeedLoading() {
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 grid grid-cols-3 gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="surface-card h-20 rounded-2xl" />
+          <Skeleton key={i} className="surface-card h-24 rounded-2xl" />
         ))}
       </div>
-      <div className="animate-fade-up animate-fade-up-delay-2 space-y-3">
+      <Skeleton className="animate-fade-up animate-fade-up-delay-2 surface-card h-24 rounded-2xl" />
+      <div className="animate-fade-up animate-fade-up-delay-2 flex flex-wrap gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-8 w-20 rounded-full" />
+        ))}
+      </div>
+      <div className="animate-fade-up animate-fade-up-delay-3 space-y-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton
             key={i}
