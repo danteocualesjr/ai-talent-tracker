@@ -13,9 +13,12 @@ export function LogoMarquee({ items }: { items: string[] }) {
         {doubled.map((name, i) => (
           <div
             key={`${name}-${i}`}
-            className="flex shrink-0 items-center gap-12 text-[15px] font-semibold tracking-tight text-muted-foreground/60 transition-colors duration-200 hover:text-foreground"
+            className="flex shrink-0 items-center gap-12 text-[15px] font-semibold tracking-tight text-muted-foreground/60 transition-colors duration-200 hover:text-foreground group/lab"
           >
-            <span>{name}</span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-signal/40 transition-colors group-hover/lab:bg-signal" aria-hidden />
+              {name}
+            </span>
             <span className="h-1 w-1 rounded-full bg-border" aria-hidden />
           </div>
         ))}

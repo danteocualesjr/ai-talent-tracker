@@ -78,18 +78,24 @@ export function MarketingFooter() {
         </div>
       </div>
 
-      <div className="relative border-t border-border/60 bg-muted/20">
+      <div className="relative border-t border-border/60 bg-gradient-to-br from-muted/30 via-muted/20 to-signal/[0.04]">
         <div className="pointer-events-none absolute inset-0 dot-bg opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden />
         <div className="container flex flex-col items-start justify-between gap-4 py-8 md:flex-row md:items-center">
           <div>
-            <div className="text-sm font-semibold tracking-tight">Stay ahead of the next move</div>
+            <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+              Stay ahead of the next move
+            </div>
             <p className="mt-1 max-w-md text-xs text-muted-foreground">
               Get Slack alerts when researchers go stealth — before they hit your LinkedIn feed.
             </p>
           </div>
           <Link
             href="/login"
-            className="group/cta inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2 text-xs font-semibold shadow-sm transition-all hover:border-signal/40 hover:bg-signal/5 hover:text-foreground hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group/cta inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-signal/40 hover:bg-signal hover:text-[hsl(var(--signal-foreground))] hover:shadow-[0_8px_24px_-8px_hsl(var(--signal)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             Start tracking free
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5" />

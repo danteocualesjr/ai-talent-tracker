@@ -12,7 +12,14 @@ export default function PrivacyPage() {
       <main className="flex-1">
         <MarketingHero
           align="center"
-          eyebrow={<div className="label-caps">Legal</div>}
+          eyebrow={
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="label-caps">Legal</div>
+              <span className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                Last updated Jul 2026
+              </span>
+            </div>
+          }
           title="Privacy"
           description="How we process public professional data and your rights."
         />
