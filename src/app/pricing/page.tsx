@@ -82,6 +82,8 @@ export default async function PricingPage({
 
 function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof typeof PLAN_DETAILS; priceEnv: string | null | undefined; ctaHref?: string; cta?: string; highlighted?: boolean }) {
   const plan = PLAN_DETAILS[slug];
+  const refreshCadence =
+    slug === "enterprise" ? "Custom cadence" : plan.features.find((f) => f.toLowerCase().includes("refresh"))?.replace(/ refresh$/i, "") ?? null;
   return (
     <div
       className={`relative flex flex-col overflow-hidden rounded-2xl border bg-card p-7 transition-all duration-300 ${
@@ -117,6 +119,12 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
             </>
           )}
         </div>
+        {refreshCadence && (
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-signal signal-pulse" aria-hidden />
+            {refreshCadence} refresh
+          </div>
+        )}
       </div>
       <ul className="mt-7 flex-1 space-y-3 text-sm">
         {plan.features.map((f) => (

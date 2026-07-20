@@ -24,6 +24,14 @@ const STATUS_TONE: Record<string, "default" | "secondary" | "success" | "warning
   unknown: "secondary",
 };
 
+const STATUS_DOT: Record<string, string> = {
+  active: "bg-muted-foreground",
+  left: "bg-violet-accent",
+  stealth: "bg-amber-accent",
+  founder: "bg-signal",
+  unknown: "bg-muted-foreground",
+};
+
 export default async function WatchlistPage() {
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
@@ -163,10 +171,17 @@ export default async function WatchlistPage() {
                   aria-hidden
                   className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 />
-                <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
-                  {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-                  <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
-                </Avatar>
+                <div className="relative shrink-0">
+                  <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
+                    {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
+                    <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
+                  </Avatar>
+                  <span
+                    className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ${STATUS_DOT[p.status] ?? STATUS_DOT.unknown}`}
+                    title={p.status}
+                    aria-hidden
+                  />
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
