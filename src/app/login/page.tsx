@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, ListChecks, Shield, Users, type LucideIcon } from "lucide-react";
+import { ArrowLeft, Bell, ListChecks, Shield, Users, type LucideIcon } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
@@ -9,6 +9,15 @@ export const metadata = { title: "Log in" };
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
+      <div className="absolute left-4 top-4 z-10 md:left-6 md:top-6">
+        <Link
+          href="/"
+          className="group inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-background/80 px-3 py-2 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm transition-all hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform motion-safe:group-hover:-translate-x-0.5" />
+          Home
+        </Link>
+      </div>
       <div className="absolute right-4 top-4 z-10 md:right-6 md:top-6">
         <ThemeToggle />
       </div>
@@ -21,7 +30,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
         </div>
         <div className="grid gap-5 md:grid-cols-[400px_1fr] animate-fade-up animate-fade-up-delay-2">
           <div>
-            <div className="surface-card surface-elevated relative overflow-hidden p-8 ring-1 ring-border/40 transition-shadow focus-within:ring-signal/25">
+            <div className="surface-card surface-elevated relative overflow-hidden p-8 ring-1 ring-border/40 transition-shadow focus-within:ring-signal/25 motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-pop">
               <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
               <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-signal/8 blur-3xl" />
               <h1 className="text-balance text-2xl font-bold tracking-tight">Sign in</h1>

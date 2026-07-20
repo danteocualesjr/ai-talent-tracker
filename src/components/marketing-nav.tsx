@@ -102,14 +102,17 @@ export function MarketingNav() {
           </Button>
         </nav>
 
-      <button
-        onClick={() => setOpen(!open)}
-        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-      >
-        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
+      <div className="flex items-center gap-1 md:hidden">
+        <ThemeToggle />
+        <button
+          onClick={() => setOpen(!open)}
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
       </div>
 
       {open && (
