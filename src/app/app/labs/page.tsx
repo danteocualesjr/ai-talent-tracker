@@ -33,6 +33,7 @@ export default async function LabsIndexPage() {
             href={`/app/labs/${l.slug}`}
             className="group surface-card surface-card-hover relative overflow-hidden p-6"
           >
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 scale-x-0 bg-gradient-to-r from-transparent via-signal/60 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
             <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="flex items-center justify-between">
               {l.logo_url ? (
@@ -52,9 +53,14 @@ export default async function LabsIndexPage() {
             </div>
             <div className="mt-5 font-bold tracking-tight">{l.name}</div>
             <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-              {l.description ?? l.domain}
+              {l.description ?? "Curated employee roster and departure signals."}
             </p>
-            <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
+            {l.domain && (
+              <div className="mt-3 inline-flex rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                {l.domain}
+              </div>
+            )}
+            <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-signal">
               View roster <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </div>
           </Link>

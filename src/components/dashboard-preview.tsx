@@ -9,9 +9,9 @@ export function DashboardPreview() {
       {/* Browser chrome */}
       <div className="flex items-center gap-3 border-b border-border/60 bg-muted/30 px-4 py-3">
         <div className="flex gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-foreground/10 ring-1 ring-border" />
-          <div className="h-2.5 w-2.5 rounded-full bg-foreground/10 ring-1 ring-border" />
-          <div className="h-2.5 w-2.5 rounded-full bg-foreground/10 ring-1 ring-border" />
+          <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] ring-1 ring-black/10" />
+          <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] ring-1 ring-black/10" />
+          <div className="h-2.5 w-2.5 rounded-full bg-[#28c840] ring-1 ring-black/10" />
         </div>
         <div className="hidden flex-1 items-center justify-center text-[11px] text-muted-foreground sm:flex">
           <span className="rounded-lg border border-border/60 bg-background px-3 py-1 font-mono shadow-sm">
@@ -126,7 +126,10 @@ function Stat({
 
 function Row({ name, initials, tag, tone, when, highlight }: { name: string; initials: string; tag: string; tone: "warning" | "success" | "info"; when: string; highlight?: boolean }) {
   return (
-    <div className={cn("flex items-center gap-3 px-4 py-3", highlight && "bg-amber-50/70 dark:bg-amber-950/25")}>
+    <div className={cn("group relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40", highlight && "bg-amber-50/70 dark:bg-amber-950/25")}>
+      {highlight && (
+        <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-0.5 rounded-full bg-amber-accent/80" />
+      )}
       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-foreground">
         {initials}
       </div>
