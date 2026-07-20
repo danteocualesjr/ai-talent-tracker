@@ -4,11 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
-  { label: "All", param: null },
-  { label: "Departures", param: "departures" },
-  { label: "Stealth", param: "stealth" },
-  { label: "Founders", param: "founders" },
-  { label: "Joiners", param: "joiners" },
+  { label: "All", param: null, dot: "bg-foreground/40" },
+  { label: "Departures", param: "departures", dot: "bg-violet-accent" },
+  { label: "Stealth", param: "stealth", dot: "bg-amber-accent" },
+  { label: "Founders", param: "founders", dot: "bg-signal" },
+  { label: "Joiners", param: "joiners", dot: "bg-blue-500" },
 ] as const;
 
 export function AppEventsFilterChips() {
@@ -26,7 +26,7 @@ export function AppEventsFilterChips() {
 
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="Filter events by type">
-      {FILTERS.map(({ label, param }) => {
+      {FILTERS.map(({ label, param, dot }) => {
         const active = (param ?? null) === (activeParam ?? null);
         return (
           <button
@@ -41,6 +41,7 @@ export function AppEventsFilterChips() {
                 : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
             )}
           >
+            <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
             {label}
           </button>
         );
