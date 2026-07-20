@@ -29,12 +29,29 @@ function EventFieldDiff({ before, after }: { before: Json | null; after: Json | 
   const changes = formatFieldChanges(before, after);
   if (changes.length === 0) return null;
   return (
-    <ul className="mt-2 space-y-1 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-      {changes.map((line) => (
-        <li key={line} className="font-mono leading-relaxed">
-          {line}
-        </li>
-      ))}
+    <ul className="mt-2.5 space-y-1.5 rounded-xl border border-border/60 bg-muted/25 px-3 py-2.5 text-xs">
+      {changes.map((line) => {
+        const colonIdx = line.indexOf(": ");
+        const field = colonIdx > 0 ? line.slice(0, colonIdx) : line;
+        const rest = colonIdx > 0 ? line.slice(colonIdx + 2) : "";
+        const arrowIdx = rest.indexOf(" → ");
+        const from = arrowIdx >= 0 ? rest.slice(0, arrowIdx) : null;
+        const to = arrowIdx >= 0 ? rest.slice(arrowIdx + 3) : null;
+        return (
+          <li key={line} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 leading-relaxed">
+            <span className="font-semibold capitalize text-foreground/80">{field}</span>
+            {from && to ? (
+              <>
+                <span className="text-muted-foreground line-through decoration-muted-foreground/40">{from}</span>
+                <span className="text-muted-foreground/50" aria-hidden>→</span>
+                <span className="font-medium text-foreground">{to}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">{rest || line}</span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

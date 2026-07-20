@@ -83,7 +83,7 @@ export default async function DashboardPage() {
           { href: "/app/alerts", label: "Configure alerts", icon: Bell },
           { href: "/app/labs", label: "Browse labs", icon: Building2 },
         ].map(({ href, label, icon: Icon }) => (
-          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs hover:border-signal/30 hover:bg-signal/5">
+          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)]">
             <Link href={href}>
               <Icon className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal" />
               {label}

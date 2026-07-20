@@ -24,10 +24,22 @@ export function PageHeader({
     <header
       className={cn(
         "group/header animate-fade-up flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
-        divider && "pb-6 border-b border-border/50",
+        divider && "relative pb-6",
         className,
       )}
     >
+      {divider && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
+        />
+      )}
+      {divider && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 left-0 h-0.5 w-16 rounded-full bg-gradient-to-r from-signal/70 to-signal/0 opacity-80 transition-all duration-300 group-hover/header:w-24"
+        />
+      )}
       <div className="min-w-0">
         {eyebrow && <div className="label-caps mb-2.5 text-muted-foreground/80">{eyebrow}</div>}
         <div className="flex items-center gap-3">
