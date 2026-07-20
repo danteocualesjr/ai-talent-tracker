@@ -148,8 +148,9 @@ function BillingMetric({
   capitalize?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-border/60 bg-background/60 p-4">
-      <div className="flex items-start justify-between">
+    <div className="surface-card surface-card-hover group relative overflow-hidden rounded-xl border border-border/60 bg-background/60 p-4 transition-all">
+      <span aria-hidden className="pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative flex items-start justify-between">
         <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
         {icon && (
           <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent}`}>

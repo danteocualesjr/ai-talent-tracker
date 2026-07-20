@@ -28,6 +28,12 @@ export default function AppError({
       <p className="animate-fade-up animate-fade-up-delay-2 mt-2 text-sm leading-relaxed text-muted-foreground">
         We hit an error loading this page. Try again, or head back to the dashboard.
       </p>
+      {error.digest && (
+        <p className="animate-fade-up animate-fade-up-delay-2 mt-3 inline-flex items-center gap-2 rounded-lg border border-border/60 bg-muted/40 px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
+          <span className="text-foreground/70">Error ID</span>
+          {error.digest}
+        </p>
+      )}
       <div className="animate-fade-up animate-fade-up-delay-3 mt-6 flex flex-wrap items-center justify-center gap-3">
         <Button onClick={reset} className="gap-2">
           <RefreshCw className="h-4 w-4" aria-hidden />
