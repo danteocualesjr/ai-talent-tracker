@@ -8,19 +8,26 @@ import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
 
-const DIFF_FIELDS = ["company", "title", "headline", "location"] as const;
+const DIFF_FIELDS = [
+  { key: "current_company", label: "company" },
+  { key: "current_title", label: "title" },
+  { key: "headline", label: "headline" },
+  { key: "location", label: "location" },
+] as const;
 
 function formatFieldChanges(before: Json | null, after: Json | null): string[] {
   if (!before || !after || typeof before !== "object" || typeof after !== "object") return [];
   const prev = before as Record<string, unknown>;
   const next = after as Record<string, unknown>;
   const lines: string[] = [];
-  for (const field of DIFF_FIELDS) {
-    const from = prev[field];
-    const to = next[field];
-    if (from != null && to != null && String(from) !== String(to)) {
-      lines.push(`${field.replace("_", " ")}: ${String(from)} → ${String(to)}`);
-    }
+  for (const { key, label } of DIFF_FIELDS) {
+    const from = prev[key];
+    const to = next[key];
+    if (from == null && to == null) continue;
+    if (String(from ?? "") === String(to ?? "")) continue;
+    const fromLabel = from != null && String(from) ? String(from) : "—";
+    const toLabel = to != null && String(to) ? String(to) : "—";
+    lines.push(`${label}: ${fromLabel} → ${toLabel}`);
   }
   return lines;
 }
