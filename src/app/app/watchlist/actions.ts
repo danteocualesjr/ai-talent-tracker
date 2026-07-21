@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { isProfileOnOrgWatchlist } from "@/lib/queries";
 import { extractLinkedInUrlsFromText, normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Organization, Profile, Watchlist } from "@/types/db";
@@ -253,6 +254,19 @@ export async function refreshNowForm(formData: FormData): Promise<ActionResult> 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   if (!user) return { error: "Not authenticated." };
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const onWatchlist = await isProfileOnOrgWatchlist(org.id, profileId);
+  if (!onWatchlist) return { error: "Profile is not on your watchlist." };
+
+  const db = createAdminClient();
+  const { data: profile } = await db
+    .from("profiles")
+    .select("is_opted_out")
+    .eq("id", profileId)
+    .maybeSingle();
+  if (!profile) return { error: "Profile not found." };
+  if (profile.is_opted_out) return { error: "This profile has opted out of tracking." };
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });
