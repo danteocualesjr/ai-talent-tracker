@@ -21,7 +21,7 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
-import { Sparkline, buildTrendSeries } from "@/components/sparkline";
+import { Sparkline } from "@/components/sparkline";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
 export const metadata = { title: "Dashboard" };
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Stat cards with sparklines */}
+      {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label="Tracked profiles"
@@ -100,7 +100,6 @@ export default async function DashboardPage() {
           icon={<Users2 className="h-3.5 w-3.5" />}
           sub={`Limit ${org.profile_limit}`}
           accent="text-foreground/70"
-          series={buildTrendSeries(profiles.length || 1, 14, 0.4)}
         />
         <StatCard
           label="Events (7d)"
@@ -108,7 +107,6 @@ export default async function DashboardPage() {
           icon={<Activity className="h-3.5 w-3.5" />}
           sub={`${last30} in last 30 days`}
           accent="text-signal"
-          series={buildTrendSeries(last7 || 2, 14, 0.6)}
         />
         <StatCard
           label="Stealth + founders"
@@ -116,7 +114,6 @@ export default async function DashboardPage() {
           icon={<Sparkles className="h-3.5 w-3.5" />}
           sub={`${stealth} stealth · ${founders} founder`}
           accent="text-amber-accent"
-          series={buildTrendSeries(stealth + founders || 1, 14, 0.5)}
         />
         <StatCard
           label="Departures"
@@ -124,7 +121,6 @@ export default async function DashboardPage() {
           icon={<AlertTriangle className="h-3.5 w-3.5" />}
           sub="flagged left"
           accent="text-violet-accent"
-          series={buildTrendSeries(left || 1, 14, 0.5)}
         />
       </div>
 
