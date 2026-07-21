@@ -1,5 +1,19 @@
 import { cn } from "@/lib/utils";
 
+function accentTitle(title: string) {
+  const parts = title.trim().split(/\s+/);
+  if (parts.length === 1) {
+    return <span className="font-serif italic font-normal text-gradient-hero">{title}</span>;
+  }
+  const last = parts.pop()!;
+  return (
+    <>
+      {parts.join(" ")}{" "}
+      <span className="font-serif italic font-normal text-gradient-hero">{last}</span>
+    </>
+  );
+}
+
 export function PageHeader({
   title,
   description,
@@ -9,7 +23,7 @@ export function PageHeader({
   className,
   divider,
 }: {
-  title: string;
+  title: React.ReactNode;
   description?: React.ReactNode;
   /** Small uppercase label above the title (e.g. "Workspace · Settings") */
   eyebrow?: React.ReactNode;
@@ -20,6 +34,8 @@ export function PageHeader({
   /** Add a subtle bottom separator under the header */
   divider?: boolean;
 }) {
+  const renderedTitle = typeof title === "string" ? accentTitle(title) : title;
+
   return (
     <header
       className={cn(
@@ -50,7 +66,7 @@ export function PageHeader({
             </span>
           )}
           <h1 id="page-title" className="text-balance text-[28px] font-bold leading-tight tracking-tight md:text-[32px]">
-            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/65 bg-clip-text">{title}</span>
+            {renderedTitle}
           </h1>
         </div>
         {description && (

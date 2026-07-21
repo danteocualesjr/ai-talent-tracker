@@ -33,7 +33,9 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
             <div className="surface-card surface-elevated relative overflow-hidden p-8 ring-1 ring-border/40 transition-shadow focus-within:ring-signal/25 motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-pop">
               <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
               <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-signal/8 blur-3xl" />
-              <h1 className="text-balance text-2xl font-bold tracking-tight">Sign in</h1>
+              <h1 className="text-balance text-2xl font-bold tracking-tight">
+                Sign <span className="font-serif italic font-normal text-gradient-hero">in</span>
+              </h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
                 We&apos;ll email you a magic link &mdash; no password required.
               </p>
@@ -53,7 +55,10 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
           </div>
           <div className="surface-card hidden p-8 md:block animate-fade-up animate-fade-up-delay-3">
             <div className="label-caps">After sign-in</div>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight">Your watchlist starts warming immediately.</h2>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight">
+              Your watchlist starts{" "}
+              <span className="font-serif italic font-normal text-gradient-signal">warming immediately</span>.
+            </h2>
             <div className="mt-6 space-y-3">
               {([
                 { icon: ListChecks, title: "Paste profiles", body: "Add individual LinkedIn URLs or browse curated lab rosters." },

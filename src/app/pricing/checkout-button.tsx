@@ -4,7 +4,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export function CheckoutButton({ priceId, label }: { priceId: string; label: string }) {
+export function CheckoutButton({
+  priceId,
+  label,
+  variant = "default",
+}: {
+  priceId: string;
+  label: string;
+  variant?: "default" | "signal" | "outline";
+}) {
   const [loading, setLoading] = useState(false);
 
   async function go() {
@@ -30,7 +38,7 @@ export function CheckoutButton({ priceId, label }: { priceId: string; label: str
   }
 
   return (
-    <Button className="w-full" onClick={go} disabled={loading} aria-busy={loading}>
+    <Button className="w-full" variant={variant} onClick={go} disabled={loading} aria-busy={loading}>
       {loading ? "Loading..." : label}
     </Button>
   );

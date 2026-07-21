@@ -94,7 +94,7 @@ export function MarketingNav() {
           >
             Log in
           </Link>
-          <Button asChild size="sm" className="ml-2 group shadow-sm hover:shadow-[0_0_20px_-4px_hsl(var(--signal)/0.45)]">
+          <Button asChild size="sm" variant="signal" className="ml-2 group">
             <Link href="/login">
               Start tracking
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -160,7 +160,7 @@ export function MarketingNav() {
             <span className="text-sm text-muted-foreground">Theme</span>
             <ThemeToggle />
           </div>
-          <Button asChild className="mt-2">
+          <Button asChild variant="signal" className="mt-2">
             <Link href="/login">Start tracking</Link>
           </Button>
         </nav>

@@ -22,10 +22,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         Skip to main content
       </a>
       <AppSidebar orgName={org.name} orgPlan={org.plan} />
-      <div className="app-shell-bg flex min-w-0 flex-col">
+      <div className="app-shell-bg relative flex min-w-0 flex-col">
+        <div className="pointer-events-none absolute inset-0 noise opacity-30" aria-hidden />
         <AppTopbar email={user.email ?? ""} orgPlan={org.plan} unreadCount={recentEventCount} />
         <AppMobileTitle />
-        <main id="main-content" className="flex-1 min-w-0">{children}</main>
+        <main id="main-content" className="relative flex-1 min-w-0">{children}</main>
       </div>
     </div>
   );

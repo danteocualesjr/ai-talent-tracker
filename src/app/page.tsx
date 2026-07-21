@@ -87,7 +87,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </p>
 
             <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="destructive" className="group min-w-[200px]">
+              <Button asChild size="lg" variant="signal" className="group min-w-[200px]">
                 <Link href="/login">
                   Start tracking free
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -107,29 +107,40 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </p>
           </div>
 
-          <div className="animate-fade-up animate-fade-up-delay-4 mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4 rounded-2xl border border-border/60 bg-card/60 p-1 shadow-soft backdrop-blur-sm md:max-w-2xl">
-            {([
-              { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
-              { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
-              { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
-            ] as const).map(({ value, label, icon: Icon, accent }, i) => (
-              <div
-                key={label}
-                className={`group rounded-xl px-4 py-5 text-center transition-colors hover:bg-background/60 ${i === 1 ? "border-x border-border/60 bg-background/80" : ""}`}
-              >
-                <div className={`mx-auto mb-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
-                  <Icon className="h-3.5 w-3.5" />
-                </div>
-                <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
-                <div className="mt-1.5 text-[11px] font-medium text-muted-foreground">{label}</div>
-              </div>
-            ))}
+          <div className="relative mx-auto mt-16 max-w-5xl animate-fade-up animate-fade-up-delay-5">
+            <div className="absolute inset-x-16 -bottom-10 -z-10 h-40 rounded-full bg-signal/15 blur-[80px]" />
+            <div className="absolute inset-x-24 -bottom-6 -z-10 h-24 rounded-full bg-foreground/6 blur-3xl" />
+            <DashboardPreview />
           </div>
+        </div>
+      </section>
 
-          <div className="animate-fade-up animate-fade-up-delay-5 mx-auto mt-5 max-w-2xl rounded-2xl border border-border/60 bg-background/70 p-3 text-left shadow-sm backdrop-blur-xl">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Proof metrics — kept below the hero fold */}
+      <section className="border-b border-border/60 bg-muted/20">
+        <div className="container py-10 md:py-12">
+          <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-card/70 p-1 shadow-sm backdrop-blur-sm">
+              {([
+                { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
+                { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
+                { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
+              ] as const).map(({ value, label, icon: Icon, accent }, i) => (
+                <div
+                  key={label}
+                  className={`group rounded-xl px-3 py-4 text-center transition-colors hover:bg-background/70 ${i === 1 ? "border-x border-border/60 bg-background/70" : ""}`}
+                >
+                  <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
+                  <div className="mt-1 text-[11px] font-medium text-muted-foreground">{label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="surface-glass flex flex-col justify-center rounded-2xl p-4">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-signal/10 text-signal">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-signal/10 text-signal">
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div>
@@ -139,25 +150,19 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center sm:w-[260px]">
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                 {[
                   ["7", "urgent"],
                   ["18", "warm"],
                   ["4", "founders"],
                 ].map(([value, label]) => (
-                  <div key={label} className="rounded-xl border border-border/60 bg-card px-3 py-2">
+                  <div key={label} className="rounded-xl border border-border/60 bg-card/80 px-3 py-2">
                     <div className="tnum text-lg font-bold">{value}</div>
                     <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="relative mx-auto mt-14 max-w-5xl">
-            <div className="absolute inset-x-16 -bottom-10 -z-10 h-40 rounded-full bg-signal/15 blur-[80px]" />
-            <div className="absolute inset-x-24 -bottom-6 -z-10 h-24 rounded-full bg-foreground/6 blur-3xl" />
-            <DashboardPreview />
           </div>
         </div>
       </section>
@@ -223,9 +228,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="grid items-start gap-10 md:grid-cols-[0.9fr_1.1fr]">
             <div>
               <div className="label-caps">Signal intelligence</div>
-              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
-                Turn profile noise into ranked next actions.
-              </h2>
+            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+              Turn profile noise into{" "}
+              <span className="font-serif italic font-normal text-gradient-hero">ranked next actions</span>.
+            </h2>
               <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
                 Every detected change is scored, classified, and routed so your team knows what to do first.
               </p>
@@ -253,7 +259,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">Features</div>
             <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
-              Built for sourcing the next wave.
+              Built for sourcing the{" "}
+              <span className="font-serif italic font-normal text-gradient-signal">next wave</span>.
             </h2>
             <p className="mt-4 text-pretty text-muted-foreground md:text-lg">
               Multi-signal change detection, real-time alerts, and curated lab rosters in one place.
@@ -277,7 +284,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">How it works</div>
             <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
-              From profile to alert in three steps.
+              From profile to alert in{" "}
+              <span className="font-serif italic font-normal text-gradient-hero">three steps</span>.
             </h2>
           </div>
           <div className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3">

@@ -71,7 +71,7 @@ export default async function DashboardPage() {
           </>
         }
       >
-        <Button asChild>
+        <Button asChild variant="signal">
           <Link href="/app/watchlist"><Plus className="h-4 w-4" /> Add profile</Link>
         </Button>
       </PageHeader>

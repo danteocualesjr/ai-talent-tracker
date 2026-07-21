@@ -299,10 +299,11 @@ async function nextSyncAt(
 
   let cadenceHours = CADENCE_HOURS.weekly;
   for (const row of data ?? []) {
-    const watchlist = row.watchlists as
-      | { organizations: { refresh_cadence: RefreshCadence } | null }
+    const watchlist = row.watchlists as unknown as
+      | { organizations: { refresh_cadence: RefreshCadence } | { refresh_cadence: RefreshCadence }[] | null }
       | null;
-    const cadence = watchlist?.organizations?.refresh_cadence;
+    const org = watchlist?.organizations;
+    const cadence = Array.isArray(org) ? org[0]?.refresh_cadence : org?.refresh_cadence;
     if (cadence && cadence in CADENCE_HOURS) {
       cadenceHours = Math.min(cadenceHours, CADENCE_HOURS[cadence]);
     }

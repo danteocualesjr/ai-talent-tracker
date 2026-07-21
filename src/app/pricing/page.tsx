@@ -51,7 +51,8 @@ export default async function PricingPage({
             <div className="border-b border-border/60 p-6 md:p-8">
               <div className="label-caps">Plan guide</div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">
-                Pick the workspace that matches your signal volume.
+                Pick the workspace that matches your{" "}
+                <span className="font-serif italic font-normal text-gradient-signal">signal volume</span>.
               </h2>
             </div>
             <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
@@ -86,10 +87,10 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
     slug === "enterprise" ? "Custom cadence" : plan.features.find((f) => f.toLowerCase().includes("refresh"))?.replace(/ refresh$/i, "") ?? null;
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-2xl border bg-card p-7 transition-all duration-300 ${
+      className={`relative flex flex-col overflow-hidden p-7 transition-all duration-300 ${
         highlighted
-          ? "surface-elevated z-10 border-signal/40 shadow-lg shadow-signal/10 ring-2 ring-signal/20 hover-lift md:scale-[1.02]"
-          : "border-border/60 hover:border-foreground/15 hover:shadow-soft hover-lift"
+          ? "surface-card surface-elevated z-10 border-signal/40 shadow-lg shadow-signal/10 ring-2 ring-signal/20 hover-lift md:scale-[1.02]"
+          : "surface-card surface-card-hover"
       }`}
     >
       {highlighted && (
@@ -136,9 +137,13 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
       </ul>
       <div className="mt-7">
         {priceEnv ? (
-          <CheckoutButton priceId={priceEnv} label={`Subscribe to ${plan.name}`} />
+          <CheckoutButton
+            priceId={priceEnv}
+            label={`Subscribe to ${plan.name}`}
+            variant={highlighted ? "signal" : "default"}
+          />
         ) : (
-          <Button asChild className="w-full" variant={highlighted ? "default" : "outline"} size="lg">
+          <Button asChild className="w-full" variant={highlighted || slug === "free" ? "signal" : "outline"} size="lg">
             <Link href={ctaHref ?? "/login"}>{cta ?? "Start free"}</Link>
           </Button>
         )}
