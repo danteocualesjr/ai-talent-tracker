@@ -58,12 +58,14 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="pointer-events-none absolute inset-0 noise opacity-60" />
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
+        <div className="aurora-orb aurora-orb-a -left-24 top-10 h-72 w-72 bg-signal/25" />
+        <div className="aurora-orb aurora-orb-b -right-16 top-32 h-64 w-64 bg-amber-accent/15" />
 
         <div className="container relative pt-16 pb-20 md:pt-24 md:pb-28">
           <div className="mx-auto max-w-3xl text-center">
             <Link
               href="/feed"
-              className="surface-glass animate-fade-up inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs text-muted-foreground transition-all hover:border-foreground/15 hover:text-foreground"
+              className="surface-glass animate-fade-up inline-flex items-center gap-2 rounded-full border-signal/20 px-4 py-1.5 text-xs text-muted-foreground shadow-[0_0_24px_-8px_hsl(var(--signal)/0.45)] transition-all hover:border-signal/35 hover:text-foreground"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -116,10 +118,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* Proof metrics — kept below the hero fold */}
-      <section className="border-b border-border/60 bg-muted/20">
+      <section className="section-wash border-b border-border/60">
         <div className="container py-10 md:py-12">
           <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-[1.1fr_0.9fr]">
-            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-card/70 p-1 shadow-sm backdrop-blur-sm">
+            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-card/80 p-1 shadow-[0_16px_40px_-28px_hsl(var(--foreground)/0.2)] backdrop-blur-sm">
               {([
                 { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
                 { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
@@ -216,8 +218,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           </div>
 
           <div className="relative">
-            <div className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
-            <LiveTicker />
+            <div className="pointer-events-none absolute -inset-8 -z-10 rounded-[2rem] bg-gradient-to-br from-signal/12 via-signal/4 to-transparent blur-2xl" />
+            <div className="surface-elevated rounded-2xl border border-border/60 bg-background/50 p-4 backdrop-blur-xl sm:p-5">
+              <LiveTicker />
+            </div>
           </div>
         </div>
       </section>
@@ -279,7 +283,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* How it works */}
-      <section className="border-b border-border/60 bg-muted/20">
+      <section className="section-wash border-b border-border/60">
         <div className="container py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">How it works</div>
@@ -330,16 +334,17 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* Testimonial / pull-quote */}
-      <section className="border-b border-border/60 bg-muted/20">
-        <div className="container py-20 md:py-24">
+      <section className="section-wash relative overflow-hidden border-b border-border/60">
+        <div className="pointer-events-none absolute inset-0 noise opacity-40" />
+        <div className="container relative py-20 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <Quote className="mx-auto h-7 w-7 text-foreground/20" />
-            <blockquote className="mt-6 text-balance font-serif text-2xl italic leading-snug text-foreground md:text-3xl">
+            <Quote className="mx-auto h-7 w-7 text-signal/40" />
+            <blockquote className="mt-6 text-balance font-serif text-2xl italic leading-snug text-foreground md:text-[2.1rem] md:leading-snug">
               &ldquo;We closed two researchers from a single Slack ping. The departure feed
               is the closest thing to a cheat code we&apos;ve seen for AI sourcing.&rdquo;
             </blockquote>
-            <div className="mt-7 flex items-center justify-center gap-3 text-sm">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background">
+            <div className="mt-8 inline-flex items-center justify-center gap-3 rounded-full border border-border/60 bg-card/70 px-4 py-2 text-sm shadow-sm backdrop-blur-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background shadow-sm">
                 CA
               </div>
               <div className="text-left">
@@ -401,22 +406,24 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group surface-card surface-card-hover relative p-7">
-      <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-7">
+      <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-signal/8 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal group-hover:shadow-[0_0_20px_-6px_hsl(var(--signal)/0.55)]">
         {icon}
       </div>
-      <h3 className="mt-5 text-base font-bold tracking-tight">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <h3 className="relative mt-5 text-base font-bold tracking-tight">{title}</h3>
+      <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
 }
 
 function Step({ n, title, body }: { n: number; title: string; body: string }) {
   return (
-    <div className="group surface-card surface-card-hover relative p-7">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-7">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent opacity-60" />
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background shadow-[0_8px_20px_-10px_hsl(var(--foreground)/0.55)] transition-transform duration-200 motion-safe:group-hover:scale-105">
           {n}
         </div>
         <div className="label-caps text-[10px]">Step {n}</div>
@@ -430,9 +437,10 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
 function SampleAlert() {
   return (
     <div className="relative">
-      <div className="absolute -inset-px rounded-[17px] bg-gradient-to-b from-signal/30 via-transparent to-transparent" />
+      <div className="absolute -inset-px rounded-[17px] bg-gradient-to-b from-signal/40 via-border/40 to-transparent" />
       <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card">
-        <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-5 py-3.5">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-signal/10 blur-3xl" />
+        <div className="relative flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-muted/50 to-muted/20 px-5 py-3.5">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -443,9 +451,9 @@ function SampleAlert() {
           </div>
           <div className="font-mono text-[11px] text-muted-foreground">#openai</div>
         </div>
-        <div className="space-y-4 p-6">
+        <div className="relative space-y-4 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/50 text-sm font-bold text-foreground ring-2 ring-background">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/50 text-sm font-bold text-foreground ring-2 ring-background shadow-sm">
               JR
             </div>
             <div className="flex-1">
@@ -454,7 +462,7 @@ function SampleAlert() {
             </div>
             <Badge variant="warning">Went stealth</Badge>
           </div>
-          <div className="rounded-md border bg-muted/30 p-3 text-sm leading-relaxed">
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-3.5 text-sm leading-relaxed">
             Headline changed from{" "}
             <span className="text-muted-foreground line-through decoration-muted-foreground/40">
               &ldquo;Member of Technical Staff, OpenAI&rdquo;
@@ -465,7 +473,7 @@ function SampleAlert() {
             <Button size="sm" variant="outline" className="flex-1" asChild>
               <Link href="/login">View on LinkedIn</Link>
             </Button>
-            <Button size="sm" className="flex-1" asChild>
+            <Button size="sm" variant="signal" className="flex-1" asChild>
               <Link href="/login">Reach out</Link>
             </Button>
           </div>

@@ -340,18 +340,19 @@ function StatCard({
         aria-hidden
         className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
       />
-      <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-signal/8 to-transparent blur-2xl opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-70" />
+      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br from-signal/12 to-transparent blur-2xl opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="relative flex items-start justify-between">
         <div className="label-caps text-muted-foreground transition-colors group-hover:text-foreground/80">
           {label}
         </div>
-        <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-105`}>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-xl border border-border/50 bg-muted/70 ${accent} shadow-sm motion-safe:transition-all motion-safe:duration-200 motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 group-hover:border-signal/25 group-hover:shadow-[0_0_16px_-6px_hsl(var(--signal)/0.45)]`}>
           {icon}
         </div>
       </div>
-      <div className="tnum relative mt-3 text-3xl font-bold tracking-tight">{value}</div>
+      <div className="tnum relative mt-3 text-3xl font-bold tracking-tight md:text-[2.1rem]">{value}</div>
       <div className="relative mt-1.5 flex items-end justify-between gap-2">
-        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+        {sub && <div className="text-xs leading-relaxed text-muted-foreground">{sub}</div>}
         {series && (
           <div className={`shrink-0 opacity-80 transition-opacity group-hover:opacity-100 ${accent}`} aria-hidden>
             <Sparkline data={series} width={64} height={22} strokeWidth={1.5} />
