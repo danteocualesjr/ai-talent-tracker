@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
@@ -43,9 +44,11 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
             </BackLink>
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
               {lab.logo_url ? (
-                <img
+                <Image
                   src={lab.logo_url}
                   alt={lab.name}
+                  width={80}
+                  height={80}
                   className="h-20 w-20 rounded-2xl border border-border/60 bg-card object-contain p-2 shadow-sm"
                 />
               ) : (
