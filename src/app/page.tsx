@@ -54,44 +54,31 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — Swiss grid layout */}
-      <section className="border-b border-foreground">
-        <div className="container grid lg:grid-cols-12">
-          <div className="border-b border-foreground py-16 lg:col-span-7 lg:border-b-0 lg:border-r lg:py-24">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">AI Talent Tracker</p>
-            <h1 className="mt-6 text-balance text-[44px] font-bold leading-[0.95] tracking-tight md:text-[72px]">
-              Know the moment AI talent moves.
+      {/* Hero — editorial magazine layout */}
+      <section className="border-b border-border/80 bg-[linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.5)_100%)]">
+        <div className="container py-20 md:py-28">
+          <div className="mx-auto max-w-4xl text-center">
+            <p className="font-serif text-lg italic text-signal">The intelligence brief for AI talent</p>
+            <h1 className="mt-6 font-serif text-[48px] font-normal leading-[1.08] tracking-tight md:text-[80px]">
+              Know the moment{" "}
+              <em className="not-italic text-signal">AI talent</em> moves.
             </h1>
-            <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
+            <p className="mx-auto mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
               Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
-              and 20+ top AI labs.
+              and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
             </p>
-            <div className="mt-10 flex flex-col gap-0 sm:flex-row">
-              <Button asChild size="lg" variant="default" className="rounded-none border-r border-background/20">
+            <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button asChild size="lg" variant="signal" className="rounded-sm px-8 font-serif italic">
                 <Link href="/login">Start tracking free <ArrowRight className="h-4 w-4" /></Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-none border-foreground">
-                <Link href="/feed">Live feed <ArrowUpRight className="h-4 w-4" /></Link>
+              <Button asChild size="lg" variant="outline" className="rounded-sm px-8 font-serif italic">
+                <Link href="/feed">Browse the feed <ArrowUpRight className="h-4 w-4" /></Link>
               </Button>
             </div>
           </div>
-          <div className="lg:col-span-5">
-            <div className="grid grid-cols-2 border-b border-foreground">
-              {[
-                { value: "20+", label: "Labs" },
-                { value: "<15m", label: "Detection" },
-                { value: "3", label: "Channels" },
-                { value: "5", label: "Free profiles" },
-              ].map((stat, i) => (
-                <div key={stat.label} className={cn("p-8", i % 2 === 0 && "border-r border-foreground", i < 2 && "border-b border-foreground")}>
-                  <div className="tnum text-4xl font-bold">{stat.value}</div>
-                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-            <div className="p-4">
-              <DashboardPreview />
-            </div>
+
+          <div className="mx-auto mt-20 max-w-5xl border border-border/80 bg-card p-2 shadow-[0_24px_64px_-32px_hsl(var(--foreground)/0.2)]">
+            <DashboardPreview />
           </div>
         </div>
       </section>
