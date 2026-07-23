@@ -151,15 +151,15 @@ function FeedStat({
 }) {
   return (
     <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 scale-x-0 bg-gradient-to-r from-transparent via-signal/60 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
+      <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-current to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${accent}`} />
       <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl opacity-60 transition-opacity group-hover:opacity-100" />
-      <div className="relative flex items-start justify-between">
+      <div className="relative flex items-start justify-between gap-3">
         <div>
-          <div className="tnum text-2xl font-bold tracking-tight">{value}</div>
-          <div className="mt-1 label-caps text-muted-foreground">{label}</div>
+          <div className="tnum text-3xl font-bold tracking-tight transition-colors group-hover:text-foreground">{value}</div>
+          <div className="mt-1.5 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 transition-transform duration-200 motion-safe:group-hover:scale-110 ${accent}`}>
+          <div className={`flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-muted/50 shadow-sm transition-all duration-200 motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-3 ${accent}`}>
             {icon}
           </div>
         )}

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { isProfileOnOrgWatchlist } from "@/lib/queries";
 import { extractLinkedInUrlsFromText, normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Organization, Profile, Watchlist } from "@/types/db";
@@ -19,7 +20,7 @@ export type ImportResult =
   | { error: string }
   | { ok: true; added: number; skipped: number; invalid: number; limitReached: boolean };
 
-type TrackOutcome = "added" | "already_tracked" | "limit_reached";
+type TrackOutcome = "added" | "already_tracked" | "limit_reached" | "opted_out";
 
 async function getWatchlistCount(db: ReturnType<typeof createAdminClient>, orgId: string) {
   const { count } = await db
@@ -61,6 +62,10 @@ async function trackProfileUrl(
     profile = ins.data;
   }
   const profileRow = profile as Profile;
+
+  if (profileRow.is_opted_out) {
+    return { outcome: "opted_out", newCount: currentCount };
+  }
 
   const { data: existing } = await db
     .from("watchlist_profiles")
@@ -113,6 +118,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   if (outcome === "already_tracked") {
     return { error: "This profile is already on your watchlist." };
   }
+  if (outcome === "opted_out") {
+    return { error: "This profile has opted out of tracking." };
+  }
 
   revalidatePath("/app/watchlist");
   revalidatePath("/app");
@@ -155,7 +163,7 @@ export async function importProfilesFromCsv(formData: FormData): Promise<ImportR
     currentCount = newCount;
 
     if (outcome === "added") added += 1;
-    else if (outcome === "already_tracked") skipped += 1;
+    else if (outcome === "already_tracked" || outcome === "opted_out") skipped += 1;
     else if (outcome === "limit_reached") {
       limitReached = true;
       break;
@@ -207,7 +215,7 @@ export async function addLabRosterToWatchlist(labId: string, labSlug?: string): 
     currentCount = newCount;
 
     if (outcome === "added") added += 1;
-    else if (outcome === "already_tracked") skipped += 1;
+    else if (outcome === "already_tracked" || outcome === "opted_out") skipped += 1;
     else if (outcome === "limit_reached") {
       limitReached = true;
       break;
@@ -253,6 +261,19 @@ export async function refreshNowForm(formData: FormData): Promise<ActionResult> 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   if (!user) return { error: "Not authenticated." };
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const onWatchlist = await isProfileOnOrgWatchlist(org.id, profileId);
+  if (!onWatchlist) return { error: "Profile is not on your watchlist." };
+
+  const db = createAdminClient();
+  const { data: profile } = await db
+    .from("profiles")
+    .select("is_opted_out")
+    .eq("id", profileId)
+    .maybeSingle();
+  if (!profile) return { error: "Profile not found." };
+  if (profile.is_opted_out) return { error: "This profile has opted out of tracking." };
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "manual" } });

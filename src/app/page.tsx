@@ -22,6 +22,7 @@ import { DashboardPreview } from "@/components/dashboard-preview";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTicker } from "@/components/live-ticker";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_LABS = [
   "OpenAI", "Anthropic", "Google DeepMind", "Meta AI", "xAI", "Mistral AI",
@@ -55,83 +56,105 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero */}
+      {/* Hero — Signal Pro final layout */}
       <section className="relative overflow-hidden border-b border-border/60">
-        <div className="pointer-events-none absolute inset-0 noise opacity-60" />
-        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
+        <div className="pointer-events-none absolute inset-0 noise opacity-40" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
+        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-50" />
+        <div className="aurora-orb aurora-orb-a -left-32 top-0 h-[28rem] w-[28rem] bg-signal/18" />
+        <div className="aurora-orb aurora-orb-b -right-24 top-20 h-80 w-80 bg-accent-violet/12" />
 
-        <div className="container relative pt-16 pb-20 md:pt-24 md:pb-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <Link
-              href="/feed"
-              className="surface-glass animate-fade-up inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs text-muted-foreground transition-all hover:border-foreground/15 hover:text-foreground"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
-              </span>
-              <span className="font-semibold text-foreground">Live</span>
-              <span className="text-border">·</span>
-              <span>New departures detected this week</span>
-              <ArrowRight className="h-3 w-3 opacity-60" />
-            </Link>
-
-            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[42px] font-bold leading-[1.05] tracking-tight text-foreground md:text-[72px]">
-              Know the moment{" "}
-              <span className="font-serif text-gradient-hero italic font-normal">AI talent</span>{" "}
-              moves.
-            </h1>
-
-            <p className="animate-fade-up animate-fade-up-delay-2 mx-auto mt-6 max-w-xl text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
-              Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
-              and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
-            </p>
-
-            <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="destructive" className="group min-w-[200px]">
-                <Link href="/login">
-                  Start tracking free
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="group min-w-[200px]">
-                <Link href="/feed">
-                  See the live feed
-                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </Link>
-              </Button>
-            </div>
-            <p className="animate-fade-up animate-fade-up-delay-4 mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> No credit card</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> 5 free profiles</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> Cancel anytime</span>
-            </p>
-          </div>
-
-          <div className="animate-fade-up animate-fade-up-delay-4 mx-auto mt-12 grid max-w-xl grid-cols-3 gap-4 rounded-2xl border border-border/60 bg-card/60 p-1 shadow-soft backdrop-blur-sm md:max-w-2xl">
-            {([
-              { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
-              { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
-              { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
-            ] as const).map(({ value, label, icon: Icon, accent }, i) => (
-              <div
-                key={label}
-                className={`group rounded-xl px-4 py-5 text-center transition-colors hover:bg-background/60 ${i === 1 ? "border-x border-border/60 bg-background/80" : ""}`}
+        <div className="container relative py-16 md:py-24">
+          <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+            <div>
+              <Link
+                href="/feed"
+                className="animate-fade-up surface-glass inline-flex items-center gap-2 rounded-full border-signal/20 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-signal/35 hover:text-foreground"
               >
-                <div className={`mx-auto mb-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
-                  <Icon className="h-3.5 w-3.5" />
-                </div>
-                <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
-                <div className="mt-1.5 text-[11px] font-medium text-muted-foreground">{label}</div>
-              </div>
-            ))}
-          </div>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                </span>
+                Live · departures detected this week
+                <ArrowRight className="h-3 w-3 opacity-50" />
+              </Link>
 
-          <div className="animate-fade-up animate-fade-up-delay-5 mx-auto mt-5 max-w-2xl rounded-2xl border border-border/60 bg-background/70 p-3 text-left shadow-sm backdrop-blur-xl">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[42px] font-bold leading-[1.04] tracking-tight md:text-[58px] lg:text-[68px]">
+                Know the moment{" "}
+                <span className="font-serif italic font-normal text-gradient-hero">AI talent</span>{" "}
+                moves.
+              </h1>
+
+              <p className="animate-fade-up animate-fade-up-delay-2 mt-6 max-w-lg text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
+                Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
+                and 20+ top AI labs. Slack ping the moment someone goes stealth.
+              </p>
+
+              <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg" variant="signal" className="group rounded-xl">
+                  <Link href="/login">
+                    Start tracking free
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="group rounded-xl">
+                  <Link href="/feed">
+                    See the live feed
+                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-3">
+                {[
+                  { value: "20+", label: "Labs tracked" },
+                  { value: "<15m", label: "Avg detection" },
+                  { value: "3", label: "Alert channels" },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-2xl border border-border/60 bg-card/60 px-4 py-3 backdrop-blur-sm">
+                    <div className="tnum text-xl font-bold md:text-2xl">{stat.value}</div>
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative animate-fade-up animate-fade-up-delay-5">
+              <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-signal/15 via-transparent to-accent-violet/10 blur-2xl" />
+              <div className="preview-frame preview-float">
+                <DashboardPreview />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Proof metrics — kept below the hero fold */}
+      <section className="section-wash border-b border-border/60">
+        <div className="container py-10 md:py-12">
+          <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-card/80 p-1 shadow-[0_16px_40px_-28px_hsl(var(--foreground)/0.2)] backdrop-blur-sm">
+              {([
+                { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
+                { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
+                { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
+              ] as const).map(({ value, label, icon: Icon, accent }, i) => (
+                <div
+                  key={label}
+                  className={`group rounded-xl px-3 py-4 text-center transition-colors hover:bg-background/70 ${i === 1 ? "border-x border-border/60 bg-background/70" : ""}`}
+                >
+                  <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
+                  <div className="mt-1 text-[11px] font-medium text-muted-foreground">{label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="surface-glass flex flex-col justify-center rounded-2xl p-4">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-signal/10 text-signal">
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-signal/10 text-signal">
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div>
@@ -141,25 +164,19 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center sm:w-[260px]">
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                 {[
                   ["7", "urgent"],
                   ["18", "warm"],
                   ["4", "founders"],
                 ].map(([value, label]) => (
-                  <div key={label} className="rounded-xl border border-border/60 bg-card px-3 py-2">
+                  <div key={label} className="rounded-xl border border-border/60 bg-card/80 px-3 py-2">
                     <div className="tnum text-lg font-bold">{value}</div>
                     <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="relative mx-auto mt-14 max-w-5xl">
-            <div className="absolute inset-x-16 -bottom-10 -z-10 h-40 rounded-full bg-signal/15 blur-[80px]" />
-            <div className="absolute inset-x-24 -bottom-6 -z-10 h-24 rounded-full bg-foreground/6 blur-3xl" />
-            <DashboardPreview />
           </div>
         </div>
       </section>
@@ -213,8 +230,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           </div>
 
           <div className="relative">
-            <div className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-signal/8 to-transparent blur-2xl" />
-            <LiveTicker />
+            <div className="pointer-events-none absolute -inset-8 -z-10 rounded-[2rem] bg-gradient-to-br from-signal/12 via-signal/4 to-transparent blur-2xl" />
+            <div className="surface-elevated rounded-2xl border border-border/60 bg-background/50 p-4 backdrop-blur-xl sm:p-5">
+              <LiveTicker />
+            </div>
           </div>
         </div>
       </section>
@@ -225,9 +244,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="grid items-start gap-10 md:grid-cols-[0.9fr_1.1fr]">
             <div>
               <div className="label-caps">Signal intelligence</div>
-              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
-                Turn profile noise into ranked next actions.
-              </h2>
+            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+              Turn profile noise into{" "}
+              <span className="font-serif italic font-normal text-gradient-hero">ranked next actions</span>.
+            </h2>
               <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
                 Every detected change is scored, classified, and routed so your team knows what to do first.
               </p>
@@ -255,7 +275,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">Features</div>
             <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
-              Built for sourcing the next wave.
+              Built for sourcing the{" "}
+              <span className="font-serif italic font-normal text-gradient-signal">next wave</span>.
             </h2>
             <p className="mt-4 text-pretty text-muted-foreground md:text-lg">
               Multi-signal change detection, real-time alerts, and curated lab rosters in one place.
@@ -274,12 +295,13 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* How it works */}
-      <section className="border-b border-border/60 bg-muted/20">
+      <section className="section-wash border-b border-border/60">
         <div className="container py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">How it works</div>
             <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
-              From profile to alert in three steps.
+              From profile to alert in{" "}
+              <span className="font-serif italic font-normal text-gradient-hero">three steps</span>.
             </h2>
           </div>
           <div className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3">
@@ -324,16 +346,17 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       </section>
 
       {/* Testimonial / pull-quote */}
-      <section className="border-b border-border/60 bg-muted/20">
-        <div className="container py-20 md:py-24">
+      <section className="section-wash relative overflow-hidden border-b border-border/60">
+        <div className="pointer-events-none absolute inset-0 noise opacity-40" />
+        <div className="container relative py-20 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <Quote className="mx-auto h-7 w-7 text-foreground/20" />
-            <blockquote className="mt-6 text-balance font-serif text-2xl italic leading-snug text-foreground md:text-3xl">
+            <Quote className="mx-auto h-7 w-7 text-signal/40" />
+            <blockquote className="mt-6 text-balance font-serif text-2xl italic leading-snug text-foreground md:text-[2.1rem] md:leading-snug">
               &ldquo;We closed two researchers from a single Slack ping. The departure feed
               is the closest thing to a cheat code we&apos;ve seen for AI sourcing.&rdquo;
             </blockquote>
-            <div className="mt-7 flex items-center justify-center gap-3 text-sm">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background">
+            <div className="mt-8 inline-flex items-center justify-center gap-3 rounded-full border border-border/60 bg-card/70 px-4 py-2 text-sm shadow-sm backdrop-blur-sm">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background shadow-sm">
                 CA
               </div>
               <div className="text-left">
@@ -397,22 +420,24 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group surface-card surface-card-hover relative p-7">
-      <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-7">
+      <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-signal/8 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal group-hover:shadow-[0_0_20px_-6px_hsl(var(--signal)/0.55)]">
         {icon}
       </div>
-      <h3 className="mt-5 text-base font-bold tracking-tight">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+      <h3 className="relative mt-5 text-base font-bold tracking-tight">{title}</h3>
+      <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
     </div>
   );
 }
 
 function Step({ n, title, body }: { n: number; title: string; body: string }) {
   return (
-    <div className="group surface-card surface-card-hover relative p-7">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-7">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent opacity-60" />
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground font-mono text-sm font-semibold text-background shadow-[0_8px_20px_-10px_hsl(var(--foreground)/0.55)] transition-transform duration-200 motion-safe:group-hover:scale-105">
           {n}
         </div>
         <div className="label-caps text-[10px]">Step {n}</div>
@@ -426,9 +451,10 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
 function SampleAlert() {
   return (
     <div className="relative">
-      <div className="absolute -inset-px rounded-[17px] bg-gradient-to-b from-signal/30 via-transparent to-transparent" />
+      <div className="absolute -inset-px rounded-[17px] bg-gradient-to-b from-signal/40 via-border/40 to-transparent" />
       <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card">
-        <div className="flex items-center justify-between border-b border-border/60 bg-muted/40 px-5 py-3.5">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-signal/10 blur-3xl" />
+        <div className="relative flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-muted/50 to-muted/20 px-5 py-3.5">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -439,9 +465,9 @@ function SampleAlert() {
           </div>
           <div className="font-mono text-[11px] text-muted-foreground">#openai</div>
         </div>
-        <div className="space-y-4 p-6">
+        <div className="relative space-y-4 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/50 text-sm font-bold text-foreground ring-2 ring-background">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/50 text-sm font-bold text-foreground ring-2 ring-background shadow-sm">
               JR
             </div>
             <div className="flex-1">
@@ -450,7 +476,7 @@ function SampleAlert() {
             </div>
             <Badge variant="warning">Went stealth</Badge>
           </div>
-          <div className="rounded-md border bg-muted/30 p-3 text-sm leading-relaxed">
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-3.5 text-sm leading-relaxed">
             Headline changed from{" "}
             <span className="text-muted-foreground line-through decoration-muted-foreground/40">
               &ldquo;Member of Technical Staff, OpenAI&rdquo;
@@ -461,7 +487,7 @@ function SampleAlert() {
             <Button size="sm" variant="outline" className="flex-1" asChild>
               <Link href="/login">View on LinkedIn</Link>
             </Button>
-            <Button size="sm" className="flex-1" asChild>
+            <Button size="sm" variant="signal" className="flex-1" asChild>
               <Link href="/login">Reach out</Link>
             </Button>
           </div>

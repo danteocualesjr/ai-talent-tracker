@@ -1,5 +1,22 @@
 import { cn } from "@/lib/utils";
 
+function accentHeadline(title: string) {
+  const trimmed = title.trim();
+  const match = trimmed.match(/^(.*?)(\s+)(\S+)([.!?]?)$/);
+  if (!match || !match[1]) {
+    return <span className="font-serif italic font-normal">{trimmed}</span>;
+  }
+  const [, lead, space, last, punct] = match;
+  return (
+    <>
+      {lead}
+      {space}
+      <span className="font-serif italic font-normal">{last}</span>
+      {punct}
+    </>
+  );
+}
+
 export function MarketingHero({
   eyebrow,
   title,
@@ -19,6 +36,7 @@ export function MarketingHero({
 
   return (
     <section className={cn("relative overflow-hidden border-b border-border/60", className)}>
+      <div className="pointer-events-none absolute inset-0 noise opacity-40" />
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
       <div className="container relative py-12 md:py-20">
@@ -30,7 +48,9 @@ export function MarketingHero({
         >
           <div className={cn(centered ? "max-w-2xl" : "max-w-2xl")}>
             {eyebrow && <div className="animate-fade-up">{eyebrow}</div>}
-            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance text-4xl font-bold tracking-tight text-gradient-hero md:text-5xl">{title}</h1>
+            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance text-4xl font-bold tracking-tight text-gradient-hero md:text-5xl">
+              {accentHeadline(title)}
+            </h1>
             {description && (
               <div className="animate-fade-up animate-fade-up-delay-2 mt-4 max-w-2xl text-pretty text-muted-foreground md:text-lg">{description}</div>
             )}

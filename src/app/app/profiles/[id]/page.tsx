@@ -7,6 +7,7 @@ import { isProfileOnOrgWatchlist } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { BackLink } from "@/components/back-link";
+import { PageHeader } from "@/components/page-header";
 import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
@@ -44,22 +45,33 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <BackLink href="/app/watchlist">Back to watchlist</BackLink>
 
+      <PageHeader
+        title={p.full_name || p.linkedin_handle || "Profile"}
+        eyebrow="Profile"
+        description={p.headline ?? undefined}
+        divider
+      >
+        <Badge variant="secondary" className="capitalize">{p.status}</Badge>
+      </PageHeader>
+
       <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 md:p-8">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent" />
         <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal/8 blur-3xl" />
         <div className="relative flex items-start gap-5">
-          <Avatar className="h-20 w-20 ring-2 ring-border shadow-sm">
-            {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-            <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-          </Avatar>
+          <div className="relative shrink-0">
+            <Avatar className="h-20 w-20 ring-2 ring-border shadow-sm">
+              {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
+              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+            </Avatar>
+            <span
+              className={`absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-card ${
+                p.status === "stealth" ? "bg-amber-accent" : p.status === "founder" ? "bg-signal" : p.status === "left" ? "bg-violet-accent" : "bg-muted-foreground"
+              }`}
+              aria-hidden
+            />
+          </div>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                {p.full_name || p.linkedin_handle}
-              </h1>
-              <Badge variant="secondary" className="capitalize">{p.status}</Badge>
-            </div>
-            <p className="mt-1 text-muted-foreground">{p.headline ?? "—"}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {p.current_title ? `${p.current_title} at ` : ""}
               <span className="font-medium text-foreground">{p.current_company ?? "—"}</span>
               {p.location && <> · {p.location}</>}

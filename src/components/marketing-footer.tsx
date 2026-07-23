@@ -32,17 +32,19 @@ const SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer aria-label="Site footer" className="relative border-t bg-card/40">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+    <footer aria-label="Site footer" className="relative overflow-hidden border-t bg-card/40">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 noise opacity-30" />
+      <div className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-signal/8 blur-3xl" />
 
-      <div className="container grid gap-12 py-14 md:grid-cols-[1.4fr_2fr] md:py-16">
+      <div className="container relative grid gap-12 py-14 md:grid-cols-[1.4fr_2fr] md:py-16">
         <div>
           <Logo />
           <p className="mt-4 max-w-xs text-pretty text-sm leading-relaxed text-muted-foreground">
             Real-time monitoring of LinkedIn profiles at top AI labs. Know who&apos;s moving
             before anyone else.
           </p>
-          <div className="mt-6 flex items-center gap-2 rounded-full border border-border/50 bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground transition-colors hover:border-signal/25 hover:bg-signal/5 hover:text-foreground">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-3 py-1.5 text-[11px] text-muted-foreground shadow-[0_0_20px_-10px_hsl(var(--signal)/0.5)] transition-colors hover:border-signal/35 hover:text-foreground">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
@@ -78,18 +80,24 @@ export function MarketingFooter() {
         </div>
       </div>
 
-      <div className="relative border-t border-border/60 bg-muted/20">
+      <div className="relative border-t border-border/60 bg-gradient-to-br from-muted/30 via-muted/20 to-signal/[0.04]">
         <div className="pointer-events-none absolute inset-0 dot-bg opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden />
         <div className="container flex flex-col items-start justify-between gap-4 py-8 md:flex-row md:items-center">
           <div>
-            <div className="text-sm font-semibold tracking-tight">Stay ahead of the next move</div>
+            <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+              Stay ahead of the next move
+            </div>
             <p className="mt-1 max-w-md text-xs text-muted-foreground">
               Get Slack alerts when researchers go stealth — before they hit your LinkedIn feed.
             </p>
           </div>
           <Link
             href="/login"
-            className="group/cta inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2 text-xs font-semibold shadow-sm transition-all hover:border-signal/40 hover:bg-signal/5 hover:text-foreground hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group/cta inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-signal/40 hover:bg-signal hover:text-[hsl(var(--signal-foreground))] hover:shadow-[0_8px_24px_-8px_hsl(var(--signal)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             Start tracking free
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5" />

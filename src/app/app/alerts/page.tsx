@@ -6,9 +6,21 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
 export const metadata = { title: "Alerts" };
+
+const SAMPLE_PAYLOAD = JSON.stringify(
+  {
+    type: "went_stealth",
+    confidence: 0.92,
+    profile: "Jane Researcher",
+    summary: "Headline changed to building something new",
+  },
+  null,
+  2,
+);
 
 export default async function AlertsPage() {
   const supa = await createClient();
@@ -52,6 +64,13 @@ export default async function AlertsPage() {
             <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
           </div>
           <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed shadow-inner ring-1 ring-inset ring-border/40">
+            <div className="mb-3 flex items-center gap-1.5 border-b border-border/40 pb-2">
+              <span className="h-2 w-2 rounded-full bg-[#ff5f57]" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[#febc2e]" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[#28c840]" aria-hidden />
+              <span className="ml-2 flex-1 text-[10px] text-muted-foreground">alert.json</span>
+              <CopyButton value={SAMPLE_PAYLOAD} />
+            </div>
             <div className="text-muted-foreground">{"{"}</div>
             <div className="pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
             <div className="pl-3"><span className="text-violet-accent">&quot;confidence&quot;</span>: <span className="text-amber-accent">0.92</span>,</div>
@@ -71,7 +90,8 @@ export default async function AlertsPage() {
           />
         ) : (
           channels.map((c) => (
-            <div key={c.id} className="group flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30">
+            <div key={c.id} className="group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30">
+              <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="flex items-center gap-3">
                 <ChannelIcon type={c.type} />
                 <div>

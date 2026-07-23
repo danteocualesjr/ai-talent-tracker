@@ -8,19 +8,26 @@ import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
 
-const DIFF_FIELDS = ["company", "title", "headline", "location"] as const;
+const DIFF_FIELDS = [
+  { key: "current_company", label: "company" },
+  { key: "current_title", label: "title" },
+  { key: "headline", label: "headline" },
+  { key: "location", label: "location" },
+] as const;
 
 function formatFieldChanges(before: Json | null, after: Json | null): string[] {
   if (!before || !after || typeof before !== "object" || typeof after !== "object") return [];
   const prev = before as Record<string, unknown>;
   const next = after as Record<string, unknown>;
   const lines: string[] = [];
-  for (const field of DIFF_FIELDS) {
-    const from = prev[field];
-    const to = next[field];
-    if (from != null && to != null && String(from) !== String(to)) {
-      lines.push(`${field.replace("_", " ")}: ${String(from)} → ${String(to)}`);
-    }
+  for (const { key, label } of DIFF_FIELDS) {
+    const from = prev[key];
+    const to = next[key];
+    if (from == null && to == null) continue;
+    if (String(from ?? "") === String(to ?? "")) continue;
+    const fromLabel = from != null && String(from) ? String(from) : "—";
+    const toLabel = to != null && String(to) ? String(to) : "—";
+    lines.push(`${label}: ${fromLabel} → ${toLabel}`);
   }
   return lines;
 }
@@ -29,12 +36,29 @@ function EventFieldDiff({ before, after }: { before: Json | null; after: Json | 
   const changes = formatFieldChanges(before, after);
   if (changes.length === 0) return null;
   return (
-    <ul className="mt-2 space-y-1 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-      {changes.map((line) => (
-        <li key={line} className="font-mono leading-relaxed">
-          {line}
-        </li>
-      ))}
+    <ul className="mt-2.5 space-y-1.5 rounded-xl border border-border/60 bg-muted/25 px-3 py-2.5 text-xs">
+      {changes.map((line) => {
+        const colonIdx = line.indexOf(": ");
+        const field = colonIdx > 0 ? line.slice(0, colonIdx) : line;
+        const rest = colonIdx > 0 ? line.slice(colonIdx + 2) : "";
+        const arrowIdx = rest.indexOf(" → ");
+        const from = arrowIdx >= 0 ? rest.slice(0, arrowIdx) : null;
+        const to = arrowIdx >= 0 ? rest.slice(arrowIdx + 3) : null;
+        return (
+          <li key={line} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 leading-relaxed">
+            <span className="font-semibold capitalize text-foreground/80">{field}</span>
+            {from && to ? (
+              <>
+                <span className="text-muted-foreground line-through decoration-muted-foreground/40">{from}</span>
+                <span className="text-muted-foreground/50" aria-hidden>→</span>
+                <span className="font-medium text-foreground">{to}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">{rest || line}</span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

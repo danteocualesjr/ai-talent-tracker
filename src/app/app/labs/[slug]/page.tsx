@@ -1,5 +1,6 @@
 import { ArrowRight, Compass, LogOut, Star, Users2 } from "lucide-react";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { BackLink } from "@/components/back-link";
 import { EmptyPanel, Panel } from "@/components/panel";
@@ -28,9 +29,11 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
       <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
           {lab.logo_url ? (
-            <img
+            <Image
               src={lab.logo_url}
               alt={lab.name}
+              width={64}
+              height={64}
               className="h-16 w-16 rounded-2xl border border-border/60 bg-muted object-contain p-2"
             />
           ) : (
