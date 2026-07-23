@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 import { CheckoutButton } from "./checkout-button";
+import { PricingFaq } from "./pricing-faq";
 import { PricingStatusToast } from "./pricing-status-toast";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 export const metadata = {
   title: "Pricing",
@@ -24,7 +26,7 @@ export default async function PricingPage({
     <div className="flex min-h-screen flex-col">
       <PricingStatusToast status={status} />
       <MarketingNav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <MarketingHero
           align="center"
           eyebrow={<div className="label-caps">Pricing</div>}
@@ -43,6 +45,17 @@ export default async function PricingPage({
             <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
               All paid plans include the public departure feed. Cancel anytime. Prices in USD.
             </p>
+
+            <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl border border-border/60 bg-card">
+              <div className="grid grid-cols-4 divide-x divide-border/60 text-center text-[11px]">
+                {(["free", "pro", "team", "enterprise"] as const).map((slug) => (
+                  <div key={slug} className="px-3 py-3">
+                    <div className="font-semibold capitalize text-foreground">{PLAN_DETAILS[slug].name}</div>
+                    <div className="mt-1 text-muted-foreground">{REFRESH_CADENCE[slug]} refresh</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -75,16 +88,25 @@ export default async function PricingPage({
             </div>
           </div>
         </section>
+
+        <PricingFaq />
       </main>
       <MarketingFooter />
+      <ScrollToTop />
     </div>
   );
 }
 
+const REFRESH_CADENCE: Record<keyof typeof PLAN_DETAILS, string | null> = {
+  free: "Weekly",
+  pro: "Daily",
+  team: "Hourly",
+  enterprise: "Custom",
+};
+
 function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof typeof PLAN_DETAILS; priceEnv: string | null | undefined; ctaHref?: string; cta?: string; highlighted?: boolean }) {
   const plan = PLAN_DETAILS[slug];
-  const refreshCadence =
-    slug === "enterprise" ? "Custom cadence" : plan.features.find((f) => f.toLowerCase().includes("refresh"))?.replace(/ refresh$/i, "") ?? null;
+  const cadence = REFRESH_CADENCE[slug];
   return (
     <div
       className={`relative flex flex-col overflow-hidden p-7 transition-all duration-300 ${
@@ -120,10 +142,10 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
             </>
           )}
         </div>
-        {refreshCadence && (
+        {cadence && (
           <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-signal signal-pulse" aria-hidden />
-            {refreshCadence} refresh
+            {cadence} refresh
           </div>
         )}
       </div>

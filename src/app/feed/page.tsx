@@ -9,6 +9,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { FeedFilterChips } from "@/components/feed-filter-chips";
 import { FeedMobileCta } from "@/components/feed-mobile-cta";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { getPublicEvents } from "@/lib/queries";
 import type { EventType } from "@/types/db";
 
@@ -51,7 +52,7 @@ export default async function PublicFeedPage({
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <MarketingHero
           eyebrow={<LiveBadge />}
           title="AI lab departure feed"
@@ -132,6 +133,7 @@ export default async function PublicFeedPage({
       </main>
       <FeedMobileCta />
       <MarketingFooter />
+      <ScrollToTop />
     </div>
   );
 }

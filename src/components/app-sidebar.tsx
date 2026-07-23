@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AppCommandMenu } from "@/components/app-command-menu";
+import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 
 const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutDashboard; label: string }[] }[] = [
@@ -130,6 +131,22 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Quick search — desktop */}
+        <div className="relative hidden px-3 pb-2 md:block">
+          <button
+            type="button"
+            onClick={() => setCommandOpen(true)}
+            className="group flex w-full items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-all hover:border-signal/25 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          >
+            <Search className="h-3.5 w-3.5 shrink-0" />
+            <span className="flex-1 text-left">Search…</span>
+            <span className="hidden items-center gap-0.5 sm:flex">
+              <Kbd>⌘</Kbd>
+              <Kbd>K</Kbd>
+            </span>
+          </button>
         </div>
 
         <nav aria-label="App" className="relative flex-1 space-y-5 overflow-y-auto px-3 pb-4 text-sm">

@@ -21,7 +21,8 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
-import { Sparkline } from "@/components/sparkline";
+import { DashboardGreeting } from "@/components/dashboard-greeting";
+import { Sparkline, buildTrendSeries } from "@/components/sparkline";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
 export const metadata = { title: "Dashboard" };
@@ -75,6 +76,8 @@ export default async function DashboardPage() {
           <Link href="/app/watchlist"><Plus className="h-4 w-4" /> Add profile</Link>
         </Button>
       </PageHeader>
+
+      <DashboardGreeting orgName={org.name} />
 
       <div className="flex flex-wrap gap-2">
         {[

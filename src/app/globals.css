@@ -574,6 +574,16 @@
     @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40;
   }
 
+  /* Screen-reader only — visible on focus for skip links */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+  }
+  .focus\:not-sr-only:focus {
+    @apply static w-auto h-auto m-0 overflow-visible whitespace-normal;
+    clip: auto;
+  }
+
   /* Subtle "ring of dots" pattern useful for empty-states / icons */
   .ring-dots {
     background:
