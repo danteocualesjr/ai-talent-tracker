@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
     success_url: `${siteUrl()}/app/billing?status=success`,
     cancel_url: `${siteUrl()}/pricing?status=cancelled`,
     allow_promotion_codes: true,
+    metadata: { org_id: org.id },
+    subscription_data: { metadata: { org_id: org.id } },
   });
 
   return NextResponse.json({ url: session.url });

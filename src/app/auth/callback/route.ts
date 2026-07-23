@@ -1,14 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-
-/** Only allow same-origin relative paths (blocks open redirects via absolute URLs). */
-function safeRedirectPath(next: string | null): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("://")) {
-    return "/app";
-  }
-  return next;
-}
+import { safeRedirectPath } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
