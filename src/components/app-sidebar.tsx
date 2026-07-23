@@ -10,6 +10,7 @@ import {
   CreditCard,
   LayoutDashboard,
   ListChecks,
+  LogOut,
   Menu,
   Search,
   Settings,
@@ -47,9 +48,10 @@ const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutD
 interface Props {
   orgName: string;
   orgPlan: string;
+  email: string;
 }
 
-export function AppSidebar({ orgName, orgPlan }: Props) {
+export function AppSidebar({ orgName, orgPlan, email }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -209,7 +211,34 @@ export function AppSidebar({ orgName, orgPlan }: Props) {
             </Link>
           </div>
         )}
+
+        {/* Account footer — mobile only; desktop uses the topbar's user menu */}
+        <div className="relative border-t border-border/60 px-3 py-3 md:hidden">
+          <div className="flex items-center gap-2.5 px-1">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
+              {email.slice(0, 2).toUpperCase()}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-xs font-medium text-muted-foreground">{email}</span>
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              aria-label="Sign out"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Sign out
+            </button>
+          </div>
+        </div>
       </aside>
     </>
   );
+}
+
+function signOut() {
+  const form = document.createElement("form");
+  form.action = "/auth/signout";
+  form.method = "post";
+  document.body.appendChild(form);
+  form.submit();
 }
