@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, Terminal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
-  { href: "/feed", label: "Feed" },
-  { href: "/labs", label: "Labs" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/feed", label: "feed" },
+  { href: "/labs", label: "labs" },
+  { href: "/pricing", label: "pricing" },
 ];
 
 export function MarketingNav() {
@@ -27,11 +27,15 @@ export function MarketingNav() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/80 bg-background/90 backdrop-blur-md">
-      <div className="container flex h-16 items-center justify-between">
-        <Logo />
+    <header className="sticky top-0 z-30 border-b border-signal/30 bg-background/95 font-mono backdrop-blur-md">
+      <div className="container flex h-12 items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Terminal className="h-4 w-4 text-signal" />
+          <Logo />
+        </div>
 
-        <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+          <span className="mr-2 text-xs text-signal">$</span>
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
@@ -40,47 +44,36 @@ export function MarketingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "font-serif text-base italic transition-colors",
-                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  "rounded px-3 py-1.5 text-xs transition-colors",
+                  active ? "bg-signal/15 text-signal" : "text-muted-foreground hover:text-signal",
                 )}
               >
-                {l.label}
+                ./{l.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
-          <Link href="/login" className="font-serif text-base italic text-muted-foreground hover:text-foreground">
-            Log in
-          </Link>
-          <Button asChild size="sm" variant="signal" className="rounded-sm font-serif italic">
-            <Link href="/login">
-              Start tracking
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+          <Link href="/login" className="text-xs text-muted-foreground hover:text-signal">login</Link>
+          <Button asChild size="sm" variant="signal" className="h-8 rounded font-mono text-xs">
+            <Link href="/login">./start <ArrowRight className="h-3 w-3" /></Link>
           </Button>
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
-          <button onClick={() => setOpen(!open)} className="p-2" aria-label={open ? "Close menu" : "Open menu"}>
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
+        <button onClick={() => setOpen(!open)} className="p-2 md:hidden" aria-label={open ? "Close menu" : "Open menu"}>
+          {open ? <X className="h-5 w-5 text-signal" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
       {open && (
-        <nav aria-label="Primary mobile" className="border-t border-border/80 px-6 py-4 md:hidden">
+        <nav aria-label="Primary mobile" className="border-t border-signal/20 px-4 py-3 font-mono text-xs md:hidden">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block py-3 font-serif text-lg italic">
-              {l.label}
+            <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-signal">
+              ./{l.label}
             </Link>
           ))}
-          <Button asChild variant="signal" className="mt-4 w-full rounded-sm font-serif italic">
-            <Link href="/login">Start tracking</Link>
-          </Button>
         </nav>
       )}
     </header>

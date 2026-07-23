@@ -54,30 +54,35 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — editorial magazine layout */}
-      <section className="border-b border-border/80 bg-[linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.5)_100%)]">
-        <div className="container py-20 md:py-28">
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="font-serif text-lg italic text-signal">The intelligence brief for AI talent</p>
-            <h1 className="mt-6 font-serif text-[48px] font-normal leading-[1.08] tracking-tight md:text-[80px]">
-              Know the moment{" "}
-              <em className="not-italic text-signal">AI talent</em> moves.
-            </h1>
-            <p className="mx-auto mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-              Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
-              and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
-            </p>
-            <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button asChild size="lg" variant="signal" className="rounded-sm px-8 font-serif italic">
-                <Link href="/login">Start tracking free <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-sm px-8 font-serif italic">
-                <Link href="/feed">Browse the feed <ArrowUpRight className="h-4 w-4" /></Link>
-              </Button>
-            </div>
+      {/* Hero — terminal aesthetic */}
+      <section className="relative overflow-hidden border-b border-signal/20 bg-background terminal-scanlines">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--signal)/0.08),transparent_60%)]" />
+        <div className="container relative py-16 md:py-24">
+          <div className="font-mono text-xs text-signal">
+            <span className="text-muted-foreground">$</span> aittalent --monitor --labs=20+ --status=live
           </div>
-
-          <div className="mx-auto mt-20 max-w-5xl border border-border/80 bg-card p-2 shadow-[0_24px_64px_-32px_hsl(var(--foreground)/0.2)]">
+          <h1 className="mt-6 max-w-3xl font-mono text-[36px] font-bold leading-tight text-foreground md:text-[56px]">
+            <span className="text-signal">&gt;</span> Know the moment{" "}
+            <span className="text-signal">AI talent</span> moves_
+          </h1>
+          <p className="mt-6 max-w-xl font-mono text-sm leading-relaxed text-muted-foreground">
+            // Real-time monitoring · OpenAI, Anthropic, DeepMind + 20 labs
+            <br />
+            // Slack ping on stealth flips · avg detection &lt;15m
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Button asChild size="lg" variant="signal" className="rounded font-mono">
+              <Link href="/login">./start --free</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="rounded border-signal/30 font-mono hover:bg-signal/5">
+              <Link href="/feed">./feed --public</Link>
+            </Button>
+          </div>
+          <div className="mt-16 rounded-lg border border-signal/25 bg-card/80 p-1 font-mono shadow-[0_0_40px_-10px_hsl(var(--signal)/0.4)]">
+            <div className="flex items-center gap-2 border-b border-signal/20 px-4 py-2 text-[10px] text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-signal signal-pulse" />
+              dashboard.preview — connected
+            </div>
             <DashboardPreview />
           </div>
         </div>

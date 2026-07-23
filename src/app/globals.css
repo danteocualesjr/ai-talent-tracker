@@ -4,62 +4,62 @@
 
 @layer base {
   :root {
-    /* Iteration 3 — Warm Editorial: cream canvas, terracotta signal, magazine feel */
-    --background: 38 35% 96%;
-    --foreground: 24 30% 12%;
-    --card: 38 40% 98%;
-    --card-foreground: 24 30% 12%;
-    --popover: 38 40% 98%;
-    --popover-foreground: 24 30% 12%;
-    --primary: 24 30% 12%;
-    --primary-foreground: 38 35% 96%;
-    --secondary: 36 28% 92%;
-    --secondary-foreground: 24 25% 16%;
-    --muted: 36 28% 92%;
-    --muted-foreground: 24 12% 42%;
-    --accent: 34 30% 90%;
-    --accent-foreground: 24 25% 16%;
+    /* Iteration 4 — Neon Terminal: dark canvas, matrix green signal, monospace accents */
+    --background: 160 10% 96%;
+    --foreground: 160 20% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 160 20% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 20% 8%;
+    --primary: 160 20% 8%;
+    --primary-foreground: 160 10% 96%;
+    --secondary: 160 8% 92%;
+    --secondary-foreground: 160 20% 8%;
+    --muted: 160 8% 92%;
+    --muted-foreground: 160 8% 40%;
+    --accent: 160 10% 90%;
+    --accent-foreground: 160 20% 8%;
     --destructive: 0 72% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 34 22% 84%;
-    --input: 34 22% 84%;
-    --ring: 16 72% 48%;
-    --radius: 0.125rem;
+    --border: 160 8% 82%;
+    --input: 160 8% 82%;
+    --ring: 142 76% 36%;
+    --radius: 0.375rem;
 
-    --signal: 16 72% 48%;
-    --signal-foreground: 38 35% 98%;
+    --signal: 142 76% 36%;
+    --signal-foreground: 160 10% 98%;
 
-    --accent-violet: 280 35% 45%;
-    --accent-amber: 36 85% 52%;
+    --accent-violet: 280 60% 50%;
+    --accent-amber: 48 96% 50%;
   }
 
   .dark,
   :root.dark {
-    --background: 24 18% 8%;
-    --foreground: 38 25% 94%;
-    --card: 24 16% 11%;
-    --card-foreground: 38 25% 94%;
-    --popover: 24 16% 11%;
-    --popover-foreground: 38 25% 94%;
-    --primary: 38 25% 94%;
-    --primary-foreground: 24 18% 8%;
-    --secondary: 24 14% 14%;
-    --secondary-foreground: 38 25% 94%;
-    --muted: 24 14% 14%;
-    --muted-foreground: 38 10% 58%;
-    --accent: 24 12% 16%;
-    --accent-foreground: 38 25% 94%;
+    --background: 160 20% 4%;
+    --foreground: 142 40% 92%;
+    --card: 160 18% 7%;
+    --card-foreground: 142 40% 92%;
+    --popover: 160 18% 7%;
+    --popover-foreground: 142 40% 92%;
+    --primary: 142 40% 92%;
+    --primary-foreground: 160 20% 4%;
+    --secondary: 160 14% 10%;
+    --secondary-foreground: 142 40% 92%;
+    --muted: 160 14% 10%;
+    --muted-foreground: 142 15% 55%;
+    --accent: 160 12% 12%;
+    --accent-foreground: 142 40% 92%;
     --destructive: 0 62% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 24 12% 18%;
-    --input: 24 12% 18%;
-    --ring: 16 72% 55%;
+    --border: 142 20% 16%;
+    --input: 142 20% 16%;
+    --ring: 142 76% 45%;
 
-    --signal: 16 72% 55%;
-    --signal-foreground: 24 18% 8%;
+    --signal: 142 76% 45%;
+    --signal-foreground: 160 20% 4%;
 
-    --accent-violet: 280 45% 65%;
-    --accent-amber: 36 85% 58%;
+    --accent-violet: 280 70% 65%;
+    --accent-amber: 48 96% 55%;
   }
 }
 
@@ -578,5 +578,15 @@
   .ring-dots {
     background:
       radial-gradient(hsl(var(--border)) 1px, transparent 1.5px) center / 14px 14px;
+  }
+
+  .terminal-scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsl(var(--signal) / 0.03) 2px,
+      hsl(var(--signal) / 0.03) 4px
+    );
   }
 }
