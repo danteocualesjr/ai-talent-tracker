@@ -6,9 +6,21 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
 export const metadata = { title: "Alerts" };
+
+const SAMPLE_PAYLOAD = JSON.stringify(
+  {
+    type: "went_stealth",
+    confidence: 0.92,
+    profile: "Jane Researcher",
+    summary: "Headline changed to building something new",
+  },
+  null,
+  2,
+);
 
 export default async function AlertsPage() {
   const supa = await createClient();
@@ -56,7 +68,8 @@ export default async function AlertsPage() {
               <span className="h-2 w-2 rounded-full bg-[#ff5f57]" aria-hidden />
               <span className="h-2 w-2 rounded-full bg-[#febc2e]" aria-hidden />
               <span className="h-2 w-2 rounded-full bg-[#28c840]" aria-hidden />
-              <span className="ml-2 text-[10px] text-muted-foreground">alert.json</span>
+              <span className="ml-2 flex-1 text-[10px] text-muted-foreground">alert.json</span>
+              <CopyButton value={SAMPLE_PAYLOAD} />
             </div>
             <div className="text-muted-foreground">{"{"}</div>
             <div className="pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
