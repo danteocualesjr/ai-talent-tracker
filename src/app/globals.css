@@ -4,62 +4,62 @@
 
 @layer base {
   :root {
-    /* Iteration 1 — Prism Dark: deep indigo canvas, electric violet signal */
-    --background: 234 32% 97%;
-    --foreground: 234 40% 12%;
+    /* Iteration 2 — Swiss Minimal: pure neutrals, zero warmth, sharp geometry */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 234 40% 12%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 234 40% 12%;
-    --primary: 234 40% 12%;
-    --primary-foreground: 234 32% 97%;
-    --secondary: 234 20% 94%;
-    --secondary-foreground: 234 30% 16%;
-    --muted: 234 18% 94%;
-    --muted-foreground: 234 10% 42%;
-    --accent: 234 22% 92%;
-    --accent-foreground: 234 30% 16%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 7%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 7%;
     --destructive: 0 72% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 234 16% 88%;
-    --input: 234 16% 88%;
-    --ring: 252 85% 58%;
-    --radius: 1rem;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 0% 7%;
+    --radius: 0.25rem;
 
-    --signal: 252 85% 58%;
+    --signal: 0 0% 7%;
     --signal-foreground: 0 0% 100%;
 
-    --accent-violet: 280 75% 62%;
-    --accent-amber: 32 95% 58%;
+    --accent-violet: 0 0% 30%;
+    --accent-amber: 0 0% 40%;
   }
 
   .dark,
   :root.dark {
-    --background: 234 32% 6%;
-    --foreground: 234 20% 96%;
-    --card: 234 28% 9%;
-    --card-foreground: 234 20% 96%;
-    --popover: 234 28% 9%;
-    --popover-foreground: 234 20% 96%;
-    --primary: 234 20% 96%;
-    --primary-foreground: 234 32% 8%;
-    --secondary: 234 22% 13%;
-    --secondary-foreground: 234 20% 96%;
-    --muted: 234 22% 13%;
-    --muted-foreground: 234 10% 58%;
-    --accent: 234 18% 15%;
-    --accent-foreground: 234 20% 96%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 58%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 96%;
     --destructive: 0 62% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 234 18% 16%;
-    --input: 234 18% 16%;
-    --ring: 252 85% 65%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 80%;
 
-    --signal: 252 85% 65%;
-    --signal-foreground: 234 32% 6%;
+    --signal: 0 0% 96%;
+    --signal-foreground: 0 0% 4%;
 
-    --accent-violet: 280 80% 72%;
-    --accent-amber: 32 95% 64%;
+    --accent-violet: 0 0% 70%;
+    --accent-amber: 0 0% 60%;
   }
 }
 

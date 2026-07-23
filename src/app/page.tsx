@@ -21,6 +21,7 @@ import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { DashboardPreview } from "@/components/dashboard-preview";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTicker } from "@/components/live-ticker";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_LABS = [
   "OpenAI", "Anthropic", "Google DeepMind", "Meta AI", "xAI", "Mistral AI",
@@ -53,69 +54,43 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — asymmetric split layout */}
-      <section className="relative overflow-hidden border-b border-border/60">
-        <div className="pointer-events-none absolute inset-0 noise opacity-50" />
-        <div className="pointer-events-none absolute inset-0 hero-backdrop" />
-        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-60" />
-        <div className="aurora-orb aurora-orb-a left-0 top-0 h-96 w-96 bg-signal/20" />
-        <div className="aurora-orb aurora-orb-b right-0 top-1/4 h-80 w-80 bg-accent-violet/20" />
-
-        <div className="container relative pt-12 pb-16 md:pt-20 md:pb-24">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-            <div>
-              <Link
-                href="/feed"
-                className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-signal/25 bg-signal/5 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-signal/40 hover:text-foreground"
-              >
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
-                </span>
-                Live departures this week
-                <ArrowRight className="h-3 w-3 opacity-60" />
-              </Link>
-
-              <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[40px] font-bold leading-[1.04] tracking-tight md:text-[56px] lg:text-[64px]">
-                Know the moment{" "}
-                <span className="bg-gradient-to-r from-signal via-accent-violet to-signal bg-clip-text text-transparent">
-                  AI talent
-                </span>{" "}
-                moves.
-              </h1>
-
-              <p className="animate-fade-up animate-fade-up-delay-2 mt-6 max-w-lg text-pretty text-[17px] leading-relaxed text-muted-foreground">
-                Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
-                and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
-              </p>
-
-              <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" variant="signal" className="group rounded-xl">
-                  <Link href="/login">
-                    Start tracking free
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="group rounded-xl">
-                  <Link href="/feed">
-                    See the live feed
-                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  </Link>
-                </Button>
-              </div>
-
-              <div className="animate-fade-up animate-fade-up-delay-4 mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> No credit card</span>
-                <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> 5 free profiles</span>
-                <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> Cancel anytime</span>
-              </div>
+      {/* Hero — Swiss grid layout */}
+      <section className="border-b border-foreground">
+        <div className="container grid lg:grid-cols-12">
+          <div className="border-b border-foreground py-16 lg:col-span-7 lg:border-b-0 lg:border-r lg:py-24">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-muted-foreground">AI Talent Tracker</p>
+            <h1 className="mt-6 text-balance text-[44px] font-bold leading-[0.95] tracking-tight md:text-[72px]">
+              Know the moment AI talent moves.
+            </h1>
+            <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
+              Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
+              and 20+ top AI labs.
+            </p>
+            <div className="mt-10 flex flex-col gap-0 sm:flex-row">
+              <Button asChild size="lg" variant="default" className="rounded-none border-r border-background/20">
+                <Link href="/login">Start tracking free <ArrowRight className="h-4 w-4" /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-none border-foreground">
+                <Link href="/feed">Live feed <ArrowUpRight className="h-4 w-4" /></Link>
+              </Button>
             </div>
-
-            <div className="relative animate-fade-up animate-fade-up-delay-5">
-              <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-signal/20 via-accent-violet/10 to-transparent blur-2xl" />
-              <div className="preview-frame preview-float">
-                <DashboardPreview />
-              </div>
+          </div>
+          <div className="lg:col-span-5">
+            <div className="grid grid-cols-2 border-b border-foreground">
+              {[
+                { value: "20+", label: "Labs" },
+                { value: "<15m", label: "Detection" },
+                { value: "3", label: "Channels" },
+                { value: "5", label: "Free profiles" },
+              ].map((stat, i) => (
+                <div key={stat.label} className={cn("p-8", i % 2 === 0 && "border-r border-foreground", i < 2 && "border-b border-foreground")}>
+                  <div className="tnum text-4xl font-bold">{stat.value}</div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4">
+              <DashboardPreview />
             </div>
           </div>
         </div>
