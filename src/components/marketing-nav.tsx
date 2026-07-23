@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Menu, Terminal, X } from "lucide-react";
+import { ArrowRight, Menu, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
-  { href: "/feed", label: "feed" },
-  { href: "/labs", label: "labs" },
-  { href: "/pricing", label: "pricing" },
+  { href: "/feed", label: "Feed" },
+  { href: "/labs", label: "Labs" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 export function MarketingNav() {
@@ -27,15 +27,11 @@ export function MarketingNav() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-signal/30 bg-background/95 font-mono backdrop-blur-md">
-      <div className="container flex h-12 items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Terminal className="h-4 w-4 text-signal" />
-          <Logo />
-        </div>
+    <header className="sticky top-0 z-30 bg-background/70 backdrop-blur-2xl">
+      <div className="container flex h-16 items-center justify-between">
+        <Logo />
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
-          <span className="mr-2 text-xs text-signal">$</span>
+        <nav aria-label="Primary" className="hidden items-center gap-2 rounded-full bg-muted/60 p-1 md:flex">
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
@@ -44,11 +40,11 @@ export function MarketingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "rounded px-3 py-1.5 text-xs transition-colors",
-                  active ? "bg-signal/15 text-signal" : "text-muted-foreground hover:text-signal",
+                  "rounded-full px-5 py-2 text-sm font-medium transition-all",
+                  active ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                ./{l.label}
+                {l.label}
               </Link>
             );
           })}
@@ -56,24 +52,30 @@ export function MarketingNav() {
 
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
-          <Link href="/login" className="text-xs text-muted-foreground hover:text-signal">login</Link>
-          <Button asChild size="sm" variant="signal" className="h-8 rounded font-mono text-xs">
-            <Link href="/login">./start <ArrowRight className="h-3 w-3" /></Link>
+          <Button asChild size="sm" variant="signal" className="rounded-full group">
+            <Link href="/login">
+              <Sparkles className="h-3.5 w-3.5" />
+              Get started
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </Button>
         </div>
 
-        <button onClick={() => setOpen(!open)} className="p-2 md:hidden" aria-label={open ? "Close menu" : "Open menu"}>
-          {open ? <X className="h-5 w-5 text-signal" /> : <Menu className="h-5 w-5" />}
+        <button onClick={() => setOpen(!open)} className="rounded-full bg-muted p-2.5 md:hidden" aria-label={open ? "Close menu" : "Open menu"}>
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <nav aria-label="Primary mobile" className="border-t border-signal/20 px-4 py-3 font-mono text-xs md:hidden">
+        <nav aria-label="Primary mobile" className="container flex flex-col gap-2 pb-4 md:hidden">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block py-2 text-signal">
-              ./{l.label}
+            <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="rounded-2xl bg-muted/60 px-5 py-3 font-medium">
+              {l.label}
             </Link>
           ))}
+          <Button asChild variant="signal" className="mt-2 rounded-full">
+            <Link href="/login">Get started</Link>
+          </Button>
         </nav>
       )}
     </header>

@@ -54,36 +54,47 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — terminal aesthetic */}
-      <section className="relative overflow-hidden border-b border-signal/20 bg-background terminal-scanlines">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--signal)/0.08),transparent_60%)]" />
-        <div className="container relative py-16 md:py-24">
-          <div className="font-mono text-xs text-signal">
-            <span className="text-muted-foreground">$</span> aittalent --monitor --labs=20+ --status=live
-          </div>
-          <h1 className="mt-6 max-w-3xl font-mono text-[36px] font-bold leading-tight text-foreground md:text-[56px]">
-            <span className="text-signal">&gt;</span> Know the moment{" "}
-            <span className="text-signal">AI talent</span> moves_
-          </h1>
-          <p className="mt-6 max-w-xl font-mono text-sm leading-relaxed text-muted-foreground">
-            // Real-time monitoring · OpenAI, Anthropic, DeepMind + 20 labs
-            <br />
-            // Slack ping on stealth flips · avg detection &lt;15m
-          </p>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <Button asChild size="lg" variant="signal" className="rounded font-mono">
-              <Link href="/login">./start --free</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="rounded border-signal/30 font-mono hover:bg-signal/5">
-              <Link href="/feed">./feed --public</Link>
-            </Button>
-          </div>
-          <div className="mt-16 rounded-lg border border-signal/25 bg-card/80 p-1 font-mono shadow-[0_0_40px_-10px_hsl(var(--signal)/0.4)]">
-            <div className="flex items-center gap-2 border-b border-signal/20 px-4 py-2 text-[10px] text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-signal signal-pulse" />
-              dashboard.preview — connected
+      {/* Hero — bento grid layout */}
+      <section className="border-b border-border/60 bg-gradient-to-b from-background to-muted/30">
+        <div className="container py-12 md:py-20">
+          <div className="grid gap-4 md:grid-cols-12 md:grid-rows-[auto_auto]">
+            <div className="rounded-3xl bg-gradient-to-br from-signal/15 via-accent-violet/10 to-accent-amber/10 p-8 md:col-span-7 md:p-12">
+              <div className="inline-flex items-center gap-2 rounded-full bg-background/80 px-4 py-1.5 text-xs font-semibold shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-signal signal-pulse" />
+                Live monitoring
+              </div>
+              <h1 className="mt-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
+                Know the moment AI talent moves.
+              </h1>
+              <p className="mt-4 max-w-lg text-muted-foreground md:text-lg">
+                Real-time alerts when researchers go stealth at OpenAI, Anthropic, DeepMind, and 20+ labs.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild size="lg" variant="signal" className="rounded-full">
+                  <Link href="/login">Start free <ArrowRight className="h-4 w-4" /></Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full">
+                  <Link href="/feed">Live feed</Link>
+                </Button>
+              </div>
             </div>
-            <DashboardPreview />
+
+            <div className="grid gap-4 md:col-span-5">
+              {[
+                { value: "20+", label: "AI labs", color: "from-signal/20 to-signal/5" },
+                { value: "<15m", label: "Detection", color: "from-accent-violet/20 to-accent-violet/5" },
+                { value: "3", label: "Alert channels", color: "from-accent-amber/25 to-accent-amber/5" },
+              ].map((stat) => (
+                <div key={stat.label} className={cn("rounded-3xl bg-gradient-to-br p-6", stat.color)}>
+                  <div className="tnum text-3xl font-bold">{stat.value}</div>
+                  <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-3xl border border-border/60 bg-card p-3 shadow-soft md:col-span-12">
+              <DashboardPreview />
+            </div>
           </div>
         </div>
       </section>
