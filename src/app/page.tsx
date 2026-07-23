@@ -54,45 +54,28 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — bento grid layout */}
-      <section className="border-b border-border/60 bg-gradient-to-b from-background to-muted/30">
-        <div className="container py-12 md:py-20">
-          <div className="grid gap-4 md:grid-cols-12 md:grid-rows-[auto_auto]">
-            <div className="rounded-3xl bg-gradient-to-br from-signal/15 via-accent-violet/10 to-accent-amber/10 p-8 md:col-span-7 md:p-12">
-              <div className="inline-flex items-center gap-2 rounded-full bg-background/80 px-4 py-1.5 text-xs font-semibold shadow-sm">
-                <span className="h-2 w-2 rounded-full bg-signal signal-pulse" />
-                Live monitoring
-              </div>
-              <h1 className="mt-6 text-balance text-4xl font-bold tracking-tight md:text-6xl">
-                Know the moment AI talent moves.
-              </h1>
-              <p className="mt-4 max-w-lg text-muted-foreground md:text-lg">
-                Real-time alerts when researchers go stealth at OpenAI, Anthropic, DeepMind, and 20+ labs.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg" variant="signal" className="rounded-full">
-                  <Link href="/login">Start free <ArrowRight className="h-4 w-4" /></Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full">
-                  <Link href="/feed">Live feed</Link>
-                </Button>
-              </div>
+      {/* Hero — brutalist high-contrast */}
+      <section className="border-b-4 border-foreground bg-background">
+        <div className="container grid md:grid-cols-2">
+          <div className="border-b-4 border-foreground py-16 md:border-b-0 md:border-r-4 md:py-24">
+            <p className="text-sm font-black uppercase tracking-[0.3em]">AI Talent Tracker</p>
+            <h1 className="mt-8 text-[48px] font-black uppercase leading-[0.9] tracking-tighter md:text-[72px]">
+              Know when AI talent moves.
+            </h1>
+            <p className="mt-8 max-w-md text-base font-medium leading-relaxed">
+              Real-time monitoring. 20+ labs. Slack alerts. No fluff.
+            </p>
+            <div className="mt-10 flex flex-col gap-0 sm:flex-row">
+              <Button asChild size="lg" variant="default" className="rounded-none border-4 border-foreground font-black uppercase">
+                <Link href="/login">Start free</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-none border-4 border-foreground bg-signal font-black uppercase hover:bg-foreground hover:text-signal">
+                <Link href="/feed">Live feed</Link>
+              </Button>
             </div>
-
-            <div className="grid gap-4 md:col-span-5">
-              {[
-                { value: "20+", label: "AI labs", color: "from-signal/20 to-signal/5" },
-                { value: "<15m", label: "Detection", color: "from-accent-violet/20 to-accent-violet/5" },
-                { value: "3", label: "Alert channels", color: "from-accent-amber/25 to-accent-amber/5" },
-              ].map((stat) => (
-                <div key={stat.label} className={cn("rounded-3xl bg-gradient-to-br p-6", stat.color)}>
-                  <div className="tnum text-3xl font-bold">{stat.value}</div>
-                  <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="rounded-3xl border border-border/60 bg-card p-3 shadow-soft md:col-span-12">
+          </div>
+          <div className="bg-signal p-4 md:p-6">
+            <div className="border-4 border-foreground bg-background">
               <DashboardPreview />
             </div>
           </div>
