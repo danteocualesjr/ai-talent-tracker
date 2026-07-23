@@ -4,65 +4,62 @@
 
 @layer base {
   :root {
-    /* Slightly warm, paper-like neutrals — feels less clinical than pure gray */
-    --background: 36 24% 98%;
-    --foreground: 222 28% 8%;
+    /* Iteration 1 — Prism Dark: deep indigo canvas, electric violet signal */
+    --background: 234 32% 97%;
+    --foreground: 234 40% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 222 28% 8%;
+    --card-foreground: 234 40% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 28% 8%;
-    --primary: 222 28% 8%;
-    --primary-foreground: 36 24% 98%;
-    --secondary: 32 14% 95%;
-    --secondary-foreground: 222 20% 12%;
-    --muted: 32 14% 95%;
-    --muted-foreground: 222 8% 42%;
-    --accent: 32 16% 93%;
-    --accent-foreground: 222 20% 12%;
+    --popover-foreground: 234 40% 12%;
+    --primary: 234 40% 12%;
+    --primary-foreground: 234 32% 97%;
+    --secondary: 234 20% 94%;
+    --secondary-foreground: 234 30% 16%;
+    --muted: 234 18% 94%;
+    --muted-foreground: 234 10% 42%;
+    --accent: 234 22% 92%;
+    --accent-foreground: 234 30% 16%;
     --destructive: 0 72% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 32 12% 88%;
-    --input: 32 12% 88%;
-    --ring: 222 28% 8%;
-    --radius: 0.75rem;
+    --border: 234 16% 88%;
+    --input: 234 16% 88%;
+    --ring: 252 85% 58%;
+    --radius: 1rem;
 
-    /* Signal: emerald-teal, more saturated for vibrancy */
-    --signal: 162 76% 34%;
+    --signal: 252 85% 58%;
     --signal-foreground: 0 0% 100%;
 
-    /* Subtle accent for ornament/gradients */
-    --accent-violet: 252 58% 60%;
-    --accent-amber: 36 88% 56%;
+    --accent-violet: 280 75% 62%;
+    --accent-amber: 32 95% 58%;
   }
 
   .dark,
   :root.dark {
-    /* Deep midnight with cool undertone */
-    --background: 224 24% 5%;
-    --foreground: 220 18% 96%;
-    --card: 224 20% 8%;
-    --card-foreground: 220 18% 96%;
-    --popover: 224 20% 8%;
-    --popover-foreground: 220 18% 96%;
-    --primary: 220 18% 96%;
-    --primary-foreground: 224 28% 8%;
-    --secondary: 224 14% 12%;
-    --secondary-foreground: 220 18% 96%;
-    --muted: 224 14% 12%;
-    --muted-foreground: 220 8% 60%;
-    --accent: 224 12% 14%;
-    --accent-foreground: 220 18% 96%;
+    --background: 234 32% 6%;
+    --foreground: 234 20% 96%;
+    --card: 234 28% 9%;
+    --card-foreground: 234 20% 96%;
+    --popover: 234 28% 9%;
+    --popover-foreground: 234 20% 96%;
+    --primary: 234 20% 96%;
+    --primary-foreground: 234 32% 8%;
+    --secondary: 234 22% 13%;
+    --secondary-foreground: 234 20% 96%;
+    --muted: 234 22% 13%;
+    --muted-foreground: 234 10% 58%;
+    --accent: 234 18% 15%;
+    --accent-foreground: 234 20% 96%;
     --destructive: 0 62% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 224 12% 16%;
-    --input: 224 12% 16%;
-    --ring: 220 16% 80%;
+    --border: 234 18% 16%;
+    --input: 234 18% 16%;
+    --ring: 252 85% 65%;
 
-    --signal: 162 70% 48%;
-    --signal-foreground: 224 24% 5%;
+    --signal: 252 85% 65%;
+    --signal-foreground: 234 32% 6%;
 
-    --accent-violet: 252 70% 70%;
-    --accent-amber: 36 92% 64%;
+    --accent-violet: 280 80% 72%;
+    --accent-amber: 32 95% 64%;
   }
 }
 
@@ -165,10 +162,9 @@
 
   .hero-backdrop {
     background:
-      radial-gradient(ellipse 110% 75% at 50% -15%, hsl(var(--signal) / 0.18) 0%, transparent 58%),
-      radial-gradient(ellipse 55% 45% at 80% 20%, hsl(var(--accent-amber) / 0.07) 0%, transparent 48%),
-      radial-gradient(ellipse 50% 40% at 12% 55%, hsl(var(--signal) / 0.08) 0%, transparent 42%),
-      radial-gradient(ellipse 40% 30% at 70% 70%, hsl(var(--accent-violet) / 0.05) 0%, transparent 50%);
+      radial-gradient(ellipse 90% 70% at 20% -10%, hsl(var(--signal) / 0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 15%, hsl(var(--accent-violet) / 0.14) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 80%, hsl(var(--accent-amber) / 0.06) 0%, transparent 45%);
   }
 
   .aurora-orb {

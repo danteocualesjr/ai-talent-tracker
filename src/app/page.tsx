@@ -53,66 +53,70 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero */}
+      {/* Hero — asymmetric split layout */}
       <section className="relative overflow-hidden border-b border-border/60">
-        <div className="pointer-events-none absolute inset-0 noise opacity-60" />
-        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
+        <div className="pointer-events-none absolute inset-0 noise opacity-50" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
-        <div className="aurora-orb aurora-orb-a -left-24 top-10 h-72 w-72 bg-signal/25" />
-        <div className="aurora-orb aurora-orb-b -right-16 top-32 h-64 w-64 bg-amber-accent/15" />
+        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-60" />
+        <div className="aurora-orb aurora-orb-a left-0 top-0 h-96 w-96 bg-signal/20" />
+        <div className="aurora-orb aurora-orb-b right-0 top-1/4 h-80 w-80 bg-accent-violet/20" />
 
-        <div className="container relative pt-16 pb-20 md:pt-24 md:pb-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <Link
-              href="/feed"
-              className="surface-glass animate-fade-up inline-flex items-center gap-2 rounded-full border-signal/20 px-4 py-1.5 text-xs text-muted-foreground shadow-[0_0_24px_-8px_hsl(var(--signal)/0.45)] transition-all hover:border-signal/35 hover:text-foreground"
-            >
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
-              </span>
-              <span className="font-semibold text-foreground">Live</span>
-              <span className="text-border">·</span>
-              <span>New departures detected this week</span>
-              <ArrowRight className="h-3 w-3 opacity-60" />
-            </Link>
+        <div className="container relative pt-12 pb-16 md:pt-20 md:pb-24">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+            <div>
+              <Link
+                href="/feed"
+                className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-signal/25 bg-signal/5 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-signal/40 hover:text-foreground"
+              >
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                </span>
+                Live departures this week
+                <ArrowRight className="h-3 w-3 opacity-60" />
+              </Link>
 
-            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[42px] font-bold leading-[1.05] tracking-tight text-foreground md:text-[72px]">
-              Know the moment{" "}
-              <span className="font-serif text-gradient-hero italic font-normal">AI talent</span>{" "}
-              moves.
-            </h1>
+              <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[40px] font-bold leading-[1.04] tracking-tight md:text-[56px] lg:text-[64px]">
+                Know the moment{" "}
+                <span className="bg-gradient-to-r from-signal via-accent-violet to-signal bg-clip-text text-transparent">
+                  AI talent
+                </span>{" "}
+                moves.
+              </h1>
 
-            <p className="animate-fade-up animate-fade-up-delay-2 mx-auto mt-6 max-w-xl text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
-              Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
-              and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
-            </p>
+              <p className="animate-fade-up animate-fade-up-delay-2 mt-6 max-w-lg text-pretty text-[17px] leading-relaxed text-muted-foreground">
+                Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
+                and 20+ top AI labs. Get a Slack ping the moment someone goes stealth.
+              </p>
 
-            <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" variant="signal" className="group min-w-[200px]">
-                <Link href="/login">
-                  Start tracking free
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="group min-w-[200px]">
-                <Link href="/feed">
-                  See the live feed
-                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </Link>
-              </Button>
+              <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg" variant="signal" className="group rounded-xl">
+                  <Link href="/login">
+                    Start tracking free
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="group rounded-xl">
+                  <Link href="/feed">
+                    See the live feed
+                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="animate-fade-up animate-fade-up-delay-4 mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> No credit card</span>
+                <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> 5 free profiles</span>
+                <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> Cancel anytime</span>
+              </div>
             </div>
-            <p className="animate-fade-up animate-fade-up-delay-4 mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> No credit card</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> 5 free profiles</span>
-              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-signal" /> Cancel anytime</span>
-            </p>
-          </div>
 
-          <div className="relative mx-auto mt-16 max-w-5xl animate-fade-up animate-fade-up-delay-5">
-            <div className="absolute inset-x-16 -bottom-10 -z-10 h-40 rounded-full bg-signal/15 blur-[80px]" />
-            <div className="absolute inset-x-24 -bottom-6 -z-10 h-24 rounded-full bg-foreground/6 blur-3xl" />
-            <DashboardPreview />
+            <div className="relative animate-fade-up animate-fade-up-delay-5">
+              <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-signal/20 via-accent-violet/10 to-transparent blur-2xl" />
+              <div className="preview-frame preview-float">
+                <DashboardPreview />
+              </div>
+            </div>
           </div>
         </div>
       </section>
