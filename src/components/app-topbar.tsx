@@ -70,13 +70,13 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
   return (
     <>
       <AppCommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
-      <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/60 bg-background/80 px-5 backdrop-blur-xl md:flex">
+      <div className="sticky top-0 z-20 hidden h-[68px] items-center gap-3 border-b border-border/50 bg-background/70 px-6 shadow-[0_1px_0_0_hsl(var(--border)/0.35),0_16px_40px_-28px_hsl(var(--foreground)/0.1)] backdrop-blur-2xl md:flex">
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
-          className="flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-colors hover:text-foreground"
+          className="group/dash flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
         >
-          <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5" />
+          <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5 transition-transform motion-safe:group-hover/dash:scale-110" />
           <span className="hidden lg:inline">Dashboard</span>
         </Link>
         {segments.slice(1).map((seg, i) => {
@@ -87,11 +87,14 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
             <span key={href} className="flex min-w-0 items-center gap-1.5">
               <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground/50" />
               {last ? (
-                <span className="truncate font-semibold text-foreground" aria-current="page">{label}</span>
+                <span className="flex min-w-0 items-center gap-1.5 truncate font-semibold text-foreground" aria-current="page">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal signal-pulse" aria-hidden />
+                  {label}
+                </span>
               ) : (
                 <Link
                   href={href}
-                  className="truncate rounded-md px-1.5 py-1 text-muted-foreground transition-colors hover:text-foreground"
+                  className="truncate rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
                 >
                   {label}
                 </Link>
@@ -132,11 +135,16 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               ? `${unreadCount} recent event${unreadCount === 1 ? "" : "s"} in the last 7 days — open events`
               : "Open events"
           }
-          className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors hover:border-foreground/15 hover:bg-card hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+          className={cn(
+            "relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-all duration-200",
+            "hover:border-foreground/15 hover:bg-card hover:text-foreground hover:shadow-[0_0_12px_-2px_hsl(var(--signal)/0.25)]",
+            unreadCount > 0 && "border-signal/20 bg-signal/5 text-signal",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+          )}
         >
           <Bell aria-hidden="true" className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-signal px-1 text-[9px] font-bold text-[hsl(var(--signal-foreground))]">
+            <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-signal px-1 text-[9px] font-bold text-[hsl(var(--signal-foreground))] signal-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -146,7 +154,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 pl-1.5 pr-2.5 text-sm shadow-sm transition-colors hover:border-foreground/15 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-signal/25 hover:bg-card hover:shadow-[0_0_12px_-3px_hsl(var(--signal)/0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
                 {initials}

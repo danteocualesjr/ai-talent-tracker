@@ -84,7 +84,7 @@ export async function LiveTicker() {
         </Link>
       </div>
       <div
-        className="grid h-[300px] grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2"
+        className="grid h-[300px] grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2 marquee-pause"
         style={{
           maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
           WebkitMaskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
@@ -131,8 +131,9 @@ function TickerCard({ event }: { event: { name: string; type: EventType; summary
     .join("")
     .toUpperCase();
   return (
-    <div className="surface-card flex items-start gap-3 p-3.5 transition-colors hover:border-foreground/15">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/40 text-[10px] font-bold text-foreground ring-2 ring-background">
+    <div className="group surface-card relative flex items-start gap-3 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-signal/25 hover:shadow-md hover:shadow-signal/5">
+      <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/40 text-[10px] font-bold text-foreground ring-2 ring-background transition-all duration-200 group-hover:ring-signal/25">
         {initials || "??"}
       </div>
       <div className="min-w-0 flex-1">
@@ -143,7 +144,7 @@ function TickerCard({ event }: { event: { name: string; type: EventType; summary
           </Badge>
         </div>
         <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-muted-foreground">{event.summary}</p>
-        <div className="tnum mt-1 font-mono text-[10px] text-muted-foreground/70">{event.when}</div>
+        <div className="tnum mt-1.5 inline-flex rounded-full bg-muted/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">{event.when}</div>
       </div>
     </div>
   );

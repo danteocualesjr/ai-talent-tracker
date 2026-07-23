@@ -10,6 +10,7 @@ export async function sendWebhook(url: string, secret: string | undefined, paylo
   }
   const res = await fetch(url, { method: "POST", headers, body });
   if (!res.ok) {
-    throw new Error(`Webhook delivery failed (${res.status})`);
+    const text = (await res.text().catch(() => "")).slice(0, 200);
+    throw new Error(`Webhook delivery failed (${res.status}): ${text}`);
   }
 }

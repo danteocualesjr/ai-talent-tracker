@@ -1,4 +1,6 @@
+import { ArrowRight, Compass, LogOut, Star, Users2 } from "lucide-react";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { BackLink } from "@/components/back-link";
 import { EmptyPanel, Panel } from "@/components/panel";
@@ -6,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { formatRelative } from "@/lib/utils";
+import { AddLabRosterButton } from "../add-lab-roster-button";
+import { TrackProfileButton } from "../track-profile-button";
 
 export default async function LabRosterPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -25,9 +29,11 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
       <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
           {lab.logo_url ? (
-            <img
+            <Image
               src={lab.logo_url}
               alt={lab.name}
+              width={64}
+              height={64}
               className="h-16 w-16 rounded-2xl border border-border/60 bg-muted object-contain p-2"
             />
           ) : (
@@ -41,6 +47,7 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
               {lab.description} · {lab.domain}
             </p>
           </div>
+          <AddLabRosterButton labId={lab.id} labSlug={lab.slug} count={people.length} />
         </div>
         <div className="mt-6 grid grid-cols-3 gap-3">
           <Stat label="Indexed" value={people.length} />
@@ -50,15 +57,22 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
       </div>
 
       <div className="surface-card grid gap-3 p-5 sm:grid-cols-4">
-        {[
-          ["Active", active],
-          ["Stealth", stealth],
-          ["Founders", founders],
-          ["Departed", left],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-xl border border-border/60 bg-background p-4">
-            <div className="tnum text-2xl font-bold">{value}</div>
-            <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        {([
+          { label: "Active", value: active, icon: Users2, accent: "text-foreground/70" },
+          { label: "Stealth", value: stealth, icon: Compass, accent: "text-amber-accent" },
+          { label: "Founders", value: founders, icon: Star, accent: "text-signal" },
+          { label: "Departed", value: left, icon: LogOut, accent: "text-violet-accent" },
+        ] as const).map(({ label, value, icon: Icon, accent }) => (
+          <div key={label} className="group surface-card-hover rounded-xl border border-border/60 bg-background p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="tnum text-2xl font-bold">{value}</div>
+                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+              </div>
+              <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                <Icon className="h-3.5 w-3.5" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -74,13 +88,14 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
           people.map((p) => {
             const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
             return (
-              <div key={p.id} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
-                <Avatar className="h-10 w-10">
+              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
                   {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
                   <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold hover:underline">
+                  <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
                     {p.full_name || p.linkedin_handle}
                   </Link>
                   <p className="truncate text-sm text-muted-foreground">{p.headline ?? p.current_title ?? ""}</p>
@@ -88,6 +103,9 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
                 <Badge variant="secondary" className="capitalize">
                   {p.status}
                 </Badge>
+                {p.linkedin_url && (
+                  <TrackProfileButton linkedinUrl={p.linkedin_url} profileName={p.full_name || p.linkedin_handle || "profile"} />
+                )}
                 <div className="tnum hidden font-mono text-xs text-muted-foreground sm:block">
                   {formatRelative(p.last_synced_at)}
                 </div>

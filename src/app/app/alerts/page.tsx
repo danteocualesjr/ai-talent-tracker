@@ -1,16 +1,26 @@
-import { Bell, Mail, MessageSquare, Trash2, Webhook } from "lucide-react";
+import { Bell, Mail, MessageSquare, Webhook } from "lucide-react";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { addChannel, removeChannel } from "./actions";
+import { AddChannelForm } from "./add-channel-form";
+import { RemoveChannelButton } from "./remove-channel-button";
+import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
 export const metadata = { title: "Alerts" };
+
+const SAMPLE_PAYLOAD = JSON.stringify(
+  {
+    type: "went_stealth",
+    confidence: 0.92,
+    profile: "Jane Researcher",
+    summary: "Headline changed to building something new",
+  },
+  null,
+  2,
+);
 
 export default async function AlertsPage() {
   const supa = await createClient();
@@ -19,6 +29,8 @@ export default async function AlertsPage() {
   const db = createAdminClient();
   const { data } = await db.from("notification_channels").select("*").eq("org_id", org.id).order("created_at");
   const channels = (data ?? []) as NotificationChannel[];
+  const canUseWebhooks = org.plan === "team" || org.plan === "enterprise";
+  const canUseSlack = org.plan !== "free";
   const channelCounts = {
     email: channels.filter((channel) => channel.type === "email").length,
     slack: channels.filter((channel) => channel.type === "slack").length,
@@ -32,12 +44,13 @@ export default async function AlertsPage() {
         eyebrow="Workspace"
         icon={<Bell className="h-4 w-4" />}
         description="Where we deliver detected change events."
+        divider
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} />
-        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} />
-        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} />
+        <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} accent="text-signal" bgAccent="bg-signal/10" />
+        <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} accent="text-violet-accent" bgAccent="bg-violet-500/10" />
+        <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} accent="text-amber-accent" bgAccent="bg-amber-500/10" />
       </div>
 
       <div className="surface-card overflow-hidden">
@@ -50,13 +63,20 @@ export default async function AlertsPage() {
             <p>Alerts include a concise summary, confidence score, profile context, and the changed fields.</p>
             <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-muted/40 p-4 font-mono text-[11px] leading-relaxed text-muted-foreground">
-            <div>{"{"}</div>
-            <div className="pl-3">&quot;type&quot;: &quot;went_stealth&quot;,</div>
-            <div className="pl-3">&quot;confidence&quot;: 0.92,</div>
-            <div className="pl-3">&quot;profile&quot;: &quot;Jane Researcher&quot;,</div>
-            <div className="pl-3">&quot;summary&quot;: &quot;Headline changed to building something new&quot;</div>
-            <div>{"}"}</div>
+          <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed shadow-inner ring-1 ring-inset ring-border/40">
+            <div className="mb-3 flex items-center gap-1.5 border-b border-border/40 pb-2">
+              <span className="h-2 w-2 rounded-full bg-[#ff5f57]" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[#febc2e]" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[#28c840]" aria-hidden />
+              <span className="ml-2 flex-1 text-[10px] text-muted-foreground">alert.json</span>
+              <CopyButton value={SAMPLE_PAYLOAD} />
+            </div>
+            <div className="text-muted-foreground">{"{"}</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;confidence&quot;</span>: <span className="text-amber-accent">0.92</span>,</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;profile&quot;</span>: <span className="text-foreground/80">&quot;Jane Researcher&quot;</span>,</div>
+            <div className="pl-3"><span className="text-violet-accent">&quot;summary&quot;</span>: <span className="text-foreground/80">&quot;Headline changed to building something new&quot;</span></div>
+            <div className="text-muted-foreground">{"}"}</div>
           </div>
         </div>
       </div>
@@ -70,7 +90,8 @@ export default async function AlertsPage() {
           />
         ) : (
           channels.map((c) => (
-            <div key={c.id} className="flex items-center justify-between px-5 py-4">
+            <div key={c.id} className="group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30">
+              <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="flex items-center gap-3">
                 <ChannelIcon type={c.type} />
                 <div>
@@ -83,12 +104,7 @@ export default async function AlertsPage() {
                   <p className="mt-0.5 text-xs text-muted-foreground">Triggers on: {c.event_types.join(", ")}</p>
                 </div>
               </div>
-              <form action={removeChannel}>
-                <input type="hidden" name="id" value={c.id} />
-                <Button variant="ghost" size="icon" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </form>
+              <RemoveChannelButton channelId={c.id} />
             </div>
           ))
         )}
@@ -96,77 +112,65 @@ export default async function AlertsPage() {
 
       <div className="grid gap-5 md:grid-cols-3">
         <ChannelCard icon={<Mail className="h-4 w-4" />} title="Email" description="Single inbox delivery via Resend.">
-          <form action={addChannel} className="space-y-3">
-            <input type="hidden" name="type" value="email" />
-            <div className="space-y-1.5">
-              <Label htmlFor="to" className="text-xs font-semibold">
-                Email
-              </Label>
-              <Input id="to" name="to" type="email" required placeholder="alerts@you.com" />
-            </div>
-            <Button type="submit" className="w-full" size="sm">
-              Add email
-            </Button>
-          </form>
+          <AddChannelForm type="email" />
         </ChannelCard>
 
         <ChannelCard icon={<MessageSquare className="h-4 w-4" />} title="Slack" description="Incoming webhook URL.">
-          <form action={addChannel} className="space-y-3">
-            <input type="hidden" name="type" value="slack" />
-            <div className="space-y-1.5">
-              <Label htmlFor="webhook_url" className="text-xs font-semibold">
-                Webhook URL
-              </Label>
-              <Input id="webhook_url" name="webhook_url" type="url" required placeholder="https://hooks.slack.com/..." />
-            </div>
-            <Button type="submit" className="w-full" size="sm">
-              Add Slack
-            </Button>
-          </form>
+          <AddChannelForm
+            type="slack"
+            disabled={!canUseSlack}
+            lockedMessage={canUseSlack ? undefined : "Upgrade to Pro to add Slack channels."}
+          />
         </ChannelCard>
 
         <ChannelCard icon={<Webhook className="h-4 w-4" />} title="Webhook" description="HMAC-signed POST. Team+.">
-          <form action={addChannel} className="space-y-3">
-            <input type="hidden" name="type" value="webhook" />
-            <div className="space-y-1.5">
-              <Label htmlFor="url" className="text-xs font-semibold">
-                URL
-              </Label>
-              <Input id="url" name="url" type="url" required placeholder="https://api.you.com/events" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="secret" className="text-xs font-semibold">
-                Secret (optional)
-              </Label>
-              <Input id="secret" name="secret" type="text" placeholder="signing secret" />
-            </div>
-            <Button type="submit" className="w-full" size="sm">
-              Add webhook
-            </Button>
-          </form>
+          <AddChannelForm
+            type="webhook"
+            disabled={!canUseWebhooks}
+            lockedMessage={canUseWebhooks ? undefined : "Upgrade to Team to add webhook channels."}
+          />
         </ChannelCard>
       </div>
     </div>
   );
 }
 
-function ChannelMetric({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
+function ChannelMetric({
+  label,
+  value,
+  icon,
+  accent = "text-muted-foreground",
+  bgAccent = "bg-muted/80",
+}: {
+  label: string;
+  value: number;
+  icon?: React.ReactNode;
+  accent?: string;
+  bgAccent?: string;
+}) {
   return (
-    <div className="surface-card surface-card-hover p-4">
-      <div className="flex items-start justify-between">
-        <div className="tnum text-2xl font-bold">{value}</div>
-        {icon && <div className="text-muted-foreground/70">{icon}</div>}
+    <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
+      <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative flex items-start justify-between">
+        <div>
+          <div className="tnum text-2xl font-bold">{value}</div>
+          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        </div>
+        {icon && (
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${bgAccent} ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+            {icon}
+          </div>
+        )}
       </div>
-      <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
     </div>
   );
 }
 
 function ChannelCard({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="surface-card surface-card-hover p-6">
+    <div className="surface-card surface-card-hover group p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-colors group-hover:border-signal/30 group-hover:bg-signal/5 group-hover:text-signal">
           {icon}
         </div>
         <div>
@@ -180,10 +184,15 @@ function ChannelCard({ icon, title, description, children }: { icon: React.React
 }
 
 function ChannelIcon({ type }: { type: string }) {
-  const icon = type === "email" ? <Mail className="h-4 w-4" /> : type === "slack" ? <MessageSquare className="h-4 w-4" /> : <Webhook className="h-4 w-4" />;
+  const config =
+    type === "email"
+      ? { icon: <Mail className="h-4 w-4" />, accent: "text-signal", bg: "bg-signal/10" }
+      : type === "slack"
+        ? { icon: <MessageSquare className="h-4 w-4" />, accent: "text-violet-accent", bg: "bg-violet-500/10" }
+        : { icon: <Webhook className="h-4 w-4" />, accent: "text-amber-accent", bg: "bg-amber-500/10" };
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm">
-      {icon}
+    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 ${config.bg} ${config.accent} shadow-sm`}>
+      {config.icon}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ListChecks, RefreshCw, Trash2 } from "lucide-react";
+import { Compass, ListChecks, LogOut, Star, Users2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { listOrgProfiles } from "@/lib/queries";
@@ -8,8 +8,10 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AddProfileForm } from "./add-profile-form";
-import { removeProfileForm, refreshNowForm } from "./actions";
+import { AddProfilesPanel } from "./add-profiles-panel";
+import { ExportWatchlistButton } from "./export-watchlist-button";
+import { RemoveProfileButton } from "./remove-profile-button";
+import { RefreshProfileButton } from "./refresh-profile-button";
 import { formatRelative, cn } from "@/lib/utils";
 
 export const metadata = { title: "Watchlist" };
@@ -20,6 +22,14 @@ const STATUS_TONE: Record<string, "default" | "secondary" | "success" | "warning
   stealth: "warning",
   founder: "success",
   unknown: "secondary",
+};
+
+const STATUS_DOT: Record<string, string> = {
+  active: "bg-muted-foreground",
+  left: "bg-violet-accent",
+  stealth: "bg-amber-accent",
+  founder: "bg-signal",
+  unknown: "bg-muted-foreground",
 };
 
 export default async function WatchlistPage() {
@@ -45,6 +55,7 @@ export default async function WatchlistPage() {
         eyebrow="Tracking"
         icon={<ListChecks className="h-4 w-4" />}
         description="Profiles you're tracking across your organization."
+        divider
       >
         <div className="w-full min-w-[260px] surface-card p-4 sm:w-auto">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -87,21 +98,29 @@ export default async function WatchlistPage() {
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          ["Active", statusCounts.active, "border-l-foreground/20"],
-          ["Stealth", statusCounts.stealth, "border-l-amber-500/60"],
-          ["Founder", statusCounts.founder, "border-l-signal/60"],
-          ["Left", statusCounts.left, "border-l-violet-500/50"],
-        ].map(([label, value, accent]) => (
-          <div key={label} className={`surface-card border-l-2 p-4 ${accent}`}>
-            <div className="tnum text-2xl font-bold">{value}</div>
-            <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+        {([
+          { label: "Active", value: statusCounts.active, icon: Users2, accent: "text-foreground/70", border: "border-l-foreground/20" },
+          { label: "Stealth", value: statusCounts.stealth, icon: Compass, accent: "text-amber-accent", border: "border-l-amber-500/60" },
+          { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", border: "border-l-signal/60" },
+          { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", border: "border-l-violet-500/50" },
+        ] as const).map(({ label, value, icon: Icon, accent, border }) => (
+          <div key={label} className={`surface-card surface-card-hover group relative overflow-hidden border-l-2 p-4 ${border}`}>
+            <div className="pointer-events-none absolute -right-4 -top-4 h-14 w-14 rounded-full bg-signal/5 blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <div className="tnum text-2xl font-bold">{value}</div>
+                <div className="mt-1 label-caps text-muted-foreground">{label}</div>
+              </div>
+              <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                <Icon className="h-3.5 w-3.5" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      <Panel title="Add a LinkedIn profile" description="Paste any public profile URL. The first refresh runs immediately." bodyClassName="p-5">
-        <AddProfileForm />
+      <Panel title="Add profiles" description="Track a single URL or bulk-import a CSV roster. The first refresh runs immediately." bodyClassName="p-5">
+        <AddProfilesPanel />
       </Panel>
 
       <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
@@ -124,14 +143,19 @@ export default async function WatchlistPage() {
 
       <Panel
         title="Tracked profiles"
-        action={<span className="tnum text-xs text-muted-foreground">{profiles.length} total</span>}
+        action={
+          <div className="flex items-center gap-2">
+            {(org.plan === "team" || org.plan === "enterprise") && <ExportWatchlistButton />}
+            <span className="tnum text-xs text-muted-foreground">{profiles.length} total</span>
+          </div>
+        }
         bodyClassName={profiles.length === 0 ? undefined : "divide-y divide-border/60"}
       >
         {profiles.length === 0 ? (
           <EmptyPanel
             icon={<ListChecks className="h-5 w-5" />}
             title="No profiles yet"
-            body="Paste a LinkedIn URL above or browse curated lab rosters to bulk-add."
+            body="Paste a LinkedIn URL above, import a CSV roster, or browse curated lab rosters to bulk-add."
             cta={
               <Button asChild variant="outline">
                 <Link href="/app/labs">Browse lab rosters</Link>
@@ -142,14 +166,25 @@ export default async function WatchlistPage() {
           profiles.map((p) => {
             const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
             return (
-              <div key={p.id} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
-                <Avatar className="h-10 w-10 ring-2 ring-background">
-                  {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-                  <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
-                </Avatar>
+              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
+                <div className="relative shrink-0">
+                  <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
+                    {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
+                    <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
+                  </Avatar>
+                  <span
+                    className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ${STATUS_DOT[p.status] ?? STATUS_DOT.unknown}`}
+                    title={p.status}
+                    aria-hidden
+                  />
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold hover:underline">
+                    <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
                       {p.full_name || p.linkedin_handle}
                     </Link>
                     <Badge variant={STATUS_TONE[p.status] ?? "secondary"} className="capitalize">
@@ -164,18 +199,8 @@ export default async function WatchlistPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                  <form action={refreshNowForm}>
-                    <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Refresh now" className="rounded-lg text-muted-foreground hover:text-foreground">
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  </form>
-                  <form action={removeProfileForm}>
-                    <input type="hidden" name="profile_id" value={p.id} />
-                    <Button variant="ghost" size="icon" title="Remove" className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </form>
+                  <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} />
+                  <RemoveProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} />
                 </div>
               </div>
             );

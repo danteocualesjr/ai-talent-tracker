@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Sparkles } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { BackLink } from "@/components/back-link";
@@ -34,17 +34,22 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
         <BackLink href="/feed">Back to feed</BackLink>
 
         <article className="surface-elevated mt-8 overflow-hidden rounded-2xl border border-border/60 bg-card">
-          <div className="flex items-center justify-between border-b border-border/60 bg-muted/30 px-6 py-3.5 text-xs text-muted-foreground">
-            <span>
+          <div className="relative flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-muted/40 via-muted/20 to-signal/[0.06] px-6 py-3.5 text-xs text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
               Detected <span className="font-medium text-foreground">{formatRelative(ev.detected_at)}</span>
             </span>
-            <span className="tnum font-medium">
-              Confidence {Number(ev.confidence).toFixed(2)}
+            <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-signal/10 px-2.5 py-1 text-[11px] font-semibold text-signal">
+              <Sparkles className="h-3 w-3" />
+              {Math.round(Number(ev.confidence) * 100)}% confidence
             </span>
           </div>
           <div className="p-6 md:p-8">
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 ring-2 ring-background">
+              <Avatar className="h-16 w-16 ring-2 ring-background shadow-sm">
                 {ev.profile.avatar_url ? <AvatarImage src={ev.profile.avatar_url} alt={ev.profile.full_name ?? ""} /> : null}
                 <AvatarFallback className="text-base">{initials}</AvatarFallback>
               </Avatar>
@@ -60,10 +65,15 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
                     <span className="text-sm text-muted-foreground">· {ev.profile.current_company}</span>
                   )}
                 </div>
+                {ev.profile.headline && (
+                  <p className="mt-2 text-sm text-muted-foreground">{ev.profile.headline}</p>
+                )}
               </div>
             </div>
-            <p className="mt-6 text-base leading-relaxed text-foreground/90">{ev.summary}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <p className="mt-6 rounded-xl border border-border/60 bg-muted/30 p-4 text-base leading-relaxed text-foreground/90">{ev.summary}</p>
+            <div className="mt-8 flex flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">Want alerts when profiles like this change?</p>
+              <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild variant="outline" className="flex-1 sm:flex-none">
                 <a href={ev.profile.linkedin_url} target="_blank" rel="noreferrer noopener">
                   View on LinkedIn <ExternalLink className="ml-1 h-3.5 w-3.5" />
@@ -72,6 +82,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
               <Button asChild className="flex-1 sm:flex-none">
                 <Link href="/login">Track profiles like this</Link>
               </Button>
+              </div>
             </div>
           </div>
         </article>

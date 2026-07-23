@@ -78,7 +78,7 @@ export function Sparkline({
         strokeLinejoin="round"
       />
       <circle cx={lastX} cy={lastY} r={2.5} fill={stroke} />
-      <circle cx={lastX} cy={lastY} r={5} fill={stroke} fillOpacity="0.18" />
+      <circle cx={lastX} cy={lastY} r={5} fill={stroke} fillOpacity="0.18" className="signal-pulse" />
     </svg>
   );
 }

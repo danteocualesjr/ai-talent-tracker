@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState } from "react";
-import { Mail } from "lucide-react";
+import { use, useEffect, useState } from "react";
+import { Loader2, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { safeRedirectPath } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const params = use(searchParams);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (params.error === "auth") {
+      toast.error("Your sign-in link expired or is invalid. Request a new one.");
+    }
+  }, [params.error]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,10 +41,10 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   if (sent) {
     return (
-      <div className="mt-6 rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+      <div className="mt-6 animate-fade-up rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
-            <Mail className="h-4 w-4" aria-hidden="true" />
+          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal ring-4 ring-signal/10">
+            <Mail className="h-4 w-4 signal-pulse" aria-hidden="true" />
           </span>
           <div className="min-w-0">
             <p className="font-semibold text-foreground">Check your inbox</p>
@@ -67,20 +73,39 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
 
   return (
     <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+      {params.error === "auth" && (
+        <div
+          role="alert"
+          className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed text-foreground"
+        >
+          Your magic link expired or is invalid. Enter your email below to get a new one.
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="email"
-          placeholder="you@company.com"
-        />
+        <div className="relative group rounded-lg transition-shadow focus-within:shadow-[0_0_0_3px_hsl(var(--signal)/0.12)]">
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-signal" aria-hidden />
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="you@company.com"
+            className="pl-10"
+          />
+        </div>
       </div>
-      <Button type="submit" className="w-full" disabled={loading || !email} aria-busy={loading}>
-        {loading ? "Sending..." : "Send magic link"}
+      <Button type="submit" variant="signal" className="w-full" disabled={loading || !email} aria-busy={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Sending…
+          </>
+        ) : (
+          "Send magic link"
+        )}
       </Button>
     </form>
   );

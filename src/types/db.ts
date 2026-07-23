@@ -62,6 +62,8 @@ export interface Profile {
   location: string | null;
   avatar_url: string | null;
   github_handle: string | null;
+  github_last_commit_at: string | null;
+  github_commits_30d: number | null;
   x_handle: string | null;
   about: string | null;
   status: ProfileStatus;

@@ -11,7 +11,11 @@ export function Logo({ className, href = "/", showWordmark = true }: { className
       )}
     >
       <LogoMark />
-      {showWordmark && <span className="text-[15px]">AI Talent Tracker</span>}
+      {showWordmark && (
+        <span className="text-[15px] tracking-tight">
+          AI <span className="font-serif italic font-normal text-gradient-hero">Talent</span> Tracker
+        </span>
+      )}
     </Link>
   );
 }
@@ -21,14 +25,14 @@ export function LogoMark({ className }: { className?: string }) {
     <span
       aria-hidden
       className={cn(
-        "relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-foreground text-background shadow-sm transition-transform duration-200 group-hover:scale-[1.03]",
+        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-foreground via-foreground to-foreground/85 text-background shadow-[0_8px_24px_-8px_hsl(var(--foreground)/0.5)] ring-2 ring-signal/25 transition-transform duration-200 group-hover:scale-[1.05]",
         className,
       )}
     >
-      <span className="absolute inset-0 bg-gradient-to-br from-signal/35 via-transparent to-transparent opacity-90" />
+      <span className="absolute inset-0 bg-gradient-to-br from-signal/45 via-transparent to-transparent opacity-95" />
       <span
         aria-hidden
-        className="absolute -bottom-3 -right-3 h-7 w-7 rounded-full bg-signal/40 blur-md transition-opacity duration-300 group-hover:opacity-90"
+        className="absolute -bottom-3 -right-3 h-8 w-8 rounded-full bg-signal/50 blur-md transition-opacity duration-300 group-hover:opacity-100"
       />
       <svg
         viewBox="0 0 24 24"

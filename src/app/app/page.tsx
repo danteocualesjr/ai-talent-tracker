@@ -6,7 +6,9 @@ import {
   ArrowUpRight,
   Bell,
   Building2,
+  Clock,
   Plus,
+  RefreshCw,
   Sparkles,
   TrendingUp,
   Users2,
@@ -19,6 +21,7 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
+import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { Sparkline, buildTrendSeries } from "@/components/sparkline";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
@@ -51,6 +54,7 @@ export default async function DashboardPage() {
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10 lg:space-y-10">
       <PageHeader
         title="Dashboard"
+        divider
         description={
           <>
             <span className="tnum font-semibold text-foreground">{profiles.length}</span> of{" "}
@@ -68,12 +72,30 @@ export default async function DashboardPage() {
           </>
         }
       >
-        <Button asChild>
+        <Button asChild variant="signal">
           <Link href="/app/watchlist"><Plus className="h-4 w-4" /> Add profile</Link>
         </Button>
       </PageHeader>
 
-      {/* Stat cards with sparklines */}
+      <DashboardGreeting orgName={org.name} />
+
+      <div className="flex flex-wrap gap-2">
+        {[
+          { href: "/app/watchlist", label: "Add profiles", icon: Plus },
+          { href: "/app/events", label: "Review events", icon: Activity },
+          { href: "/app/alerts", label: "Configure alerts", icon: Bell },
+          { href: "/app/labs", label: "Browse labs", icon: Building2 },
+        ].map(({ href, label, icon: Icon }) => (
+          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)]">
+            <Link href={href}>
+              <Icon className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal" />
+              {label}
+            </Link>
+          </Button>
+        ))}
+      </div>
+
+      {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label="Tracked profiles"
@@ -81,7 +103,6 @@ export default async function DashboardPage() {
           icon={<Users2 className="h-3.5 w-3.5" />}
           sub={`Limit ${org.profile_limit}`}
           accent="text-foreground/70"
-          series={buildTrendSeries(profiles.length || 1, 14, 0.4)}
         />
         <StatCard
           label="Events (7d)"
@@ -89,7 +110,6 @@ export default async function DashboardPage() {
           icon={<Activity className="h-3.5 w-3.5" />}
           sub={`${last30} in last 30 days`}
           accent="text-signal"
-          series={buildTrendSeries(last7 || 2, 14, 0.6)}
         />
         <StatCard
           label="Stealth + founders"
@@ -97,7 +117,6 @@ export default async function DashboardPage() {
           icon={<Sparkles className="h-3.5 w-3.5" />}
           sub={`${stealth} stealth · ${founders} founder`}
           accent="text-amber-accent"
-          series={buildTrendSeries(stealth + founders || 1, 14, 0.5)}
         />
         <StatCard
           label="Departures"
@@ -105,7 +124,6 @@ export default async function DashboardPage() {
           icon={<AlertTriangle className="h-3.5 w-3.5" />}
           sub="flagged left"
           accent="text-violet-accent"
-          series={buildTrendSeries(left || 1, 14, 0.5)}
         />
       </div>
 
@@ -126,6 +144,11 @@ export default async function DashboardPage() {
             <span className="tnum font-semibold">
               {profiles.length}
               <span className="text-muted-foreground"> / {org.profile_limit}</span>
+              {profiles.length < org.profile_limit && (
+                <span className="ml-1.5 font-normal text-muted-foreground">
+                  · {org.profile_limit - profiles.length} left
+                </span>
+              )}
             </span>
           </div>
           <div
@@ -136,7 +159,10 @@ export default async function DashboardPage() {
             aria-valuenow={profiles.length}
             aria-label="Watchlist capacity"
           >
-            <div className="progress-fill" style={{ width: `${fill}%` }} />
+            <div
+              className={`progress-fill ${fill >= 90 ? "progress-fill-critical" : fill >= 70 ? "progress-fill-warning" : ""}`}
+              style={{ width: `${fill}%` }}
+            />
           </div>
         </div>
         <Button asChild variant="outline" size="sm" className="shrink-0">
@@ -146,12 +172,18 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          ["Fresh profiles", freshProfiles, "Synced within the last 7 days"],
-          ["Needs refresh", staleProfiles, "Missing or older profile snapshots"],
-          ["Cadence", org.refresh_cadence, "Current workspace refresh schedule"],
-        ].map(([label, value, description]) => (
-          <div key={label} className="surface-card p-5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+          { label: "Fresh profiles", value: freshProfiles, description: "Synced within the last 7 days", icon: RefreshCw, accent: "text-signal bg-signal/10" },
+          { label: "Needs refresh", value: staleProfiles, description: "Missing or older profile snapshots", icon: AlertTriangle, accent: "text-amber-accent bg-amber-500/10" },
+          { label: "Cadence", value: org.refresh_cadence, description: "Current workspace refresh schedule", icon: Clock, accent: "text-violet-accent bg-violet-500/10" },
+        ].map(({ label, value, description, icon: Icon, accent }) => (
+          <div key={label} className="group surface-card surface-card-hover relative overflow-hidden p-5">
+            <span aria-hidden className="pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="flex items-start justify-between gap-3">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
+                <Icon className="h-3.5 w-3.5" />
+              </div>
+            </div>
             <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
           </div>
@@ -170,19 +202,43 @@ export default async function DashboardPage() {
         </div>
         <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
           {priorityEvents.length === 0 ? (
-            <div className="p-5 text-sm text-muted-foreground md:col-span-3">
-              No priority moves yet. Add profiles and high-confidence stealth or founding signals will appear here.
+            <div className="flex flex-col items-center justify-center gap-3 p-10 text-center md:col-span-3">
+              <div className="ring-dots flex h-14 w-14 items-center justify-center rounded-2xl border border-border/60 bg-muted/40">
+                <Sparkles className="h-5 w-5 text-signal/70" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">No priority moves yet</div>
+                <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                  Add profiles and high-confidence stealth or founding signals will appear here first.
+                </p>
+              </div>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/app/watchlist">Build watchlist</Link>
+              </Button>
             </div>
           ) : (
             priorityEvents.map((event) => (
-              <Link key={event.id} href={`/app/profiles/${event.profile.id}`} className="group block p-5 transition-colors hover:bg-muted/30">
+              <Link
+                key={event.id}
+                href={`/app/profiles/${event.profile.id}`}
+                className="group relative block p-5 transition-all duration-200 hover:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]"
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
                 <div className="flex items-center justify-between gap-3">
-                  <div className="truncate text-sm font-semibold">{event.profile.full_name ?? event.profile.linkedin_handle}</div>
-                  <span className="tnum rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">
+                  <div className="truncate text-sm font-semibold transition-colors group-hover:text-foreground">
+                    {event.profile.full_name ?? event.profile.linkedin_handle}
+                  </div>
+                  <span className="tnum shrink-0 rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">
                     {Math.round(event.confidence * 100)}%
                   </span>
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground opacity-70 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100 group-hover:text-signal">
+                  Review profile <ArrowRight className="h-3 w-3" />
+                </span>
               </Link>
             ))
           )}
@@ -257,6 +313,13 @@ export default async function DashboardPage() {
   );
 }
 
+const STAT_RAIL: Record<string, string> = {
+  "text-signal": "from-signal/0 via-signal/55 to-signal/0",
+  "text-foreground/70": "from-foreground/0 via-foreground/25 to-foreground/0",
+  "text-amber-accent": "from-amber-400/0 via-amber-400/70 to-amber-400/0 dark:via-amber-300/55",
+  "text-violet-accent": "from-violet-400/0 via-violet-400/65 to-violet-400/0 dark:via-violet-300/55",
+};
+
 function StatCard({
   label,
   value,
@@ -272,19 +335,29 @@ function StatCard({
   series?: number[];
   accent?: string;
 }) {
+  const rail = STAT_RAIL[accent] ?? STAT_RAIL["text-signal"];
+
   return (
-    <div className="surface-card surface-card-hover relative overflow-hidden p-5 motion-safe:transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-5">
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
+      />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-70" />
+      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br from-signal/12 to-transparent blur-2xl opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative flex items-start justify-between">
+        <div className="label-caps text-muted-foreground transition-colors group-hover:text-foreground/80">
           {label}
         </div>
-        <div className="text-muted-foreground/60">{icon}</div>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-xl border border-border/50 bg-muted/70 ${accent} shadow-sm motion-safe:transition-all motion-safe:duration-200 motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 group-hover:border-signal/25 group-hover:shadow-[0_0_16px_-6px_hsl(var(--signal)/0.45)]`}>
+          {icon}
+        </div>
       </div>
-      <div className="tnum mt-3 text-3xl font-bold tracking-tight">{value}</div>
-      <div className="mt-1.5 flex items-end justify-between gap-2">
-        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+      <div className="tnum relative mt-3 text-3xl font-bold tracking-tight md:text-[2.1rem]">{value}</div>
+      <div className="relative mt-1.5 flex items-end justify-between gap-2">
+        {sub && <div className="text-xs leading-relaxed text-muted-foreground">{sub}</div>}
         {series && (
-          <div className={`shrink-0 ${accent}`}>
+          <div className={`shrink-0 opacity-80 transition-opacity group-hover:opacity-100 ${accent}`} aria-hidden>
             <Sparkline data={series} width={64} height={22} strokeWidth={1.5} />
           </div>
         )}

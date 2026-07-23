@@ -29,16 +29,31 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       suppressHydrationWarning
       onClick={toggleTheme}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-colors",
-        "hover:border-foreground/15 hover:bg-card hover:text-foreground",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+        "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-all duration-200",
+        "hover:border-foreground/15 hover:bg-card hover:text-foreground hover:shadow-[0_0_12px_-2px_hsl(var(--signal)/0.25)] motion-safe:hover:rotate-6",
+        isDark && "border-signal/25 bg-signal/5 text-signal",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
+        "motion-safe:active:scale-95",
         className,
       )}
     >
-      {mounted ? (
-        isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />
+      {!mounted ? (
+        <span className="h-4 w-4 rounded-full bg-muted-foreground/25" aria-hidden />
       ) : (
-        <Moon className="h-4 w-4" />
+        <span className="relative block h-4 w-4" aria-hidden>
+          <Sun
+            className={cn(
+              "absolute inset-0 h-4 w-4 transition-all duration-300 motion-safe:rotate-0",
+              isDark ? "scale-100 opacity-100" : "scale-75 opacity-0 motion-safe:-rotate-90",
+            )}
+          />
+          <Moon
+            className={cn(
+              "absolute inset-0 h-4 w-4 transition-all duration-300 motion-safe:rotate-0",
+              isDark ? "scale-75 opacity-0 motion-safe:rotate-90" : "scale-100 opacity-100",
+            )}
+          />
+        </span>
       )}
     </button>
   );

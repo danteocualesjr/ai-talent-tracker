@@ -6,8 +6,16 @@ import { diffProfiles, hashSnapshot } from "@/lib/diff";
 import { classifyByRules } from "@/lib/classifier/rules";
 import { classifyWithLLM } from "@/lib/classifier/llm";
 import { dispatchEvent } from "@/lib/notifications/dispatch";
-import type { Profile, ProfileSnapshot } from "@/types/db";
+import { fetchGitHubActivity } from "@/lib/github/activity";
+import { detectGitHubDark } from "@/lib/github/detect-dark";
+import type { Profile, ProfileSnapshot, RefreshCadence } from "@/types/db";
 import type { ProviderProfile } from "@/lib/providers";
+
+const CADENCE_HOURS: Record<RefreshCadence, number> = {
+  hourly: 1,
+  daily: 24,
+  weekly: 168,
+};
 
 /**
  * Cron: every hour scan profiles that are due for a refresh based on the
@@ -19,14 +27,16 @@ export const scheduleRefreshes = inngest.createFunction(
   async ({ step }) => {
     const db = createAdminClient();
     const due = await step.run("find-due-profiles", async () => {
+      // Only fan out profiles that are on at least one watchlist.
       const { data, error } = await db
         .from("profiles")
-        .select("id")
+        .select("id, watchlist_profiles!inner(profile_id)")
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as { id: string }[];
+      const ids = [...new Set(((data ?? []) as { id: string }[]).map((p) => p.id))];
+      return ids.map((id) => ({ id }));
     });
 
     if (due.length === 0) return { refreshed: 0 };
@@ -61,7 +71,9 @@ export const refreshProfile = inngest.createFunction(
       return data as Profile;
     });
 
-    if (profile.is_opted_out) return { changed: false, skipped: "opted_out" };
+    if (profile.is_opted_out) {
+      return { skipped: true, reason: "opted_out" };
+    }
 
     const fetched = await step.run("fetch-from-provider", async () => provider.fetch(profile.linkedin_url));
     const hash = hashSnapshot(fetched);
@@ -91,7 +103,7 @@ export const refreshProfile = inngest.createFunction(
 
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
-      const next = nextSyncAt(profile);
+      const next = await nextSyncAt(db, profile);
       await db
         .from("profiles")
         .update({
@@ -110,7 +122,12 @@ export const refreshProfile = inngest.createFunction(
         .eq("id", profileId);
     });
 
-    if (!stored) return { changed: false };
+    const githubHandle = fetched.github_handle ?? profile.github_handle;
+
+    if (!stored) {
+      const github = await checkGitHubActivity(step, db, profile, githubHandle);
+      return { changed: false, ...github };
+    }
 
     // Diff vs previous snapshot's projection (the profile row prior to update).
     const prev: Partial<ProviderProfile> = {
@@ -124,7 +141,10 @@ export const refreshProfile = inngest.createFunction(
       x_handle: profile.x_handle,
     };
     const diffs = diffProfiles(prev, fetched);
-    if (diffs.length === 0) return { changed: false };
+    if (diffs.length === 0) {
+      const github = await checkGitHubActivity(step, db, profile, githubHandle);
+      return { changed: false, ...github };
+    }
 
     let classification = classifyByRules(
       diffs,
@@ -144,7 +164,10 @@ export const refreshProfile = inngest.createFunction(
       if (llm) classification = llm;
     }
 
-    if (!classification) return { changed: true, eventCreated: false };
+    if (!classification) {
+      const github = await checkGitHubActivity(step, db, profile, githubHandle);
+      return { changed: true, eventCreated: false, ...github };
+    }
 
     const eventRow = await step.run("persist-event", async () => {
       const { data, error } = await db
@@ -170,9 +193,87 @@ export const refreshProfile = inngest.createFunction(
     });
 
     await step.sendEvent("notify", { name: "event/created", data: { event_id: eventRow.id } });
-    return { changed: true, eventCreated: true, type: classification.type };
+    const github = await checkGitHubActivity(step, db, profile, githubHandle);
+    return { changed: true, eventCreated: true, type: classification.type, ...github };
   },
 );
+
+/**
+ * After a profile refresh, check GitHub commit activity for profiles with a
+ * linked handle and emit a github_dark event when activity drops off.
+ */
+async function checkGitHubActivity(
+  step: {
+    run: (id: string, fn: () => Promise<unknown>) => Promise<unknown>;
+    sendEvent: (id: string, events: { name: "event/created"; data: { event_id: string } }) => Promise<unknown>;
+  },
+  db: ReturnType<typeof createAdminClient>,
+  profile: Profile,
+  githubHandle: string | null | undefined,
+): Promise<{ githubDark: boolean }> {
+  if (!githubHandle) return { githubDark: false };
+
+  const activity = (await step.run("fetch-github-activity", () =>
+    fetchGitHubActivity(githubHandle),
+  )) as Awaited<ReturnType<typeof fetchGitHubActivity>>;
+  if (!activity) return { githubDark: false };
+
+  await step.run("update-github-stats", async () => {
+    await db
+      .from("profiles")
+      .update({
+        github_last_commit_at: activity.lastCommitAt,
+        github_commits_30d: activity.commits30d,
+      })
+      .eq("id", profile.id);
+  });
+
+  const signal = detectGitHubDark(
+    {
+      github_last_commit_at: profile.github_last_commit_at,
+      github_commits_30d: profile.github_commits_30d,
+    },
+    activity,
+  );
+  if (!signal) return { githubDark: false };
+
+  const recent = (await step.run("dedupe-github-dark", async () => {
+    const since = new Date(Date.now() - 30 * 86400000).toISOString();
+    const { data } = await db
+      .from("events")
+      .select("id")
+      .eq("profile_id", profile.id)
+      .eq("type", "github_dark")
+      .gte("detected_at", since)
+      .limit(1);
+    return (data ?? []).length > 0;
+  })) as boolean;
+  if (recent) return { githubDark: false };
+
+  const eventRow = (await step.run("persist-github-dark", async () => {
+    const { data, error } = await db
+      .from("events")
+      .insert({
+        profile_id: profile.id,
+        type: signal.type,
+        confidence: signal.confidence,
+        summary: signal.summary,
+        before: {
+          github_last_commit_at: profile.github_last_commit_at,
+          github_commits_30d: profile.github_commits_30d,
+        },
+        after: activity as object,
+        is_public: false,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data;
+  })) as { id: string };
+
+  await step.sendEvent("notify-github-dark", { name: "event/created", data: { event_id: eventRow.id } });
+  return { githubDark: true };
+}
 
 /**
  * Fan-out event notifications to every channel configured by orgs that watch
@@ -186,9 +287,32 @@ export const notifyEvent = inngest.createFunction(
   },
 );
 
-function nextSyncAt(profile: Profile): string {
-  // Cadence is the *fastest* cadence among orgs watching this profile.
-  // For now we just use 24h; a future improvement queries watchlists + plan.
-  const base = profile.status === "left" || profile.status === "stealth" ? 6 : 24;
-  return new Date(Date.now() + base * 60 * 60 * 1000).toISOString();
+async function nextSyncAt(
+  db: ReturnType<typeof createAdminClient>,
+  profile: Profile,
+): Promise<string> {
+  // Cadence is the *fastest* among orgs watching this profile.
+  const { data } = await db
+    .from("watchlist_profiles")
+    .select("watchlists!inner(organizations!inner(refresh_cadence))")
+    .eq("profile_id", profile.id);
+
+  let cadenceHours = CADENCE_HOURS.weekly;
+  for (const row of data ?? []) {
+    const watchlist = row.watchlists as unknown as
+      | { organizations: { refresh_cadence: RefreshCadence } | { refresh_cadence: RefreshCadence }[] | null }
+      | null;
+    const org = watchlist?.organizations;
+    const cadence = Array.isArray(org) ? org[0]?.refresh_cadence : org?.refresh_cadence;
+    if (cadence && cadence in CADENCE_HOURS) {
+      cadenceHours = Math.min(cadenceHours, CADENCE_HOURS[cadence]);
+    }
+  }
+
+  // Hot statuses get a tighter ceiling so departures are rechecked sooner.
+  if (profile.status === "left" || profile.status === "stealth") {
+    cadenceHours = Math.min(cadenceHours, 6);
+  }
+
+  return new Date(Date.now() + cadenceHours * 60 * 60 * 1000).toISOString();
 }

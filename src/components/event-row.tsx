@@ -4,9 +4,64 @@ import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatRelative } from "@/lib/utils";
-import type { EventRow as EventRowT, Profile, EventType } from "@/types/db";
+import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db";
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
+
+const DIFF_FIELDS = [
+  { key: "current_company", label: "company" },
+  { key: "current_title", label: "title" },
+  { key: "headline", label: "headline" },
+  { key: "location", label: "location" },
+] as const;
+
+function formatFieldChanges(before: Json | null, after: Json | null): string[] {
+  if (!before || !after || typeof before !== "object" || typeof after !== "object") return [];
+  const prev = before as Record<string, unknown>;
+  const next = after as Record<string, unknown>;
+  const lines: string[] = [];
+  for (const { key, label } of DIFF_FIELDS) {
+    const from = prev[key];
+    const to = next[key];
+    if (from == null && to == null) continue;
+    if (String(from ?? "") === String(to ?? "")) continue;
+    const fromLabel = from != null && String(from) ? String(from) : "—";
+    const toLabel = to != null && String(to) ? String(to) : "—";
+    lines.push(`${label}: ${fromLabel} → ${toLabel}`);
+  }
+  return lines;
+}
+
+function EventFieldDiff({ before, after }: { before: Json | null; after: Json | null }) {
+  const changes = formatFieldChanges(before, after);
+  if (changes.length === 0) return null;
+  return (
+    <ul className="mt-2.5 space-y-1.5 rounded-xl border border-border/60 bg-muted/25 px-3 py-2.5 text-xs">
+      {changes.map((line) => {
+        const colonIdx = line.indexOf(": ");
+        const field = colonIdx > 0 ? line.slice(0, colonIdx) : line;
+        const rest = colonIdx > 0 ? line.slice(colonIdx + 2) : "";
+        const arrowIdx = rest.indexOf(" → ");
+        const from = arrowIdx >= 0 ? rest.slice(0, arrowIdx) : null;
+        const to = arrowIdx >= 0 ? rest.slice(arrowIdx + 3) : null;
+        return (
+          <li key={line} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 leading-relaxed">
+            <span className="font-semibold capitalize text-foreground/80">{field}</span>
+            {from && to ? (
+              <>
+                <span className="text-muted-foreground line-through decoration-muted-foreground/40">{from}</span>
+                <span className="text-muted-foreground/50" aria-hidden>→</span>
+                <span className="font-medium text-foreground">{to}</span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">{rest || line}</span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone; ring: string; rail: string }> = {
   left_company: {
@@ -87,15 +142,15 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-muted/40 focus-within:bg-muted/30">
+    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
       {/* Accent rail on hover */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${meta.rail}`}
+        className={`pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 ${meta.rail}`}
       />
 
       <div className="relative shrink-0">
-        <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
+        <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-all motion-safe:group-hover:scale-[1.03] motion-safe:group-hover:ring-signal/20">
           {profile.avatar_url ? <AvatarImage src={profile.avatar_url} alt={profile.full_name ?? ""} /> : null}
           <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
         </Avatar>
@@ -104,13 +159,14 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         </div>
       </div>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Link
             href={href ?? `/app/profiles/${profile.id}`}
-            className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
+            className="inline-flex min-w-0 max-w-full items-center gap-1 truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
           >
-            {profile.full_name || profile.linkedin_handle}
+            <span className="truncate">{profile.full_name || profile.linkedin_handle}</span>
+            <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100" />
           </Link>
           <Badge variant={meta.tone}>{meta.label}</Badge>
           {event.confidence >= 0.7 && (
@@ -130,6 +186,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {event.summary}
         </p>
+        <EventFieldDiff before={event.before} after={event.after} />
         {profile.headline && (
           <p className="mt-1 truncate text-xs text-muted-foreground/70">{profile.headline}</p>
         )}
@@ -140,7 +197,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         target="_blank"
         rel="noreferrer noopener"
         aria-label={`Open ${profile.full_name || profile.linkedin_handle} on LinkedIn`}
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-70 shadow-sm transition-all hover:border-foreground/20 hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="inline-flex shrink-0 items-center gap-1 self-center rounded-lg border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-70 shadow-sm transition-all hover:border-signal/30 hover:bg-signal/5 hover:text-signal hover:shadow-[0_0_12px_-3px_hsl(var(--signal)/0.35)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40 motion-safe:hover:-translate-y-0.5"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>
@@ -152,8 +209,9 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
   const meta = TYPE_META[event.type] ?? TYPE_META.other;
   const Icon = meta.icon;
   return (
-    <div className="group relative pl-10">
-      <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm ${meta.ring}`}>
+    <div className="group relative pb-8 pl-10 last:pb-0 motion-safe:transition-colors motion-safe:hover:rounded-lg motion-safe:hover:bg-muted/25 motion-safe:hover:pl-11">
+      <div className="absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent last:hidden" aria-hidden />
+      <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm transition-shadow motion-safe:group-hover:shadow-md ${meta.ring}`}>
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div className="flex items-center gap-2">
@@ -173,6 +231,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
         <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
       </div>
       <p className="mt-1.5 text-pretty text-sm leading-relaxed">{event.summary}</p>
+      <EventFieldDiff before={event.before} after={event.after} />
       <Link
         href={`/app/profiles/${profile.id}`}
         className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
