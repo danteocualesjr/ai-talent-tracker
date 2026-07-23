@@ -97,7 +97,7 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border/60 app-sidebar-bg backdrop-blur-xl motion-safe:transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-border/50 app-sidebar-bg backdrop-blur-2xl motion-safe:transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

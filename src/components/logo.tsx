@@ -25,7 +25,7 @@ export function LogoMark({ className }: { className?: string }) {
     <span
       aria-hidden
       className={cn(
-        "relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-none border border-foreground bg-foreground text-background transition-transform duration-200 group-hover:scale-[1.04]",
+        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-foreground via-foreground to-foreground/85 text-background shadow-[0_8px_24px_-8px_hsl(var(--foreground)/0.5)] ring-2 ring-signal/25 transition-transform duration-200 group-hover:scale-[1.05]",
         className,
       )}
     >

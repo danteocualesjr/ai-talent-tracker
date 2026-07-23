@@ -54,29 +54,74 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — brutalist high-contrast */}
-      <section className="border-b-4 border-foreground bg-background">
-        <div className="container grid md:grid-cols-2">
-          <div className="border-b-4 border-foreground py-16 md:border-b-0 md:border-r-4 md:py-24">
-            <p className="text-sm font-black uppercase tracking-[0.3em]">AI Talent Tracker</p>
-            <h1 className="mt-8 text-[48px] font-black uppercase leading-[0.9] tracking-tighter md:text-[72px]">
-              Know when AI talent moves.
-            </h1>
-            <p className="mt-8 max-w-md text-base font-medium leading-relaxed">
-              Real-time monitoring. 20+ labs. Slack alerts. No fluff.
-            </p>
-            <div className="mt-10 flex flex-col gap-0 sm:flex-row">
-              <Button asChild size="lg" variant="default" className="rounded-none border-4 border-foreground font-black uppercase">
-                <Link href="/login">Start free</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-none border-4 border-foreground bg-signal font-black uppercase hover:bg-foreground hover:text-signal">
-                <Link href="/feed">Live feed</Link>
-              </Button>
+      {/* Hero — Signal Pro final layout */}
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div className="pointer-events-none absolute inset-0 noise opacity-40" />
+        <div className="pointer-events-none absolute inset-0 hero-backdrop" />
+        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-50" />
+        <div className="aurora-orb aurora-orb-a -left-32 top-0 h-[28rem] w-[28rem] bg-signal/18" />
+        <div className="aurora-orb aurora-orb-b -right-24 top-20 h-80 w-80 bg-accent-violet/12" />
+
+        <div className="container relative py-16 md:py-24">
+          <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+            <div>
+              <Link
+                href="/feed"
+                className="animate-fade-up surface-glass inline-flex items-center gap-2 rounded-full border-signal/20 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-signal/35 hover:text-foreground"
+              >
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                </span>
+                Live · departures detected this week
+                <ArrowRight className="h-3 w-3 opacity-50" />
+              </Link>
+
+              <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[42px] font-bold leading-[1.04] tracking-tight md:text-[58px] lg:text-[68px]">
+                Know the moment{" "}
+                <span className="font-serif italic font-normal text-gradient-hero">AI talent</span>{" "}
+                moves.
+              </h1>
+
+              <p className="animate-fade-up animate-fade-up-delay-2 mt-6 max-w-lg text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
+                Real-time monitoring of researchers and engineers at OpenAI, Anthropic, DeepMind,
+                and 20+ top AI labs. Slack ping the moment someone goes stealth.
+              </p>
+
+              <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg" variant="signal" className="group rounded-xl">
+                  <Link href="/login">
+                    Start tracking free
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="group rounded-xl">
+                  <Link href="/feed">
+                    See the live feed
+                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-3">
+                {[
+                  { value: "20+", label: "Labs tracked" },
+                  { value: "<15m", label: "Avg detection" },
+                  { value: "3", label: "Alert channels" },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-2xl border border-border/60 bg-card/60 px-4 py-3 backdrop-blur-sm">
+                    <div className="tnum text-xl font-bold md:text-2xl">{stat.value}</div>
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="bg-signal p-4 md:p-6">
-            <div className="border-4 border-foreground bg-background">
-              <DashboardPreview />
+
+            <div className="relative animate-fade-up animate-fade-up-delay-5">
+              <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-signal/15 via-transparent to-accent-violet/10 blur-2xl" />
+              <div className="preview-frame preview-float">
+                <DashboardPreview />
+              </div>
             </div>
           </div>
         </div>

@@ -70,7 +70,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
   return (
     <>
       <AppCommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
-      <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/60 bg-background/75 px-5 shadow-[0_1px_0_0_hsl(var(--border)/0.4),0_12px_32px_-24px_hsl(var(--foreground)/0.12)] backdrop-blur-xl md:flex">
+      <div className="sticky top-0 z-20 hidden h-[68px] items-center gap-3 border-b border-border/50 bg-background/70 px-6 shadow-[0_1px_0_0_hsl(var(--border)/0.35),0_16px_40px_-28px_hsl(var(--foreground)/0.1)] backdrop-blur-2xl md:flex">
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
