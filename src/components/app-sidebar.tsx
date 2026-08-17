@@ -116,7 +116,7 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
 
         {/* Workspace card */}
         <div className="relative px-3 py-4">
-          <div className="group/workspace surface-card flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 hover:border-signal/25 hover:shadow-[0_10px_28px_-18px_hsl(var(--signal)/0.45)] motion-safe:hover:-translate-y-0.5">
+          <div className="group/workspace surface-card flex items-center gap-3 rounded-md px-3 py-2.5 transition-all duration-200 hover:border-signal/30">
             <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-foreground to-foreground/80 text-[11px] font-bold text-background ring-2 ring-signal/20 motion-safe:transition-transform motion-safe:group-hover/workspace:scale-105">
               {orgName.slice(0, 2).toUpperCase()}
               <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-card bg-signal signal-pulse" aria-hidden />
@@ -195,7 +195,7 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
         {/* Upgrade card */}
         {isFree ? (
           <div className="relative px-3 pb-3">
-            <div className="relative overflow-hidden rounded-xl border border-signal/20 bg-gradient-to-br from-card via-card to-signal/[0.1] p-4 shadow-[0_12px_32px_-20px_hsl(var(--signal)/0.45)] transition-shadow hover:border-signal/35 hover:shadow-[0_16px_40px_-18px_hsl(var(--signal)/0.55)]">
+            <div className="relative overflow-hidden rounded-md border border-signal/25 bg-card p-4 transition-shadow hover:border-signal/40">
               <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-signal/15 blur-2xl" />
               <div className="flex items-center gap-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-signal/10 text-signal">

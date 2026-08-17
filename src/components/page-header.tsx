@@ -65,7 +65,7 @@ export function PageHeader({
               {icon}
             </span>
           )}
-          <h1 id="page-title" className="text-balance text-[28px] font-bold leading-tight tracking-tight md:text-[32px]">
+          <h1 id="page-title" className="text-balance font-serif text-[30px] font-medium leading-tight tracking-tight md:text-[34px]">
             {renderedTitle}
           </h1>
         </div>

@@ -23,11 +23,11 @@ export function DashboardGreeting({ orgName }: { orgName: string }) {
 
   return (
     <div className="surface-card relative overflow-hidden p-5 lg:p-6">
-      <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-signal/8 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
       <div className="relative flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="label-caps">{salutation}</p>
-          <h2 className="mt-1 text-xl font-bold tracking-tight md:text-2xl">
+          <p className="label-caps">{salutation} · daily brief</p>
+          <h2 className="mt-1 font-serif text-2xl font-medium tracking-tight md:text-[1.7rem]">
             {orgName}
           </h2>
         </div>

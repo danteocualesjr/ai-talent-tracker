@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   Bell,
   Building2,
-  Check,
   Globe2,
   LineChart,
   Lock,
@@ -56,20 +55,26 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       )}
 
-      {/* Hero — Signal Pro final layout */}
-      <section className="relative overflow-hidden border-b border-border/60">
-        <div className="pointer-events-none absolute inset-0 noise opacity-40" />
+      {/* Hero — Wire Brief editorial layout */}
+      <section className="relative overflow-hidden border-b border-border/70">
+        <div className="pointer-events-none absolute inset-0 noise opacity-35" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
-        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-50" />
-        <div className="aurora-orb aurora-orb-a -left-32 top-0 h-[28rem] w-[28rem] bg-signal/18" />
-        <div className="aurora-orb aurora-orb-b -right-24 top-20 h-80 w-80 bg-accent-violet/12" />
+        <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
 
         <div className="container relative py-16 md:py-24">
           <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
             <div>
+              <div className="animate-fade-up flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                <span className="text-signal">Intelligence brief</span>
+                <span className="h-3 w-px bg-border" aria-hidden />
+                <span>
+                  {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+                </span>
+              </div>
+
               <Link
                 href="/feed"
-                className="animate-fade-up surface-glass inline-flex items-center gap-2 rounded-full border-signal/20 px-4 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-signal/35 hover:text-foreground"
+                className="animate-fade-up mt-5 surface-glass inline-flex items-center gap-2 rounded-full border-signal/25 px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-signal/40 hover:text-foreground"
               >
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -79,9 +84,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 <ArrowRight className="h-3 w-3 opacity-50" />
               </Link>
 
-              <h1 className="animate-fade-up animate-fade-up-delay-1 mt-8 text-balance text-[42px] font-bold leading-[1.04] tracking-tight md:text-[58px] lg:text-[68px]">
+              <h1 className="animate-fade-up animate-fade-up-delay-1 mt-7 text-balance font-serif text-[44px] font-medium leading-[1.05] tracking-tight md:text-[60px] lg:text-[68px]">
                 Know the moment{" "}
-                <span className="font-serif italic font-normal text-gradient-hero">AI talent</span>{" "}
+                <span className="italic text-gradient-hero">AI talent</span>{" "}
                 moves.
               </h1>
 
@@ -91,13 +96,13 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </p>
 
               <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" variant="signal" className="group rounded-xl">
+                <Button asChild size="lg" variant="signal" className="group">
                   <Link href="/login">
                     Start tracking free
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="group rounded-xl">
+                <Button asChild size="lg" variant="outline" className="group">
                   <Link href="/feed">
                     See the live feed
                     <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -105,13 +110,13 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 </Button>
               </div>
 
-              <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-3">
+              <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
                 {[
                   { value: "20+", label: "Labs tracked" },
                   { value: "<15m", label: "Avg detection" },
                   { value: "3", label: "Alert channels" },
                 ].map((stat) => (
-                  <div key={stat.label} className="rounded-2xl border border-border/60 bg-card/60 px-4 py-3 backdrop-blur-sm">
+                  <div key={stat.label} className="bg-card px-4 py-3.5">
                     <div className="tnum text-xl font-bold md:text-2xl">{stat.value}</div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
                   </div>
@@ -120,7 +125,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </div>
 
             <div className="relative animate-fade-up animate-fade-up-delay-5">
-              <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-signal/15 via-transparent to-accent-violet/10 blur-2xl" />
+              <div className="absolute -inset-6 rounded-2xl bg-gradient-to-br from-signal/14 via-transparent to-accent-amber/8 blur-2xl" />
               <div className="preview-frame preview-float">
                 <DashboardPreview />
               </div>
@@ -133,7 +138,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       <section className="section-wash border-b border-border/60">
         <div className="container py-10 md:py-12">
           <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-[1.1fr_0.9fr]">
-            <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-card/80 p-1 shadow-[0_16px_40px_-28px_hsl(var(--foreground)/0.2)] backdrop-blur-sm">
+            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
               {([
                 { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
                 { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
@@ -141,9 +146,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               ] as const).map(({ value, label, icon: Icon, accent }, i) => (
                 <div
                   key={label}
-                  className={`group rounded-xl px-3 py-4 text-center transition-colors hover:bg-background/70 ${i === 1 ? "border-x border-border/60 bg-background/70" : ""}`}
+                  className={`group bg-card px-3 py-4 text-center transition-colors hover:bg-background ${i === 1 ? "bg-background" : ""}`}
                 >
-                  <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+                  <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
@@ -199,9 +204,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="container relative grid items-center gap-12 py-20 md:grid-cols-[1.05fr_1fr] md:py-24">
           <div>
             <div className="label-caps">Live activity</div>
-            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+            <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-5xl">
               The feed that{" "}
-              <span className="font-serif italic font-normal text-gradient-signal">moves first</span>.
+              <span className="italic text-gradient-signal">moves first</span>.
             </h2>
             <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
               Headline changes, stealth flips, and founding signals — surfaced minutes after they happen,
@@ -244,9 +249,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="grid items-start gap-10 md:grid-cols-[0.9fr_1.1fr]">
             <div>
               <div className="label-caps">Signal intelligence</div>
-            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+            <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-5xl">
               Turn profile noise into{" "}
-              <span className="font-serif italic font-normal text-gradient-hero">ranked next actions</span>.
+              <span className="italic text-gradient-hero">ranked next actions</span>.
             </h2>
               <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
                 Every detected change is scored, classified, and routed so your team knows what to do first.
@@ -274,9 +279,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="container py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">Features</div>
-            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+            <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-5xl">
               Built for sourcing the{" "}
-              <span className="font-serif italic font-normal text-gradient-signal">next wave</span>.
+              <span className="italic text-gradient-signal">next wave</span>.
             </h2>
             <p className="mt-4 text-pretty text-muted-foreground md:text-lg">
               Multi-signal change detection, real-time alerts, and curated lab rosters in one place.
@@ -299,9 +304,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="container py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <div className="label-caps">How it works</div>
-            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+            <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-5xl">
               From profile to alert in{" "}
-              <span className="font-serif italic font-normal text-gradient-hero">three steps</span>.
+              <span className="italic text-gradient-hero">three steps</span>.
             </h2>
           </div>
           <div className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3">
@@ -318,10 +323,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="grid items-center gap-14 md:grid-cols-2">
             <div>
               <div className="label-caps">Who uses this</div>
-              <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-4xl">
+              <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl">
                 If your edge is being first, this is for you.
               </h2>
-              <ul className="mt-8 divide-y divide-border/60 rounded-2xl border border-border/60 bg-card">
+              <ul className="mt-8 divide-y divide-border/70 rounded-lg border border-border/80 bg-card">
                 {[
                   ["VCs & scouts", "Reach researchers the day they go stealth."],
                   ["AI startup recruiters", "Source candidates from real-time departures."],
@@ -329,7 +334,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                   ["Competitive intel teams", "Track who's being poached, and by whom."],
                   ["Journalists & analysts", "Cover the AI labor market with primary signal."],
                 ].map(([who, why]) => (
-                  <li key={who} className="flex items-start gap-4 px-5 py-4 first:rounded-t-2xl last:rounded-b-2xl">
+                  <li key={who} className="flex items-start gap-4 px-5 py-4 first:rounded-t-lg last:rounded-b-lg">
                     <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
                     <div>
                       <div className="text-sm font-medium">{who}</div>
@@ -371,7 +376,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       {/* CTA */}
       <section>
         <div className="container py-20 md:py-28">
-          <div className="cta-halo relative overflow-hidden rounded-2xl bg-foreground text-background">
+          <div className="cta-halo relative overflow-hidden rounded-lg bg-foreground text-background">
             <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-signal/25 blur-[80px]" />
             <div
               className="pointer-events-none absolute inset-0 opacity-[0.06]"
@@ -388,7 +393,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 <div className="inline-flex items-center gap-2 rounded-full border border-background/20 bg-background/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-background/80">
                   <Zap className="h-3 w-3" /> Get started
                 </div>
-                <h2 className="mt-5 text-balance text-3xl font-bold tracking-tight md:text-5xl">
+                <h2 className="mt-5 text-balance font-serif text-3xl font-medium tracking-tight md:text-5xl">
                   Start with 5 free profiles.
                 </h2>
                 <p className="mt-4 max-w-md text-pretty text-base leading-relaxed text-background/65">
@@ -423,7 +428,7 @@ function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: stri
     <div className="group surface-card surface-card-hover relative overflow-hidden p-7">
       <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-signal/8 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal group-hover:shadow-[0_0_20px_-6px_hsl(var(--signal)/0.55)]">
+      <div className="relative flex h-10 w-10 items-center justify-center rounded-md border border-border/70 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
         {icon}
       </div>
       <h3 className="relative mt-5 text-base font-bold tracking-tight">{title}</h3>
@@ -451,8 +456,8 @@ function Step({ n, title, body }: { n: number; title: string; body: string }) {
 function SampleAlert() {
   return (
     <div className="relative">
-      <div className="absolute -inset-px rounded-[17px] bg-gradient-to-b from-signal/40 via-border/40 to-transparent" />
-      <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card">
+      <div className="absolute -inset-px rounded-[9px] bg-gradient-to-b from-signal/45 via-border/50 to-transparent" />
+      <div className="surface-elevated relative overflow-hidden rounded-lg border border-border/70 bg-card">
         <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-signal/10 blur-3xl" />
         <div className="relative flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-muted/50 to-muted/20 px-5 py-3.5">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">

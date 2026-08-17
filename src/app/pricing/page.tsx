@@ -63,9 +63,9 @@ export default async function PricingPage({
           <div className="surface-card overflow-hidden">
             <div className="border-b border-border/60 p-6 md:p-8">
               <div className="label-caps">Plan guide</div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-3xl">
+              <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight md:text-3xl">
                 Pick the workspace that matches your{" "}
-                <span className="font-serif italic font-normal text-gradient-signal">signal volume</span>.
+                <span className="italic text-gradient-signal">signal volume</span>.
               </h2>
             </div>
             <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">

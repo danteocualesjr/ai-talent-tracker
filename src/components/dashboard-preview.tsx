@@ -6,7 +6,7 @@ import { Bell, LineChart, ListChecks, Search, Settings, Sparkles, Users } from "
 export function DashboardPreview() {
   return (
     <div aria-hidden="true" className="preview-frame preview-float preview-tilt">
-      <div className="overflow-hidden rounded-[calc(1.15rem-1px)] border border-border/40 bg-card">
+      <div className="overflow-hidden rounded-[calc(0.65rem-1px)] border border-border/40 bg-card">
         {/* Browser chrome */}
         <div className="relative flex items-center gap-3 border-b border-border/60 bg-gradient-to-b from-muted/50 to-muted/20 px-4 py-3">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/35 to-transparent" />

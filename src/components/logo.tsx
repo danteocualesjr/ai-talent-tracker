@@ -6,7 +6,7 @@ export function Logo({ className, href = "/", showWordmark = true }: { className
     <Link
       href={href}
       className={cn(
-        "group inline-flex items-center gap-2.5 font-semibold tracking-tight text-foreground rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+        "group inline-flex items-center gap-2.5 font-semibold tracking-tight text-foreground rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
         className,
       )}
     >
@@ -25,15 +25,11 @@ export function LogoMark({ className }: { className?: string }) {
     <span
       aria-hidden
       className={cn(
-        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-foreground via-foreground to-foreground/85 text-background shadow-[0_8px_24px_-8px_hsl(var(--foreground)/0.5)] ring-2 ring-signal/25 transition-transform duration-200 group-hover:scale-[1.05]",
+        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-foreground text-background shadow-sm ring-1 ring-foreground/10 transition-transform duration-200 group-hover:scale-[1.04]",
         className,
       )}
     >
-      <span className="absolute inset-0 bg-gradient-to-br from-signal/45 via-transparent to-transparent opacity-95" />
-      <span
-        aria-hidden
-        className="absolute -bottom-3 -right-3 h-8 w-8 rounded-full bg-signal/50 blur-md transition-opacity duration-300 group-hover:opacity-100"
-      />
+      <span className="absolute inset-x-0 top-0 h-0.5 bg-signal" />
       <svg
         viewBox="0 0 24 24"
         width="14"
@@ -45,16 +41,15 @@ export function LogoMark({ className }: { className?: string }) {
         <path
           d="M5 19 L11 11 L15 14 L19 6"
           stroke="currentColor"
-          strokeWidth="1.6"
+          strokeWidth="1.7"
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity="0.45"
+          opacity="0.5"
         />
-        <circle cx="5" cy="19" r="1.6" fill="currentColor" />
-        <circle cx="11" cy="11" r="1.6" fill="currentColor" />
-        <circle cx="15" cy="14" r="1.6" fill="currentColor" />
+        <circle cx="5" cy="19" r="1.5" fill="currentColor" />
+        <circle cx="11" cy="11" r="1.5" fill="currentColor" />
+        <circle cx="15" cy="14" r="1.5" fill="currentColor" />
         <circle cx="19" cy="6" r="2" fill="currentColor" />
-        <circle cx="19" cy="6" r="3.5" stroke="currentColor" strokeOpacity="0.35" strokeWidth="0.75" />
       </svg>
     </span>
   );
