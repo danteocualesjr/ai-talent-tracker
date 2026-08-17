@@ -29,9 +29,9 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       suppressHydrationWarning
       onClick={toggleTheme}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-all duration-200",
-        "hover:border-foreground/15 hover:bg-card hover:text-foreground hover:shadow-[0_0_12px_-2px_hsl(var(--signal)/0.25)] motion-safe:hover:rotate-6",
-        isDark && "border-signal/25 bg-signal/5 text-signal",
+        "inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/70 bg-card text-muted-foreground shadow-sm transition-all duration-200",
+        "hover:border-foreground/20 hover:text-foreground",
+        isDark && "border-signal/30 bg-signal/8 text-signal",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
         "motion-safe:active:scale-95",
         className,

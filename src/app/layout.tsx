@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Newsreader, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { PostHogAnalytics } from "@/components/analytics";
 import { SkipLink } from "@/components/skip-link";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const sans = Plus_Jakarta_Sans({
+const sans = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
-const serif = Instrument_Serif({
+const serif = Newsreader({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
 });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {

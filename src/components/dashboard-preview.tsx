@@ -6,10 +6,10 @@ import { Bell, LineChart, ListChecks, Search, Settings, Sparkles, Users } from "
 export function DashboardPreview() {
   return (
     <div aria-hidden="true" className="preview-frame preview-float preview-tilt">
-      <div className="overflow-hidden rounded-[calc(1.15rem-1px)] border border-border/40 bg-card">
+      <div className="overflow-hidden rounded-[calc(0.65rem-1px)] border border-border/40 bg-card">
         {/* Browser chrome */}
-        <div className="relative flex items-center gap-3 border-b border-border/60 bg-gradient-to-b from-muted/50 to-muted/20 px-4 py-3">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/35 to-transparent" />
+        <div className="relative flex items-center gap-3 border-b border-border/70 bg-muted/30 px-4 py-3">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
           <div className="flex gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] ring-1 ring-black/10" />
             <div className="h-2.5 w-2.5 rounded-full bg-[#febc2e] ring-1 ring-black/10" />
@@ -47,10 +47,9 @@ export function DashboardPreview() {
           </div>
 
           <div className="relative p-6">
-            <div className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-signal/10 blur-3xl" />
             <div className="relative flex items-center justify-between">
               <div>
-                <div className="text-sm font-bold tracking-tight">
+                <div className="text-sm font-semibold tracking-tight">
                   Recent <span className="font-serif italic font-normal text-gradient-hero">activity</span>
                 </div>
                 <div className="text-xs text-muted-foreground">Live updates from 47 tracked profiles</div>
@@ -118,7 +117,6 @@ function Stat({
     tone === "amber" ? "text-amber-accent" : tone === "signal" ? "text-signal" : "text-foreground/70";
   return (
     <div className="surface-card relative overflow-hidden p-3.5">
-      <div className="pointer-events-none absolute -right-4 -top-4 h-12 w-12 rounded-full bg-signal/8 blur-xl" />
       <div className="relative text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className="relative mt-1.5 flex items-end justify-between gap-2">
         <div>

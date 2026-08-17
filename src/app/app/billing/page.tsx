@@ -42,12 +42,13 @@ export default async function BillingPage({
       <BillingStatusToast status={status} />
 
       <div className="surface-card overflow-hidden">
-        <div className="border-b border-border/60 bg-gradient-to-br from-card via-card to-signal/[0.04] p-6">
+        <div className="relative border-b border-border/70 p-6">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="label-caps">Current plan</div>
               <div className="mt-3 flex items-baseline gap-3">
-                <span className="text-3xl font-bold tracking-tight">{plan.name}</span>
+                <span className="font-serif text-3xl font-medium tracking-tight">{plan.name}</span>
                 <Badge variant="secondary">{plan.price_monthly ? `$${plan.price_monthly}/mo` : "free"}</Badge>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">

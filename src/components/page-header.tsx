@@ -60,12 +60,12 @@ export function PageHeader({
         {eyebrow && <div className="label-caps mb-2.5 text-muted-foreground/80">{eyebrow}</div>}
         <div className="flex items-center gap-3">
           {icon && (
-            <span aria-hidden="true" className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-gradient-to-br from-card to-muted/40 text-foreground shadow-sm motion-safe:transition-all motion-safe:duration-200 motion-safe:group-hover/header:scale-105 motion-safe:group-hover/header:-rotate-3 group-hover/header:border-signal/25 group-hover/header:shadow-[0_0_16px_-4px_hsl(var(--signal)/0.35)]">
+            <span aria-hidden="true" className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/70 bg-card text-foreground shadow-sm">
               <span className="pointer-events-none absolute inset-0 rounded-xl bg-signal/5 opacity-0 transition-opacity group-hover/header:opacity-100" />
               {icon}
             </span>
           )}
-          <h1 id="page-title" className="text-balance text-[28px] font-bold leading-tight tracking-tight md:text-[32px]">
+          <h1 id="page-title" className="text-balance font-serif text-[30px] font-medium leading-tight tracking-tight md:text-[34px]">
             {renderedTitle}
           </h1>
         </div>

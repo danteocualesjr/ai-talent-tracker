@@ -4,62 +4,62 @@
 
 @layer base {
   :root {
-    /* Iteration 7 — Signal Pro: refined modern SaaS palette with teal signal */
-    --background: 210 25% 98%;
-    --foreground: 222 35% 9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 35% 9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 35% 9%;
-    --primary: 222 35% 9%;
-    --primary-foreground: 210 25% 98%;
-    --secondary: 210 18% 95%;
-    --secondary-foreground: 222 25% 14%;
-    --muted: 210 18% 95%;
-    --muted-foreground: 222 10% 44%;
-    --accent: 210 20% 93%;
-    --accent-foreground: 222 25% 14%;
-    --destructive: 0 72% 46%;
+    /* Iteration 8 — Wire Brief: warm paper, ink type, copper signal */
+    --background: 36 32% 96%;
+    --foreground: 24 22% 10%;
+    --card: 36 40% 99%;
+    --card-foreground: 24 22% 10%;
+    --popover: 36 40% 99%;
+    --popover-foreground: 24 22% 10%;
+    --primary: 24 22% 10%;
+    --primary-foreground: 36 32% 96%;
+    --secondary: 32 20% 92%;
+    --secondary-foreground: 24 18% 14%;
+    --muted: 32 18% 92%;
+    --muted-foreground: 24 10% 38%;
+    --accent: 32 16% 90%;
+    --accent-foreground: 24 18% 14%;
+    --destructive: 0 68% 42%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 16% 88%;
-    --input: 210 16% 88%;
-    --ring: 172 66% 40%;
-    --radius: 0.875rem;
+    --border: 30 16% 82%;
+    --input: 30 16% 82%;
+    --ring: 16 78% 42%;
+    --radius: 0.5rem;
 
-    --signal: 172 66% 38%;
-    --signal-foreground: 0 0% 100%;
+    --signal: 16 78% 42%;
+    --signal-foreground: 36 40% 99%;
 
-    --accent-violet: 258 65% 58%;
-    --accent-amber: 32 92% 54%;
+    --accent-violet: 152 22% 32%;
+    --accent-amber: 32 78% 46%;
   }
 
   .dark,
   :root.dark {
-    --background: 222 32% 5%;
-    --foreground: 210 20% 96%;
-    --card: 222 26% 8%;
-    --card-foreground: 210 20% 96%;
-    --popover: 222 26% 8%;
-    --popover-foreground: 210 20% 96%;
-    --primary: 210 20% 96%;
-    --primary-foreground: 222 32% 6%;
-    --secondary: 222 20% 12%;
-    --secondary-foreground: 210 20% 96%;
-    --muted: 222 20% 12%;
-    --muted-foreground: 210 10% 58%;
-    --accent: 222 16% 14%;
-    --accent-foreground: 210 20% 96%;
-    --destructive: 0 62% 48%;
+    --background: 24 16% 7%;
+    --foreground: 36 22% 94%;
+    --card: 24 14% 10%;
+    --card-foreground: 36 22% 94%;
+    --popover: 24 14% 10%;
+    --popover-foreground: 36 22% 94%;
+    --primary: 36 22% 94%;
+    --primary-foreground: 24 16% 8%;
+    --secondary: 24 12% 13%;
+    --secondary-foreground: 36 22% 94%;
+    --muted: 24 12% 13%;
+    --muted-foreground: 32 10% 64%;
+    --accent: 24 10% 15%;
+    --accent-foreground: 36 22% 94%;
+    --destructive: 0 62% 52%;
     --destructive-foreground: 0 0% 100%;
-    --border: 222 16% 16%;
-    --input: 222 16% 16%;
-    --ring: 172 66% 48%;
+    --border: 24 10% 18%;
+    --input: 24 10% 18%;
+    --ring: 18 72% 56%;
 
-    --signal: 172 66% 48%;
-    --signal-foreground: 222 32% 5%;
+    --signal: 18 72% 56%;
+    --signal-foreground: 24 16% 8%;
 
-    --accent-violet: 258 70% 68%;
-    --accent-amber: 32 92% 60%;
+    --accent-violet: 152 24% 58%;
+    --accent-amber: 32 80% 58%;
   }
 }
 
@@ -162,9 +162,9 @@
 
   .hero-backdrop {
     background:
-      radial-gradient(ellipse 90% 70% at 20% -10%, hsl(var(--signal) / 0.22) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 50% at 85% 15%, hsl(var(--accent-violet) / 0.14) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 40% at 50% 80%, hsl(var(--accent-amber) / 0.06) 0%, transparent 45%);
+      radial-gradient(ellipse 80% 60% at 12% -8%, hsl(var(--signal) / 0.16) 0%, transparent 52%),
+      radial-gradient(ellipse 50% 40% at 92% 8%, hsl(var(--accent-amber) / 0.1) 0%, transparent 48%),
+      radial-gradient(ellipse 40% 30% at 50% 100%, hsl(var(--foreground) / 0.04) 0%, transparent 50%);
   }
 
   .aurora-orb {
@@ -218,7 +218,7 @@
     background: linear-gradient(
       115deg,
       hsl(var(--foreground)) 0%,
-      hsl(var(--foreground) / 0.72) 38%,
+      hsl(var(--foreground) / 0.78) 42%,
       hsl(var(--signal)) 100%
     );
     -webkit-background-clip: text;
@@ -227,7 +227,7 @@
   }
 
   .text-gradient-signal {
-    background: linear-gradient(120deg, hsl(var(--signal)) 0%, hsl(162 80% 52%) 100%);
+    background: linear-gradient(120deg, hsl(var(--signal)) 0%, hsl(28 82% 48%) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -238,27 +238,25 @@
    * ──────────────────────────────────────────────────────────────── */
 
   .surface-glass {
-    @apply border border-border/60 bg-background/70 shadow-sm backdrop-blur-xl;
+    @apply border border-border/80 bg-card/80 shadow-sm backdrop-blur-md;
     box-shadow:
-      0 1px 0 0 hsl(var(--background) / 0.55) inset,
-      0 1px 2px hsl(var(--foreground) / 0.03),
-      0 8px 24px -18px hsl(var(--foreground) / 0.1);
+      0 1px 0 0 hsl(var(--background) / 0.7) inset,
+      0 1px 2px hsl(var(--foreground) / 0.04);
   }
 
   .surface-elevated {
     box-shadow:
-      0 0 0 1px hsl(var(--border) / 0.55),
-      0 1px 0 0 hsl(var(--background) / 0.5) inset,
-      0 1px 2px hsl(var(--foreground) / 0.04),
-      0 20px 48px -22px hsl(var(--foreground) / 0.14);
+      0 0 0 1px hsl(var(--border) / 0.8),
+      0 1px 0 0 hsl(var(--background) / 0.65) inset,
+      0 1px 2px hsl(var(--foreground) / 0.05),
+      0 14px 36px -20px hsl(var(--foreground) / 0.16);
   }
 
   .surface-card {
-    @apply rounded-2xl border border-border/60 bg-card;
+    @apply rounded-lg border border-border/80 bg-card;
     box-shadow:
-      0 1px 0 0 hsl(var(--background) / 0.7) inset,
-      0 1px 2px hsl(var(--foreground) / 0.03),
-      0 10px 28px -18px hsl(var(--foreground) / 0.1);
+      0 1px 0 0 hsl(var(--background) / 0.8) inset,
+      0 1px 2px hsl(var(--foreground) / 0.04);
   }
 
   .surface-card-hover {
@@ -293,22 +291,22 @@
 
   .preview-frame {
     position: relative;
-    border-radius: 1.15rem;
+    border-radius: 0.65rem;
     padding: 1px;
     background:
       linear-gradient(
-        145deg,
-        hsl(var(--signal) / 0.45) 0%,
-        hsl(var(--border) / 0.7) 28%,
-        hsl(var(--border) / 0.35) 55%,
-        hsl(var(--accent-amber) / 0.25) 100%
+        160deg,
+        hsl(var(--signal) / 0.55) 0%,
+        hsl(var(--border) / 0.85) 32%,
+        hsl(var(--border) / 0.4) 68%,
+        hsl(var(--accent-amber) / 0.28) 100%
       );
     box-shadow:
-      0 40px 100px -30px hsl(var(--foreground) / 0.24),
-      0 0 180px -48px hsl(var(--signal) / 0.32);
+      0 28px 72px -28px hsl(var(--foreground) / 0.28),
+      0 0 120px -50px hsl(var(--signal) / 0.28);
   }
   .preview-frame > * {
-    border-radius: calc(1.15rem - 1px);
+    border-radius: calc(0.65rem - 1px);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -448,7 +446,7 @@
   }
 
   .label-caps {
-    @apply text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground;
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground;
   }
 
   /* ────────────────────────────────────────────────────────────────
@@ -461,17 +459,14 @@
 
   .app-shell-bg {
     background:
-      radial-gradient(ellipse 90% 55% at 100% 0%, hsl(var(--signal) / 0.07) 0%, transparent 52%),
-      radial-gradient(ellipse 70% 45% at 0% 100%, hsl(var(--accent-violet) / 0.035) 0%, transparent 48%),
-      radial-gradient(ellipse 50% 35% at 50% 0%, hsl(var(--foreground) / 0.02) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 45% at 100% 0%, hsl(var(--signal) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 30% at 0% 0%, hsl(var(--foreground) / 0.03) 0%, transparent 48%),
       hsl(var(--background));
   }
 
   .app-sidebar-bg {
     background:
-      radial-gradient(ellipse 120% 40% at 0% 0%, hsl(var(--signal) / 0.08) 0%, transparent 55%),
-      radial-gradient(ellipse 80% 50% at 100% 100%, hsl(var(--foreground) / 0.03) 0%, transparent 50%),
-      hsl(var(--card) / 0.92);
+      linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background) / 0.92) 100%);
   }
 
   .btn-signal-glow {

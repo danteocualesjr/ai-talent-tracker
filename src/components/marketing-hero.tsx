@@ -35,10 +35,11 @@ export function MarketingHero({
   const centered = align === "center";
 
   return (
-    <section className={cn("relative overflow-hidden border-b border-border/60", className)}>
-      <div className="pointer-events-none absolute inset-0 noise opacity-40" />
+    <section className={cn("relative overflow-hidden border-b border-border/70", className)}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
+      <div className="pointer-events-none absolute inset-0 noise opacity-30" />
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
-      <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
+      <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
       <div className="container relative py-12 md:py-20">
         <div
           className={cn(
@@ -48,7 +49,7 @@ export function MarketingHero({
         >
           <div className={cn(centered ? "max-w-2xl" : "max-w-2xl")}>
             {eyebrow && <div className="animate-fade-up">{eyebrow}</div>}
-            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance text-4xl font-bold tracking-tight text-gradient-hero md:text-5xl">
+            <h1 className="animate-fade-up animate-fade-up-delay-1 mt-4 text-balance font-serif text-4xl font-medium tracking-tight text-gradient-hero md:text-5xl">
               {accentHeadline(title)}
             </h1>
             {description && (
@@ -64,12 +65,12 @@ export function MarketingHero({
 
 export function LiveBadge() {
   return (
-    <div className="surface-glass inline-flex items-center gap-2 rounded-full border border-signal/20 px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground shadow-sm backdrop-blur-md transition-all duration-200 hover:border-signal/35 hover:shadow-[0_0_16px_-3px_hsl(var(--signal)/0.4)] motion-safe:hover:scale-[1.02]">
+    <div className="inline-flex items-center gap-2 rounded-full border border-signal/25 bg-card/80 px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground shadow-sm">
       <span className="relative flex h-1.5 w-1.5">
         <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
       </span>
-      <span className="font-semibold tracking-wide text-foreground">Live</span>
+      <span className="font-semibold uppercase tracking-[0.16em] text-foreground">Live wire</span>
     </div>
   );
 }

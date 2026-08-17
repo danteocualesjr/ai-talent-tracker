@@ -194,7 +194,7 @@ export default async function DashboardPage() {
         <div className="flex flex-col gap-3 border-b border-border/60 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="label-caps">Priority moves</div>
-            <h2 className="mt-1 text-lg font-bold tracking-tight">Highest-confidence changes to review first</h2>
+            <h2 className="mt-1 font-serif text-lg font-medium tracking-tight">Highest-confidence changes to review first</h2>
           </div>
           <Button asChild variant="outline" size="sm">
             <Link href="/app/events">Open event inbox <ArrowRight className="h-3 w-3" /></Link>
@@ -203,7 +203,7 @@ export default async function DashboardPage() {
         <div className="grid divide-y divide-border/60 md:grid-cols-3 md:divide-x md:divide-y-0">
           {priorityEvents.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center md:col-span-3">
-              <div className="ring-dots flex h-14 w-14 items-center justify-center rounded-2xl border border-border/60 bg-muted/40">
+              <div className="ring-dots flex h-14 w-14 items-center justify-center rounded-md border border-border/70 bg-muted/40">
                 <Sparkles className="h-5 w-5 text-signal/70" />
               </div>
               <div>
@@ -344,12 +344,11 @@ function StatCard({
         className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-70" />
-      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br from-signal/12 to-transparent blur-2xl opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="relative flex items-start justify-between">
         <div className="label-caps text-muted-foreground transition-colors group-hover:text-foreground/80">
           {label}
         </div>
-        <div className={`flex h-8 w-8 items-center justify-center rounded-xl border border-border/50 bg-muted/70 ${accent} shadow-sm motion-safe:transition-all motion-safe:duration-200 motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3 group-hover:border-signal/25 group-hover:shadow-[0_0_16px_-6px_hsl(var(--signal)/0.45)]`}>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} shadow-sm`}>
           {icon}
         </div>
       </div>

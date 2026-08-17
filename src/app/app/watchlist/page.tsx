@@ -104,14 +104,13 @@ export default async function WatchlistPage() {
           { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", border: "border-l-signal/60" },
           { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", border: "border-l-violet-500/50" },
         ] as const).map(({ label, value, icon: Icon, accent, border }) => (
-          <div key={label} className={`surface-card surface-card-hover group relative overflow-hidden border-l-2 p-4 ${border}`}>
-            <div className="pointer-events-none absolute -right-4 -top-4 h-14 w-14 rounded-full bg-signal/5 blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
+          <div key={label} className={`surface-card group relative overflow-hidden border-l-2 p-4 ${border}`}>
             <div className="relative flex items-start justify-between">
               <div>
-                <div className="tnum text-2xl font-bold">{value}</div>
+                <div className="tnum font-serif text-2xl font-medium">{value}</div>
                 <div className="mt-1 label-caps text-muted-foreground">{label}</div>
               </div>
-              <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+              <div className={`flex h-7 w-7 items-center justify-center rounded-md bg-muted/80 ${accent}`}>
                 <Icon className="h-3.5 w-3.5" />
               </div>
             </div>

@@ -56,14 +56,14 @@ export default async function AlertsPage() {
       <div className="surface-card overflow-hidden">
         <div className="border-b border-border/60 px-5 py-4">
           <div className="label-caps">Preview</div>
-          <h2 className="mt-1 text-lg font-bold tracking-tight">Sample alert payload</h2>
+          <h2 className="mt-1 font-serif text-lg font-medium tracking-tight">Sample alert payload</h2>
         </div>
         <div className="grid gap-4 p-5 md:grid-cols-[1fr_1.2fr]">
           <div className="space-y-2 text-sm text-muted-foreground">
             <p>Alerts include a concise summary, confidence score, profile context, and the changed fields.</p>
             <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
           </div>
-          <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed shadow-inner ring-1 ring-inset ring-border/40">
+          <div className="rounded-md border border-border/70 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed">
             <div className="mb-3 flex items-center gap-1.5 border-b border-border/40 pb-2">
               <span className="h-2 w-2 rounded-full bg-[#ff5f57]" aria-hidden />
               <span className="h-2 w-2 rounded-full bg-[#febc2e]" aria-hidden />
@@ -149,15 +149,14 @@ function ChannelMetric({
   bgAccent?: string;
 }) {
   return (
-    <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
-      <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
+    <div className="surface-card group relative overflow-hidden p-4">
       <div className="relative flex items-start justify-between">
         <div>
-          <div className="tnum text-2xl font-bold">{value}</div>
+          <div className="tnum font-serif text-2xl font-medium">{value}</div>
           <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${bgAccent} ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${bgAccent} ${accent}`}>
             {icon}
           </div>
         )}
@@ -170,7 +169,7 @@ function ChannelCard({ icon, title, description, children }: { icon: React.React
   return (
     <div className="surface-card surface-card-hover group p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 bg-background text-foreground shadow-sm transition-colors group-hover:border-signal/30 group-hover:bg-signal/5 group-hover:text-signal">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md border border-border/70 bg-background text-foreground shadow-sm transition-colors group-hover:border-signal/30 group-hover:text-signal">
           {icon}
         </div>
         <div>
@@ -191,7 +190,7 @@ function ChannelIcon({ type }: { type: string }) {
         ? { icon: <MessageSquare className="h-4 w-4" />, accent: "text-violet-accent", bg: "bg-violet-500/10" }
         : { icon: <Webhook className="h-4 w-4" />, accent: "text-amber-accent", bg: "bg-amber-500/10" };
   return (
-    <div className={`flex h-10 w-10 items-center justify-center rounded-xl border border-border/60 ${config.bg} ${config.accent} shadow-sm`}>
+    <div className={`flex h-10 w-10 items-center justify-center rounded-md border border-border/70 ${config.bg} ${config.accent} shadow-sm`}>
       {config.icon}
     </div>
   );
