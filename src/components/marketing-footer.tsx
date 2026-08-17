@@ -32,8 +32,8 @@ const SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer aria-label="Site footer" className="relative overflow-hidden border-t bg-card/40">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
+    <footer aria-label="Site footer" className="relative overflow-hidden border-t border-border/80 bg-card/50">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
       <div className="pointer-events-none absolute inset-0 noise opacity-30" />
       <div className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-signal/8 blur-3xl" />
 
@@ -97,7 +97,7 @@ export function MarketingFooter() {
           </div>
           <Link
             href="/login"
-            className="group/cta inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-signal/40 hover:bg-signal hover:text-[hsl(var(--signal-foreground))] hover:shadow-[0_8px_24px_-8px_hsl(var(--signal)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group/cta inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-background px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-signal hover:bg-signal hover:text-[hsl(var(--signal-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             Start tracking free
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5" />

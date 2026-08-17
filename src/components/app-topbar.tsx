@@ -70,7 +70,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
   return (
     <>
       <AppCommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
-      <div className="sticky top-0 z-20 hidden h-[68px] items-center gap-3 border-b border-border/50 bg-background/70 px-6 shadow-[0_1px_0_0_hsl(var(--border)/0.35),0_16px_40px_-28px_hsl(var(--foreground)/0.1)] backdrop-blur-2xl md:flex">
+      <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/70 bg-background/88 px-6 backdrop-blur-xl md:flex">
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
@@ -109,8 +109,8 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           type="button"
           onClick={() => setCommandOpen(true)}
           className={cn(
-            "group inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
-            "hover:border-foreground/15 hover:bg-card hover:text-foreground",
+            "group inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
+            "hover:border-foreground/20 hover:text-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
             commandOpen && "ring-2 ring-signal/40",
           )}
@@ -136,8 +136,8 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               : "Open events"
           }
           className={cn(
-            "relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground shadow-sm transition-all duration-200",
-            "hover:border-foreground/15 hover:bg-card hover:text-foreground hover:shadow-[0_0_12px_-2px_hsl(var(--signal)/0.25)]",
+            "relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/70 bg-card text-muted-foreground shadow-sm transition-all duration-200",
+            "hover:border-foreground/20 hover:text-foreground",
             unreadCount > 0 && "border-signal/20 bg-signal/5 text-signal",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
           )}
@@ -154,7 +154,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-border/70 bg-card/60 pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-signal/25 hover:bg-card hover:shadow-[0_0_12px_-3px_hsl(var(--signal)/0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="ml-1 inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
                 {initials}

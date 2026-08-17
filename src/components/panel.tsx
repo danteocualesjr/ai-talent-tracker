@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card group/panel overflow-hidden transition-[box-shadow,transform] duration-200 hover:shadow-md motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.4)] focus-within:shadow-[inset_3px_0_0_0_hsl(var(--signal)/0.3)]",
+        "surface-card group/panel overflow-hidden transition-colors duration-200 hover:border-border focus-within:border-signal/25",
         tone === "muted" && "bg-muted/35",
         className,
       )}
@@ -73,7 +73,7 @@ export function EmptyPanel({
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[calc(50%-2rem)] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-signal/12 via-signal/5 to-transparent blur-2xl opacity-60 motion-safe:group-hover:opacity-90 motion-safe:transition-opacity"
       />
-      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-gradient-to-br from-background to-muted/30 text-muted-foreground shadow-sm ring-4 ring-signal/5 motion-safe:transition-all motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-6 motion-safe:group-hover:border-signal/25 motion-safe:group-hover:ring-signal/15">
+      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground shadow-sm">
         {icon}
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight text-foreground/90">{title}</div>

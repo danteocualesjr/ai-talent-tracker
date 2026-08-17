@@ -138,7 +138,7 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
           <button
             type="button"
             onClick={() => setCommandOpen(true)}
-            className="group flex w-full items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-all hover:border-signal/25 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group flex w-full items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-all hover:border-signal/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             <Search className="h-3.5 w-3.5 shrink-0" />
             <span className="flex-1 text-left">Search…</span>

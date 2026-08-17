@@ -236,7 +236,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
           <div className="relative">
             <div className="pointer-events-none absolute -inset-8 -z-10 rounded-[2rem] bg-gradient-to-br from-signal/12 via-signal/4 to-transparent blur-2xl" />
-            <div className="surface-elevated rounded-2xl border border-border/60 bg-background/50 p-4 backdrop-blur-xl sm:p-5">
+            <div className="surface-elevated rounded-lg border border-border/70 bg-background/60 p-4 sm:p-5">
               <LiveTicker />
             </div>
           </div>

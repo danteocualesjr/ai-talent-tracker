@@ -34,9 +34,9 @@ export default async function SettingsPage() {
 
       <Panel title="Workspace readiness" description="Quick setup status for this organization." bodyClassName="grid gap-3 p-5 sm:grid-cols-3">
         {readiness.map(({ label, value, status, icon: Icon, accent }) => (
-          <div key={label} className="group surface-card-hover rounded-xl border border-border/60 bg-muted/30 p-4 transition-colors hover:border-foreground/12">
+          <div key={label} className="group rounded-md border border-border/70 bg-muted/30 p-4 transition-colors hover:border-foreground/15">
             <div className="flex items-center justify-between gap-2">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-background ${accent} shadow-sm transition-transform motion-safe:group-hover:scale-105`}>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-background ${accent} shadow-sm`}>
                 <Icon className="h-3.5 w-3.5" />
               </div>
               <span

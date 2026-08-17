@@ -73,20 +73,21 @@ export default async function PublicFeedPage({
         </MarketingHero>
 
         <section className="container max-w-3xl space-y-5 py-10 pb-28 md:py-12 md:pb-12">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
             <FeedStat label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
             <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
             <FeedStat label="Founder signals" value={foundingSignals} icon={<Compass className="h-3.5 w-3.5" />} accent="text-amber-accent" />
           </div>
 
-          <div className="surface-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="surface-card relative flex flex-col gap-4 overflow-hidden p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
             <div>
               <div className="text-sm font-semibold">Scan by signal type</div>
               <p className="mt-1 text-sm text-muted-foreground">
                 Prioritize departures, stealth pivots, and founding headlines from the public stream.
               </p>
             </div>
-            <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-full bg-muted/60" />}>
+            <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-md bg-muted/60" />}>
               <FeedFilterChips />
             </Suspense>
           </div>
@@ -150,16 +151,14 @@ function FeedStat({
   accent?: string;
 }) {
   return (
-    <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
-      <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-current to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${accent}`} />
-      <div className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full bg-signal/5 blur-2xl opacity-60 transition-opacity group-hover:opacity-100" />
+    <div className="group relative bg-card p-4">
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <div className="tnum text-3xl font-bold tracking-tight transition-colors group-hover:text-foreground">{value}</div>
+          <div className="tnum font-serif text-3xl font-medium tracking-tight">{value}</div>
           <div className="mt-1.5 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-muted/50 shadow-sm transition-all duration-200 motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-3 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-muted/70 ${accent}`}>
             {icon}
           </div>
         )}

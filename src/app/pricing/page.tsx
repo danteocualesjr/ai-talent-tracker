@@ -46,7 +46,7 @@ export default async function PricingPage({
               All paid plans include the public departure feed. Cancel anytime. Prices in USD.
             </p>
 
-            <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl border border-border/60 bg-card">
+            <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-lg border border-border/80 bg-card">
               <div className="grid grid-cols-4 divide-x divide-border/60 text-center text-[11px]">
                 {(["free", "pro", "team", "enterprise"] as const).map((slug) => (
                   <div key={slug} className="px-3 py-3">
@@ -109,17 +109,17 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
   const cadence = REFRESH_CADENCE[slug];
   return (
     <div
-      className={`relative flex flex-col overflow-hidden p-7 transition-all duration-300 ${
+      className={`relative flex flex-col overflow-hidden p-7 ${
         highlighted
-          ? "surface-card surface-elevated z-10 border-signal/40 shadow-lg shadow-signal/10 ring-2 ring-signal/20 hover-lift md:scale-[1.02]"
+          ? "surface-card z-10 border-signal/45 ring-1 ring-signal/20"
           : "surface-card surface-card-hover"
       }`}
     >
       {highlighted && (
         <>
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-signal/20 via-signal to-signal/20" />
-          <div className="absolute -top-3 left-6">
-            <Badge className="bg-signal text-signal-foreground shadow-sm">Most popular</Badge>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
+          <div className="absolute top-4 right-5">
+            <Badge variant="signal">Most popular</Badge>
           </div>
         </>
       )}
@@ -134,10 +134,10 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
         </div>
         <div className="mt-4 flex items-baseline gap-1">
           {slug === "enterprise" ? (
-            <span className="text-4xl font-semibold tracking-tight">Custom</span>
+            <span className="font-serif text-4xl font-medium tracking-tight">Custom</span>
           ) : (
             <>
-              <span className="tnum text-5xl font-semibold tracking-tight">${plan.price_monthly}</span>
+              <span className="tnum font-serif text-5xl font-medium tracking-tight">${plan.price_monthly}</span>
               <span className="text-sm text-muted-foreground">/mo</span>
             </>
           )}
