@@ -61,7 +61,7 @@ export function PageHeader({
         <div className="flex items-center gap-3">
           {icon && (
             <span aria-hidden="true" className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/70 bg-card text-foreground shadow-sm">
-              <span className="pointer-events-none absolute inset-0 rounded-xl bg-signal/5 opacity-0 transition-opacity group-hover/header:opacity-100" />
+              <span className="pointer-events-none absolute inset-0 rounded-md bg-signal/5 opacity-0 transition-opacity group-hover/header:opacity-100" />
               {icon}
             </span>
           )}
