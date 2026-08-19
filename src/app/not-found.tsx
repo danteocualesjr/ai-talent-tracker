@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, CreditCard, LogIn, ArrowUpRight, type LucideIcon } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
+import { MarketingFooter } from "@/components/marketing-footer";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default function NotFound() {
             That page doesn&apos;t exist or may have moved.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
+            <Button asChild size="lg" variant="signal">
               <Link href="/">Go home</Link>
             </Button>
             <Button variant="outline" asChild size="lg">
@@ -65,6 +66,7 @@ export default function NotFound() {
           </div>
         </div>
       </main>
+      <MarketingFooter />
     </div>
   );
 }
