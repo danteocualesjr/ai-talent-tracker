@@ -356,7 +356,7 @@ function StatCard({
           {icon}
         </div>
       </div>
-      <div className="tnum relative mt-3 text-3xl font-bold tracking-tight md:text-[2.1rem]">{value}</div>
+      <div className="tnum relative mt-3 font-serif text-3xl font-bold tracking-tight md:text-[2.1rem]">{value}</div>
       <div className="relative mt-1.5 flex items-end justify-between gap-2">
         {sub && <div className="text-xs leading-relaxed text-muted-foreground">{sub}</div>}
         {series && (
