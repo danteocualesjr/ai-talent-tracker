@@ -23,6 +23,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
       </div>
 
       <div className="relative hidden w-[46%] overflow-hidden bg-foreground lg:block">
+        <div className="pointer-events-none absolute inset-0 terminal-scanlines opacity-60" aria-hidden />
         <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{
           backgroundImage:
             "linear-gradient(to right, hsl(var(--background)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--background)) 1px, transparent 1px)",
@@ -31,7 +32,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
         <div className="pointer-events-none absolute -left-16 top-20 h-64 w-64 rounded-full bg-signal/25 blur-[90px]" />
         <div className="flex h-full flex-col justify-between p-12 text-background">
           <Logo showWordmark />
-          <div>
+          <div className="animate-fade-up">
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-background/45">
               Vol. 08 · Wire brief
             </p>
@@ -54,12 +55,12 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
 
       <div className="relative flex w-full flex-col items-center justify-center bg-background p-6 lg:w-[54%]">
         <div className="pointer-events-none absolute inset-0 hero-backdrop opacity-50" />
-        <div className="relative w-full max-w-md animate-fade-up">
-          <div className="mb-8 flex justify-center lg:hidden">
+        <div className="relative w-full max-w-md">
+          <div className="mb-8 flex justify-center animate-fade-up lg:hidden">
             <Logo />
           </div>
-          <div className="surface-card surface-elevated relative overflow-hidden p-8">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
+          <div className="surface-card surface-elevated relative overflow-hidden p-8 animate-fade-up animate-fade-up-delay-1">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/80 via-signal to-signal/80" />
             <h1 className="text-balance font-serif text-3xl font-medium tracking-tight">
               Sign in
             </h1>
@@ -72,7 +73,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
               <span>Magic links expire in 15 minutes. We never store passwords.</span>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground">
+          <p className="mt-6 text-center text-xs text-muted-foreground animate-fade-up animate-fade-up-delay-2">
             By signing in you agree to our{" "}
             <Link href="/privacy" className="link-subtle">privacy policy</Link>.
           </p>

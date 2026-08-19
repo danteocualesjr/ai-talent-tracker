@@ -50,7 +50,8 @@ export default function NotFound() {
               ["/pricing", "Compare plans", "Pick the right alert volume.", CreditCard],
               ["/login", "Sign in", "Return to your dashboard.", LogIn],
             ] as [string, string, string, LucideIcon][]).map(([href, title, body, Icon]) => (
-              <Link key={href} href={href} className="surface-card surface-card-hover group block p-4">
+              <Link key={href} href={href} className="surface-card surface-card-hover group relative block overflow-hidden p-4">
+                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-muted/50 text-muted-foreground transition-colors group-hover:border-signal/30 group-hover:bg-signal/10 group-hover:text-signal">
                   <Icon className="h-4 w-4" />
                 </div>
