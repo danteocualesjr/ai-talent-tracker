@@ -73,7 +73,7 @@ export function EmptyPanel({
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[calc(50%-2rem)] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-signal/12 via-signal/5 to-transparent blur-2xl opacity-60 motion-safe:group-hover:opacity-90 motion-safe:transition-opacity"
       />
-      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground shadow-sm">
+      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background text-muted-foreground shadow-sm">
         {icon}
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight text-foreground/90">{title}</div>
