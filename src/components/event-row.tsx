@@ -36,8 +36,8 @@ function EventFieldDiff({ before, after }: { before: Json | null; after: Json | 
   const changes = formatFieldChanges(before, after);
   if (changes.length === 0) return null;
   return (
-    <ul className="mt-2.5 space-y-1.5 rounded-xl border border-border/60 bg-muted/25 px-3 py-2.5 text-xs">
-      {changes.map((line) => {
+    <ul className="mt-2.5 space-y-1 overflow-hidden rounded-lg border border-border/60 bg-muted/20 text-xs">
+      {changes.map((line, i) => {
         const colonIdx = line.indexOf(": ");
         const field = colonIdx > 0 ? line.slice(0, colonIdx) : line;
         const rest = colonIdx > 0 ? line.slice(colonIdx + 2) : "";
@@ -45,14 +45,17 @@ function EventFieldDiff({ before, after }: { before: Json | null; after: Json | 
         const from = arrowIdx >= 0 ? rest.slice(0, arrowIdx) : null;
         const to = arrowIdx >= 0 ? rest.slice(arrowIdx + 3) : null;
         return (
-          <li key={line} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 leading-relaxed">
-            <span className="font-semibold capitalize text-foreground/80">{field}</span>
+          <li
+            key={line}
+            className={`relative flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-l-2 border-signal/40 px-3 py-2 leading-relaxed ${i > 0 ? "border-t border-border/50" : ""}`}
+          >
+            <span className="label-caps shrink-0 text-[10px] normal-case tracking-[0.12em]">{field}</span>
             {from && to ? (
-              <>
-                <span className="text-muted-foreground line-through decoration-muted-foreground/40">{from}</span>
-                <span className="text-muted-foreground/50" aria-hidden>→</span>
-                <span className="font-medium text-foreground">{to}</span>
-              </>
+              <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+                <span className="max-w-[12rem] truncate text-muted-foreground line-through decoration-muted-foreground/35 sm:max-w-none">{from}</span>
+                <span className="text-signal/60" aria-hidden>→</span>
+                <span className="max-w-[12rem] truncate font-medium text-foreground sm:max-w-none">{to}</span>
+              </span>
             ) : (
               <span className="text-muted-foreground">{rest || line}</span>
             )}
@@ -142,7 +145,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
+    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.12] hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
       {/* Accent rail on hover */}
       <span
         aria-hidden
