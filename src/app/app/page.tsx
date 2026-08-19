@@ -103,6 +103,7 @@ export default async function DashboardPage() {
           icon={<Users2 className="h-3.5 w-3.5" />}
           sub={`Limit ${org.profile_limit}`}
           accent="text-foreground/70"
+          series={buildTrendSeries(profiles.length)}
         />
         <StatCard
           label="Events (7d)"
@@ -110,6 +111,7 @@ export default async function DashboardPage() {
           icon={<Activity className="h-3.5 w-3.5" />}
           sub={`${last30} in last 30 days`}
           accent="text-signal"
+          series={buildTrendSeries(last7 || 1)}
         />
         <StatCard
           label="Stealth + founders"
@@ -117,6 +119,7 @@ export default async function DashboardPage() {
           icon={<Sparkles className="h-3.5 w-3.5" />}
           sub={`${stealth} stealth · ${founders} founder`}
           accent="text-amber-accent"
+          series={buildTrendSeries(stealth + founders || 1)}
         />
         <StatCard
           label="Departures"
@@ -124,6 +127,7 @@ export default async function DashboardPage() {
           icon={<AlertTriangle className="h-3.5 w-3.5" />}
           sub="flagged left"
           accent="text-violet-accent"
+          series={buildTrendSeries(left || 1)}
         />
       </div>
 

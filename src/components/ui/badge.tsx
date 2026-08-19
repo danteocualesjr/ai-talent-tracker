@@ -16,13 +16,13 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground",
         success:
-          "border-emerald-200/60 bg-emerald-50 text-emerald-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300",
+          "border-signal/25 bg-signal/10 text-signal shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.12)] dark:border-signal/30 dark:bg-signal/15",
         warning:
-          "border-amber-200/60 bg-amber-50 text-amber-900 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300",
+          "border-[hsl(var(--accent-amber)/0.35)] bg-[hsl(var(--accent-amber)/0.1)] text-[hsl(var(--accent-amber))] shadow-[inset_0_1px_0_0_hsl(var(--accent-amber)/0.12)] dark:border-[hsl(var(--accent-amber)/0.3)] dark:bg-[hsl(var(--accent-amber)/0.12)]",
         info:
-          "border-blue-200/60 bg-blue-50 text-blue-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300",
+          "border-signal/20 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.1)] dark:border-signal/25 dark:bg-signal/12",
         purple:
-          "border-violet-200/60 bg-violet-50 text-violet-800 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)] dark:border-violet-900/40 dark:bg-violet-950/40 dark:text-violet-300",
+          "border-[hsl(var(--accent-violet)/0.35)] bg-[hsl(var(--accent-violet)/0.1)] text-violet-accent shadow-[inset_0_1px_0_0_hsl(var(--accent-violet)/0.12)] dark:border-[hsl(var(--accent-violet)/0.3)] dark:bg-[hsl(var(--accent-violet)/0.12)]",
         gradient:
           "border-transparent bg-foreground text-background",
         glow:
