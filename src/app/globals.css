@@ -116,6 +116,15 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+    .animate-fade-up,
+    .animate-fade-up-delay-1,
+    .animate-fade-up-delay-2,
+    .animate-fade-up-delay-3,
+    .animate-fade-up-delay-4,
+    .animate-fade-up-delay-5,
+    .animate-fade-in {
+      opacity: 1;
+    }
   }
   h1, h2, h3, h4 {
     @apply tracking-tight;
@@ -125,7 +134,7 @@
     letter-spacing: -0.04em;
   }
   ::selection {
-    @apply bg-foreground/90 text-background;
+    @apply bg-signal/25 text-foreground;
   }
   input, textarea, select, button {
     font: inherit;
@@ -567,6 +576,23 @@
   /* Chip style for tags / pills */
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40;
+  }
+
+  /* Stat strip — segmented metric bar for feed / marketing pages */
+  .stat-strip {
+    @apply grid gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80;
+  }
+  .stat-strip-item {
+    @apply group relative bg-card p-4 transition-colors duration-200 hover:bg-muted/25;
+  }
+  .stat-strip-item::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent opacity-0 transition-opacity duration-300;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stat-strip-item:hover::before {
+      opacity: 1;
+    }
   }
 
   /* Screen-reader only — visible on focus for skip links */

@@ -36,8 +36,8 @@ function EventFieldDiff({ before, after }: { before: Json | null; after: Json | 
   const changes = formatFieldChanges(before, after);
   if (changes.length === 0) return null;
   return (
-    <ul className="mt-2.5 space-y-1.5 rounded-xl border border-border/60 bg-muted/25 px-3 py-2.5 text-xs">
-      {changes.map((line) => {
+    <ul className="mt-2.5 space-y-1 overflow-hidden rounded-lg border border-border/60 bg-muted/20 text-xs">
+      {changes.map((line, i) => {
         const colonIdx = line.indexOf(": ");
         const field = colonIdx > 0 ? line.slice(0, colonIdx) : line;
         const rest = colonIdx > 0 ? line.slice(colonIdx + 2) : "";
@@ -45,14 +45,17 @@ function EventFieldDiff({ before, after }: { before: Json | null; after: Json | 
         const from = arrowIdx >= 0 ? rest.slice(0, arrowIdx) : null;
         const to = arrowIdx >= 0 ? rest.slice(arrowIdx + 3) : null;
         return (
-          <li key={line} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 leading-relaxed">
-            <span className="font-semibold capitalize text-foreground/80">{field}</span>
+          <li
+            key={line}
+            className={`relative flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-l-2 border-signal/40 px-3 py-2 leading-relaxed ${i > 0 ? "border-t border-border/50" : ""}`}
+          >
+            <span className="label-caps shrink-0 text-[10px] normal-case tracking-[0.12em]">{field}</span>
             {from && to ? (
-              <>
-                <span className="text-muted-foreground line-through decoration-muted-foreground/40">{from}</span>
-                <span className="text-muted-foreground/50" aria-hidden>→</span>
-                <span className="font-medium text-foreground">{to}</span>
-              </>
+              <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+                <span className="max-w-[12rem] truncate text-muted-foreground line-through decoration-muted-foreground/35 sm:max-w-none">{from}</span>
+                <span className="text-signal/60" aria-hidden>→</span>
+                <span className="max-w-[12rem] truncate font-medium text-foreground sm:max-w-none">{to}</span>
+              </span>
             ) : (
               <span className="text-muted-foreground">{rest || line}</span>
             )}
@@ -68,29 +71,29 @@ const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone
     label: "Left",
     icon: LogOut,
     tone: "warning",
-    ring: "text-rose-700 dark:text-rose-300",
-    rail: "from-rose-300/0 via-rose-400/70 to-rose-300/0 dark:via-rose-300/60",
+    ring: "text-violet-accent",
+    rail: "from-violet-400/0 via-violet-accent/70 to-violet-400/0",
   },
   joined_company: {
     label: "Joined",
     icon: Briefcase,
     tone: "info",
-    ring: "text-blue-700 dark:text-blue-300",
-    rail: "from-blue-300/0 via-blue-400/70 to-blue-300/0 dark:via-blue-300/60",
+    ring: "text-signal",
+    rail: "from-signal/0 via-signal/65 to-signal/0",
   },
   went_stealth: {
     label: "Stealth",
     icon: Compass,
     tone: "warning",
-    ring: "text-amber-700 dark:text-amber-300",
-    rail: "from-amber-300/0 via-amber-400/80 to-amber-300/0 dark:via-amber-300/60",
+    ring: "text-amber-accent",
+    rail: "from-amber-400/0 via-amber-accent/75 to-amber-400/0",
   },
   headline_signals_founding: {
     label: "Founding signal",
     icon: Star,
     tone: "success",
-    ring: "text-emerald-700 dark:text-emerald-300",
-    rail: "from-emerald-300/0 via-emerald-400/80 to-emerald-300/0 dark:via-emerald-300/60",
+    ring: "text-signal",
+    rail: "from-signal/0 via-signal/80 to-signal/0",
   },
   role_change_internal: {
     label: "Role change",
@@ -117,15 +120,15 @@ const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone
     label: "GitHub dark",
     icon: Sparkles,
     tone: "purple",
-    ring: "text-violet-700 dark:text-violet-300",
-    rail: "from-violet-300/0 via-violet-400/70 to-violet-300/0 dark:via-violet-300/60",
+    ring: "text-violet-accent",
+    rail: "from-violet-400/0 via-violet-accent/70 to-violet-400/0",
   },
   new_domain: {
     label: "New domain",
     icon: Globe,
     tone: "success",
-    ring: "text-emerald-700 dark:text-emerald-300",
-    rail: "from-emerald-300/0 via-emerald-400/80 to-emerald-300/0 dark:via-emerald-300/60",
+    ring: "text-signal",
+    rail: "from-signal/0 via-signal/75 to-signal/0",
   },
   other: {
     label: "Update",
@@ -142,7 +145,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
+    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.12] hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
       {/* Accent rail on hover */}
       <span
         aria-hidden
@@ -160,7 +163,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
       </div>
 
       <div className="min-w-0 flex-1 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:pr-16">
           <Link
             href={href ?? `/app/profiles/${profile.id}`}
             className="inline-flex min-w-0 max-w-full items-center gap-1 truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
@@ -181,7 +184,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
               {Math.round(event.confidence * 100)}%
             </span>
           )}
-          <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
+          <span className="tnum ml-auto text-xs text-muted-foreground sm:ml-0">{formatRelative(event.detected_at)}</span>
         </div>
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {event.summary}
@@ -197,7 +200,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         target="_blank"
         rel="noreferrer noopener"
         aria-label={`Open ${profile.full_name || profile.linkedin_handle} on LinkedIn`}
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-70 shadow-sm transition-all hover:border-signal/40 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-100 shadow-sm transition-all hover:border-signal/40 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>
@@ -209,8 +212,8 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
   const meta = TYPE_META[event.type] ?? TYPE_META.other;
   const Icon = meta.icon;
   return (
-    <div className="group relative pb-8 pl-10 last:pb-0 motion-safe:transition-colors motion-safe:hover:rounded-lg motion-safe:hover:bg-muted/25 motion-safe:hover:pl-11">
-      <div className="absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent last:hidden" aria-hidden />
+    <div className="group relative pb-8 pl-10 last:pb-0 motion-safe:transition-colors motion-safe:hover:rounded-lg motion-safe:hover:bg-muted/25 motion-safe:hover:pl-11 [&:last-child_.timeline-connector]:hidden">
+      <div className="timeline-connector absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent" aria-hidden />
       <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm transition-shadow motion-safe:group-hover:shadow-md ${meta.ring}`}>
         <Icon className="h-3.5 w-3.5" />
       </div>

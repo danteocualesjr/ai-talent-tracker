@@ -50,7 +50,7 @@ export default async function EventsPage({
         <AppEventsFilterChips />
       </Suspense>
 
-      <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
+      <div className="stat-strip grid-cols-3">
         <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
         <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
         <EventMetric label="Public feed" value={publicEvents} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-amber-accent" />
@@ -63,7 +63,7 @@ export default async function EventsPage({
           { step: "02", title: "Qualify", body: "Compare the summary with the profile timeline before outreach.", icon: Sparkles },
           { step: "03", title: "Route", body: "Send public signals to the feed and private signals to Slack or webhook channels.", icon: Route },
         ] as const).map(({ step, title, body, icon: Icon }) => (
-          <div key={title} className="group rounded-md border border-transparent p-3 transition-colors hover:border-border/70 hover:bg-muted/30">
+          <div key={title} className="group rounded-md border border-transparent p-3 transition-colors hover:border-border/70 hover:bg-muted/30 focus-within:border-signal/25 focus-within:bg-muted/25 focus-within:ring-2 focus-within:ring-signal/20">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-signal/10 text-signal">
                 <Icon className="h-3.5 w-3.5" />
@@ -129,14 +129,14 @@ function EventMetric({
   accent?: string;
 }) {
   return (
-    <div className="bg-card p-4">
-      <div className="relative flex items-start justify-between">
+    <div className="stat-strip-item">
+      <div className="relative flex items-start justify-between gap-3">
         <div>
-          <div className="tnum font-serif text-2xl font-medium">{value}</div>
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="tnum font-serif text-2xl font-medium tracking-tight">{value}</div>
+          <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-muted/80 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent}`}>
             {icon}
           </div>
         )}

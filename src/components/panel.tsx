@@ -33,8 +33,8 @@ export function Panel({
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-60 transition-opacity group-hover/panel:opacity-100 group-focus-within/panel:opacity-100" />
           <div className="min-w-0">
             {title && (
-              <div className="flex items-center gap-2 text-sm font-bold leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">
-                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal/60 opacity-0 transition-opacity group-hover/panel:opacity-100 motion-safe:group-focus-within/panel:opacity-100" />
+              <div className="font-serif text-base font-medium leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">
+                <span aria-hidden className="mr-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-signal/60 opacity-0 transition-opacity group-hover/panel:opacity-100 motion-safe:group-focus-within/panel:opacity-100" />
                 {title}
               </div>
             )}
@@ -73,7 +73,7 @@ export function EmptyPanel({
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-[calc(50%-2rem)] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-signal/12 via-signal/5 to-transparent blur-2xl opacity-60 motion-safe:group-hover:opacity-90 motion-safe:transition-opacity"
       />
-      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-md border border-border/70 bg-background text-muted-foreground shadow-sm">
+      <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background text-muted-foreground shadow-sm">
         {icon}
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight text-foreground/90">{title}</div>

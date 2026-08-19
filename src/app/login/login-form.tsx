@@ -44,7 +44,8 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
       <div className="mt-6 animate-fade-up rounded-md border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
         <div className="flex items-start gap-3">
           <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal ring-4 ring-signal/10">
-            <Mail className="h-4 w-4 signal-pulse" aria-hidden="true" />
+            <Mail className="h-4 w-4" aria-hidden="true" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-card bg-signal signal-pulse" aria-hidden />
           </span>
           <div className="min-w-0">
             <p className="font-semibold text-foreground">Check your inbox</p>
@@ -76,7 +77,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
       {params.error === "auth" && (
         <div
           role="alert"
-          className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed text-foreground"
+          className="rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-relaxed text-foreground"
         >
           Your magic link expired or is invalid. Enter your email below to get a new one.
         </div>

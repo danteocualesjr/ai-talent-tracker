@@ -47,11 +47,11 @@ export default async function PricingPage({
             </p>
 
             <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-lg border border-border/80 bg-card">
-              <div className="grid grid-cols-4 divide-x divide-border/60 text-center text-[11px]">
+              <div className="grid grid-cols-4 divide-x divide-border/60 text-center">
                 {(["free", "pro", "team", "enterprise"] as const).map((slug) => (
                   <div key={slug} className="px-3 py-3">
-                    <div className="font-semibold capitalize text-foreground">{PLAN_DETAILS[slug].name}</div>
-                    <div className="mt-1 text-muted-foreground">{REFRESH_CADENCE[slug]} refresh</div>
+                    <div className="text-sm font-semibold capitalize text-foreground">{PLAN_DETAILS[slug].name}</div>
+                    <div className="label-caps mt-1.5">{REFRESH_CADENCE[slug]} refresh</div>
                   </div>
                 ))}
               </div>

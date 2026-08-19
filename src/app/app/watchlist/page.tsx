@@ -99,18 +99,22 @@ export default async function WatchlistPage() {
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {([
-          { label: "Active", value: statusCounts.active, icon: Users2, accent: "text-foreground/70", border: "border-l-foreground/20" },
-          { label: "Stealth", value: statusCounts.stealth, icon: Compass, accent: "text-amber-accent", border: "border-l-amber-500/60" },
-          { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", border: "border-l-signal/60" },
-          { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", border: "border-l-violet-500/50" },
-        ] as const).map(({ label, value, icon: Icon, accent, border }) => (
-          <div key={label} className={`surface-card group relative overflow-hidden border-l-2 p-4 ${border}`}>
+          { label: "Active", value: statusCounts.active, icon: Users2, accent: "text-foreground/70", rail: "from-foreground/0 via-foreground/25 to-foreground/0" },
+          { label: "Stealth", value: statusCounts.stealth, icon: Compass, accent: "text-amber-accent", rail: "from-amber-400/0 via-amber-accent/70 to-amber-400/0" },
+          { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", rail: "from-signal/0 via-signal/60 to-signal/0" },
+          { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", rail: "from-violet-400/0 via-violet-accent/65 to-violet-400/0" },
+        ] as const).map(({ label, value, icon: Icon, accent, rail }) => (
+          <div key={label} className="group surface-card surface-card-hover relative overflow-hidden p-4">
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
+            />
             <div className="relative flex items-start justify-between">
               <div>
-                <div className="tnum font-serif text-2xl font-medium">{value}</div>
+                <div className="tnum font-serif text-2xl font-medium tracking-tight">{value}</div>
                 <div className="mt-1 label-caps text-muted-foreground">{label}</div>
               </div>
-              <div className={`flex h-7 w-7 items-center justify-center rounded-md bg-muted/80 ${accent}`}>
+              <div className={`flex h-7 w-7 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
                 <Icon className="h-3.5 w-3.5" />
               </div>
             </div>
@@ -122,14 +126,15 @@ export default async function WatchlistPage() {
         <AddProfilesPanel />
       </Panel>
 
-      <div className="surface-card grid gap-4 p-5 md:grid-cols-3">
+      <div className="surface-card relative overflow-hidden p-5 md:grid md:grid-cols-3 md:gap-4 md:divide-x md:divide-border/60">
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent" />
         {[
           ["1", "Paste priority profiles", "Start with researchers, founders, or hiring targets your team already tracks."],
           ["2", "Refresh immediately", "Use the row action after adding a profile to pull the latest public snapshot."],
           ["3", "Route alerts", "Connect Slack, email, or webhooks so changes reach the right channel."],
         ].map(([step, title, body]) => (
-          <div key={step} className="flex gap-3">
-            <div className="tnum flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">
+          <div key={step} className="group flex gap-3 py-4 first:pt-0 last:pb-0 md:flex-col md:py-0 md:px-4 md:first:pl-0 md:last:pr-0">
+            <div className="tnum flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background ring-4 ring-signal/10 motion-safe:transition-transform motion-safe:group-hover:scale-105">
               {step}
             </div>
             <div>

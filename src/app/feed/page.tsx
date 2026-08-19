@@ -73,7 +73,7 @@ export default async function PublicFeedPage({
         </MarketingHero>
 
         <section className="container max-w-3xl space-y-5 py-10 pb-28 md:py-12 md:pb-12">
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
+          <div className="stat-strip grid-cols-3">
             <FeedStat label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
             <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
             <FeedStat label="Founder signals" value={foundingSignals} icon={<Compass className="h-3.5 w-3.5" />} accent="text-amber-accent" />
@@ -151,14 +151,14 @@ function FeedStat({
   accent?: string;
 }) {
   return (
-    <div className="group relative bg-card p-4">
+    <div className="stat-strip-item">
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <div className="tnum font-serif text-3xl font-medium tracking-tight">{value}</div>
+          <div className="tnum font-serif text-3xl font-medium tracking-tight transition-colors group-hover:text-foreground">{value}</div>
           <div className="mt-1.5 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-muted/70 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
             {icon}
           </div>
         )}

@@ -24,7 +24,9 @@ export default function AppError({
       <div className="animate-fade-up flex h-12 w-12 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive shadow-sm ring-4 ring-destructive/5">
         <AlertTriangle className="h-5 w-5" aria-hidden />
       </div>
-      <h1 className="animate-fade-up animate-fade-up-delay-1 mt-5 text-xl font-bold tracking-tight">Something went wrong</h1>
+      <h1 className="animate-fade-up animate-fade-up-delay-1 mt-5 font-serif text-2xl font-medium tracking-tight md:text-3xl">
+        Something went <span className="italic text-gradient-hero">wrong</span>
+      </h1>
       <p className="animate-fade-up animate-fade-up-delay-2 mt-2 text-sm leading-relaxed text-muted-foreground">
         We hit an error loading this page. Try again, or head back to the dashboard.
       </p>

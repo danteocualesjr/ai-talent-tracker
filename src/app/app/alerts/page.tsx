@@ -65,9 +65,9 @@ export default async function AlertsPage() {
           </div>
           <div className="rounded-md border border-border/70 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed">
             <div className="mb-3 flex items-center gap-1.5 border-b border-border/40 pb-2">
-              <span className="h-2 w-2 rounded-full bg-[#ff5f57]" aria-hidden />
-              <span className="h-2 w-2 rounded-full bg-[#febc2e]" aria-hidden />
-              <span className="h-2 w-2 rounded-full bg-[#28c840]" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-destructive/70" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-[hsl(var(--accent-amber))]" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-signal" aria-hidden />
               <span className="ml-2 flex-1 text-[10px] text-muted-foreground">alert.json</span>
               <CopyButton value={SAMPLE_PAYLOAD} />
             </div>
@@ -190,7 +190,7 @@ function ChannelIcon({ type }: { type: string }) {
         ? { icon: <MessageSquare className="h-4 w-4" />, accent: "text-violet-accent", bg: "bg-violet-500/10" }
         : { icon: <Webhook className="h-4 w-4" />, accent: "text-amber-accent", bg: "bg-amber-500/10" };
   return (
-    <div className={`flex h-10 w-10 items-center justify-center rounded-md border border-border/70 ${config.bg} ${config.accent} shadow-sm`}>
+    <div className={`flex h-10 w-10 items-center justify-center rounded-lg border border-border/70 ${config.bg} ${config.accent} shadow-sm`}>
       {config.icon}
     </div>
   );
