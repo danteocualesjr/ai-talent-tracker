@@ -8,7 +8,7 @@ const FILTERS = [
   { label: "Departures", param: "departures", dot: "bg-violet-accent" },
   { label: "Stealth", param: "stealth", dot: "bg-amber-accent" },
   { label: "Founders", param: "founders", dot: "bg-signal" },
-  { label: "Joiners", param: "joiners", dot: "bg-blue-500" },
+  { label: "Joiners", param: "joiners", dot: "bg-signal/70" },
 ] as const;
 
 export function AppEventsFilterChips() {
@@ -35,13 +35,20 @@ export function AppEventsFilterChips() {
             aria-pressed={active}
             onClick={() => selectFilter(param)}
             className={cn(
-              "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
+              "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 motion-safe:active:scale-95",
               active
-                ? "border-signal/40 bg-signal/10 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.2)] ring-1 ring-signal/20"
+                ? "border-signal/40 bg-signal/10 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.2)] ring-1 ring-signal/20 motion-safe:scale-[1.02]"
                 : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
             )}
           >
-            <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
+            {active ? (
+              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+            ) : (
+              <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
+            )}
             {label}
           </button>
         );
