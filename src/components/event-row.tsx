@@ -160,7 +160,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
       </div>
 
       <div className="min-w-0 flex-1 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:pr-16">
           <Link
             href={href ?? `/app/profiles/${profile.id}`}
             className="inline-flex min-w-0 max-w-full items-center gap-1 truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
@@ -181,7 +181,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
               {Math.round(event.confidence * 100)}%
             </span>
           )}
-          <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
+          <span className="tnum ml-auto text-xs text-muted-foreground sm:ml-0">{formatRelative(event.detected_at)}</span>
         </div>
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {event.summary}
@@ -197,7 +197,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         target="_blank"
         rel="noreferrer noopener"
         aria-label={`Open ${profile.full_name || profile.linkedin_handle} on LinkedIn`}
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-70 shadow-sm transition-all hover:border-signal/40 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-100 shadow-sm transition-all hover:border-signal/40 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>
@@ -209,8 +209,8 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
   const meta = TYPE_META[event.type] ?? TYPE_META.other;
   const Icon = meta.icon;
   return (
-    <div className="group relative pb-8 pl-10 last:pb-0 motion-safe:transition-colors motion-safe:hover:rounded-lg motion-safe:hover:bg-muted/25 motion-safe:hover:pl-11">
-      <div className="absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent last:hidden" aria-hidden />
+    <div className="group relative pb-8 pl-10 last:pb-0 motion-safe:transition-colors motion-safe:hover:rounded-lg motion-safe:hover:bg-muted/25 motion-safe:hover:pl-11 [&:last-child_.timeline-connector]:hidden">
+      <div className="timeline-connector absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent" aria-hidden />
       <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm transition-shadow motion-safe:group-hover:shadow-md ${meta.ring}`}>
         <Icon className="h-3.5 w-3.5" />
       </div>
