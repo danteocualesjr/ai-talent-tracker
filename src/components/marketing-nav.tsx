@@ -92,11 +92,25 @@ export function MarketingNav() {
         <>
           <button aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm md:hidden" onClick={() => setOpen(false)} />
           <nav aria-label="Primary mobile" className="relative z-30 border-t border-border/70 bg-background/96 px-6 py-4 backdrop-blur-xl md:hidden">
-            {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="block rounded-md px-4 py-3 font-medium hover:bg-accent">
-                {l.label}
-              </Link>
-            ))}
+            {LINKS.map((l) => {
+              const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "block rounded-md px-4 py-3 font-medium transition-colors",
+                    active
+                      ? "border-l-2 border-signal bg-signal/10 pl-[14px] text-foreground"
+                      : "hover:bg-accent",
+                  )}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
             <Button asChild variant="signal" className="mt-3 w-full">
               <Link href="/login">Start tracking</Link>
             </Button>
