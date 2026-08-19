@@ -20,7 +20,7 @@ const badgeVariants = cva(
         warning:
           "border-[hsl(var(--accent-amber)/0.35)] bg-[hsl(var(--accent-amber)/0.1)] text-[hsl(var(--accent-amber))] shadow-[inset_0_1px_0_0_hsl(var(--accent-amber)/0.12)] dark:border-[hsl(var(--accent-amber)/0.3)] dark:bg-[hsl(var(--accent-amber)/0.12)]",
         info:
-          "border-signal/20 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.1)] dark:border-signal/25 dark:bg-signal/12",
+          "border-signal/20 bg-signal/10 text-signal shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.1)] dark:border-signal/25 dark:bg-signal/12",
         purple:
           "border-[hsl(var(--accent-violet)/0.35)] bg-[hsl(var(--accent-violet)/0.1)] text-violet-accent shadow-[inset_0_1px_0_0_hsl(var(--accent-violet)/0.12)] dark:border-[hsl(var(--accent-violet)/0.3)] dark:bg-[hsl(var(--accent-violet)/0.12)]",
         gradient:
