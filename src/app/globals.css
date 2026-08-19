@@ -116,6 +116,15 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+    .animate-fade-up,
+    .animate-fade-up-delay-1,
+    .animate-fade-up-delay-2,
+    .animate-fade-up-delay-3,
+    .animate-fade-up-delay-4,
+    .animate-fade-up-delay-5,
+    .animate-fade-in {
+      opacity: 1;
+    }
   }
   h1, h2, h3, h4 {
     @apply tracking-tight;
@@ -125,7 +134,7 @@
     letter-spacing: -0.04em;
   }
   ::selection {
-    @apply bg-foreground/90 text-background;
+    @apply bg-signal/25 text-foreground;
   }
   input, textarea, select, button {
     font: inherit;
