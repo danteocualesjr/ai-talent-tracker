@@ -14,9 +14,17 @@ export default function FeedLoading() {
         <Skeleton className="mx-auto h-9 w-56" />
         <Skeleton className="mx-auto h-4 w-80 max-w-full rounded" />
       </div>
-      <div className="animate-fade-up animate-fade-up-delay-1 grid grid-cols-3 gap-3">
+      <div className="animate-fade-up animate-fade-up-delay-1 stat-strip grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="surface-card h-24 rounded-2xl" />
+          <div key={i} className="stat-strip-item">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-12 rounded" />
+                <Skeleton className="h-3 w-20 rounded" />
+              </div>
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          </div>
         ))}
       </div>
       <Skeleton className="animate-fade-up animate-fade-up-delay-2 surface-card h-24 rounded-2xl" />
