@@ -18,6 +18,7 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   stealth: ["went_stealth"],
   founders: ["headline_signals_founding"],
   joiners: ["joined_company"],
+  github: ["github_dark"],
 };
 
 export default async function EventsPage({

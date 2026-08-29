@@ -1,11 +1,16 @@
 import { Bell, Mail, MessageSquare, Webhook } from "lucide-react";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { getOrgDeliveries } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { DeliveryLog } from "./delivery-log";
+import { TestAlertButton } from "./test-alert-button";
+import { EventTypesEditor } from "./event-types-editor";
+import { ToggleChannelButton } from "./toggle-channel-button";
 import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
@@ -29,6 +34,7 @@ export default async function AlertsPage() {
   const db = createAdminClient();
   const { data } = await db.from("notification_channels").select("*").eq("org_id", org.id).order("created_at");
   const channels = (data ?? []) as NotificationChannel[];
+  const deliveries = await getOrgDeliveries(org.id);
   const canUseWebhooks = org.plan === "team" || org.plan === "enterprise";
   const canUseSlack = org.plan !== "free";
   const channelCounts = {
@@ -90,7 +96,7 @@ export default async function AlertsPage() {
           />
         ) : (
           channels.map((c) => (
-            <div key={c.id} className="group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30">
+            <div key={c.id} className={`group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30 ${!c.is_active ? "opacity-60" : ""}`}>
               <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="flex items-center gap-3">
                 <ChannelIcon type={c.type} />
@@ -100,15 +106,27 @@ export default async function AlertsPage() {
                     <Badge variant="secondary" className="uppercase">
                       {c.type}
                     </Badge>
+                    {!c.is_active && (
+                      <Badge variant="secondary" className="text-muted-foreground">
+                        Paused
+                      </Badge>
+                    )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">Triggers on: {c.event_types.join(", ")}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">Triggers on selected event types:</p>
+                  <EventTypesEditor channelId={c.id} eventTypes={c.event_types} />
                 </div>
               </div>
-              <RemoveChannelButton channelId={c.id} />
+              <div className="flex items-center gap-1">
+                <TestAlertButton channelId={c.id} />
+                <ToggleChannelButton channelId={c.id} isActive={c.is_active} />
+                <RemoveChannelButton channelId={c.id} />
+              </div>
             </div>
           ))
         )}
       </Panel>
+
+      <DeliveryLog deliveries={deliveries} />
 
       <div className="grid gap-5 md:grid-cols-3">
         <ChannelCard icon={<Mail className="h-4 w-4" />} title="Email" description="Single inbox delivery via Resend.">

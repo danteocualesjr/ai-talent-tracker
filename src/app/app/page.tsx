@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
 import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { Sparkline } from "@/components/sparkline";
+import { RefreshStaleButton } from "@/app/app/watchlist/refresh-stale-button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
 export const metadata = { title: "Dashboard" };
@@ -197,6 +198,11 @@ export default async function DashboardPage() {
             </div>
             <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
+            {label === "Needs refresh" && staleProfiles > 0 && (
+              <div className="mt-3">
+                <RefreshStaleButton count={staleProfiles} />
+              </div>
+            )}
           </div>
         ))}
       </div>
