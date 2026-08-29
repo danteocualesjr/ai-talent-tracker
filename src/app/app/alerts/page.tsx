@@ -1,14 +1,19 @@
 import { Bell, Mail, MessageSquare, Webhook } from "lucide-react";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { getOrgDeliveries } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+<<<<<<< HEAD
+import { DeliveryLog } from "./delivery-log";
+=======
 import { TestAlertButton } from "./test-alert-button";
 import { EventTypesEditor } from "./event-types-editor";
 import { ToggleChannelButton } from "./toggle-channel-button";
+>>>>>>> origin/main
 import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
@@ -32,6 +37,7 @@ export default async function AlertsPage() {
   const db = createAdminClient();
   const { data } = await db.from("notification_channels").select("*").eq("org_id", org.id).order("created_at");
   const channels = (data ?? []) as NotificationChannel[];
+  const deliveries = await getOrgDeliveries(org.id);
   const canUseWebhooks = org.plan === "team" || org.plan === "enterprise";
   const canUseSlack = org.plan !== "free";
   const channelCounts = {
@@ -122,6 +128,8 @@ export default async function AlertsPage() {
           ))
         )}
       </Panel>
+
+      <DeliveryLog deliveries={deliveries} />
 
       <div className="grid gap-5 md:grid-cols-3">
         <ChannelCard icon={<Mail className="h-4 w-4" />} title="Email" description="Single inbox delivery via Resend.">

@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import type { EventRow, Lab, Profile } from "@/types/db";
+import type { EventRow, Lab, NotificationDelivery, NotificationChannel, Profile } from "@/types/db";
 
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
@@ -117,4 +117,27 @@ export async function listLabProfiles(labId: string, limit = 100): Promise<Profi
     .order("status")
     .limit(limit);
   return (data ?? []) as Profile[];
+}
+
+export type DeliveryLogEntry = NotificationDelivery & {
+  channel: Pick<NotificationChannel, "id" | "type" | "config">;
+  event: Pick<EventRow, "id" | "type" | "summary"> | null;
+};
+
+export async function getOrgDeliveries(orgId: string, limit = 50): Promise<DeliveryLogEntry[]> {
+  if (!isSupabaseConfigured()) return [];
+  const db = createAdminClient();
+
+  const { data: channels } = await db.from("notification_channels").select("id").eq("org_id", orgId);
+  const channelIds = ((channels ?? []) as { id: string }[]).map((c) => c.id);
+  if (channelIds.length === 0) return [];
+
+  const { data } = await db
+    .from("notification_deliveries")
+    .select("*, channel:notification_channels(id, type, config), event:events(id, type, summary)")
+    .in("channel_id", channelIds)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  return (data ?? []) as unknown as DeliveryLogEntry[];
 }
