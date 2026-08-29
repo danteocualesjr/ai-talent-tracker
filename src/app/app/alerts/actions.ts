@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import type { ChannelType } from "@/types/db";
+import type { ChannelType, EventType } from "@/types/db";
 
 const EmailSchema = z.object({ to: z.string().email() });
 const SlackSchema = z.object({ webhook_url: z.string().url().startsWith("https://hooks.slack.com/") });
