@@ -6,6 +6,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { ToggleChannelButton } from "./toggle-channel-button";
 import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
@@ -90,7 +91,7 @@ export default async function AlertsPage() {
           />
         ) : (
           channels.map((c) => (
-            <div key={c.id} className="group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30">
+            <div key={c.id} className={`group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/30 ${!c.is_active ? "opacity-60" : ""}`}>
               <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="flex items-center gap-3">
                 <ChannelIcon type={c.type} />
@@ -100,11 +101,19 @@ export default async function AlertsPage() {
                     <Badge variant="secondary" className="uppercase">
                       {c.type}
                     </Badge>
+                    {!c.is_active && (
+                      <Badge variant="secondary" className="text-muted-foreground">
+                        Paused
+                      </Badge>
+                    )}
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">Triggers on: {c.event_types.join(", ")}</p>
                 </div>
               </div>
-              <RemoveChannelButton channelId={c.id} />
+              <div className="flex items-center gap-2">
+                <ToggleChannelButton channelId={c.id} isActive={c.is_active} />
+                <RemoveChannelButton channelId={c.id} />
+              </div>
             </div>
           ))
         )}
