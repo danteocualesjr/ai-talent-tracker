@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import type { ChannelType, EventType } from "@/types/db";
+import { sendTestAlert } from "@/lib/notifications/dispatch";
+import type { ChannelType, EventType, NotificationChannel } from "@/types/db";
 
 const EmailSchema = z.object({ to: z.string().email() });
 const SlackSchema = z.object({ webhook_url: z.string().url().startsWith("https://hooks.slack.com/") });
@@ -144,5 +145,32 @@ export async function updateChannelEventTypes(formData: FormData): Promise<Actio
   if (error) return { error: "Could not update event types. Try again." };
 
   revalidatePath("/app/alerts");
+  return { ok: true };
+}
+
+export async function sendTestAlertAction(formData: FormData): Promise<ActionResult> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Missing channel id." };
+
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: channel, error: fetchErr } = await db
+    .from("notification_channels")
+    .select("*")
+    .eq("id", id)
+    .eq("org_id", org.id)
+    .maybeSingle();
+  if (fetchErr || !channel) return { error: "Channel not found." };
+
+  try {
+    await sendTestAlert(channel as NotificationChannel);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Test alert failed." };
+  }
+
   return { ok: true };
 }

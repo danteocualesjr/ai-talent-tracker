@@ -70,6 +70,45 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   return { dispatched };
 }
 
+/** Sends a synthetic test alert through a single channel (no DB event required). */
+export async function sendTestAlert(channel: NotificationChannel): Promise<void> {
+  const testEvent: EventRow = {
+    id: "test",
+    profile_id: "test",
+    type: "went_stealth",
+    confidence: 1,
+    summary: "This is a test alert from AI Talent Tracker. Your channel is configured correctly.",
+    before: null,
+    after: null,
+    detected_at: new Date().toISOString(),
+    is_public: false,
+  };
+  const testProfile: Profile = {
+    id: "test",
+    linkedin_url: "https://www.linkedin.com/in/test-profile",
+    linkedin_handle: "test-profile",
+    full_name: "Test Profile",
+    headline: "Building something new",
+    current_company: null,
+    current_company_lab_id: null,
+    current_title: null,
+    location: null,
+    avatar_url: null,
+    github_handle: null,
+    github_last_commit_at: null,
+    github_commits_30d: null,
+    x_handle: null,
+    about: null,
+    status: "stealth",
+    last_synced_at: null,
+    next_sync_at: null,
+    is_opted_out: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  await deliver(channel, testEvent, testProfile);
+}
+
 async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
   const payload = {
     name: profile.full_name || profile.linkedin_url,

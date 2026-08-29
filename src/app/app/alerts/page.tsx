@@ -6,6 +6,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { TestAlertButton } from "./test-alert-button";
 import { EventTypesEditor } from "./event-types-editor";
 import { ToggleChannelButton } from "./toggle-channel-button";
 import { CopyButton } from "@/components/copy-button";
@@ -112,7 +113,8 @@ export default async function AlertsPage() {
                   <EventTypesEditor channelId={c.id} eventTypes={c.event_types} />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <TestAlertButton channelId={c.id} />
                 <ToggleChannelButton channelId={c.id} isActive={c.is_active} />
                 <RemoveChannelButton channelId={c.id} />
               </div>
