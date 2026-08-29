@@ -16,13 +16,13 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
-import { getOrgEvents, listOrgProfiles } from "@/lib/queries";
+import { getOrgEvents, listOrgProfiles, getOrgDailyEventCounts, getOrgWatchlistTrend } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
 import { DashboardGreeting } from "@/components/dashboard-greeting";
-import { Sparkline, buildTrendSeries } from "@/components/sparkline";
+import { Sparkline } from "@/components/sparkline";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
 export const metadata = { title: "Dashboard" };
@@ -32,7 +32,14 @@ export default async function DashboardPage() {
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
 
-  const [events, profiles] = await Promise.all([getOrgEvents(org.id, 20), listOrgProfiles(org.id)]);
+  const [events, profiles, eventTrend, watchlistTrend, stealthTrend, departureTrend] = await Promise.all([
+    getOrgEvents(org.id, 20),
+    listOrgProfiles(org.id),
+    getOrgDailyEventCounts(org.id, 14),
+    getOrgWatchlistTrend(org.id, 14),
+    getOrgDailyEventCounts(org.id, 14, ["went_stealth", "headline_signals_founding"]),
+    getOrgDailyEventCounts(org.id, 14, ["left_company"]),
+  ]);
   const plan = PLAN_DETAILS[org.plan];
 
   const stealth = profiles.filter((p) => p.status === "stealth").length;
@@ -103,7 +110,7 @@ export default async function DashboardPage() {
           icon={<Users2 className="h-3.5 w-3.5" />}
           sub={`Limit ${org.profile_limit}`}
           accent="text-foreground/70"
-          series={buildTrendSeries(profiles.length)}
+          series={watchlistTrend.some((v) => v > 0) ? watchlistTrend : undefined}
         />
         <StatCard
           label="Events (7d)"
@@ -111,7 +118,7 @@ export default async function DashboardPage() {
           icon={<Activity className="h-3.5 w-3.5" />}
           sub={`${last30} in last 30 days`}
           accent="text-signal"
-          series={buildTrendSeries(last7 || 1)}
+          series={eventTrend.some((v) => v > 0) ? eventTrend : undefined}
         />
         <StatCard
           label="Stealth + founders"
@@ -119,7 +126,7 @@ export default async function DashboardPage() {
           icon={<Sparkles className="h-3.5 w-3.5" />}
           sub={`${stealth} stealth · ${founders} founder`}
           accent="text-amber-accent"
-          series={buildTrendSeries(stealth + founders || 1)}
+          series={stealthTrend.some((v) => v > 0) ? stealthTrend : undefined}
         />
         <StatCard
           label="Departures"
@@ -127,7 +134,7 @@ export default async function DashboardPage() {
           icon={<AlertTriangle className="h-3.5 w-3.5" />}
           sub="flagged left"
           accent="text-violet-accent"
-          series={buildTrendSeries(left || 1)}
+          series={departureTrend.some((v) => v > 0) ? departureTrend : undefined}
         />
       </div>
 

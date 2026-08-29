@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import type { EventRow, Lab, Profile } from "@/types/db";
+import type { EventRow, Lab, Profile, EventType } from "@/types/db";
 
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
@@ -117,4 +117,61 @@ export async function listLabProfiles(labId: string, limit = 100): Promise<Profi
     .order("status")
     .limit(limit);
   return (data ?? []) as Profile[];
+}
+
+/** Returns daily event counts for the last N days (oldest first), optionally filtered by event types. */
+export async function getOrgDailyEventCounts(
+  orgId: string,
+  days = 14,
+  eventTypes?: EventType[],
+): Promise<number[]> {
+  if (!isSupabaseConfigured()) return Array(days).fill(0);
+  const db = createAdminClient();
+
+  const { data: watched } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  if (ids.length === 0) return Array(days).fill(0);
+
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const { data } = await db.from("events").select("detected_at, type").in("profile_id", ids).gte("detected_at", since);
+
+  const buckets = Array(days).fill(0) as number[];
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - (days - 1));
+
+  for (const row of (data ?? []) as { detected_at: string; type: EventType }[]) {
+    if (eventTypes && !eventTypes.includes(row.type)) continue;
+    const dayIndex = Math.floor((new Date(row.detected_at).getTime() - start.getTime()) / 86400000);
+    if (dayIndex >= 0 && dayIndex < days) buckets[dayIndex] += 1;
+  }
+
+  return buckets;
+}
+
+/** Returns cumulative watchlist size per day for the last N days. */
+export async function getOrgWatchlistTrend(orgId: string, days = 14): Promise<number[]> {
+  if (!isSupabaseConfigured()) return Array(days).fill(0);
+  const db = createAdminClient();
+
+  const { data: watched } = await db
+    .from("watchlist_profiles")
+    .select("created_at, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+
+  const rows = (watched ?? []) as { created_at: string }[];
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - (days - 1));
+
+  const buckets: number[] = [];
+  for (let i = 0; i < days; i++) {
+    const dayEnd = new Date(start.getTime() + (i + 1) * 86400000);
+    const count = rows.filter((r) => new Date(r.created_at).getTime() < dayEnd.getTime()).length;
+    buckets.push(count);
+  }
+  return buckets;
 }
