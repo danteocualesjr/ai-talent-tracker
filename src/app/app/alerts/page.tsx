@@ -7,13 +7,10 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
-<<<<<<< HEAD
 import { DeliveryLog } from "./delivery-log";
-=======
 import { TestAlertButton } from "./test-alert-button";
 import { EventTypesEditor } from "./event-types-editor";
 import { ToggleChannelButton } from "./toggle-channel-button";
->>>>>>> origin/main
 import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
