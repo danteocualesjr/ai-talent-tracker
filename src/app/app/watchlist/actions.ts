@@ -16,6 +16,8 @@ const MAX_CSV_IMPORT = 200;
 
 export type ActionResult = { ok: true } | { error: string };
 
+export type RefreshStaleResult = { ok: true; queued: number } | { error: string };
+
 export type ImportResult =
   | { error: string }
   | { ok: true; added: number; skipped: number; invalid: number; limitReached: boolean };
