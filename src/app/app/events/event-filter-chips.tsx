@@ -9,6 +9,7 @@ const FILTERS = [
   { label: "Stealth", param: "stealth", dot: "bg-amber-accent" },
   { label: "Founders", param: "founders", dot: "bg-signal" },
   { label: "Joiners", param: "joiners", dot: "bg-signal/70" },
+  { label: "GitHub", param: "github", dot: "bg-rose-500" },
 ] as const;
 
 export function AppEventsFilterChips() {
