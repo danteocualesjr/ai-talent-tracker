@@ -301,7 +301,8 @@ export async function refreshStaleProfiles(): Promise<RefreshStaleResult> {
     .eq("watchlists.org_id", org.id);
 
   const staleCutoff = Date.now() - 7 * 86400000;
-  const staleIds = ((watched ?? []) as Array<{ profile_id: string; profiles: { id: string; last_synced_at: string | null; is_opted_out: boolean } | null }>)
+  type WatchedRow = { profile_id: string; profiles: { id: string; last_synced_at: string | null; is_opted_out: boolean } | null };
+  const staleIds = ((watched ?? []) as unknown as WatchedRow[])
     .filter((row) => {
       const p = row.profiles;
       if (!p || p.is_opted_out) return false;
