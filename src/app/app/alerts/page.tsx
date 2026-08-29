@@ -6,6 +6,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { TestAlertButton } from "./test-alert-button";
 import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
 
@@ -104,7 +105,10 @@ export default async function AlertsPage() {
                   <p className="mt-0.5 text-xs text-muted-foreground">Triggers on: {c.event_types.join(", ")}</p>
                 </div>
               </div>
-              <RemoveChannelButton channelId={c.id} />
+              <div className="flex items-center gap-1">
+                <TestAlertButton channelId={c.id} />
+                <RemoveChannelButton channelId={c.id} />
+              </div>
             </div>
           ))
         )}
