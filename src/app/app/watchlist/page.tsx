@@ -5,30 +5,13 @@ import { ensureOrgForUser } from "@/lib/org";
 import { listOrgProfiles } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddProfilesPanel } from "./add-profiles-panel";
 import { ExportWatchlistButton } from "./export-watchlist-button";
 import { WatchlistProfiles } from "./watchlist-profiles";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Watchlist" };
-
-const STATUS_TONE: Record<string, "default" | "secondary" | "success" | "warning"> = {
-  active: "secondary",
-  left: "warning",
-  stealth: "warning",
-  founder: "success",
-  unknown: "secondary",
-};
-
-const STATUS_DOT: Record<string, string> = {
-  active: "bg-muted-foreground",
-  left: "bg-violet-accent",
-  stealth: "bg-amber-accent",
-  founder: "bg-signal",
-  unknown: "bg-muted-foreground",
-};
 
 export default async function WatchlistPage() {
   const supa = await createClient();
