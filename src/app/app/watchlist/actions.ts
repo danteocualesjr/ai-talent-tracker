@@ -16,6 +16,8 @@ const MAX_CSV_IMPORT = 200;
 
 export type ActionResult = { ok: true } | { error: string };
 
+export type RefreshStaleResult = { ok: true; queued: number } | { error: string };
+
 export type ImportResult =
   | { error: string }
   | { ok: true; added: number; skipped: number; invalid: number; limitReached: boolean };
@@ -283,4 +285,46 @@ export async function refreshNowForm(formData: FormData): Promise<ActionResult> 
   }
   revalidatePath("/app/watchlist");
   return { ok: true };
+}
+
+export async function refreshStaleProfiles(): Promise<RefreshStaleResult> {
+  const supa = await createClient();
+  const { data: { user } } = await supa.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+
+  const org = await ensureOrgForUser(user.id, user.email ?? null);
+  const db = createAdminClient();
+
+  const { data: watched } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, profiles(id, last_synced_at, is_opted_out), watchlists!inner(org_id)")
+    .eq("watchlists.org_id", org.id);
+
+  const staleCutoff = Date.now() - 7 * 86400000;
+  const staleIds = ((watched ?? []) as Array<{ profile_id: string; profiles: { id: string; last_synced_at: string | null; is_opted_out: boolean } | null }>)
+    .filter((row) => {
+      const p = row.profiles;
+      if (!p || p.is_opted_out) return false;
+      if (!p.last_synced_at) return true;
+      return new Date(p.last_synced_at).getTime() < staleCutoff;
+    })
+    .map((row) => row.profile_id);
+
+  if (staleIds.length === 0) return { error: "No stale profiles to refresh." };
+
+  let queued = 0;
+  for (const profileId of staleIds) {
+    try {
+      await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "stale_bulk" } });
+      queued += 1;
+    } catch (e) {
+      console.warn("[inngest] send failed", e);
+    }
+  }
+
+  if (queued === 0) return { error: "Refresh could not be queued. Try again shortly." };
+
+  revalidatePath("/app");
+  revalidatePath("/app/watchlist");
+  return { ok: true, queued };
 }
