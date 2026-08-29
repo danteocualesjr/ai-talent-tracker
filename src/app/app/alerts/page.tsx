@@ -6,6 +6,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { AddChannelForm } from "./add-channel-form";
 import { RemoveChannelButton } from "./remove-channel-button";
+import { EventTypesEditor } from "./event-types-editor";
 import { ToggleChannelButton } from "./toggle-channel-button";
 import { CopyButton } from "@/components/copy-button";
 import type { NotificationChannel } from "@/types/db";
@@ -107,7 +108,8 @@ export default async function AlertsPage() {
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">Triggers on: {c.event_types.join(", ")}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">Triggers on selected event types:</p>
+                  <EventTypesEditor channelId={c.id} eventTypes={c.event_types} />
                 </div>
               </div>
               <div className="flex items-center gap-2">
