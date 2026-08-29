@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { Panel } from "@/components/panel";
 import { ThemeSettings } from "@/components/theme-settings";
 import { CopyButton } from "@/components/copy-button";
+import { WorkspaceNameForm } from "./workspace-name-form";
 
 export const metadata = { title: "Settings" };
 
@@ -51,7 +52,7 @@ export default async function SettingsPage() {
       </Panel>
 
       <Panel title="Workspace" bodyClassName="divide-y divide-border/60">
-        <Row label="Name" value={org.name} />
+        <WorkspaceNameForm currentName={org.name} />
         <Row label="Slug" value={org.slug} mono />
         <Row label="Plan" value={org.plan} capitalize />
         <Row label="Profile limit" value={String(org.profile_limit)} />

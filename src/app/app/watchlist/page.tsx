@@ -5,32 +5,13 @@ import { ensureOrgForUser } from "@/lib/org";
 import { listOrgProfiles } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddProfilesPanel } from "./add-profiles-panel";
 import { ExportWatchlistButton } from "./export-watchlist-button";
-import { RemoveProfileButton } from "./remove-profile-button";
-import { RefreshProfileButton } from "./refresh-profile-button";
-import { formatRelative, cn } from "@/lib/utils";
+import { WatchlistProfiles } from "./watchlist-profiles";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Watchlist" };
-
-const STATUS_TONE: Record<string, "default" | "secondary" | "success" | "warning"> = {
-  active: "secondary",
-  left: "warning",
-  stealth: "warning",
-  founder: "success",
-  unknown: "secondary",
-};
-
-const STATUS_DOT: Record<string, string> = {
-  active: "bg-muted-foreground",
-  left: "bg-violet-accent",
-  stealth: "bg-amber-accent",
-  founder: "bg-signal",
-  unknown: "bg-muted-foreground",
-};
 
 export default async function WatchlistPage() {
   const supa = await createClient();
@@ -167,48 +148,7 @@ export default async function WatchlistPage() {
             }
           />
         ) : (
-          profiles.map((p) => {
-            const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
-            return (
-              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                />
-                <div className="relative shrink-0">
-                  <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
-                    {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-                    <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
-                  </Avatar>
-                  <span
-                    className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ${STATUS_DOT[p.status] ?? STATUS_DOT.unknown}`}
-                    title={p.status}
-                    aria-hidden
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
-                      {p.full_name || p.linkedin_handle}
-                    </Link>
-                    <Badge variant={STATUS_TONE[p.status] ?? "secondary"} className="capitalize">
-                      {p.status}
-                    </Badge>
-                  </div>
-                  <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                    {p.headline || p.current_title || p.current_company || "—"}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground/70">
-                    Last synced {formatRelative(p.last_synced_at)} · {p.current_company ?? "no current company"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                  <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} />
-                  <RemoveProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} />
-                </div>
-              </div>
-            );
-          })
+          <WatchlistProfiles profiles={profiles} />
         )}
       </Panel>
     </div>
