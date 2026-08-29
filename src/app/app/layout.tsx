@@ -5,6 +5,7 @@ import { countRecentOrgEvents } from "@/lib/queries";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
 import { AppMobileTitle } from "@/components/app-mobile-title";
+import { PostHogIdentify } from "@/components/posthog-identify";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supa = await createClient();
@@ -15,6 +16,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="grid min-h-screen md:grid-cols-[272px_1fr]">
+      <PostHogIdentify
+        userId={user.id}
+        email={user.email ?? null}
+        orgId={org.id}
+        orgName={org.name}
+        plan={org.plan}
+      />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:border focus:border-border/60 focus:bg-background focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
