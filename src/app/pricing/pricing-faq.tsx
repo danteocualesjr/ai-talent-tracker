@@ -35,23 +35,35 @@ export function PricingFaq() {
       <div className="container max-w-3xl py-14 md:py-20">
         <div className="text-center">
           <div className="label-caps">FAQ</div>
-          <h2 className="mt-3 text-balance text-2xl font-bold tracking-tight md:text-3xl">
+          <h2 className="mt-3 text-balance font-serif text-2xl font-medium tracking-tight md:text-3xl">
             Common questions
           </h2>
         </div>
-        <div className="mt-10 divide-y divide-border/60 rounded-2xl border border-border/60 bg-card">
+        <div className="mt-10 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card shadow-sm">
           {FAQ_ITEMS.map(({ q, a }, i) => {
             const isOpen = open === i;
             return (
-              <div key={q}>
+              <div key={q} className={isOpen ? "bg-muted/15" : undefined}>
                 <button
                   type="button"
                   aria-expanded={isOpen}
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="group flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/40 sm:px-6"
                 >
-                  <span className="text-sm font-semibold tracking-tight transition-colors group-hover:text-foreground">
-                    {q}
+                  <span className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-[11px] font-bold transition-colors",
+                        isOpen
+                          ? "border-signal/30 bg-signal/10 text-signal"
+                          : "border-border/60 bg-muted/50 text-muted-foreground group-hover:border-signal/20 group-hover:text-foreground",
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-sm font-semibold tracking-tight transition-colors group-hover:text-foreground">
+                      {q}
+                    </span>
                   </span>
                   <ChevronDown
                     className={cn(

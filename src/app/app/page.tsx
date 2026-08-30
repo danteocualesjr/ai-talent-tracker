@@ -112,6 +112,7 @@ export default async function DashboardPage() {
           sub={`Limit ${org.profile_limit}`}
           accent="text-foreground/70"
           series={watchlistTrend.some((v) => v > 0) ? watchlistTrend : undefined}
+          highlight={profiles.length > 0}
         />
         <StatCard
           label="Events (7d)"
@@ -344,6 +345,7 @@ function StatCard({
   sub,
   series,
   accent = "text-signal",
+  highlight = false,
 }: {
   label: string;
   value: string | number;
@@ -351,11 +353,12 @@ function StatCard({
   sub?: string;
   series?: number[];
   accent?: string;
+  highlight?: boolean;
 }) {
   const rail = STAT_RAIL[accent] ?? STAT_RAIL["text-signal"];
 
   return (
-    <div className="group surface-card surface-card-hover relative overflow-hidden p-5">
+    <div className={`group surface-card surface-card-hover relative overflow-hidden p-5 ${highlight ? "ring-1 ring-signal/10" : ""}`}>
       <span
         aria-hidden
         className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}

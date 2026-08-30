@@ -80,12 +80,17 @@ export default async function PublicFeedPage({
           </div>
 
           <div className="surface-card relative flex flex-col gap-4 overflow-hidden p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
-            <div>
-              <div className="text-sm font-semibold">Scan by signal type</div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Prioritize departures, stealth pivots, and founding headlines from the public stream.
-              </p>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/80 via-signal to-signal/80" />
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
+                <Filter className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Scan by signal type</div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Prioritize departures, stealth pivots, and founding headlines from the public stream.
+                </p>
+              </div>
             </div>
             <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-md bg-muted/60" />}>
               <FeedFilterChips />

@@ -43,16 +43,31 @@ export function DashboardGreeting({ orgName }: { orgName: string }) {
   const now = new Date();
 
   return (
-    <div className="surface-card relative overflow-hidden p-5 lg:p-6">
+    <div className="surface-card group/greeting relative overflow-hidden p-5 lg:p-6">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/60 to-transparent" />
-      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal/8 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal/8 blur-3xl transition-opacity duration-500 group-hover/greeting:opacity-100" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground)) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+          maskImage: "radial-gradient(ellipse 80% 70% at 20% 0%, black, transparent)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 20% 0%, black, transparent)",
+        }}
+        aria-hidden
+      />
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-signal/10 text-signal">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-signal/10 text-signal motion-safe:transition-transform motion-safe:group-hover/greeting:scale-105">
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <p className="label-caps">{salutation} · daily brief</p>
+            <p className="label-caps flex items-center gap-2">
+              {salutation}
+              <span className="h-1 w-1 rounded-full bg-signal signal-pulse" aria-hidden />
+              daily brief
+            </p>
             <h2 className="mt-1 font-serif text-2xl font-medium tracking-tight md:text-[1.7rem]">
               {orgName}
             </h2>
@@ -65,7 +80,7 @@ export function DashboardGreeting({ orgName }: { orgName: string }) {
             </p>
           </div>
         </div>
-        <p className="max-w-xs border-t border-border/60 pt-3 text-sm leading-relaxed text-muted-foreground sm:border-t-0 sm:border-l sm:pl-5 sm:pt-0 sm:text-right">
+        <p className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 text-sm leading-relaxed text-muted-foreground sm:max-w-[280px] sm:text-right">
           {hint}
         </p>
       </div>

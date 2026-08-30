@@ -174,10 +174,10 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
           <Badge variant={meta.tone}>{meta.label}</Badge>
           {event.confidence >= 0.7 && (
             <span
-              className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+              className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
                 event.confidence >= 0.8
-                  ? "bg-signal/10 text-signal"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-signal/10 text-signal ring-signal/25"
+                  : "bg-muted text-muted-foreground ring-border/60"
               }`}
               title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
             >
@@ -221,10 +221,10 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
         <Badge variant={meta.tone}>{meta.label}</Badge>
         {event.confidence >= 0.7 && (
           <span
-            className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+            className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
               event.confidence >= 0.8
-                ? "bg-signal/10 text-signal"
-                : "bg-muted text-muted-foreground"
+                ? "bg-signal/10 text-signal ring-signal/25"
+                : "bg-muted text-muted-foreground ring-border/60"
             }`}
             title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
           >

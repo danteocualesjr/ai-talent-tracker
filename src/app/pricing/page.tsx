@@ -36,7 +36,7 @@ export default async function PricingPage({
 
         <section className="border-b bg-muted/20">
           <div className="container max-w-6xl py-14">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border/60">
               <PlanCard slug="free" priceEnv={null} ctaHref="/login" cta="Start free" />
               <PlanCard slug="pro" priceEnv={process.env.STRIPE_PRICE_PRO} highlighted />
               <PlanCard slug="team" priceEnv={process.env.STRIPE_PRICE_TEAM} />
@@ -46,10 +46,16 @@ export default async function PricingPage({
               All paid plans include the public departure feed. Cancel anytime. Prices in USD.
             </p>
 
-            <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-lg border border-border/80 bg-card">
+            <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm">
+              <div className="border-b border-border/60 bg-muted/30 px-4 py-2.5 text-center">
+                <span className="label-caps">Refresh cadence by plan</span>
+              </div>
               <div className="grid grid-cols-4 divide-x divide-border/60 text-center">
                 {(["free", "pro", "team", "enterprise"] as const).map((slug) => (
-                  <div key={slug} className="px-3 py-3">
+                  <div
+                    key={slug}
+                    className={`px-3 py-3 transition-colors ${slug === "pro" ? "bg-signal/[0.04]" : "hover:bg-muted/20"}`}
+                  >
                     <div className="text-sm font-semibold capitalize text-foreground">{PLAN_DETAILS[slug].name}</div>
                     <div className="label-caps mt-1.5">{REFRESH_CADENCE[slug]} refresh</div>
                   </div>
@@ -111,8 +117,8 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
     <div
       className={`relative flex flex-col overflow-hidden p-7 ${
         highlighted
-          ? "surface-card z-10 border-signal/45 ring-1 ring-signal/20"
-          : "surface-card surface-card-hover"
+          ? "surface-card z-10 border-signal/45 ring-1 ring-signal/20 lg:-my-2 lg:py-9 lg:shadow-[0_20px_50px_-20px_hsl(var(--signal)/0.25)]"
+          : "surface-card surface-card-hover lg:rounded-none lg:first:rounded-l-lg lg:last:rounded-r-lg"
       }`}
     >
       {highlighted && (

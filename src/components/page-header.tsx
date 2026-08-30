@@ -53,7 +53,7 @@ export function PageHeader({
       {divider && (
         <span
           aria-hidden
-          className="pointer-events-none absolute bottom-0 left-0 h-0.5 w-16 rounded-full bg-gradient-to-r from-signal/70 to-signal/0 opacity-80 transition-all duration-300 group-hover/header:w-24"
+          className="pointer-events-none absolute bottom-0 left-0 h-0.5 w-16 rounded-full bg-gradient-to-r from-signal/70 to-signal/0 opacity-80 transition-all duration-300 group-hover/header:w-28"
         />
       )}
       <div className="min-w-0">

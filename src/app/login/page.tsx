@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft, Bell, ListChecks, Shield, Sparkles } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LoginForm } from "./login-form";
@@ -48,6 +48,18 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
               </p>
               <p className="mt-2 text-xs text-background/45">Casey Aldridge · founding recruiter</p>
             </div>
+            <div className="mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-background/15 bg-background/10">
+              {[
+                { value: "5", label: "Free profiles" },
+                { value: "<15m", label: "Detection" },
+                { value: "3", label: "Alert channels" },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-background/5 px-4 py-3">
+                  <div className="tnum text-xl font-bold text-background">{stat.value}</div>
+                  <div className="mt-0.5 text-[10px] uppercase tracking-wide text-background/45">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
           <p className="text-xs text-background/40">© {new Date().getFullYear()} AI Talent Tracker</p>
         </div>
@@ -73,7 +85,24 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
               <span>Magic links expire in 15 minutes. We never store passwords.</span>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs text-muted-foreground animate-fade-up animate-fade-up-delay-2">
+          <div className="mt-8 grid gap-3 animate-fade-up animate-fade-up-delay-2 lg:hidden">
+            {[
+              { icon: ListChecks, label: "Paste LinkedIn URLs or import a lab roster" },
+              { icon: Sparkles, label: "Get classified stealth & founder alerts" },
+              { icon: Bell, label: "Route to Slack, email, or webhook" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 rounded-md border border-border/60 bg-card/60 px-3.5 py-2.5 text-xs text-muted-foreground"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-signal/10 text-signal">
+                  <Icon className="h-3.5 w-3.5" />
+                </span>
+                {label}
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-xs text-muted-foreground animate-fade-up animate-fade-up-delay-3">
             By signing in you agree to our{" "}
             <Link href="/privacy" className="link-subtle">privacy policy</Link>.
           </p>
