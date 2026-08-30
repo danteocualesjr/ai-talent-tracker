@@ -151,7 +151,7 @@ function FeedStat({
   accent?: string;
 }) {
   return (
-    <div className="stat-strip-item">
+    <div className="stat-strip-item group">
       <div className="relative flex items-start justify-between gap-3">
         <div>
           <div className="tnum font-serif text-3xl font-medium tracking-tight transition-colors group-hover:text-foreground">{value}</div>

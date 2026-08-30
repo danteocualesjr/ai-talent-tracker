@@ -583,7 +583,7 @@
     @apply grid gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80;
   }
   .stat-strip-item {
-    @apply group relative bg-card p-4 transition-colors duration-200 hover:bg-muted/25;
+    @apply relative bg-card p-4 transition-colors duration-200 hover:bg-muted/25;
   }
   .stat-strip-item::before {
     content: "";
