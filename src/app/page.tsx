@@ -60,17 +60,15 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         )}
 
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border/70">
-          <div className="pointer-events-none absolute inset-0 noise opacity-35" />
-          <div className="pointer-events-none absolute inset-0 hero-backdrop" />
-          <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
-
+        <section className="relative overflow-hidden border-b border-border/60">
           <div className="container relative">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 py-4 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-              <span className="text-signal">Intelligence brief</span>
-              <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
-              <span className="flex-1 sm:flex-none">{today}</span>
-              <Link href="/feed" className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-border/60 py-4 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span className="text-signal">Intelligence brief</span>
+                <span className="h-3 w-px bg-border" aria-hidden />
+                <span>{today}</span>
+              </div>
+              <Link href="/feed" className="inline-flex items-center gap-2 transition-colors hover:text-foreground">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
@@ -81,9 +79,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
             <div className="grid items-start gap-12 py-14 md:py-20 lg:grid-cols-[1fr_280px] lg:gap-16">
               <div>
-                <h1 className="animate-fade-up text-balance font-serif text-[44px] font-medium leading-[1.05] tracking-tight md:text-[56px] lg:text-[64px]">
+                <h1 className="animate-fade-up text-balance text-[44px] font-bold leading-[1.05] tracking-tight md:text-[56px] lg:text-[64px]">
                   Know the moment{" "}
-                  <span className="italic text-gradient-hero">AI talent</span>{" "}
+                  <span className="text-signal">AI talent</span>{" "}
                   moves.
                 </h1>
                 <p className="animate-fade-up animate-fade-up-delay-1 mt-6 max-w-lg text-pretty text-[17px] leading-relaxed text-muted-foreground md:text-lg">
@@ -117,7 +115,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                     { value: "3", label: "Alert channels" },
                   ].map((stat) => (
                     <div key={stat.label} className="stat-strip-item">
-                      <div className="tnum font-serif text-3xl font-medium tracking-tight">{stat.value}</div>
+                      <div className="tnum text-3xl font-bold tracking-tight">{stat.value}</div>
                       <div className="mt-1 label-caps text-muted-foreground">{stat.label}</div>
                     </div>
                   ))}
@@ -133,7 +131,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div className="max-w-xl">
                 <div className="label-caps text-signal">Live activity</div>
-                <h2 className="mt-3 text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl lg:text-[2.75rem]">
+                <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-[2.75rem]">
                   The feed that moves first.
                 </h2>
                 <p className="mt-4 max-w-md text-pretty text-muted-foreground md:text-[17px]">
@@ -161,7 +159,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </section>
 
         {/* Labs + signal type chips */}
-        <section className="border-b border-border/60 bg-muted/20">
+        <section className="border-b border-border/60">
           <div className="container py-14 md:py-16">
             <div className="flex flex-wrap gap-2">
               <span className="chip"><span className="h-1 w-1 rounded-full bg-signal" /> Headline changes</span>
@@ -182,7 +180,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
               <div>
                 <div className="label-caps text-signal">Signal intelligence</div>
-                <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl lg:text-[2.75rem]">
+                <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-[2.75rem]">
                   Turn profile noise into ranked next actions.
                 </h2>
                 <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-[17px]">
@@ -213,7 +211,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="container py-16 md:py-20">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
               <div>
-                <h2 className="text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl lg:text-[2.75rem]">
+                <h2 className="text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-[2.75rem]">
                   Built for sourcing the next wave.
                 </h2>
                 <p className="mt-4 max-w-sm text-pretty text-muted-foreground md:text-[17px]">
@@ -239,7 +237,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <div className="grid items-start gap-14 lg:grid-cols-2 lg:gap-16">
               <div>
                 <div className="label-caps text-signal">Who uses this</div>
-                <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl">
+                <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-4xl">
                   If your edge is being first, this is for you.
                 </h2>
                 <ul className="editorial-list mt-10 divide-y divide-border/70">
@@ -261,7 +259,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="container py-16 md:py-20">
             <div className="mx-auto max-w-3xl text-center">
               <Quote className="mx-auto h-6 w-6 text-signal/30" />
-              <blockquote className="mt-6 text-balance font-serif text-2xl font-medium leading-snug md:text-[1.75rem] md:leading-snug">
+              <blockquote className="mt-6 text-balance text-2xl font-semibold leading-snug md:text-[1.75rem] md:leading-snug">
                 &ldquo;We closed two researchers from a single Slack ping. The departure feed
                 is the closest thing to a cheat code we&apos;ve seen for AI sourcing.&rdquo;
               </blockquote>
@@ -284,7 +282,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
               <div>
                 <div className="label-caps text-signal">Get started</div>
-                <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl lg:text-[2.75rem]">
+                <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight md:text-4xl lg:text-[2.75rem]">
                   Start with 5 free profiles.
                 </h2>
                 <p className="mt-4 max-w-md text-pretty text-muted-foreground md:text-[17px]">
@@ -328,7 +326,7 @@ function PricingRows() {
               <div className="text-sm font-semibold">{plan.name}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">{detail}</div>
             </div>
-            <div className="tnum font-serif text-2xl font-medium">
+            <div className="tnum text-2xl font-bold">
               {plan.price_monthly === 0 ? "$0" : `$${plan.price_monthly}`}
             </div>
           </div>

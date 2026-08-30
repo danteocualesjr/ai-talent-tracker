@@ -39,8 +39,8 @@ export function MarketingNav() {
       className={cn(
         "sticky top-0 z-30 w-full motion-safe:transition-all motion-safe:duration-300",
         scrolled
-          ? "border-b border-border/80 bg-background/88 shadow-[0_1px_0_0_hsl(var(--border)/0.6)] backdrop-blur-xl"
-          : "border-b border-border/50 bg-background/40 backdrop-blur-sm",
+          ? "border-b border-border/60 bg-background/90 backdrop-blur-xl"
+          : "border-b border-border/40 bg-background/80 backdrop-blur-sm",
       )}
     >
       <div className="container flex h-[64px] items-center justify-between">

@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       id="top"
-      className={`h-full scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}
+      className={`dark h-full scroll-smooth ${sans.variable} ${serif.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background font-sans antialiased text-foreground" suppressHydrationWarning>

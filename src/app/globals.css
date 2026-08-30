@@ -4,62 +4,63 @@
 
 @layer base {
   :root {
-    /* Iteration 8 — Wire Brief: warm paper, ink type, copper signal */
-    --background: 36 32% 96%;
-    --foreground: 24 22% 10%;
-    --card: 36 40% 99%;
-    --card-foreground: 24 22% 10%;
-    --popover: 36 40% 99%;
-    --popover-foreground: 24 22% 10%;
-    --primary: 24 22% 10%;
-    --primary-foreground: 36 32% 96%;
-    --secondary: 32 20% 92%;
-    --secondary-foreground: 24 18% 14%;
-    --muted: 32 18% 92%;
-    --muted-foreground: 24 10% 38%;
-    --accent: 32 16% 90%;
-    --accent-foreground: 24 18% 14%;
+    /* Light fallback */
+    --background: 220 20% 97%;
+    --foreground: 222 28% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 28% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 28% 8%;
+    --primary: 222 28% 8%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 93%;
+    --secondary-foreground: 222 28% 8%;
+    --muted: 220 14% 93%;
+    --muted-foreground: 220 10% 42%;
+    --accent: 220 14% 91%;
+    --accent-foreground: 222 28% 8%;
     --destructive: 0 68% 42%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 16% 82%;
-    --input: 30 16% 82%;
-    --ring: 16 78% 42%;
+    --border: 220 13% 86%;
+    --input: 220 13% 86%;
+    --ring: 192 70% 42%;
     --radius: 0.5rem;
 
-    --signal: 16 78% 42%;
-    --signal-foreground: 36 40% 99%;
+    --signal: 192 70% 42%;
+    --signal-foreground: 0 0% 100%;
 
-    --accent-violet: 152 22% 32%;
-    --accent-amber: 32 78% 46%;
+    --accent-violet: 260 55% 58%;
+    --accent-amber: 38 90% 52%;
   }
 
   .dark,
   :root.dark {
-    --background: 24 16% 7%;
-    --foreground: 36 22% 94%;
-    --card: 24 14% 10%;
-    --card-foreground: 36 22% 94%;
-    --popover: 24 14% 10%;
-    --popover-foreground: 36 22% 94%;
-    --primary: 36 22% 94%;
-    --primary-foreground: 24 16% 8%;
-    --secondary: 24 12% 13%;
-    --secondary-foreground: 36 22% 94%;
-    --muted: 24 12% 13%;
-    --muted-foreground: 32 10% 64%;
-    --accent: 24 10% 15%;
-    --accent-foreground: 36 22% 94%;
+    /* Intelligence brief — navy canvas, cyan signal */
+    --background: 222 28% 6%;
+    --foreground: 210 25% 97%;
+    --card: 222 22% 9%;
+    --card-foreground: 210 25% 97%;
+    --popover: 222 22% 9%;
+    --popover-foreground: 210 25% 97%;
+    --primary: 210 25% 97%;
+    --primary-foreground: 222 28% 6%;
+    --secondary: 222 18% 12%;
+    --secondary-foreground: 210 25% 97%;
+    --muted: 222 18% 12%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 222 16% 14%;
+    --accent-foreground: 210 25% 97%;
     --destructive: 0 62% 52%;
     --destructive-foreground: 0 0% 100%;
-    --border: 24 10% 18%;
-    --input: 24 10% 18%;
-    --ring: 18 72% 56%;
+    --border: 222 14% 16%;
+    --input: 222 14% 16%;
+    --ring: 192 70% 61%;
 
-    --signal: 18 72% 56%;
-    --signal-foreground: 24 16% 8%;
+    --signal: 192 70% 61%;
+    --signal-foreground: 222 28% 6%;
 
-    --accent-violet: 152 24% 58%;
-    --accent-amber: 32 80% 58%;
+    --accent-violet: 260 60% 65%;
+    --accent-amber: 38 90% 58%;
   }
 }
 
@@ -171,9 +172,8 @@
 
   .hero-backdrop {
     background:
-      radial-gradient(ellipse 80% 60% at 12% -8%, hsl(var(--signal) / 0.16) 0%, transparent 52%),
-      radial-gradient(ellipse 50% 40% at 92% 8%, hsl(var(--accent-amber) / 0.1) 0%, transparent 48%),
-      radial-gradient(ellipse 40% 30% at 50% 100%, hsl(var(--foreground) / 0.04) 0%, transparent 50%);
+      radial-gradient(ellipse 70% 50% at 8% -10%, hsl(var(--signal) / 0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 35% at 95% 5%, hsl(var(--signal) / 0.04) 0%, transparent 50%);
   }
 
   .aurora-orb {
@@ -227,7 +227,6 @@
     background: linear-gradient(
       115deg,
       hsl(var(--foreground)) 0%,
-      hsl(var(--foreground) / 0.78) 42%,
       hsl(var(--signal)) 100%
     );
     -webkit-background-clip: text;
@@ -236,7 +235,7 @@
   }
 
   .text-gradient-signal {
-    background: linear-gradient(120deg, hsl(var(--signal)) 0%, hsl(28 82% 48%) 100%);
+    background: linear-gradient(120deg, hsl(var(--signal)) 0%, hsl(192 70% 72%) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -330,8 +329,8 @@
 
   .section-wash {
     background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, hsl(var(--signal) / 0.04) 0%, transparent 60%),
-      hsl(var(--muted) / 0.35);
+      radial-gradient(ellipse 80% 60% at 50% 0%, hsl(var(--signal) / 0.05) 0%, transparent 60%),
+      hsl(var(--muted) / 0.4);
   }
 
   /* Halo behind a CTA / hero card */
