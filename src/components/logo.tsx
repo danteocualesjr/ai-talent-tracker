@@ -25,11 +25,11 @@ export function LogoMark({ className }: { className?: string }) {
     <span
       aria-hidden
       className={cn(
-        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-foreground text-background shadow-sm ring-1 ring-foreground/10 transition-transform duration-200 group-hover:scale-[1.04]",
+        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-signal text-[hsl(var(--signal-foreground))] shadow-sm ring-1 ring-signal/20 transition-transform duration-200 group-hover:scale-[1.04]",
         className,
       )}
     >
-      <span className="absolute inset-x-0 top-0 h-0.5 bg-signal" />
+      <span className="absolute inset-x-0 top-0 h-0.5 bg-[hsl(var(--signal-foreground)/0.25)]" />
       <svg
         viewBox="0 0 24 24"
         width="14"

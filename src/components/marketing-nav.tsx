@@ -46,7 +46,7 @@ export function MarketingNav() {
       <div className="container flex h-[64px] items-center justify-between">
         <Logo />
 
-        <nav aria-label="Primary" className="hidden items-center gap-0.5 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
           {LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
             return (
@@ -55,10 +55,10 @@ export function MarketingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
+                  "label-caps rounded-md px-3 py-1.5 text-[10px] transition-all",
                   active
-                    ? "text-foreground after:absolute after:inset-x-3 after:-bottom-[15px] after:h-0.5 after:bg-signal"
-                    : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {l.label}
@@ -67,9 +67,9 @@ export function MarketingNav() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-2.5 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
-          <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          <Link href="/login" className="label-caps rounded-md px-3 py-1.5 text-[10px] text-muted-foreground transition-colors hover:text-foreground">
             Log in
           </Link>
           <Button asChild size="sm" variant="signal" className="group">
