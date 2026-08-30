@@ -39,7 +39,7 @@ export function MarketingNav() {
       className={cn(
         "sticky top-0 z-30 w-full motion-safe:transition-all motion-safe:duration-300",
         scrolled
-          ? "border-b border-border/80 bg-background/88 shadow-[0_1px_0_0_hsl(var(--border)/0.6)] backdrop-blur-xl"
+          ? "border-b border-border/80 bg-background/92 shadow-[0_4px_24px_-12px_hsl(var(--foreground)/0.08)] backdrop-blur-xl"
           : "border-b border-border/50 bg-background/40 backdrop-blur-sm",
       )}
     >
