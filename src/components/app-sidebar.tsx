@@ -116,7 +116,7 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
 
         {/* Workspace card */}
         <div className="relative px-3 py-4">
-          <div className="group/workspace surface-card flex items-center gap-3 rounded-md px-3 py-2.5 transition-all duration-200 hover:border-signal/30">
+          <div className="group/workspace surface-card flex items-center gap-3 rounded-md px-3 py-2.5 transition-all duration-200 hover:border-signal/30 hover:shadow-[0_4px_20px_-8px_hsl(var(--signal)/0.25)]">
             <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-foreground to-foreground/80 text-[11px] font-bold text-background ring-2 ring-signal/20 motion-safe:transition-transform motion-safe:group-hover/workspace:scale-105">
               {orgName.slice(0, 2).toUpperCase()}
               <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-card bg-signal signal-pulse" aria-hidden />
