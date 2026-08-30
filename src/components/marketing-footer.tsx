@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/logo";
+import { LogoMark } from "@/components/logo";
 
 const LINKS = [
   { href: "/feed", label: "Feed" },
@@ -13,8 +13,8 @@ export function MarketingFooter() {
   return (
     <footer aria-label="Site footer" className="border-t border-border/70">
       <div className="container flex flex-col items-start justify-between gap-6 py-8 md:flex-row md:items-center md:py-10">
-        <Link href="/" className="inline-flex items-center gap-2.5">
-          <Logo showWordmark={false} />
+        <Link href="/" className="group inline-flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
+          <LogoMark />
           <span className="label-caps text-[10px] text-muted-foreground">AI Talent Tracker</span>
         </Link>
         <nav aria-label="Footer" className="flex flex-wrap items-center gap-x-6 gap-y-2">
