@@ -9,6 +9,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
 import { AppEventsFilterChips } from "./event-filter-chips";
+import { ExportEventsButton } from "./export-events-button";
 import type { EventType } from "@/types/db";
 
 export const metadata = { title: "Events" };
@@ -86,12 +87,15 @@ export default async function EventsPage({
           </>
         }
         action={
-          <span className="text-xs text-muted-foreground">
-            Public events on{" "}
-            <Link href="/feed" className="link-subtle text-xs">
-              /feed
-            </Link>
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <ExportEventsButton />
+            <span className="text-xs text-muted-foreground">
+              Public events on{" "}
+              <Link href="/feed" className="link-subtle text-xs">
+                /feed
+              </Link>
+            </span>
+          </div>
         }
         bodyClassName={filtered.length === 0 ? undefined : "divide-y divide-border/60"}
       >
