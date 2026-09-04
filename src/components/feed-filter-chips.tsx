@@ -9,6 +9,7 @@ const FILTERS = [
   { label: "Stealth", param: "stealth" },
   { label: "Founders", param: "founders" },
   { label: "Joiners", param: "joiners" },
+  { label: "GitHub", param: "github" },
 ] as const;
 
 export function FeedFilterChips() {
