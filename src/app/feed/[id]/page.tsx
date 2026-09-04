@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { EventFieldDiff } from "@/components/event-row";
 import { formatRelative } from "@/lib/utils";
 import type { EventRow, Profile } from "@/types/db";
 
@@ -71,6 +72,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
               </div>
             </div>
             <p className="mt-6 rounded-xl border border-border/60 bg-muted/30 p-4 text-base leading-relaxed text-foreground/90">{ev.summary}</p>
+            <EventFieldDiff before={ev.before} after={ev.after} />
             <div className="mt-8 flex flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">Want alerts when profiles like this change?</p>
               <div className="flex flex-col gap-3 sm:flex-row">
