@@ -181,6 +181,16 @@ export type DeliveryLogEntry = NotificationDelivery & {
   event: Pick<EventRow, "id" | "type" | "summary"> | null;
 };
 
+export async function countOrgChannels(orgId: string): Promise<number> {
+  if (!isSupabaseConfigured()) return 0;
+  const db = createAdminClient();
+  const { count } = await db
+    .from("notification_channels")
+    .select("*", { count: "exact", head: true })
+    .eq("org_id", orgId);
+  return count ?? 0;
+}
+
 export async function getOrgDeliveries(orgId: string, limit = 50): Promise<DeliveryLogEntry[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();

@@ -1,6 +1,8 @@
-import { Building2, Clock, CreditCard, Settings as SettingsIcon } from "lucide-react";
+import { Bell, Building2, Clock, CreditCard, Settings as SettingsIcon } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
+import { countOrgChannels } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { Panel } from "@/components/panel";
 import { ThemeSettings } from "@/components/theme-settings";
@@ -13,10 +15,12 @@ export default async function SettingsPage() {
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
+  const channelCount = await countOrgChannels(org.id);
   const readiness = [
     { label: "Workspace", value: org.name ? "Ready" : "Needs name", status: org.name ? "ready" : "warn", icon: Building2, accent: "text-signal" },
     { label: "Plan", value: org.plan, status: "ready" as const, icon: CreditCard, accent: "text-violet-accent" },
     { label: "Cadence", value: org.refresh_cadence, status: "ready" as const, icon: Clock, accent: "text-amber-accent" },
+    { label: "Alerts", value: channelCount > 0 ? `${channelCount} channel${channelCount === 1 ? "" : "s"}` : "Not configured", status: channelCount > 0 ? "ready" as const : "warn" as const, icon: Bell, accent: "text-signal", href: "/app/alerts" },
   ];
 
   return (
@@ -33,22 +37,31 @@ export default async function SettingsPage() {
         <ThemeSettings />
       </Panel>
 
-      <Panel title="Workspace readiness" description="Quick setup status for this organization." bodyClassName="grid gap-3 p-5 sm:grid-cols-3">
-        {readiness.map(({ label, value, status, icon: Icon, accent }) => (
-          <div key={label} className="group rounded-md border border-border/70 bg-muted/30 p-4 transition-colors hover:border-foreground/15">
-            <div className="flex items-center justify-between gap-2">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-background ${accent} shadow-sm`}>
-                <Icon className="h-3.5 w-3.5" />
+      <Panel title="Workspace readiness" description="Quick setup status for this organization." bodyClassName="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        {readiness.map(({ label, value, status, icon: Icon, accent, href }) => {
+          const card = (
+            <div className="group rounded-md border border-border/70 bg-muted/30 p-4 transition-colors hover:border-foreground/15">
+              <div className="flex items-center justify-between gap-2">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-background ${accent} shadow-sm`}>
+                  <Icon className="h-3.5 w-3.5" />
+                </div>
+                <span
+                  className={`h-2 w-2 shrink-0 rounded-full ${status === "ready" ? "bg-signal signal-pulse" : "bg-amber-500"}`}
+                  aria-hidden
+                />
               </div>
-              <span
-                className={`h-2 w-2 shrink-0 rounded-full ${status === "ready" ? "bg-signal signal-pulse" : "bg-amber-500"}`}
-                aria-hidden
-              />
+              <div className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+              <div className="mt-1 text-sm font-semibold capitalize">{value}</div>
             </div>
-            <div className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
-            <div className="mt-1 text-sm font-semibold capitalize">{value}</div>
-          </div>
-        ))}
+          );
+          return href ? (
+            <Link key={label} href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-md">
+              {card}
+            </Link>
+          ) : (
+            <div key={label}>{card}</div>
+          );
+        })}
       </Panel>
 
       <Panel title="Workspace" bodyClassName="divide-y divide-border/60">
