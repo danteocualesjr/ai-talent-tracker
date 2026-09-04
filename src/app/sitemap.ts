@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/utils";
-import { listLabs } from "@/lib/queries";
+import { getPublicEvents, listLabs } from "@/lib/queries";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const labs = await listLabs().catch(() => []);
+  const [labs, events] = await Promise.all([
+    listLabs().catch(() => []),
+    getPublicEvents(100).catch(() => []),
+  ]);
   const now = new Date();
   return [
     { url: `${base}/`, lastModified: now, priority: 1 },
@@ -15,5 +18,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/opt-out`, lastModified: now, priority: 0.4 },
     { url: `${base}/privacy`, lastModified: now, priority: 0.3 },
     ...labs.map((l) => ({ url: `${base}/labs/${l.slug}`, lastModified: now, priority: 0.6 })),
+    ...events.map((e) => ({
+      url: `${base}/feed/${e.id}`,
+      lastModified: new Date(e.detected_at),
+      priority: 0.5,
+    })),
   ];
 }
