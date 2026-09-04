@@ -9,6 +9,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
 import { AppEventsFilterChips } from "./event-filter-chips";
+import { EventsList } from "./events-list";
 import type { EventType } from "@/types/db";
 
 export const metadata = { title: "Events" };
@@ -111,7 +112,7 @@ export default async function EventsPage({
             }
           />
         ) : (
-          filtered.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} />)
+          <EventsList events={filtered} />
         )}
       </Panel>
     </div>
