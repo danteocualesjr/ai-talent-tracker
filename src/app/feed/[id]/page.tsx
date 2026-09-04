@@ -8,10 +8,46 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, siteUrl } from "@/lib/utils";
 import type { EventRow, Profile } from "@/types/db";
+import type { Metadata } from "next";
 
 export const revalidate = 300;
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  if (!isSupabaseConfigured()) return { title: "Event" };
+  const db = createAdminClient();
+  const { data } = await db
+    .from("events")
+    .select("summary, profile:profiles(full_name, headline, avatar_url)")
+    .eq("id", id)
+    .eq("is_public", true)
+    .maybeSingle();
+  if (!data) return { title: "Event not found" };
+  const ev = data as unknown as { summary: string; profile: Pick<Profile, "full_name" | "headline" | "avatar_url"> };
+  const name = ev.profile.full_name ?? "AI talent move";
+  const title = `${name} — AI lab signal`;
+  const description = ev.summary || ev.profile.headline || "Public talent movement signal from AI Talent Tracker.";
+  const url = `${siteUrl()}/feed/${id}`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      images: ev.profile.avatar_url ? [{ url: ev.profile.avatar_url, alt: name }] : undefined,
+    },
+    twitter: {
+      card: ev.profile.avatar_url ? "summary" : "summary_large_image",
+      title,
+      description,
+      images: ev.profile.avatar_url ? [ev.profile.avatar_url] : undefined,
+    },
+  };
+}
 
 export default async function PublicEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
