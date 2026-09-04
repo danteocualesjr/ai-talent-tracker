@@ -10,6 +10,7 @@ import { BackLink } from "@/components/back-link";
 import { PageHeader } from "@/components/page-header";
 import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
+import { SnapshotJsonViewer } from "@/app/app/profiles/snapshot-json-viewer";
 import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
 import { EventTimelineItem } from "@/components/event-row";
 import { formatRelative } from "@/lib/utils";
@@ -149,20 +150,16 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
           )}
       </Panel>
 
-      <Panel title="Recent snapshots" bodyClassName="divide-y divide-border/60">
+      <Panel title="Recent snapshots" bodyClassName="p-0">
           {snapshotList.length === 0 ? (
             <EmptyPanel
               icon={<Camera className="h-5 w-5" />}
               title="No snapshots yet"
               body="Profile snapshots appear after the first successful sync from our data provider."
             />
-          ) : snapshotList.map((s) => (
-            <div key={s.id} className="flex items-center justify-between px-5 py-3 text-xs transition-colors hover:bg-muted/30">
-              <span className="font-medium text-foreground">Snapshot {formatRelative(s.fetched_at)}</span>
-              <span className="text-muted-foreground">source: {s.source}</span>
-              <span className="font-mono text-muted-foreground/70">{s.content_hash.slice(0, 8)}…</span>
-            </div>
-          ))}
+          ) : (
+            <SnapshotJsonViewer snapshots={snapshotList} />
+          )}
       </Panel>
     </div>
   );
