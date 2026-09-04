@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { getPublicEvents, listLabs } from "@/lib/queries";
 import { DashboardPreview } from "@/components/dashboard-preview";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTicker } from "@/components/live-ticker";
@@ -39,6 +40,23 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
     } catch { /* env not ready */ }
   }
   const labNames = labs.length > 0 ? labs.map((l) => l.name) : DEFAULT_LABS;
+
+  const [allLabs, publicEvents] = await Promise.all([
+    listLabs().catch(() => []),
+    getPublicEvents(500).catch(() => []),
+  ]);
+  const labCount = allLabs.length > 0 ? allLabs.length : 20;
+  const publicEventCount = publicEvents.length;
+  const heroStats = [
+    { value: `${labCount}+`, label: "Labs tracked" },
+    { value: publicEventCount > 0 ? String(publicEventCount) : "Live", label: "Public signals" },
+    { value: "3", label: "Alert channels" },
+  ];
+  const proofStats = [
+    { value: `${labCount}+`, label: "AI labs tracked", icon: Building2, accent: "text-signal" },
+    { value: publicEventCount > 0 ? String(publicEventCount) : "Live", label: "public events", icon: Zap, accent: "text-amber-accent" },
+    { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
+  ] as const;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -111,11 +129,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </div>
 
               <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
-                {[
-                  { value: "20+", label: "Labs tracked" },
-                  { value: "<15m", label: "Avg detection" },
-                  { value: "3", label: "Alert channels" },
-                ].map((stat) => (
+                {heroStats.map((stat) => (
                   <div key={stat.label} className="bg-card px-4 py-3.5">
                     <div className="tnum text-xl font-bold md:text-2xl">{stat.value}</div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
@@ -139,11 +153,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="container py-10 md:py-12">
           <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-[1.1fr_0.9fr]">
             <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
-              {([
-                { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
-                { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
-                { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
-              ] as const).map(({ value, label, icon: Icon, accent }, i) => (
+              {proofStats.map(({ value, label, icon: Icon, accent }, i) => (
                 <div
                   key={label}
                   className={`group bg-card px-3 py-4 text-center transition-colors hover:bg-background ${i === 1 ? "bg-background" : ""}`}
