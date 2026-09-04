@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { AddProfilesPanel } from "./add-profiles-panel";
+import { CopyUrlsButton } from "./copy-urls-button";
 import { ExportWatchlistButton } from "./export-watchlist-button";
 import { WatchlistProfiles } from "./watchlist-profiles";
 import { cn } from "@/lib/utils";
@@ -130,6 +131,7 @@ export default async function WatchlistPage() {
         title="Tracked profiles"
         action={
           <div className="flex items-center gap-2">
+            <CopyUrlsButton profiles={profiles} />
             {(org.plan === "team" || org.plan === "enterprise") && <ExportWatchlistButton />}
             <span className="tnum text-xs text-muted-foreground">{profiles.length} total</span>
           </div>
