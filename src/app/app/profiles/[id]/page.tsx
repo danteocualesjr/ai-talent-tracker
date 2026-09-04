@@ -12,7 +12,7 @@ import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
 import { EventTimelineItem } from "@/components/event-row";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, githubProfileUrl, xProfileUrl } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -85,8 +85,15 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               </Button>
               {p.github_handle && (
                 <Button asChild size="sm" variant="outline">
-                  <a href={`https://github.com/${p.github_handle}`} target="_blank" rel="noreferrer noopener">
+                  <a href={githubProfileUrl(p.github_handle)} target="_blank" rel="noreferrer noopener">
                     <Github className="mr-1 h-3 w-3" /> {p.github_handle}
+                  </a>
+                </Button>
+              )}
+              {p.x_handle && (
+                <Button asChild size="sm" variant="outline">
+                  <a href={xProfileUrl(p.x_handle)} target="_blank" rel="noreferrer noopener">
+                    <span className="mr-1 text-xs font-bold">𝕏</span> {p.x_handle}
                   </a>
                 </Button>
               )}

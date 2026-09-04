@@ -105,3 +105,15 @@ export function safeRedirectPath(next: string | null | undefined, fallback = "/a
 export function escapeRssCdata(text: string): string {
   return text.replace(/]]>/g, "]]]]><![CDATA[>");
 }
+
+export function normalizeSocialHandle(handle: string): string {
+  return handle.trim().replace(/^@/, "");
+}
+
+export function githubProfileUrl(handle: string): string {
+  return `https://github.com/${normalizeSocialHandle(handle)}`;
+}
+
+export function xProfileUrl(handle: string): string {
+  return `https://x.com/${normalizeSocialHandle(handle)}`;
+}
