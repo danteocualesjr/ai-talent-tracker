@@ -1,10 +1,8 @@
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { listLabs } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
 import { EmptyPanel } from "@/components/panel";
-import { Badge } from "@/components/ui/badge";
+import { LabsSearchGrid } from "@/components/labs-search-grid";
 
 export const metadata = { title: "Lab rosters" };
 
@@ -26,46 +24,7 @@ export default async function LabsIndexPage() {
           body="Curated lab lists appear here after the first sync. Check back soon or add profiles manually from the watchlist."
         />
       ) : (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {labs.map((l) => (
-          <Link
-            key={l.id}
-            href={`/app/labs/${l.slug}`}
-            className="group surface-card surface-card-hover relative overflow-hidden p-6"
-          >
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 scale-x-0 bg-gradient-to-r from-transparent via-signal/60 to-transparent transition-transform duration-300 group-hover:scale-x-100" />
-            <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <div className="flex items-center justify-between">
-              {l.logo_url ? (
-                <Image
-                  src={l.logo_url}
-                  alt={l.name}
-                  width={44}
-                  height={44}
-                  className="h-11 w-11 rounded-xl border border-border/60 bg-muted object-contain p-1"
-                />
-              ) : (
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-border/60 bg-muted text-lg font-bold text-muted-foreground">
-                  {l.name.slice(0, 1)}
-                </div>
-              )}
-              {l.is_featured && <Badge variant="secondary">Featured</Badge>}
-            </div>
-            <div className="mt-5 font-bold tracking-tight">{l.name}</div>
-            <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-              {l.description ?? "Curated employee roster and departure signals."}
-            </p>
-            {l.domain && (
-              <div className="mt-3 inline-flex rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                {l.domain}
-              </div>
-            )}
-            <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-signal">
-              View roster <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </div>
-          </Link>
-        ))}
-      </div>
+        <LabsSearchGrid labs={labs} />
       )}
     </div>
   );
