@@ -11,6 +11,7 @@ import {
   ListChecks,
   Plus,
   Settings,
+  User,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -41,10 +42,13 @@ type AppCommandMenuProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+type ProfileResult = { id: string; name: string; company: string | null; href: string };
+
 export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [profileResults, setProfileResults] = useState<ProfileResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -57,6 +61,32 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
         item.keywords?.some((keyword) => keyword.includes(q)),
     );
   }, [query]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setProfileResults([]);
+      return;
+    }
+    const id = setTimeout(() => {
+      fetch(`/api/watchlist/search?q=${encodeURIComponent(q)}`)
+        .then((res) => (res.ok ? res.json() : { profiles: [] }))
+        .then((data: { profiles?: ProfileResult[] }) => setProfileResults(data.profiles ?? []))
+        .catch(() => setProfileResults([]));
+    }, 200);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  const allItems = useMemo(() => {
+    const profileItems: CommandItem[] = profileResults.map((p) => ({
+      href: p.href,
+      label: p.name,
+      icon: User,
+      keywords: [p.company ?? ""],
+      group: "Profiles",
+    }));
+    return [...profileItems, ...filtered];
+  }, [filtered, profileResults]);
 
   useEffect(() => {
     if (!open) return;
@@ -86,25 +116,25 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
   function onKeyDown(event: React.KeyboardEvent) {
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActiveIndex((index) => Math.min(index + 1, Math.max(filtered.length - 1, 0)));
+      setActiveIndex((index) => Math.min(index + 1, Math.max(allItems.length - 1, 0)));
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       setActiveIndex((index) => Math.max(index - 1, 0));
-    } else if (event.key === "Enter" && filtered[activeIndex]) {
+    } else if (event.key === "Enter" && allItems[activeIndex]) {
       event.preventDefault();
-      run(filtered[activeIndex].href);
+      run(allItems[activeIndex].href);
     }
   }
 
   const groups = useMemo(() => {
     const map = new Map<string, CommandItem[]>();
-    for (const item of filtered) {
+    for (const item of allItems) {
       const list = map.get(item.group) ?? [];
       list.push(item);
       map.set(item.group, list);
     }
     return [...map.entries()];
-  }, [filtered]);
+  }, [filtered, allItems]);
 
   let itemIndex = -1;
 
@@ -124,7 +154,7 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
             placeholder="Jump to a page or action…"
             className="h-10 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             aria-controls="command-list"
-            aria-activedescendant={filtered[activeIndex] ? `command-item-${activeIndex}` : undefined}
+            aria-activedescendant={allItems[activeIndex] ? `command-item-${activeIndex}` : undefined}
           />
         </div>
 
@@ -135,7 +165,7 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
           aria-label="Commands"
           className="max-h-[min(320px,50vh)] overflow-y-auto p-2"
         >
-          {filtered.length === 0 ? (
+          {allItems.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-muted-foreground">No matches found.</p>
           ) : (
             groups.map(([group, items]) => (
