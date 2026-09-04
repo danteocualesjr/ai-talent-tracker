@@ -11,8 +11,9 @@ import { PageHeader } from "@/components/page-header";
 import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
+import { CopyButton } from "@/components/copy-button";
 import { EventTimelineItem } from "@/components/event-row";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, githubProfileUrl, xProfileUrl } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -76,19 +77,33 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               <span className="font-medium text-foreground">{p.current_company ?? "—"}</span>
               {p.location && <> · {p.location}</>}
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} labeled />
               <Button asChild size="sm" variant="outline">
                 <a href={p.linkedin_url} target="_blank" rel="noreferrer noopener">
                   LinkedIn <ExternalLink className="ml-1 h-3 w-3" />
                 </a>
               </Button>
+              <CopyButton value={p.linkedin_url} />
               {p.github_handle && (
-                <Button asChild size="sm" variant="outline">
-                  <a href={`https://github.com/${p.github_handle}`} target="_blank" rel="noreferrer noopener">
-                    <Github className="mr-1 h-3 w-3" /> {p.github_handle}
-                  </a>
-                </Button>
+                <>
+                  <Button asChild size="sm" variant="outline">
+                    <a href={githubProfileUrl(p.github_handle)} target="_blank" rel="noreferrer noopener">
+                      <Github className="mr-1 h-3 w-3" /> {p.github_handle}
+                    </a>
+                  </Button>
+                  <CopyButton value={githubProfileUrl(p.github_handle)} />
+                </>
+              )}
+              {p.x_handle && (
+                <>
+                  <Button asChild size="sm" variant="outline">
+                    <a href={xProfileUrl(p.x_handle)} target="_blank" rel="noreferrer noopener">
+                      <span className="mr-1 text-xs font-bold">𝕏</span> {p.x_handle}
+                    </a>
+                  </Button>
+                  <CopyButton value={xProfileUrl(p.x_handle)} />
+                </>
               )}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
