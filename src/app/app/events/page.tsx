@@ -9,6 +9,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
 import { AppEventsFilterChips } from "./event-filter-chips";
+import { EventDateFilter } from "./event-date-filter";
 import type { EventType } from "@/types/db";
 
 export const metadata = { title: "Events" };
@@ -24,16 +25,22 @@ const FILTER_TYPES: Record<string, EventType[]> = {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; confidence?: string }>;
+  searchParams: Promise<{ type?: string; range?: string }>;
 }) {
-  const { type, confidence } = await searchParams;
+  const { type, range } = await searchParams;
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const events = await getOrgEvents(org.id, 200);
   const allowedTypes = type ? FILTER_TYPES[type] : undefined;
   let filtered = allowedTypes ? events.filter((event) => allowedTypes.includes(event.type)) : events;
-  if (confidence === "high") filtered = filtered.filter((event) => event.confidence >= 0.8);
+  if (range === "7d") {
+    const since = Date.now() - 7 * 86400000;
+    filtered = filtered.filter((event) => new Date(event.detected_at).getTime() > since);
+  } else if (range === "30d") {
+    const since = Date.now() - 30 * 86400000;
+    filtered = filtered.filter((event) => new Date(event.detected_at).getTime() > since);
+  }
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
   const publicEvents = events.filter((event) => event.is_public).length;
@@ -50,6 +57,10 @@ export default async function EventsPage({
 
       <Suspense fallback={null}>
         <AppEventsFilterChips />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <EventDateFilter />
       </Suspense>
 
       <div className="stat-strip grid-cols-3">
