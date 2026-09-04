@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { formatRelative } from "@/lib/utils";
 import { AddLabRosterButton } from "../add-lab-roster-button";
-import { TrackProfileButton } from "../track-profile-button";
+import { LabRosterList } from "../lab-roster-list";
 
 export default async function LabRosterPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -77,43 +77,7 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
         ))}
       </div>
 
-      <Panel title="Employees" bodyClassName={people.length === 0 ? undefined : "divide-y divide-border/60"}>
-        {people.length === 0 ? (
-          <EmptyPanel
-            icon={<span className="text-lg font-bold">{lab.name.slice(0, 1)}</span>}
-            title="No people indexed yet"
-            body="This lab roster is still being built. Check back after the next sync."
-          />
-        ) : (
-          people.map((p) => {
-            const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
-            return (
-              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
-                  {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-                  <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
-                    {p.full_name || p.linkedin_handle}
-                  </Link>
-                  <p className="truncate text-sm text-muted-foreground">{p.headline ?? p.current_title ?? ""}</p>
-                </div>
-                <Badge variant="secondary" className="capitalize">
-                  {p.status}
-                </Badge>
-                {p.linkedin_url && (
-                  <TrackProfileButton linkedinUrl={p.linkedin_url} profileName={p.full_name || p.linkedin_handle || "profile"} />
-                )}
-                <div className="tnum hidden font-mono text-xs text-muted-foreground sm:block">
-                  {formatRelative(p.last_synced_at)}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </Panel>
+      <LabRosterList labName={lab.name} people={people} />
     </div>
   );
 }
