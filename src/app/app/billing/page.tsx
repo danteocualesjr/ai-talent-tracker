@@ -104,11 +104,17 @@ export default async function BillingPage({
 
       {org.plan === "free" && (
         <div className="surface-card relative overflow-hidden p-5">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
           <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-signal/10 blur-2xl" />
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="text-sm font-semibold">Need real-time alerts?</div>
-              <p className="mt-1 text-xs text-muted-foreground">Upgrade to Pro for Slack delivery, daily refresh, and 100 profiles.</p>
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
+                <Zap className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Need real-time alerts?</div>
+                <p className="mt-1 text-xs text-muted-foreground">Upgrade to Pro for Slack delivery, daily refresh, and 100 profiles.</p>
+              </div>
             </div>
             <Button asChild size="sm" className="shrink-0">
               <Link href="/pricing">
@@ -122,9 +128,9 @@ export default async function BillingPage({
       <Panel title="Included features" bodyClassName="p-6">
         <ul className="grid gap-3 sm:grid-cols-2">
           {plan.features.map((f) => (
-            <li key={f} className="flex items-start gap-2.5 rounded-lg border border-transparent p-2 text-sm transition-colors hover:border-border/60 hover:bg-muted/30">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
-              <span className="text-muted-foreground">{f}</span>
+            <li key={f} className="group flex items-start gap-2.5 rounded-lg border border-transparent p-2 text-sm transition-all hover:border-border/60 hover:bg-muted/30 hover:shadow-sm">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal motion-safe:transition-transform motion-safe:group-hover:scale-110" />
+              <span className="text-muted-foreground transition-colors group-hover:text-foreground">{f}</span>
             </li>
           ))}
         </ul>

@@ -34,8 +34,8 @@ export default function NotFound() {
           <h1 id="not-found-title" className="mt-4 font-serif text-7xl font-normal italic tracking-tight text-gradient-hero md:text-8xl">
             Lost signal
           </h1>
-          <p className="mx-auto mt-4 max-w-sm text-muted-foreground">
-            That page doesn&apos;t exist or may have moved.
+          <p className="mx-auto mt-4 max-w-sm text-pretty text-muted-foreground">
+            That page doesn&apos;t exist or may have moved. Try one of these routes instead.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" variant="signal">

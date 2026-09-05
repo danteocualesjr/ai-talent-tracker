@@ -131,9 +131,9 @@ function TickerCard({ event }: { event: { name: string; type: EventType; summary
     .join("")
     .toUpperCase();
   return (
-    <div className="group surface-card relative flex items-start gap-3 p-3.5 transition-colors hover:border-signal/30">
+    <div className="group surface-card relative flex items-start gap-3 p-3.5 transition-all duration-200 hover:border-signal/30 hover:shadow-[0_4px_16px_-6px_hsl(var(--signal)/0.2)]">
       <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/40 text-[10px] font-bold text-foreground ring-2 ring-background transition-all duration-200 group-hover:ring-signal/25">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/40 text-[10px] font-bold text-foreground ring-2 ring-background transition-all duration-200 group-hover:ring-signal/25 group-hover:shadow-sm">
         {initials || "??"}
       </div>
       <div className="min-w-0 flex-1">
