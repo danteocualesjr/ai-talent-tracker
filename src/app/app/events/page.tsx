@@ -48,7 +48,10 @@ export default async function EventsPage({
       />
 
       <Suspense fallback={null}>
-        <AppEventsFilterChips />
+        <div className="surface-card relative overflow-hidden p-4">
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent" />
+          <AppEventsFilterChips />
+        </div>
       </Suspense>
 
       <div className="stat-strip grid-cols-3">
