@@ -55,6 +55,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       </PageHeader>
 
       <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 md:p-8">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent" />
         <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal/8 blur-3xl" />
         <div className="relative flex items-start gap-5">
@@ -104,7 +105,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="stat-strip grid-cols-3">
         <ProfileMetric label="Events" value={eventList.length} icon={<Activity className="h-3.5 w-3.5" />} accent="text-signal" />
         <ProfileMetric label="Snapshots" value={snapshotList.length} icon={<Camera className="h-3.5 w-3.5" />} accent="text-violet-accent" />
         <ProfileMetric label="Latest confidence" value={latestConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-amber-accent" />
@@ -157,7 +158,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               body="Profile snapshots appear after the first successful sync from our data provider."
             />
           ) : snapshotList.map((s) => (
-            <div key={s.id} className="flex items-center justify-between px-5 py-3 text-xs transition-colors hover:bg-muted/30">
+            <div key={s.id} className="group relative flex items-center justify-between gap-3 px-5 py-3 text-xs transition-colors hover:bg-muted/30">
+              <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
               <span className="font-medium text-foreground">Snapshot {formatRelative(s.fetched_at)}</span>
               <span className="text-muted-foreground">source: {s.source}</span>
               <span className="font-mono text-muted-foreground/70">{s.content_hash.slice(0, 8)}…</span>
@@ -180,14 +182,14 @@ function ProfileMetric({
   accent?: string;
 }) {
   return (
-    <div className="surface-card surface-card-hover group relative overflow-hidden p-4">
-      <div className="flex items-start justify-between">
+    <div className="stat-strip-item">
+      <div className="relative flex items-start justify-between">
         <div>
-          <div className="tnum text-2xl font-bold">{value}</div>
+          <div className="tnum font-serif text-2xl font-medium">{value}</div>
           <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
             {icon}
           </div>
         )}
