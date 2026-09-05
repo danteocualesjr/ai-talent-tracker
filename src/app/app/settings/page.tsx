@@ -35,15 +35,21 @@ export default async function SettingsPage() {
 
       <Panel title="Workspace readiness" description="Quick setup status for this organization." bodyClassName="grid gap-3 p-5 sm:grid-cols-3">
         {readiness.map(({ label, value, status, icon: Icon, accent }) => (
-          <div key={label} className="group rounded-md border border-border/70 bg-muted/30 p-4 transition-colors hover:border-foreground/15">
+          <div key={label} className="group relative overflow-hidden rounded-md border border-border/70 bg-muted/30 p-4 transition-all hover:border-foreground/15 hover:bg-muted/40 hover:shadow-sm">
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity group-hover:opacity-100 ${status === "ready" ? "from-signal/0 via-signal/60 to-signal/0" : "from-amber-400/0 via-amber-500/70 to-amber-400/0"}`}
+            />
             <div className="flex items-center justify-between gap-2">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-background ${accent} shadow-sm`}>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-background ${accent} shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
                 <Icon className="h-3.5 w-3.5" />
               </div>
               <span
-                className={`h-2 w-2 shrink-0 rounded-full ${status === "ready" ? "bg-signal signal-pulse" : "bg-amber-500"}`}
-                aria-hidden
-              />
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${status === "ready" ? "bg-signal/10 text-signal" : "bg-amber-500/10 text-amber-700 dark:text-amber-400"}`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${status === "ready" ? "bg-signal signal-pulse" : "bg-amber-500"}`} aria-hidden />
+                {status === "ready" ? "Ready" : "Action"}
+              </span>
             </div>
             <div className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
             <div className="mt-1 text-sm font-semibold capitalize">{value}</div>
