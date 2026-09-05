@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Plus,
+  Search,
   Settings,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -116,16 +117,19 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
       >
         <DialogTitle className="sr-only">Jump to page</DialogTitle>
         <div className="border-b border-border/60 px-4 py-3">
-          <Input
-            ref={inputRef}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            onKeyDown={onKeyDown}
-            placeholder="Jump to a page or action…"
-            className="h-10 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            aria-controls="command-list"
-            aria-activedescendant={filtered[activeIndex] ? `command-item-${activeIndex}` : undefined}
-          />
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              ref={inputRef}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder="Jump to a page or action…"
+              className="h-10 border-0 bg-transparent pl-7 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              aria-controls="command-list"
+              aria-activedescendant={filtered[activeIndex] ? `command-item-${activeIndex}` : undefined}
+            />
+          </div>
         </div>
 
         <div
@@ -158,13 +162,15 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
                       aria-selected={active}
                       data-active={active ? "true" : undefined}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                        active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-all",
+                        active
+                          ? "bg-signal/10 text-foreground ring-1 ring-signal/20 shadow-sm"
+                          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                       )}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => run(item.href)}
                     >
-                      <Icon className="h-4 w-4 shrink-0 opacity-70" />
+                      <Icon className={cn("h-4 w-4 shrink-0", active ? "text-signal" : "opacity-70")} />
                       <span className="font-medium">{item.label}</span>
                     </button>
                   );
