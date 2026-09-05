@@ -30,10 +30,12 @@ export default function AppLoading() {
       className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10 lg:space-y-10"
     >
       <div className="animate-fade-up space-y-3 border-b border-border/60 pb-6">
+        <Skeleton className="h-3 w-24 rounded" />
         <Skeleton className="h-9 w-52 rounded" />
         <Skeleton className="h-4 w-96 max-w-full rounded" />
         <Skeleton className="h-9 w-32 rounded-lg" />
       </div>
+      <Skeleton className="animate-fade-up animate-fade-up-delay-1 surface-card h-[88px] rounded-lg" />
       <div className="animate-fade-up animate-fade-up-delay-1 flex flex-wrap gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-8 w-28 rounded-full" />

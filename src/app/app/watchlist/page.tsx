@@ -38,7 +38,8 @@ export default async function WatchlistPage() {
         description="Profiles you're tracking across your organization."
         divider
       >
-        <div className="w-full min-w-[260px] surface-card p-4 sm:w-auto">
+        <div className="w-full min-w-[260px] surface-card relative overflow-hidden p-4 sm:w-auto">
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
               <span className="tnum font-bold text-foreground">{profiles.length}</span> /{" "}
@@ -85,7 +86,13 @@ export default async function WatchlistPage() {
           { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", rail: "from-signal/0 via-signal/60 to-signal/0" },
           { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", rail: "from-violet-400/0 via-violet-accent/65 to-violet-400/0" },
         ] as const).map(({ label, value, icon: Icon, accent, rail }) => (
-          <div key={label} className="group surface-card surface-card-hover relative overflow-hidden p-4">
+          <div
+            key={label}
+            className={cn(
+              "group surface-card surface-card-hover relative overflow-hidden p-4",
+              value > 0 && "ring-1 ring-signal/10",
+            )}
+          >
             <span
               aria-hidden
               className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}

@@ -71,6 +71,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
     <>
       <AppCommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
       <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/70 bg-background/88 px-6 backdrop-blur-xl md:flex">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
         <Link
           href="/app"
