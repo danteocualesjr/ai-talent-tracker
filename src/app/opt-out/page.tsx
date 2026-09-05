@@ -26,8 +26,9 @@ export default function OptOutPage() {
         <div className="container max-w-xl pb-16">
           <div className="mb-6 grid gap-3 sm:grid-cols-3">
             {TRUST_ITEMS.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="surface-card group p-4 text-center sm:text-left">
-                <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal transition-transform motion-safe:group-hover:scale-105 sm:mx-0">
+              <div key={title} className="surface-card group relative overflow-hidden p-4 text-center sm:text-left">
+                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal motion-safe:transition-transform motion-safe:group-hover:scale-105 sm:mx-0">
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="text-xs font-semibold">{title}</div>
@@ -35,7 +36,8 @@ export default function OptOutPage() {
               </div>
             ))}
           </div>
-          <div className="surface-elevated relative -mt-2 overflow-hidden rounded-2xl border border-border/60 bg-card p-8">
+          <div className="surface-elevated relative overflow-hidden rounded-lg border border-border/60 bg-card p-8">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
             <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
             <OptOutForm />
           </div>

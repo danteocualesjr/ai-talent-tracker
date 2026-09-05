@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 
 export function FeedMobileCta() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/80 bg-background/92 px-4 pt-3 shadow-[0_-8px_24px_-16px_hsl(var(--foreground)/0.16)] backdrop-blur-xl sm:hidden pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/80 bg-background/95 px-4 pt-3 shadow-[0_-12px_32px_-16px_hsl(var(--foreground)/0.12)] backdrop-blur-xl sm:hidden pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
       <div className="mb-2 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -14,7 +15,7 @@ export function FeedMobileCta() {
         </span>
         Get alerts the moment a researcher moves
       </div>
-      <Button asChild className="group h-11 w-full shadow-md">
+      <Button asChild variant="signal" className="group h-11 w-full btn-signal-glow">
         <Link href="/login">
           <Bell className="h-4 w-4" />
           Start tracking free
