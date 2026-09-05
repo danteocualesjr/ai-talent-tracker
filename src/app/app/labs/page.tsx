@@ -10,6 +10,8 @@ export const metadata = { title: "Lab rosters" };
 
 export default async function LabsIndexPage() {
   const labs = await listLabs();
+  const featuredCount = labs.filter((l) => l.is_featured).length;
+
   return (
     <div className="container max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <PageHeader
@@ -19,6 +21,23 @@ export default async function LabsIndexPage() {
         description="Curated employee lists for top AI labs. Click to view and bulk-add."
         divider
       />
+
+      {labs.length > 0 && (
+        <div className="stat-strip grid-cols-2 sm:grid-cols-3">
+          <div className="stat-strip-item">
+            <div className="tnum font-serif text-2xl font-medium">{labs.length}</div>
+            <div className="mt-1 label-caps">Labs available</div>
+          </div>
+          <div className="stat-strip-item">
+            <div className="tnum font-serif text-2xl font-medium">{featuredCount}</div>
+            <div className="mt-1 label-caps">Featured</div>
+          </div>
+          <div className="stat-strip-item hidden sm:block">
+            <div className="text-sm font-semibold text-foreground">One-click bulk add</div>
+            <div className="mt-1 text-xs leading-relaxed text-muted-foreground">Track an entire org from any roster page</div>
+          </div>
+        </div>
+      )}
       {labs.length === 0 ? (
         <EmptyPanel
           icon={<Sparkles className="h-5 w-5" />}

@@ -53,7 +53,7 @@ export default async function AlertsPage() {
         divider
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="stat-strip grid-cols-3">
         <ChannelMetric label="Email" value={channelCounts.email} icon={<Mail className="h-3.5 w-3.5" />} accent="text-signal" bgAccent="bg-signal/10" />
         <ChannelMetric label="Slack" value={channelCounts.slack} icon={<MessageSquare className="h-3.5 w-3.5" />} accent="text-violet-accent" bgAccent="bg-violet-500/10" />
         <ChannelMetric label="Webhooks" value={channelCounts.webhook} icon={<Webhook className="h-3.5 w-3.5" />} accent="text-amber-accent" bgAccent="bg-amber-500/10" />
@@ -69,20 +69,21 @@ export default async function AlertsPage() {
             <p>Alerts include a concise summary, confidence score, profile context, and the changed fields.</p>
             <p>Webhook channels receive the same payload with an optional HMAC signature.</p>
           </div>
-          <div className="rounded-md border border-border/70 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed">
-            <div className="mb-3 flex items-center gap-1.5 border-b border-border/40 pb-2">
+          <div className="relative overflow-hidden rounded-md border border-border/70 bg-foreground/[0.03] p-4 font-mono text-[11px] leading-relaxed">
+            <div className="pointer-events-none absolute inset-0 terminal-scanlines opacity-40" aria-hidden />
+            <div className="relative mb-3 flex items-center gap-1.5 border-b border-border/40 pb-2">
               <span className="h-2 w-2 rounded-full bg-destructive/70" aria-hidden />
               <span className="h-2 w-2 rounded-full bg-[hsl(var(--accent-amber))]" aria-hidden />
               <span className="h-2 w-2 rounded-full bg-signal" aria-hidden />
               <span className="ml-2 flex-1 text-[10px] text-muted-foreground">alert.json</span>
               <CopyButton value={SAMPLE_PAYLOAD} />
             </div>
-            <div className="text-muted-foreground">{"{"}</div>
-            <div className="pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
-            <div className="pl-3"><span className="text-violet-accent">&quot;confidence&quot;</span>: <span className="text-amber-accent">0.92</span>,</div>
-            <div className="pl-3"><span className="text-violet-accent">&quot;profile&quot;</span>: <span className="text-foreground/80">&quot;Jane Researcher&quot;</span>,</div>
-            <div className="pl-3"><span className="text-violet-accent">&quot;summary&quot;</span>: <span className="text-foreground/80">&quot;Headline changed to building something new&quot;</span></div>
-            <div className="text-muted-foreground">{"}"}</div>
+            <div className="relative text-muted-foreground">{"{"}</div>
+            <div className="relative pl-3"><span className="text-violet-accent">&quot;type&quot;</span>: <span className="text-signal">&quot;went_stealth&quot;</span>,</div>
+            <div className="relative pl-3"><span className="text-violet-accent">&quot;confidence&quot;</span>: <span className="text-amber-accent">0.92</span>,</div>
+            <div className="relative pl-3"><span className="text-violet-accent">&quot;profile&quot;</span>: <span className="text-foreground/80">&quot;Jane Researcher&quot;</span>,</div>
+            <div className="relative pl-3"><span className="text-violet-accent">&quot;summary&quot;</span>: <span className="text-foreground/80">&quot;Headline changed to building something new&quot;</span></div>
+            <div className="relative text-muted-foreground">{"}"}</div>
           </div>
         </div>
       </div>
@@ -167,14 +168,14 @@ function ChannelMetric({
   bgAccent?: string;
 }) {
   return (
-    <div className="surface-card group relative overflow-hidden p-4">
+    <div className="stat-strip-item">
       <div className="relative flex items-start justify-between">
         <div>
           <div className="tnum font-serif text-2xl font-medium">{value}</div>
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md ${bgAccent} ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 ${bgAccent} ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
             {icon}
           </div>
         )}
@@ -185,7 +186,8 @@ function ChannelMetric({
 
 function ChannelCard({ icon, title, description, children }: { icon: React.ReactNode; title: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="surface-card surface-card-hover group p-6">
+    <div className="surface-card surface-card-hover group relative overflow-hidden p-6">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-md border border-border/70 bg-background text-foreground shadow-sm transition-colors group-hover:border-signal/30 group-hover:text-signal">
           {icon}
