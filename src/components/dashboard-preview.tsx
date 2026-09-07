@@ -70,6 +70,7 @@ export function DashboardPreview() {
             </div>
 
             <div className="relative mt-5 divide-y divide-border/60 overflow-hidden rounded-xl border border-border/60 bg-background/60 shadow-[inset_0_1px_0_0_hsl(var(--background)/0.5)] backdrop-blur-sm">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent" aria-hidden />
               <Row name="Jane Researcher" initials="JR" tag="Went stealth" tone="warning" when="14m" highlight />
               <Row name="Mike Patel" initials="MP" tag="Joined Anthropic" tone="info" when="2h" />
               <Row name="Aria Chen" initials="AC" tag="Founding signal" tone="success" when="6h" />
