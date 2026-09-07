@@ -69,7 +69,7 @@ export function MarketingNav() {
 
         <div className="hidden items-center gap-2.5 md:flex">
           <ThemeToggle />
-          <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground">
             Log in
           </Link>
           <Button asChild size="sm" variant="signal" className="group">
@@ -90,8 +90,8 @@ export function MarketingNav() {
 
       {open && (
         <>
-          <button aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm md:hidden" onClick={() => setOpen(false)} />
-          <nav aria-label="Primary mobile" className="relative z-30 border-t border-border/70 bg-background/96 px-6 py-4 backdrop-blur-xl md:hidden">
+          <button aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm motion-safe:animate-fade-in md:hidden" onClick={() => setOpen(false)} />
+          <nav aria-label="Primary mobile" className="relative z-30 border-t border-border/70 bg-background/96 px-6 py-4 backdrop-blur-xl motion-safe:animate-fade-up md:hidden">
             {LINKS.map((l) => {
               const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
               return (
