@@ -29,6 +29,8 @@ const badgeVariants = cva(
           "border-border/70 bg-background text-foreground shadow-[0_0_0_3px_hsl(var(--signal)/0.08)]",
         signal:
           "border-transparent bg-signal/12 text-signal shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.15)] dark:bg-signal/15",
+        live:
+          "border-signal/30 bg-signal/10 text-signal shadow-[0_0_12px_-4px_hsl(var(--signal)/0.4)]",
       },
     },
     defaultVariants: { variant: "default" },

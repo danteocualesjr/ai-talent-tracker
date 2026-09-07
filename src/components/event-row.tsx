@@ -172,6 +172,11 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
             <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100" />
           </Link>
           <Badge variant={meta.tone}>{meta.label}</Badge>
+          {profile.current_company && (
+            <span className="hidden max-w-[8rem] truncate rounded-full border border-border/60 bg-muted/50 px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block">
+              {profile.current_company}
+            </span>
+          )}
           {event.confidence >= 0.7 && (
             <span
               className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
