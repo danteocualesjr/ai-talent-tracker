@@ -43,7 +43,9 @@ export default function AppLoading() {
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <StatSkeleton key={i} />
+          <div key={i} className={`animate-fade-up ${["", "animate-fade-up-delay-1", "animate-fade-up-delay-2", "animate-fade-up-delay-3"][i] ?? ""}`}>
+            <StatSkeleton />
+          </div>
         ))}
       </div>
       <div className="animate-fade-up animate-fade-up-delay-2 grid gap-3 md:grid-cols-3">
