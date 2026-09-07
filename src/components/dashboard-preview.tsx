@@ -116,7 +116,8 @@ function Stat({
   const lineColor =
     tone === "amber" ? "text-amber-accent" : tone === "signal" ? "text-signal" : "text-foreground/70";
   return (
-    <div className="surface-card relative overflow-hidden p-3.5">
+    <div className="surface-card relative overflow-hidden p-3.5 transition-all duration-200 hover:border-signal/20">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
       <div className="relative text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
       <div className="relative mt-1.5 flex items-end justify-between gap-2">
         <div>

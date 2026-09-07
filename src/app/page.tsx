@@ -360,8 +360,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               &ldquo;We closed two researchers from a single Slack ping. The departure feed
               is the closest thing to a cheat code we&apos;ve seen for AI sourcing.&rdquo;
             </blockquote>
-            <div className="mt-8 inline-flex items-center justify-center gap-3 rounded-full border border-border/60 bg-card/70 px-4 py-2 text-sm shadow-sm backdrop-blur-sm">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-[11px] font-bold text-background shadow-sm">
+            <div className="mt-8 inline-flex items-center justify-center gap-3 rounded-full border border-border/60 bg-card/80 px-4 py-2.5 text-sm shadow-sm backdrop-blur-sm transition-all hover:border-signal/25 hover:shadow-md">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-foreground to-foreground/80 text-[11px] font-bold text-background shadow-sm ring-2 ring-signal/15">
                 CA
               </div>
               <div className="text-left">

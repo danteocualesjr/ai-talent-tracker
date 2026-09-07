@@ -26,8 +26,10 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
     <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <BackLink href="/app/labs">Back to labs</BackLink>
 
-      <div className="surface-elevated rounded-2xl border border-border/60 bg-card p-6 md:p-8">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <div className="surface-elevated relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 md:p-8">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal/8 blur-3xl" />
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
           {lab.logo_url ? (
             <Image
               src={lab.logo_url}
@@ -88,8 +90,8 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
           people.map((p) => {
             const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
             return (
-              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.08] hover:bg-muted/35">
+                <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">
                   {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
                   <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>

@@ -75,8 +75,8 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
   return (
     <>
       <div className="border-b border-border/60 px-5 py-4 space-y-3">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative group rounded-lg transition-shadow focus-within:shadow-[0_0_0_3px_hsl(var(--signal)/0.1)]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-signal" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -94,12 +94,18 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
                 aria-pressed={status === key}
                 onClick={() => setStatus(key)}
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  "chip motion-safe:active:scale-95",
                   status === key
-                    ? "border-signal/40 bg-signal/10 text-foreground"
-                    : "border-border/60 text-muted-foreground hover:border-border hover:text-foreground",
+                    ? "border-signal/40 bg-signal/10 text-foreground ring-1 ring-signal/20"
+                    : "hover:border-signal/25 hover:bg-signal/5",
                 )}
               >
+                {status === key && (
+                  <span className="relative flex h-1.5 w-1.5 shrink-0">
+                    <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                  </span>
+                )}
                 {icon}
                 {label}
               </button>
@@ -109,7 +115,7 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
             aria-label="Sort profiles"
-            className="ml-auto rounded-md border border-border/60 bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground"
+            className="ml-auto rounded-md border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-signal/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
             <option value="name">Sort: Name</option>
             <option value="synced">Sort: Last synced</option>
@@ -139,10 +145,10 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
         filtered.map((p) => {
           const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
           return (
-            <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
+            <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.08] hover:bg-muted/35 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.45)]">
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100"
               />
               <div className="relative shrink-0">
                 <Avatar className="h-10 w-10 ring-2 ring-background shadow-sm motion-safe:transition-transform motion-safe:group-hover:scale-[1.02]">

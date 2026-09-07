@@ -21,8 +21,8 @@ export default function AppError({
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
       <div className="relative flex max-w-lg flex-col items-center text-center">
-      <div className="animate-fade-up flex h-12 w-12 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive shadow-sm ring-4 ring-destructive/5">
-        <AlertTriangle className="h-5 w-5" aria-hidden />
+      <div className="animate-fade-up flex h-14 w-14 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive shadow-sm ring-4 ring-destructive/5">
+        <AlertTriangle className="h-6 w-6" aria-hidden />
       </div>
       <h1 className="animate-fade-up animate-fade-up-delay-1 mt-5 font-serif text-2xl font-medium tracking-tight md:text-3xl">
         Something went <span className="italic text-gradient-hero">wrong</span>
