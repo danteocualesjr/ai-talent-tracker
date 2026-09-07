@@ -16,7 +16,7 @@ export function Panel({
   className?: string;
   bodyClassName?: string;
   /** "default" uses the standard card surface, "muted" applies a subtle tinted background */
-  tone?: "default" | "muted";
+  tone?: "default" | "muted" | "accent";
 }) {
   const hasHeader = title || description || action;
 
@@ -25,6 +25,7 @@ export function Panel({
       className={cn(
         "surface-card group/panel overflow-hidden transition-colors duration-200 hover:border-border focus-within:border-signal/25",
         tone === "muted" && "bg-muted/35",
+        tone === "accent" && "border-signal/20 bg-signal/[0.03]",
         className,
       )}
     >

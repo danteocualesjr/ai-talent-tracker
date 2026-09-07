@@ -1,14 +1,15 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Briefcase, Compass, Filter, LogOut, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
-  { label: "All", param: null },
-  { label: "Departures", param: "departures" },
-  { label: "Stealth", param: "stealth" },
-  { label: "Founders", param: "founders" },
-  { label: "Joiners", param: "joiners" },
+  { label: "All", param: null, icon: Filter },
+  { label: "Departures", param: "departures", icon: LogOut },
+  { label: "Stealth", param: "stealth", icon: Compass },
+  { label: "Founders", param: "founders", icon: Star },
+  { label: "Joiners", param: "joiners", icon: Briefcase },
 ] as const;
 
 export function FeedFilterChips() {
@@ -26,7 +27,7 @@ export function FeedFilterChips() {
 
   return (
     <div className="flex flex-wrap gap-2 sm:justify-end" role="group" aria-label="Filter by signal type">
-      {FILTERS.map(({ label, param }) => {
+      {FILTERS.map(({ label, param, icon: Icon }) => {
         const active = (param ?? null) === (activeParam ?? null);
         return (
           <button
@@ -41,6 +42,7 @@ export function FeedFilterChips() {
                 : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground hover:shadow-sm",
             )}
           >
+            <Icon className={cn("h-3 w-3 shrink-0", active ? "text-signal" : "text-muted-foreground/70")} aria-hidden />
             {active && (
               <span className="relative flex h-1.5 w-1.5 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />

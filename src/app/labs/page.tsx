@@ -58,6 +58,9 @@ export default async function PublicLabsPage() {
                 href={`/labs/${l.slug}`}
                 className="group surface-card surface-card-hover relative flex flex-col overflow-hidden p-6"
               >
+                {l.is_featured && (
+                  <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-inset ring-signal/15 transition-all duration-300 group-hover:ring-signal/30" aria-hidden />
+                )}
                 <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="flex items-center justify-between">
                   {l.logo_url ? (
@@ -66,19 +69,24 @@ export default async function PublicLabsPage() {
                       alt={l.name}
                       width={44}
                       height={44}
-                      className="h-11 w-11 rounded-md border border-border/70 bg-muted object-contain p-1"
+                      className="h-11 w-11 rounded-md border border-border/70 bg-muted object-contain p-1 motion-safe:transition-transform motion-safe:group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-11 w-11 items-center justify-center rounded-md border border-border/70 bg-muted font-serif text-lg font-medium text-muted-foreground">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-md border border-border/70 bg-muted font-serif text-lg font-medium text-muted-foreground motion-safe:transition-transform motion-safe:group-hover:scale-105">
                       {l.name.slice(0, 1)}
                     </div>
                   )}
-                  {l.is_featured && <Badge variant="secondary">Featured</Badge>}
+                  {l.is_featured && <Badge variant="live">Featured</Badge>}
                 </div>
-                <div className="mt-5 font-serif text-lg font-medium tracking-tight">{l.name}</div>
+                <div className="mt-5 font-serif text-lg font-medium tracking-tight transition-colors group-hover:text-foreground">{l.name}</div>
                 <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                   {l.description ?? l.domain}
                 </p>
+                {l.domain && (
+                  <div className="mt-3">
+                    <span className="chip text-[10px]">{l.domain}</span>
+                  </div>
+                )}
                 <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
                   View roster
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
