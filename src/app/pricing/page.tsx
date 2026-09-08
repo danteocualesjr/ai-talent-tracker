@@ -47,15 +47,16 @@ export default async function PricingPage({
             </p>
 
             <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm">
-              <div className="border-b border-border/60 bg-muted/30 px-4 py-2.5 text-center">
+              <div className="border-b border-border/60 bg-gradient-to-r from-muted/40 via-muted/30 to-signal/[0.06] px-4 py-2.5 text-center">
                 <span className="label-caps">Refresh cadence by plan</span>
               </div>
               <div className="grid grid-cols-4 divide-x divide-border/60 text-center">
                 {(["free", "pro", "team", "enterprise"] as const).map((slug) => (
                   <div
                     key={slug}
-                    className={`px-3 py-3 transition-colors ${slug === "pro" ? "bg-signal/[0.04]" : "hover:bg-muted/20"}`}
+                    className={`group/cadence relative px-3 py-3 transition-colors ${slug === "pro" ? "bg-signal/[0.04]" : "hover:bg-muted/20"}`}
                   >
+                    <span aria-hidden className="pointer-events-none absolute inset-x-3 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent opacity-0 transition-opacity group-hover/cadence:opacity-100" />
                     <div className="text-sm font-semibold capitalize text-foreground">{PLAN_DETAILS[slug].name}</div>
                     <div className="label-caps mt-1.5">{REFRESH_CADENCE[slug]} refresh</div>
                   </div>
