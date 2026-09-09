@@ -16,7 +16,7 @@ export default function OptOutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <MarketingHero
           align="center"
           eyebrow={<div className="label-caps">Your rights</div>}
@@ -24,6 +24,20 @@ export default function OptOutPage() {
           description="Request removal from our index or a copy of the data we hold about you."
         />
         <div className="container max-w-xl pb-16">
+          <ol className="mb-6 grid gap-3 sm:grid-cols-3">
+            {[
+              ["01", "Submit", "Tell us what you need — removal, a data copy, or both."],
+              ["02", "Verify", "We confirm the request belongs to you or an authorized agent."],
+              ["03", "Resolve", "We stop monitoring and complete the request within 30 days."],
+            ].map(([step, title, body]) => (
+              <li key={step} className="surface-card relative overflow-hidden p-4">
+                <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent" />
+                <div className="tnum text-[11px] font-semibold text-signal">{step}</div>
+                <div className="mt-1.5 text-xs font-semibold">{title}</div>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{body}</p>
+              </li>
+            ))}
+          </ol>
           <div className="mb-6 grid gap-3 sm:grid-cols-3">
             {TRUST_ITEMS.map(({ icon: Icon, title, body }) => (
               <div key={title} className="surface-card group relative overflow-hidden p-4 text-center sm:text-left">
