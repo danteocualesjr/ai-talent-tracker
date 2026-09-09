@@ -29,16 +29,23 @@ export function ScrollToTop() {
   return (
     <button
       type="button"
-      aria-label="Scroll to top"
+      aria-label={`Scroll to top (${Math.round(progress)}% read)`}
+      title={`Back to top · ${Math.round(progress)}% read`}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
-        "fixed right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-background/95 text-muted-foreground shadow-lg backdrop-blur-md transition-all duration-300 hover:border-signal/40 hover:bg-signal/10 hover:text-signal hover:shadow-[0_0_24px_-4px_hsl(var(--signal)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 motion-safe:active:scale-95",
+        "group/scroll fixed right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-background/95 text-muted-foreground shadow-lg backdrop-blur-md transition-all duration-300 hover:border-signal/40 hover:bg-signal/10 hover:text-signal hover:shadow-[0_0_24px_-4px_hsl(var(--signal)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 motion-safe:active:scale-95",
         onFeed ? "bottom-24 md:bottom-6" : "bottom-[max(1.5rem,env(safe-area-inset-bottom))]",
         visible
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none translate-y-4 opacity-0",
       )}
     >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border/70 bg-background/95 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all duration-200 group-hover/scroll:-translate-y-0.5 group-hover/scroll:opacity-100 group-focus-visible/scroll:opacity-100"
+      >
+        <span className="tnum">{Math.round(progress)}%</span> read
+      </span>
       <svg
         aria-hidden
         className="pointer-events-none absolute inset-0 -rotate-90"

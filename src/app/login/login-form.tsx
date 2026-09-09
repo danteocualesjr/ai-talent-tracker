@@ -49,7 +49,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
           <span className="h-px flex-1 bg-border/70" />
           <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border/70 bg-muted/50 text-[10px] font-semibold">3</span>
         </div>
-        <div className="rounded-md border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+        <div className="rounded-md border border-signal/25 bg-gradient-to-br from-signal/8 via-signal/5 to-transparent p-5 text-sm leading-relaxed shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.12)]">
         <div className="flex items-start gap-3">
           <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal ring-4 ring-signal/10">
             <Mail className="h-4 w-4" aria-hidden="true" />

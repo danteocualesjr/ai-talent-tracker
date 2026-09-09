@@ -31,6 +31,7 @@ export function Panel({
     >
       {hasHeader && (
         <div className="relative flex items-center justify-between gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
+          <span aria-hidden className="pointer-events-none absolute left-0 top-0 h-full w-0.5 bg-gradient-to-b from-signal/50 via-signal/25 to-transparent opacity-0 transition-opacity duration-300 group-hover/panel:opacity-100 group-focus-within/panel:opacity-100" />
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-60 transition-opacity group-hover/panel:opacity-100 group-focus-within/panel:opacity-100" />
           <div className="min-w-0">
             {title && (

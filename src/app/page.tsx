@@ -427,7 +427,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group surface-card surface-card-hover relative overflow-hidden p-7">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-7 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5">
       <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-signal/8 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="relative flex h-10 w-10 items-center justify-center rounded-md border border-border/70 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
