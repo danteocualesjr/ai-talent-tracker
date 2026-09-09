@@ -110,10 +110,10 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           type="button"
           onClick={() => setCommandOpen(true)}
           className={cn(
-            "group inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
-            "hover:border-foreground/20 hover:text-foreground",
+            "group inline-flex h-9 items-center gap-2 rounded-md border border-border/70 surface-inset px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
+            "hover:border-signal/25 hover:bg-muted/40 hover:text-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-            commandOpen && "ring-2 ring-signal/40",
+            commandOpen && "border-signal/30 ring-2 ring-signal/40",
           )}
           aria-keyshortcuts="Meta+K"
           aria-label="Open command menu"
