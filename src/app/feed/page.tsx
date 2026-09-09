@@ -156,14 +156,14 @@ function FeedStat({
   accent?: string;
 }) {
   return (
-    <div className="group stat-strip-item">
+    <div className="stat-strip-item group/stat">
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <div className="tnum font-serif text-3xl font-medium tracking-tight transition-colors group-hover:text-foreground">{value}</div>
-          <div className="mt-1.5 label-caps text-muted-foreground">{label}</div>
+          <div className="tnum font-serif text-3xl font-medium tracking-tight transition-colors group-hover/stat:text-signal">{value}</div>
+          <div className="mt-1.5 label-caps text-muted-foreground transition-colors group-hover/stat:text-foreground/70">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 shadow-sm ${accent} motion-safe:transition-all motion-safe:group-hover/stat:scale-105 motion-safe:group-hover/stat:border-signal/30 motion-safe:group-hover/stat:bg-signal/10`}>
             {icon}
           </div>
         )}

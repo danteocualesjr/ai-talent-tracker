@@ -94,7 +94,7 @@ export default async function DashboardPage() {
           { href: "/app/alerts", label: "Configure alerts", icon: Bell },
           { href: "/app/labs", label: "Browse labs", icon: Building2 },
         ].map(({ href, label, icon: Icon }) => (
-          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)]">
+          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)] focus-visible:ring-signal/30 active:scale-[0.98]">
             <Link href={href}>
               <Icon className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal" />
               {label}
@@ -372,7 +372,7 @@ function StatCard({
           {icon}
         </div>
       </div>
-      <div className="tnum relative mt-3 font-serif text-3xl font-bold tracking-tight md:text-[2.1rem]">{value}</div>
+      <div className="tnum text-shadow-soft relative mt-3 font-serif text-3xl font-bold tracking-tight transition-colors group-hover:text-signal md:text-[2.1rem]">{value}</div>
       <div className="relative mt-1.5 flex items-end justify-between gap-2">
         {sub && <div className="text-xs leading-relaxed text-muted-foreground">{sub}</div>}
         {series && (
