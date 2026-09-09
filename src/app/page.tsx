@@ -110,14 +110,14 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 </Button>
               </div>
 
-              <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
+              <div className="animate-fade-up animate-fade-up-delay-4 stat-strip mt-10 grid-cols-3">
                 {[
                   { value: "20+", label: "Labs tracked" },
                   { value: "<15m", label: "Avg detection" },
                   { value: "3", label: "Alert channels" },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-card px-4 py-3.5">
-                    <div className="tnum text-xl font-bold md:text-2xl">{stat.value}</div>
+                  <div key={stat.label} className="stat-strip-item px-4 py-3.5">
+                    <div className="tnum text-xl font-bold transition-colors group-hover:text-foreground md:text-2xl">{stat.value}</div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
                   </div>
                 ))}
@@ -326,7 +326,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               <h2 className="mt-4 text-balance font-serif text-3xl font-medium tracking-tight md:text-4xl">
                 If your edge is being first, this is for you.
               </h2>
-              <ul className="mt-8 divide-y divide-border/70 rounded-lg border border-border/80 bg-card">
+              <ul className="mt-8 divide-y divide-border/70 overflow-hidden rounded-lg border border-border/80 bg-card">
                 {[
                   ["VCs & scouts", "Reach researchers the day they go stealth."],
                   ["AI startup recruiters", "Source candidates from real-time departures."],
@@ -334,8 +334,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                   ["Competitive intel teams", "Track who's being poached, and by whom."],
                   ["Journalists & analysts", "Cover the AI labor market with primary signal."],
                 ].map(([who, why]) => (
-                  <li key={who} className="flex items-start gap-4 px-5 py-4 first:rounded-t-lg last:rounded-b-lg">
-                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+                  <li key={who} className="group relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
+                    <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/55 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-signal motion-safe:transition-transform motion-safe:group-hover:scale-110" />
                     <div>
                       <div className="text-sm font-medium">{who}</div>
                       <div className="text-sm text-muted-foreground">{why}</div>
