@@ -41,14 +41,16 @@ export default function AppLoading() {
           <Skeleton key={i} className="h-8 w-28 rounded-full" />
         ))}
       </div>
-      <div className="animate-fade-up animate-fade-up-delay-1 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <StatSkeleton key={i} />
+          <div key={i} className={`animate-fade-up ${i === 0 ? "" : i === 1 ? "animate-fade-up-delay-1" : i === 2 ? "animate-fade-up-delay-2" : "animate-fade-up-delay-3"}`}>
+            <StatSkeleton />
+          </div>
         ))}
       </div>
-      <div className="animate-fade-up animate-fade-up-delay-2 grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="surface-card h-28 rounded-lg" />
+          <Skeleton key={i} className={`surface-card h-28 rounded-lg animate-fade-up ${i === 0 ? "animate-fade-up-delay-2" : i === 1 ? "animate-fade-up-delay-3" : "animate-fade-up-delay-4"}`} />
         ))}
       </div>
       <Skeleton className="animate-fade-up animate-fade-up-delay-2 surface-card h-20 rounded-lg" />
