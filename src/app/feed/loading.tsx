@@ -16,7 +16,7 @@ export default function FeedLoading() {
       </div>
       <div className="animate-fade-up animate-fade-up-delay-1 stat-strip grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="stat-strip-item">
+          <div key={i} className="group stat-strip-item">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-2">
                 <Skeleton className="h-8 w-12 rounded" />

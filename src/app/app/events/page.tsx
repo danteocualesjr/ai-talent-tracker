@@ -138,7 +138,7 @@ function EventMetric({
   accent?: string;
 }) {
   return (
-    <div className="stat-strip-item">
+    <div className="group stat-strip-item">
       <div className="relative flex items-start justify-between gap-3">
         <div>
           <div className="tnum font-serif text-2xl font-medium tracking-tight">{value}</div>

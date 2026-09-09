@@ -116,7 +116,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                   { value: "<15m", label: "Avg detection" },
                   { value: "3", label: "Alert channels" },
                 ].map((stat) => (
-                  <div key={stat.label} className="stat-strip-item px-4 py-3.5">
+                  <div key={stat.label} className="group stat-strip-item px-4 py-3.5">
                     <div className="tnum text-xl font-bold transition-colors group-hover:text-foreground md:text-2xl">{stat.value}</div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
                   </div>
