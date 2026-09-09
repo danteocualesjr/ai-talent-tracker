@@ -60,6 +60,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="pointer-events-none absolute inset-0 noise opacity-35" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
+        <div aria-hidden className="pointer-events-none absolute -left-24 top-8 h-72 w-72 aurora-orb aurora-orb-a bg-signal/20" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 top-1/3 h-56 w-56 aurora-orb aurora-orb-b bg-accent-amber/15" />
 
         <div className="container relative py-16 md:py-24">
           <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
@@ -110,13 +112,13 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 </Button>
               </div>
 
-              <div className="animate-fade-up animate-fade-up-delay-4 mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
+              <div className="animate-fade-up animate-fade-up-delay-4 stat-strip grid-cols-3">
                 {[
                   { value: "20+", label: "Labs tracked" },
                   { value: "<15m", label: "Avg detection" },
                   { value: "3", label: "Alert channels" },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-card px-4 py-3.5">
+                  <div key={stat.label} className="stat-strip-item px-4 py-3.5">
                     <div className="tnum text-xl font-bold md:text-2xl">{stat.value}</div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</div>
                   </div>
