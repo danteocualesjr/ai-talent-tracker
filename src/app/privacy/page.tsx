@@ -24,6 +24,24 @@ export default function PrivacyPage() {
           description="How we process public professional data and your rights."
         />
         <div className="container max-w-3xl py-12 md:py-16">
+          <nav aria-label="On this page" className="mb-6 flex flex-wrap gap-2">
+            {[
+              ["#information", "Information"],
+              ["#lawful-basis", "Lawful basis"],
+              ["#your-rights", "Your rights"],
+              ["#sharing", "Sharing"],
+              ["#retention", "Retention"],
+              ["#contact", "Contact"],
+            ].map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                className="chip text-[10px] transition-colors hover:border-signal/30 hover:bg-signal/5 hover:text-foreground"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
           <div className="surface-elevated prose-legal rounded-2xl border border-border/60 bg-card p-8 md:p-10">
             <p>
               AI Talent Tracker monitors <strong>publicly accessible professional information</strong> about
@@ -31,21 +49,21 @@ export default function PrivacyPage() {
               directly scrape LinkedIn; we use licensed third-party data providers.
             </p>
 
-            <h2>Information we process</h2>
+            <h2 id="information">Information we process</h2>
             <ul>
               <li>Names, headlines, current employer, location, and public LinkedIn URL.</li>
               <li>Optional public handles for GitHub, X / Twitter, personal sites.</li>
               <li>Historical snapshots of the above for change detection.</li>
             </ul>
 
-            <h2>Lawful basis</h2>
+            <h2 id="lawful-basis">Lawful basis</h2>
             <p>
               For data subjects in the EU/UK, we rely on legitimate interest (Art. 6(1)(f) GDPR) to process public
               professional information for the purpose of labor-market intelligence, balanced against the rights of
               the subject. You can object at any time via the form below.
             </p>
 
-            <h2>Your rights — opt out / DSAR</h2>
+            <h2 id="your-rights">Your rights — opt out / DSAR</h2>
             <p>
               Anyone listed in our index can request removal or a copy of the data we hold. Use{" "}
               <Link href="/opt-out">the opt-out form</Link> or email{" "}
@@ -53,19 +71,19 @@ export default function PrivacyPage() {
               requests within 30 days.
             </p>
 
-            <h2>Sharing</h2>
+            <h2 id="sharing">Sharing</h2>
             <p>
               Data is shared with our infrastructure providers (Supabase, Vercel, Inngest, Stripe, Resend, OpenAI)
               only to the extent necessary to operate the service. We do not sell personal data.
             </p>
 
-            <h2>Retention</h2>
+            <h2 id="retention">Retention</h2>
             <p>
               Profile snapshots are retained for as long as a profile is tracked by at least one customer. Removed
               subjects&apos; data is deleted within 30 days of a verified DSAR.
             </p>
 
-            <h2>Contact</h2>
+            <h2 id="contact">Contact</h2>
             <p>
               <a href="mailto:privacy@aitalenttracker.com">privacy@aitalenttracker.com</a>
             </p>

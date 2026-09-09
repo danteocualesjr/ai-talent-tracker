@@ -43,7 +43,10 @@ export function PricingFaq() {
           {FAQ_ITEMS.map(({ q, a }, i) => {
             const isOpen = open === i;
             return (
-              <div key={q} className={isOpen ? "bg-muted/15" : undefined}>
+              <div key={q} className={cn("relative", isOpen && "bg-muted/15")}>
+                {isOpen && (
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-0.5 rounded-full bg-signal" />
+                )}
                 <button
                   type="button"
                   aria-expanded={isOpen}
