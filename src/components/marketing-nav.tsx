@@ -19,9 +19,14 @@ export function MarketingNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? Math.min(100, (window.scrollY / docHeight) * 100) : 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -43,6 +48,11 @@ export function MarketingNav() {
           : "border-b border-border/50 bg-background/40 backdrop-blur-sm",
       )}
     >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left bg-signal motion-safe:transition-transform motion-safe:duration-150"
+        style={{ transform: `scaleX(${scrollProgress / 100})` }}
+      />
       <div className="container flex h-[64px] items-center justify-between">
         <Logo />
 
