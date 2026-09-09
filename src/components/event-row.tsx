@@ -145,7 +145,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
   const Icon = meta.icon;
 
   return (
-    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.12] hover:bg-muted/40 focus-within:bg-muted/30 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
+    <div className="group relative flex items-start gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.12] hover:bg-muted/40 focus-within:bg-muted/30 focus-within:ring-2 focus-within:ring-inset focus-within:ring-signal/20 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.5)]">
       {/* Accent rail on hover */}
       <span
         aria-hidden
