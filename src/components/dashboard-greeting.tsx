@@ -1,4 +1,5 @@
-import { Moon, Sun, Sunrise } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Moon, Sun, Sunrise } from "lucide-react";
 
 function getGreeting(): { salutation: string; hint: string; icon: typeof Sun } {
   const hour = new Date().getHours();
@@ -80,9 +81,16 @@ export function DashboardGreeting({ orgName }: { orgName: string }) {
             </p>
           </div>
         </div>
-        <p className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 text-sm leading-relaxed text-muted-foreground sm:max-w-[280px] sm:text-right">
-          {hint}
-        </p>
+        <div className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 sm:max-w-[280px]">
+          <p className="text-sm leading-relaxed text-muted-foreground sm:text-right">{hint}</p>
+          <Link
+            href="/app/events"
+            className="group/hint mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground transition-colors hover:text-signal sm:w-full sm:justify-end"
+          >
+            Open event inbox
+            <ArrowRight className="h-3 w-3 transition-transform motion-safe:group-hover/hint:translate-x-0.5" />
+          </Link>
+        </div>
       </div>
     </div>
   );

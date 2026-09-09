@@ -68,9 +68,10 @@ export default async function EventsPage({
           { step: "02", title: "Qualify", body: "Compare the summary with the profile timeline before outreach.", icon: Sparkles },
           { step: "03", title: "Route", body: "Send public signals to the feed and private signals to Slack or webhook channels.", icon: Route },
         ] as const).map(({ step, title, body, icon: Icon }) => (
-          <div key={title} className="group rounded-md border border-transparent p-3 transition-colors hover:border-border/70 hover:bg-muted/30 focus-within:border-signal/25 focus-within:bg-muted/25 focus-within:ring-2 focus-within:ring-signal/20">
+          <div key={title} className="group relative rounded-md border border-transparent p-3 transition-colors hover:border-border/70 hover:bg-muted/30 focus-within:border-signal/25 focus-within:bg-muted/25 focus-within:ring-2 focus-within:ring-signal/20">
+            <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/55 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-signal/10 text-signal">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-signal/10 text-signal motion-safe:transition-transform motion-safe:group-hover:scale-105">
                 <Icon className="h-3.5 w-3.5" />
               </div>
               <div>
@@ -144,7 +145,7 @@ function EventMetric({
           <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
             {icon}
           </div>
         )}
