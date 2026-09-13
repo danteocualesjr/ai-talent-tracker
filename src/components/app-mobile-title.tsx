@@ -25,7 +25,7 @@ export function AppMobileTitle() {
 
   return (
     <div className="flex h-12 items-center border-b border-border/60 bg-background/90 px-4 backdrop-blur-md md:hidden">
-      <h1 className="truncate text-sm font-semibold tracking-tight">{title}</h1>
+      <h1 className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold tracking-tight"><span className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal signal-pulse" aria-hidden /><span className="truncate font-serif font-medium">{title}</span></h1>
     </div>
   );
 }
