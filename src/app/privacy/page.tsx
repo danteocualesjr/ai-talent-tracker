@@ -35,7 +35,7 @@ export default function PrivacyPage() {
           description="How we process public professional data and your rights."
         />
         <div className="container max-w-3xl py-12 md:py-16">
-          <nav aria-label="On this page" className="mb-6 flex flex-wrap justify-center gap-2">
+          <nav aria-label="On this page" className="sticky top-[72px] z-10 mb-8 flex flex-wrap justify-center gap-2 rounded-xl border border-border/60 bg-background/90 p-2 backdrop-blur-md">
             {SECTIONS.map((section) => (
               <a
                 key={section.id}

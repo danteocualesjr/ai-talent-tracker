@@ -67,7 +67,7 @@ export function MarketingNav() {
                 className={cn(
                   "relative inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
                   active
-                    ? "text-foreground after:absolute after:inset-x-3 after:-bottom-[15px] after:h-0.5 after:bg-signal"
+                    ? "font-semibold text-foreground after:absolute after:inset-x-3 after:-bottom-[15px] after:h-0.5 after:bg-signal"
                     : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
                 )}
               >
