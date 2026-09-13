@@ -78,7 +78,7 @@ export async function LiveTicker() {
         </div>
         <Link
           href="/feed"
-          className="group inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          className="link-animated group inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
         >
           Open feed
           <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

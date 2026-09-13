@@ -102,7 +102,7 @@ export function MarketingFooter() {
           </div>
           <Link
             href="/login"
-            className="group/cta inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-background px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-signal hover:bg-signal hover:text-[hsl(var(--signal-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="btn-signal-glow group/cta inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-background px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-signal hover:bg-signal hover:text-[hsl(var(--signal-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Start tracking free
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5" />
@@ -116,7 +116,7 @@ export function MarketingFooter() {
           <div className="flex items-center gap-4">
             <a
               href="#top"
-              className="group/top inline-flex items-center gap-1 font-medium transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm"
+              className="group/top inline-flex items-center gap-1 font-medium transition-colors hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 rounded-sm"
             >
               Back to top
               <ArrowUp className="h-3 w-3 transition-transform motion-safe:group-hover/top:-translate-y-0.5" />

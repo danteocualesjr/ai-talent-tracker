@@ -101,7 +101,7 @@ export function DashboardGreeting({
             </p>
           </div>
         </div>
-        <div className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 sm:max-w-[280px]">
+        <div className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 transition-colors duration-200 hover:border-signal/25 hover:bg-signal/[0.04] sm:max-w-[280px]">
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-right">{nextHint}</p>
           <Link
             href={nextHref}

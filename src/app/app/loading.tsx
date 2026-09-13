@@ -3,6 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 function StatSkeleton() {
   return (
     <div className="surface-card relative overflow-hidden p-5">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/30 to-transparent opacity-60" />
       <div className="flex items-start justify-between">
         <Skeleton className="h-3 w-20 rounded" />
         <Skeleton className="h-8 w-8 rounded-md" />
