@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export function FeedMobileCta() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/80 bg-background/95 px-4 pt-3 shadow-[0_-12px_32px_-16px_hsl(var(--foreground)/0.12)] backdrop-blur-xl sm:hidden pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <div className="fixed inset-x-0 bottom-0 z-20 border-t border-signal/20 bg-background/95 px-4 pt-3 shadow-[0_-12px_32px_-16px_hsl(var(--foreground)/0.12)] backdrop-blur-xl sm:hidden pb-[max(0.75rem,env(safe-area-inset-bottom))]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/60 via-signal to-signal/60" />
       <div className="mb-2 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
         <span className="relative flex h-1.5 w-1.5">
