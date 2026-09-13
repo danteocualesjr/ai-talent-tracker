@@ -50,9 +50,10 @@ interface Props {
   orgName: string;
   orgPlan: string;
   email: string;
+  unreadCount?: number;
 }
 
-export function AppSidebar({ orgName, orgPlan, email }: Props) {
+export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -178,7 +179,12 @@ export function AppSidebar({ orgName, orgPlan, email }: Props) {
                         active ? "text-signal" : "text-muted-foreground/80 group-hover:text-foreground",
                       )}
                     />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    {item.href === "/app/events" && unreadCount > 0 && (
+                      <span className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-signal/15 px-1.5 text-[10px] font-bold text-signal">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
