@@ -205,7 +205,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         target="_blank"
         rel="noreferrer noopener"
         aria-label={`Open ${profile.full_name || profile.linkedin_handle} on LinkedIn`}
-        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-100 shadow-sm transition-all hover:border-signal/40 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-80 shadow-sm transition-all hover:border-signal/40 hover:bg-signal/5 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/40"
       >
         LinkedIn <ExternalLink className="h-3 w-3" />
       </a>

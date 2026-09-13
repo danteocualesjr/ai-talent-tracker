@@ -1,10 +1,4 @@
-function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={`relative overflow-hidden rounded-lg bg-muted/50 ${className ?? ""}`}>
-      <div className="absolute inset-0 animate-shimmer" aria-hidden />
-    </div>
-  );
-}
+import { Skeleton } from "@/components/ui/skeleton";
 
 function StatSkeleton() {
   return (

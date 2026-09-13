@@ -7,7 +7,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ classNa
   <textarea
     ref={ref}
     className={cn(
-      "flex min-h-[100px] w-full rounded-lg border border-border/80 bg-background px-3.5 py-3 text-sm shadow-sm transition-all duration-200 placeholder:text-muted-foreground/60 hover:border-foreground/20 focus-visible:border-signal/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-destructive/20 aria-[invalid=true]:focus-visible:ring-destructive/30 disabled:cursor-not-allowed disabled:opacity-50",
+      "flex min-h-[100px] w-full rounded-md border border-border/80 bg-background px-3.5 py-3 text-sm shadow-sm transition-all duration-200 placeholder:text-muted-foreground/60",
+      "hover:border-foreground/20 hover:shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.03)]",
+      "focus-visible:border-signal/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:shadow-[0_0_0_4px_hsl(var(--signal)/0.08),inset_0_1px_2px_hsl(var(--foreground)/0.04)]",
+      "aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-destructive/20 aria-[invalid=true]:focus-visible:ring-destructive/30",
+      "disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
     {...props}
