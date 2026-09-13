@@ -659,7 +659,7 @@
 
   /* Active chip state for filter toggles */
   .chip-active {
-    @apply border-signal/40 bg-signal/10 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.2),0_2px_8px_-2px_hsl(var(--signal)/0.2)] ring-1 ring-signal/20;
+    @apply border-signal/40 bg-signal/10 text-foreground motion-safe:transition-all motion-safe:duration-200 shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.2),0_2px_8px_-2px_hsl(var(--signal)/0.2)] ring-1 ring-signal/20;
   }
 
   /* Soft text shadow for hero numerals */
