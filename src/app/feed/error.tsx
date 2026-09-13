@@ -35,7 +35,7 @@ export default function FeedError({
         </p>
       )}
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <Button onClick={reset} className="gap-2">
+        <Button onClick={reset} variant="signal" className="gap-2">
           <RefreshCw className="h-4 w-4" aria-hidden />
           Retry
         </Button>
