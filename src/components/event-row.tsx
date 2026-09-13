@@ -242,7 +242,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
       <EventFieldDiff before={event.before} after={event.after} />
       <Link
         href={`/app/profiles/${profile.id}`}
-        className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="link-animated mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground"
       >
         Open profile{" "}
         <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
