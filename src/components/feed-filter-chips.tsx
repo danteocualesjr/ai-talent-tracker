@@ -37,9 +37,7 @@ export function FeedFilterChips() {
             onClick={() => selectFilter(param)}
             className={cn(
               "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 motion-safe:active:scale-95",
-              active
-                ? "border-signal/40 bg-signal/10 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.2),0_2px_8px_-2px_hsl(var(--signal)/0.2)] ring-1 ring-signal/20 motion-safe:scale-[1.02]"
-                : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground hover:shadow-sm",
+              active ? "chip-active motion-safe:scale-[1.02]" : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground hover:shadow-sm",
             )}
           >
             <Icon className={cn("h-3 w-3 shrink-0", active ? "text-signal" : "text-muted-foreground/70")} aria-hidden />
