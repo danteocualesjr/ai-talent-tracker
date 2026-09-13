@@ -110,7 +110,21 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
                 We sent a magic link to{" "}
                 <span className="font-medium text-foreground">{email}</span>. Click it to sign in — you can close this tab afterward.
               </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <ol className="mt-4 space-y-2 text-xs text-muted-foreground">
+                {[
+                  "Open the newest email from AI Talent Tracker",
+                  "Check spam or promotions if it is not in your inbox",
+                  "The link expires in 15 minutes and signs you in on this device",
+                ].map((tip, i) => (
+                  <li key={tip} className="flex items-start gap-2">
+                    <span className="tnum mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-signal/10 text-[10px] font-bold text-signal">
+                      {i + 1}
+                    </span>
+                    {tip}
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
