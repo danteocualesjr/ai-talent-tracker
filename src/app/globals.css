@@ -682,4 +682,15 @@
   .border-gradient-signal > * {
     border-radius: calc(var(--radius) - 1px);
   }
+
+  /* Interactive list rows (settings, logs) */
+  .list-row-interactive {
+    @apply rounded-lg border border-transparent px-3 py-2.5 transition-colors duration-200;
+  }
+  .list-row-interactive:hover {
+    @apply border-border/60 bg-muted/30;
+  }
+  .list-row-interactive:focus-within {
+    @apply border-signal/25 bg-signal/[0.04];
+  }
 }
