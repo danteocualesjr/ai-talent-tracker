@@ -30,7 +30,7 @@ export default function OptOutPage() {
               ["02", "Verify", "We confirm the request belongs to you or an authorized agent."],
               ["03", "Resolve", "We stop monitoring and complete the request within 30 days."],
             ].map(([step, title, body]) => (
-              <li key={step} className="surface-card relative overflow-hidden p-4">
+              <li key={step} className="surface-card surface-card-hover relative overflow-hidden p-4">
                 <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent" />
                 <div className="tnum text-[11px] font-semibold text-signal">{step}</div>
                 <div className="mt-1.5 text-xs font-semibold">{title}</div>
