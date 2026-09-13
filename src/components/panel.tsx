@@ -78,7 +78,7 @@ export function EmptyPanel({
       <div className="animate-fade-up relative flex h-12 w-12 items-center justify-center rounded-xl border border-border/70 bg-background text-muted-foreground shadow-sm">
         {icon}
       </div>
-      <div className="animate-fade-up animate-fade-up-delay-1 relative text-sm font-bold tracking-tight text-foreground/90">{title}</div>
+      <div className="animate-fade-up animate-fade-up-delay-1 relative text-balance text-sm font-bold tracking-tight text-foreground/90">{title}</div>
       <p className="animate-fade-up animate-fade-up-delay-2 relative max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
         {body}
       </p>
