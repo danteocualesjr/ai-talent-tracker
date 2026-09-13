@@ -24,15 +24,15 @@ export default async function LabsIndexPage() {
 
       {labs.length > 0 && (
         <div className="stat-strip grid-cols-2 sm:grid-cols-3">
-          <div className="stat-strip-item">
+          <div className="group stat-strip-item">
             <div className="tnum font-serif text-2xl font-medium">{labs.length}</div>
             <div className="mt-1 label-caps">Labs available</div>
           </div>
-          <div className="stat-strip-item">
+          <div className="group stat-strip-item">
             <div className="tnum font-serif text-2xl font-medium">{featuredCount}</div>
             <div className="mt-1 label-caps">Featured</div>
           </div>
-          <div className="stat-strip-item hidden sm:block">
+          <div className="group stat-strip-item hidden sm:block">
             <div className="text-sm font-semibold text-foreground">One-click bulk add</div>
             <div className="mt-1 text-xs leading-relaxed text-muted-foreground">Track an entire org from any roster page</div>
           </div>

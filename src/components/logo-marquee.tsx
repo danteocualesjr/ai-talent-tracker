@@ -3,7 +3,8 @@ export function LogoMarquee({ items }: { items: string[] }) {
   return (
     <div
       aria-hidden="true"
-      className="marquee-pause relative overflow-hidden"
+      tabIndex={0}
+      className="marquee-pause relative overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:rounded-lg"
       style={{
         maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
         WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",

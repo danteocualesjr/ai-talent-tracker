@@ -23,6 +23,8 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
       </div>
 
       <div className="relative hidden w-[46%] overflow-hidden bg-foreground lg:block">
+        <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-signal/20 blur-[100px] aurora-orb aurora-orb-a" aria-hidden />
+        <div className="pointer-events-none absolute -right-16 bottom-1/4 h-56 w-56 rounded-full bg-accent-amber/15 blur-[80px] aurora-orb aurora-orb-b" aria-hidden />
         <div className="pointer-events-none absolute inset-0 terminal-scanlines opacity-60" aria-hidden />
         <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{
           backgroundImage:
@@ -93,7 +95,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
             ].map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex items-center gap-3 rounded-md border border-border/60 bg-card/60 px-3.5 py-2.5 text-xs text-muted-foreground"
+                className="hover-lift flex items-center gap-3 rounded-md border border-border/60 bg-card/60 px-3.5 py-2.5 text-xs text-muted-foreground"
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-signal/10 text-signal">
                   <Icon className="h-3.5 w-3.5" />

@@ -140,7 +140,13 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
           className="max-h-[min(320px,50vh)] overflow-y-auto p-2"
         >
           {filtered.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">No matches found.</p>
+            <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border/60 bg-muted/50 text-muted-foreground">
+                <Search className="h-4 w-4" />
+              </div>
+              <p className="text-sm font-medium text-foreground">No matches found</p>
+              <p className="text-xs text-muted-foreground">Try a different search term</p>
+            </div>
           ) : (
             groups.map(([group, items]) => (
               <div key={group} className="pb-1">
@@ -162,9 +168,9 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
                       aria-selected={active}
                       data-active={active ? "true" : undefined}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-all",
+                        "relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                         active
-                          ? "bg-signal/10 text-foreground ring-1 ring-signal/20 shadow-sm"
+                          ? "nav-active-rail bg-signal/10 pl-4 font-medium text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.08)]"
                           : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                       )}
                       onMouseEnter={() => setActiveIndex(index)}

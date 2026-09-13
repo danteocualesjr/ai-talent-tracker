@@ -22,7 +22,7 @@ export default async function PublicLabsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <MarketingHero
           eyebrow={<div className="label-caps">Labs</div>}
           title="AI labs we track"
@@ -30,7 +30,7 @@ export default async function PublicLabsPage() {
         />
 
         <section className="container space-y-6 py-12 md:py-16">
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
+          <div className="stat-strip grid-cols-3">
             <LabMetric label="Labs indexed" value={labs.length} icon={<Building2 className="h-3.5 w-3.5" />} accent="text-signal" />
             <LabMetric label="Featured rosters" value={featuredCount} icon={<Star className="h-3.5 w-3.5" />} accent="text-amber-accent" />
             <LabMetric label="Domains mapped" value={domainCount} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-violet-accent" />
@@ -113,14 +113,14 @@ function LabMetric({
   accent?: string;
 }) {
   return (
-    <div className="bg-card p-4">
-      <div className="flex items-start justify-between">
+    <div className="group stat-strip-item">
+      <div className="relative flex items-start justify-between">
         <div>
-          <div className="tnum font-serif text-2xl font-medium">{value}</div>
+          <div className="tnum font-serif text-2xl font-medium transition-colors group-hover:text-foreground">{value}</div>
           <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md bg-muted/80 ${accent}`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
             {icon}
           </div>
         )}

@@ -44,12 +44,17 @@ export function MarketingFooter() {
             Real-time monitoring of LinkedIn profiles at top AI labs. Know who&apos;s moving
             before anyone else.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-3 py-1.5 text-[11px] text-muted-foreground shadow-[0_0_20px_-10px_hsl(var(--signal)/0.5)] transition-colors hover:border-signal/35 hover:text-foreground">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-3 py-1.5 text-[11px] text-muted-foreground shadow-[0_0_20px_-10px_hsl(var(--signal)/0.5)] transition-colors hover:border-signal/35 hover:text-foreground">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+              <span>All systems normal · monitoring 20+ labs</span>
+            </div>
+            <span className="label-caps rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-[10px]">
+              Updated {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </span>
-            <span>All systems normal · monitoring 20+ labs</span>
           </div>
         </div>
 

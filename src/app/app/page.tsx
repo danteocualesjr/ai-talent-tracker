@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Bell,
   Building2,
+  Check,
   Clock,
   Plus,
   RefreshCw,
@@ -85,7 +86,18 @@ export default async function DashboardPage() {
         </Button>
       </PageHeader>
 
-      <DashboardGreeting orgName={org.name} />
+      <DashboardGreeting
+        orgName={org.name}
+        profileCount={profiles.length}
+        eventCount7d={last7}
+        staleCount={staleProfiles}
+      />
+
+      <GettingStarted
+        hasProfiles={profiles.length > 0}
+        hasEvents={events.length > 0}
+        staleCount={staleProfiles}
+      />
 
       <div className="flex flex-wrap gap-2">
         {[
@@ -94,7 +106,7 @@ export default async function DashboardPage() {
           { href: "/app/alerts", label: "Configure alerts", icon: Bell },
           { href: "/app/labs", label: "Browse labs", icon: Building2 },
         ].map(({ href, label, icon: Icon }) => (
-          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)]">
+          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)] focus-visible:ring-signal/30 active:scale-[0.98]">
             <Link href={href}>
               <Icon className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal" />
               {label}
@@ -331,6 +343,100 @@ export default async function DashboardPage() {
   );
 }
 
+function GettingStarted({
+  hasProfiles,
+  hasEvents,
+  staleCount,
+}: {
+  hasProfiles: boolean;
+  hasEvents: boolean;
+  staleCount: number;
+}) {
+  const steps = [
+    {
+      done: hasProfiles,
+      title: "Build a watchlist",
+      body: "Paste LinkedIn URLs or one-click a curated lab roster.",
+      href: hasProfiles ? "/app/watchlist" : "/app/labs",
+      cta: hasProfiles ? "Open watchlist" : "Browse labs",
+    },
+    {
+      done: hasEvents,
+      title: "Review the first signals",
+      body: "Stealth flips, departures, and founding language land in Events.",
+      href: "/app/events",
+      cta: "Open events",
+    },
+    {
+      done: hasProfiles && staleCount === 0,
+      title: "Keep snapshots fresh",
+      body: hasProfiles
+        ? staleCount > 0
+          ? `${staleCount} profile${staleCount === 1 ? "" : "s"} older than 7 days.`
+          : "All tracked profiles were synced this week."
+        : "Refresh runs immediately after you add a profile.",
+      href: "/app/watchlist",
+      cta: staleCount > 0 ? "Refresh stale" : "Manage profiles",
+    },
+    {
+      done: false,
+      title: "Route alerts",
+      body: "Send Slack, email, or HMAC webhooks the moment someone moves.",
+      href: "/app/alerts",
+      cta: "Configure alerts",
+    },
+  ];
+
+  const requiredDone = hasProfiles && hasEvents && staleCount === 0;
+  if (requiredDone) return null;
+  const remaining = steps.filter((step) => !step.done).length;
+
+  return (
+    <div className="surface-card overflow-hidden">
+      <div className="flex flex-col gap-2 border-b border-border/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="label-caps">Getting started</div>
+          <h2 className="mt-1 font-serif text-lg font-medium tracking-tight">
+            {hasProfiles ? "Finish wiring the workspace" : "Set up your first brief"}
+          </h2>
+        </div>
+        <span className="tnum text-xs text-muted-foreground">
+          {steps.length - remaining} / {steps.length} complete
+        </span>
+      </div>
+      <ol className="divide-y divide-border/60">
+        {steps.map((step, index) => (
+          <li key={step.title} className="group flex items-start gap-3 px-5 py-4 transition-colors hover:bg-muted/25">
+            <span
+              className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                step.done
+                  ? "bg-signal/15 text-signal"
+                  : "bg-foreground text-background"
+              }`}
+            >
+              {step.done ? <Check className="h-3.5 w-3.5" /> : index + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className={`text-sm font-semibold ${step.done ? "text-muted-foreground line-through decoration-muted-foreground/40" : ""}`}>
+                {step.title}
+              </div>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{step.body}</p>
+            </div>
+            {!step.done && (
+              <Button asChild variant="ghost" size="sm" className="shrink-0 text-xs">
+                <Link href={step.href}>
+                  {step.cta}
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </Button>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 const STAT_RAIL: Record<string, string> = {
   "text-signal": "from-signal/0 via-signal/55 to-signal/0",
   "text-foreground/70": "from-foreground/0 via-foreground/25 to-foreground/0",
@@ -372,7 +478,7 @@ function StatCard({
           {icon}
         </div>
       </div>
-      <div className="tnum relative mt-3 font-serif text-3xl font-bold tracking-tight md:text-[2.1rem]">{value}</div>
+      <div className="tnum text-shadow-soft relative mt-3 font-serif text-3xl font-bold tracking-tight transition-colors group-hover:text-signal md:text-[2.1rem]">{value}</div>
       <div className="relative mt-1.5 flex items-end justify-between gap-2">
         {sub && <div className="text-xs leading-relaxed text-muted-foreground">{sub}</div>}
         {series && (

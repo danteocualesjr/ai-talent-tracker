@@ -1,4 +1,5 @@
-import { Moon, Sun, Sunrise } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Moon, Sun, Sunrise } from "lucide-react";
 
 function getGreeting(): { salutation: string; hint: string; icon: typeof Sun } {
   const hour = new Date().getHours();
@@ -38,9 +39,29 @@ function formatTimeStamp(date: Date) {
   }).format(date);
 }
 
-export function DashboardGreeting({ orgName }: { orgName: string }) {
+export function DashboardGreeting({
+  orgName,
+  profileCount = 0,
+  eventCount7d = 0,
+  staleCount = 0,
+}: {
+  orgName: string;
+  profileCount?: number;
+  eventCount7d?: number;
+  staleCount?: number;
+}) {
   const { salutation, hint, icon: Icon } = getGreeting();
   const now = new Date();
+  const nextHint =
+    profileCount === 0
+      ? "Your watchlist is empty — add a few LinkedIn URLs to start the brief."
+      : staleCount > 0
+        ? `${staleCount} profile${staleCount === 1 ? "" : "s"} need a refresh before the next cycle.`
+        : eventCount7d > 0
+          ? `${eventCount7d} event${eventCount7d === 1 ? "" : "s"} in the last 7 days — review high-confidence moves first.`
+          : hint;
+  const nextHref = profileCount === 0 ? "/app/watchlist" : staleCount > 0 ? "/app/watchlist" : "/app/events";
+  const nextLabel = profileCount === 0 ? "Add profiles" : staleCount > 0 ? "Refresh stale" : "Open event inbox";
 
   return (
     <div className="surface-card group/greeting relative overflow-hidden p-5 lg:p-6">
@@ -80,9 +101,16 @@ export function DashboardGreeting({ orgName }: { orgName: string }) {
             </p>
           </div>
         </div>
-        <p className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 text-sm leading-relaxed text-muted-foreground sm:max-w-[280px] sm:text-right">
-          {hint}
-        </p>
+        <div className="max-w-xs rounded-md border border-border/50 bg-muted/30 px-4 py-3 sm:max-w-[280px]">
+          <p className="text-sm leading-relaxed text-muted-foreground sm:text-right">{nextHint}</p>
+          <Link
+            href={nextHref}
+            className="group/hint mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground transition-colors hover:text-signal sm:w-full sm:justify-end"
+          >
+            {nextLabel}
+            <ArrowRight className="h-3 w-3 transition-transform motion-safe:group-hover/hint:translate-x-0.5" />
+          </Link>
+        </div>
       </div>
     </div>
   );

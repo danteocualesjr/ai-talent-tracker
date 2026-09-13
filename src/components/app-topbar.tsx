@@ -73,13 +73,21 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
       <div className="sticky top-0 z-20 hidden h-[60px] items-center gap-3 border-b border-border/70 bg-background/88 px-6 backdrop-blur-xl md:flex">
       <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
       <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
-        <Link
-          href="/app"
-          className="group/dash flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
-        >
-          <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5 transition-transform motion-safe:group-hover/dash:scale-110" />
-          <span className="hidden lg:inline">Dashboard</span>
-        </Link>
+        {segments.length <= 1 ? (
+          <span className="flex items-center gap-1.5 px-1.5 py-1 font-semibold text-foreground" aria-current="page">
+            <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5 text-signal" />
+            <span className="hidden lg:inline">Dashboard</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-signal signal-pulse" aria-hidden />
+          </span>
+        ) : (
+          <Link
+            href="/app"
+            className="group/dash flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+          >
+            <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5 transition-transform motion-safe:group-hover/dash:scale-110" />
+            <span className="hidden lg:inline">Dashboard</span>
+          </Link>
+        )}
         {segments.slice(1).map((seg, i) => {
           const href = "/" + segments.slice(0, i + 2).join("/");
           const last = i === segments.length - 2;
@@ -110,10 +118,10 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           type="button"
           onClick={() => setCommandOpen(true)}
           className={cn(
-            "group inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
-            "hover:border-foreground/20 hover:text-foreground",
+            "group inline-flex h-9 items-center gap-2 rounded-md border border-border/70 surface-inset px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
+            "hover:border-signal/25 hover:bg-muted/40 hover:text-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-            commandOpen && "ring-2 ring-signal/40",
+            commandOpen && "border-signal/30 ring-2 ring-signal/40",
           )}
           aria-keyshortcuts="Meta+K"
           aria-label="Open command menu"

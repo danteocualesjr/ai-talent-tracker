@@ -42,20 +42,36 @@ export default async function PricingPage({
               <PlanCard slug="team" priceEnv={process.env.STRIPE_PRICE_TEAM} />
               <PlanCard slug="enterprise" priceEnv={null} ctaHref="mailto:hello@aitalenttracker.com" cta="Contact us" />
             </div>
-            <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
-              All paid plans include the public departure feed. Cancel anytime. Prices in USD.
+            <div className="mx-auto mt-10 grid max-w-3xl gap-2 sm:grid-cols-3">
+              {[
+                "Cancel anytime — no lock-in",
+                "Free tier needs no credit card",
+                "Licensed data + DSAR / opt-out",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center justify-center gap-2 rounded-full border border-border/70 bg-card/80 px-3 py-2 text-center text-[11px] font-medium text-muted-foreground"
+                >
+                  <Check className="h-3 w-3 shrink-0 text-signal" />
+                  {item}
+                </div>
+              ))}
+            </div>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-xs text-muted-foreground">
+              All paid plans include the public departure feed. Prices in USD.
             </p>
 
             <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-lg border border-border/80 bg-card shadow-sm">
-              <div className="border-b border-border/60 bg-muted/30 px-4 py-2.5 text-center">
+              <div className="border-b border-border/60 bg-gradient-to-r from-muted/40 via-muted/30 to-signal/[0.06] px-4 py-2.5 text-center">
                 <span className="label-caps">Refresh cadence by plan</span>
               </div>
               <div className="grid grid-cols-4 divide-x divide-border/60 text-center">
                 {(["free", "pro", "team", "enterprise"] as const).map((slug) => (
                   <div
                     key={slug}
-                    className={`px-3 py-3 transition-colors ${slug === "pro" ? "bg-signal/[0.04]" : "hover:bg-muted/20"}`}
+                    className={`group/cadence relative px-3 py-3 transition-colors ${slug === "pro" ? "bg-signal/[0.04]" : "hover:bg-muted/20"}`}
                   >
+                    <span aria-hidden className="pointer-events-none absolute inset-x-3 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent opacity-0 transition-opacity group-hover/cadence:opacity-100" />
                     <div className="text-sm font-semibold capitalize text-foreground">{PLAN_DETAILS[slug].name}</div>
                     <div className="label-caps mt-1.5">{REFRESH_CADENCE[slug]} refresh</div>
                   </div>
@@ -91,6 +107,26 @@ export default async function PricingPage({
                   <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{description}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="container max-w-4xl pb-6 md:pb-8">
+          <div className="cta-halo relative overflow-hidden rounded-lg bg-foreground text-background">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal/25 blur-[70px]" />
+            <div className="relative flex flex-col gap-4 p-8 sm:flex-row sm:items-center sm:justify-between md:p-10">
+              <div>
+                <div className="label-caps text-background/55">Still deciding?</div>
+                <h2 className="mt-2 font-serif text-2xl font-medium tracking-tight md:text-3xl">
+                  Start with 5 free profiles.
+                </h2>
+                <p className="mt-2 max-w-md text-sm text-background/65">
+                  Magic-link sign-in, no credit card, and you can upgrade when the watchlist fills up.
+                </p>
+              </div>
+              <Button asChild size="lg" variant="outline" className="shrink-0 border-background/25 bg-background text-foreground hover:bg-background/95">
+                <Link href="/login">Start free</Link>
+              </Button>
             </div>
           </div>
         </section>

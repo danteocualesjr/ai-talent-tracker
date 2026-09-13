@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Compass, Filter, Rss, Sparkles, TrendingUp } from "lucide-react";
+import { Clock, Compass, Filter, Rss, Sparkles, TrendingUp } from "lucide-react";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { LiveBadge, MarketingHero } from "@/components/marketing-hero";
@@ -11,6 +11,7 @@ import { FeedFilterChips } from "@/components/feed-filter-chips";
 import { FeedMobileCta } from "@/components/feed-mobile-cta";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { getPublicEvents } from "@/lib/queries";
+import { formatRelative } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 export const metadata = {
@@ -48,6 +49,7 @@ export default async function PublicFeedPage({
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
   const foundingSignals = events.filter((event) => event.type === "headline_signals_founding" || event.type === "went_stealth").length;
+  const latestDetectedAt = events[0]?.detected_at ?? null;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -65,11 +67,19 @@ export default async function PublicFeedPage({
             </>
           }
         >
-          <Button asChild variant="outline" size="sm" className="shrink-0">
-            <a href="/feed/rss.xml">
-              <Rss className="h-3.5 w-3.5" /> RSS
-            </a>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {latestDetectedAt && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
+                <Clock className="h-3 w-3 text-signal" />
+                Updated {formatRelative(latestDetectedAt)}
+              </span>
+            )}
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <a href="/feed/rss.xml">
+                <Rss className="h-3.5 w-3.5" /> RSS
+              </a>
+            </Button>
+          </div>
         </MarketingHero>
 
         <section className="container max-w-3xl space-y-5 py-10 pb-28 md:py-12 md:pb-12">
@@ -112,6 +122,13 @@ export default async function PublicFeedPage({
                 </>
               )
             }
+            action={
+              latestDetectedAt ? (
+                <span className="tnum text-xs text-muted-foreground">
+                  Latest {formatRelative(latestDetectedAt)}
+                </span>
+              ) : undefined
+            }
             bodyClassName="divide-y divide-border/60"
           >
             {filtered.length === 0 ? (
@@ -135,6 +152,21 @@ export default async function PublicFeedPage({
               filtered.map((e) => <EventListItem key={e.id} event={e} profile={e.profile} href={`/feed/${e.id}`} />)
             )}
           </Panel>
+
+          <div className="surface-card relative hidden overflow-hidden p-5 sm:block">
+            <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/60 to-transparent" />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-semibold">Get these as alerts</div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Track 5 profiles free and ping Slack the moment a researcher goes stealth.
+                </p>
+              </div>
+              <Button asChild variant="signal" size="sm" className="shrink-0">
+                <Link href="/login">Start tracking free</Link>
+              </Button>
+            </div>
+          </div>
         </section>
       </main>
       <FeedMobileCta />
@@ -156,14 +188,14 @@ function FeedStat({
   accent?: string;
 }) {
   return (
-    <div className="stat-strip-item">
+    <div className="stat-strip-item group/stat">
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <div className="tnum font-serif text-3xl font-medium tracking-tight transition-colors group-hover:text-foreground">{value}</div>
-          <div className="mt-1.5 label-caps text-muted-foreground">{label}</div>
+          <div className="tnum font-serif text-3xl font-medium tracking-tight transition-colors group-hover/stat:text-signal">{value}</div>
+          <div className="mt-1.5 label-caps text-muted-foreground transition-colors group-hover/stat:text-foreground/70">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 shadow-sm ${accent} motion-safe:transition-all motion-safe:group-hover/stat:scale-105 motion-safe:group-hover/stat:border-signal/30 motion-safe:group-hover/stat:bg-signal/10`}>
             {icon}
           </div>
         )}

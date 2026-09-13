@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useTransition } from "react";
-import { Link2 } from "lucide-react";
+import { Link2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,21 +30,28 @@ export function AddProfileForm() {
         <Label htmlFor="linkedin_url" className="text-xs font-semibold">
           LinkedIn profile URL
         </Label>
-        <div className="relative">
-          <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="group relative rounded-lg transition-shadow focus-within:shadow-[0_0_0_3px_hsl(var(--signal)/0.12)]">
+          <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-signal" />
           <Input
             id="linkedin_url"
             name="linkedin_url"
-          type="url"
-          required
-          placeholder="https://www.linkedin.com/in/jane-researcher"
-          autoComplete="off"
-          className="h-11 pl-10"
-        />
+            type="url"
+            required
+            placeholder="https://www.linkedin.com/in/jane-researcher"
+            autoComplete="off"
+            className="h-11 pl-10"
+          />
         </div>
       </div>
-      <Button type="submit" disabled={pending} aria-busy={pending} className="h-11 shrink-0 px-6">
-        {pending ? "Adding..." : "Track profile"}
+      <Button type="submit" variant="signal" disabled={pending} aria-busy={pending} className="h-11 shrink-0 px-6">
+        {pending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Adding…
+          </>
+        ) : (
+          "Track profile"
+        )}
       </Button>
     </form>
   );

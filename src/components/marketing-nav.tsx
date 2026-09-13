@@ -65,13 +65,19 @@ export function MarketingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
+                  "relative inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
                   active
                     ? "text-foreground after:absolute after:inset-x-3 after:-bottom-[15px] after:h-0.5 after:bg-signal"
                     : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
                 )}
               >
                 {l.label}
+                {l.href === "/feed" && (
+                  <span className="relative flex h-1.5 w-1.5" aria-hidden>
+                    <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -92,7 +98,13 @@ export function MarketingNav() {
 
         <div className="flex items-center gap-1 md:hidden">
           <ThemeToggle />
-          <button onClick={() => setOpen(!open)} className="rounded-md p-2.5 text-muted-foreground hover:bg-accent" aria-label={open ? "Close menu" : "Open menu"}>
+          <button
+            onClick={() => setOpen(!open)}
+            className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+          >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -101,7 +113,11 @@ export function MarketingNav() {
       {open && (
         <>
           <button aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm motion-safe:animate-fade-in md:hidden" onClick={() => setOpen(false)} />
-          <nav aria-label="Primary mobile" className="relative z-30 border-t border-border/70 bg-background/96 px-6 py-4 backdrop-blur-xl motion-safe:animate-fade-up md:hidden">
+          <nav
+            id="mobile-nav"
+            aria-label="Primary mobile"
+            className="relative z-30 border-t border-border/70 bg-background/96 px-6 py-4 backdrop-blur-xl motion-safe:animate-fade-up md:hidden"
+          >
             {LINKS.map((l) => {
               const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
               return (
@@ -111,18 +127,31 @@ export function MarketingNav() {
                   aria-current={active ? "page" : undefined}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "block rounded-md px-4 py-3 font-medium transition-colors",
+                    "flex items-center gap-2 rounded-md px-4 py-3 font-medium transition-colors",
                     active
                       ? "border-l-2 border-signal bg-signal/10 pl-[14px] text-foreground"
                       : "hover:bg-accent",
                   )}
                 >
                   {l.label}
+                  {l.href === "/feed" && (
+                    <span className="relative flex h-1.5 w-1.5" aria-hidden>
+                      <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                    </span>
+                  )}
                 </Link>
               );
             })}
-            <Button asChild variant="signal" className="mt-3 w-full">
-              <Link href="/login">Start tracking</Link>
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="mt-1 block rounded-md px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              Log in
+            </Link>
+            <Button asChild variant="signal" className="mt-2 w-full">
+              <Link href="/login" onClick={() => setOpen(false)}>Start tracking</Link>
             </Button>
           </nav>
         </>
