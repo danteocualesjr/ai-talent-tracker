@@ -56,9 +56,9 @@ export function ScrollToTop() {
           cy="22"
           r="17"
           fill="none"
-          stroke="hsl(var(--border))"
-          strokeWidth="2"
-          opacity="0.5"
+          stroke="hsl(var(--muted-foreground))"
+          strokeWidth="1.5"
+          opacity="0.25"
         />
         <circle
           cx="22"
