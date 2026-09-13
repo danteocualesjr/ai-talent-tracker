@@ -65,7 +65,7 @@ export function MarketingHero({
 
 export function LiveBadge() {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-signal/30 bg-card/90 shadow-sm px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground shadow-sm">
+    <div className="inline-flex items-center gap-2 rounded-full border border-signal/30 bg-card/90 px-3.5 py-1.5 text-[11px] font-medium text-muted-foreground shadow-[0_2px_12px_-4px_hsl(var(--signal)/0.35),inset_0_1px_0_0_hsl(var(--background)/0.6)]">
       <span className="relative flex h-1.5 w-1.5">
         <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
