@@ -73,7 +73,8 @@ export async function LiveTicker() {
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
           </span>
           <span className="font-semibold text-foreground">Live activity</span>
-          <span>· refreshed continuously</span>
+          <span className="tnum">· {items.length} moves</span>
+          <span className="hidden sm:inline">· refreshed continuously</span>
         </div>
         <Link
           href="/feed"

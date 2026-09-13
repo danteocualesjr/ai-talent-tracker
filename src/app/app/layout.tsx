@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       >
         Skip to main content
       </a>
-      <AppSidebar orgName={org.name} orgPlan={org.plan} email={user.email ?? ""} />
+      <AppSidebar orgName={org.name} orgPlan={org.plan} email={user.email ?? ""} unreadCount={recentEventCount} />
       <div className="app-shell-bg relative flex min-w-0 flex-col">
         <div className="pointer-events-none absolute inset-0 noise opacity-30" aria-hidden />
         <AppTopbar email={user.email ?? ""} orgPlan={org.plan} unreadCount={recentEventCount} />

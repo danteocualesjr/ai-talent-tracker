@@ -55,13 +55,19 @@ export function MarketingNav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
+                  "relative inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
                   active
                     ? "text-foreground after:absolute after:inset-x-3 after:-bottom-[15px] after:h-0.5 after:bg-signal"
                     : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
                 )}
               >
                 {l.label}
+                {l.href === "/feed" && (
+                  <span className="relative flex h-1.5 w-1.5" aria-hidden>
+                    <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -111,13 +117,19 @@ export function MarketingNav() {
                   aria-current={active ? "page" : undefined}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "block rounded-md px-4 py-3 font-medium transition-colors",
+                    "flex items-center gap-2 rounded-md px-4 py-3 font-medium transition-colors",
                     active
                       ? "border-l-2 border-signal bg-signal/10 pl-[14px] text-foreground"
                       : "hover:bg-accent",
                   )}
                 >
                   {l.label}
+                  {l.href === "/feed" && (
+                    <span className="relative flex h-1.5 w-1.5" aria-hidden>
+                      <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+                    </span>
+                  )}
                 </Link>
               );
             })}

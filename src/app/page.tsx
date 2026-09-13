@@ -65,11 +65,13 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
             <div>
               <div className="animate-fade-up flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                <span className="text-signal">Intelligence brief</span>
+                <span className="text-signal">Vol. 09 · Intelligence brief</span>
                 <span className="h-3 w-px bg-border" aria-hidden />
                 <span>
                   {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
                 </span>
+                <span className="hidden h-3 w-px bg-border sm:block" aria-hidden />
+                <span className="hidden sm:inline">Morning edition</span>
               </div>
 
               <Link
@@ -126,61 +128,77 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
             <div className="relative animate-fade-up animate-fade-up-delay-5">
               <div className="absolute -inset-6 rounded-2xl bg-gradient-to-br from-signal/14 via-transparent to-accent-amber/8 blur-2xl" />
-              <div className="preview-frame preview-float">
-                <DashboardPreview />
-              </div>
+              <DashboardPreview />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Proof metrics — kept below the hero fold */}
+      {/* Today's brief — unique content, not a repeat of the hero stats */}
       <section className="section-wash border-b border-border/60">
         <div className="container py-10 md:py-12">
-          <div className="mx-auto grid max-w-4xl gap-4 md:grid-cols-[1.1fr_0.9fr]">
-            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border/80 bg-border/80">
-              {([
-                { value: "20+", label: "AI labs tracked", icon: Building2, accent: "text-signal" },
-                { value: "<15m", label: "avg. detection", icon: Zap, accent: "text-amber-accent" },
-                { value: "3", label: "alert channels", icon: Bell, accent: "text-violet-accent" },
-              ] as const).map(({ value, label, icon: Icon, accent }, i) => (
-                <div
-                  key={label}
-                  className={`group bg-card px-3 py-4 text-center transition-colors hover:bg-background ${i === 1 ? "bg-background" : ""}`}
-                >
-                  <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="tnum text-2xl font-bold tracking-tight md:text-3xl">{value}</div>
-                  <div className="mt-1 text-[11px] font-medium text-muted-foreground">{label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="surface-glass flex flex-col justify-center rounded-2xl p-4">
+          <div className="mx-auto grid max-w-5xl gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+            <div className="surface-card relative overflow-hidden p-5 sm:p-6">
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/70 to-transparent" />
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-signal/10 text-signal">
+                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-signal/10 text-signal">
                   <Sparkles className="h-4 w-4" />
                 </div>
-                <div>
-                  <div className="text-sm font-semibold">Daily signal brief</div>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    A ranked digest of stealth flips, founders, and high-confidence moves across your watchlist.
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="text-sm font-semibold">Today&apos;s ranked brief</div>
+                    <span className="chip">
+                      <span className="h-1 w-1 rounded-full bg-signal" />
+                      Sample workspace
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    A digest of stealth flips, founders, and high-confidence moves — scored before they hit the press.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <div className="mt-5 grid grid-cols-3 gap-2">
                 {[
-                  ["7", "urgent"],
-                  ["18", "warm"],
-                  ["4", "founders"],
-                ].map(([value, label]) => (
-                  <div key={label} className="rounded-xl border border-border/60 bg-card/80 px-3 py-2">
-                    <div className="tnum text-lg font-bold">{value}</div>
-                    <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
+                  { value: "7", label: "Urgent", hint: "Stealth + leave", tone: "text-signal" },
+                  { value: "18", label: "Warm", hint: "Headline shifts", tone: "text-amber-accent" },
+                  { value: "4", label: "Founders", hint: "New language", tone: "text-violet-accent" },
+                ].map((item) => (
+                  <div key={item.label} className="group rounded-xl border border-border/60 bg-muted/25 px-3 py-3 transition-colors hover:border-signal/25 hover:bg-card">
+                    <div className={`tnum font-serif text-2xl font-medium tracking-tight ${item.tone}`}>{item.value}</div>
+                    <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/80">{item.label}</div>
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">{item.hint}</div>
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="surface-card flex flex-col justify-between overflow-hidden p-5 sm:p-6">
+              <div>
+                <div className="label-caps">Why teams switch</div>
+                <h2 className="mt-2 font-serif text-xl font-medium tracking-tight">
+                  Faster than LinkedIn. Cleaner than a scrape.
+                </h2>
+              </div>
+              <ul className="mt-5 space-y-3">
+                {([
+                  { icon: Lock, label: "Licensed providers + DSAR / opt-out" },
+                  { icon: Zap, label: "Classified alerts in under 15 minutes" },
+                  { icon: Bell, label: "Slack, email, and HMAC webhooks" },
+                ] as const).map(({ icon: Icon, label }) => (
+                  <li key={label} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-signal/10 text-signal">
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{label}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button asChild variant="outline" size="sm" className="mt-6 w-full group">
+                <Link href="/pricing">
+                  Compare plans
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -399,6 +417,9 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 </h2>
                 <p className="mt-4 max-w-md text-pretty text-base leading-relaxed text-background/65">
                   Sign up with email, paste a few LinkedIn URLs, and the next change becomes your next intro.
+                </p>
+                <p className="mt-4 text-xs text-background/50">
+                  No credit card · Magic-link sign-in · Cancel anytime
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row md:justify-end">
