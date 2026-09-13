@@ -54,7 +54,7 @@ export function DashboardPreview() {
                 </div>
                 <div className="text-xs text-muted-foreground">Live updates from 47 tracked profiles</div>
               </div>
-              <div className="hidden items-center gap-1.5 rounded-full border border-signal/25 bg-signal/5 px-2.5 py-1 text-[11px] font-medium text-signal shadow-sm sm:inline-flex">
+              <div className="hidden items-center gap-1.5 rounded-full border border-signal/25 bg-signal/5 px-2.5 py-1 text-[11px] font-medium text-signal shadow-md sm:inline-flex">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
