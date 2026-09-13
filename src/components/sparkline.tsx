@@ -54,7 +54,7 @@ export function Sparkline({
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className={cn("overflow-visible", className)}
+      className={cn("overflow-visible rounded-sm", className)}
       aria-hidden="true"
       focusable="false"
     >
