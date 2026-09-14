@@ -130,7 +130,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </div>
 
             <div className="relative animate-fade-up animate-fade-up-delay-5">
-              <div className="absolute -inset-6 rounded-2xl bg-gradient-to-br from-signal/14 via-transparent to-accent-amber/8 blur-2xl" />
+              <div className="absolute -inset-6 rounded-2xl bg-gradient-to-br from-signal/14 via-transparent to-accent-amber/8 blur-2xl motion-safe:animate-soft-breathe" />
               <DashboardPreview />
             </div>
           </div>
