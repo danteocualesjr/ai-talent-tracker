@@ -80,7 +80,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} labeled />
-              <Button asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline" className="hover:border-signal/35 hover:bg-signal/5">
                 <a href={p.linkedin_url} target="_blank" rel="noreferrer noopener">
                   LinkedIn <ExternalLink className="ml-1 h-3 w-3" />
                 </a>
