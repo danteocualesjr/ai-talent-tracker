@@ -115,7 +115,7 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
             aria-label="Sort profiles"
-            className="ml-auto rounded-md border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-signal/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="ml-auto rounded-md border border-border/60 bg-background px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-signal/25 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
           >
             <option value="name">Sort: Name</option>
             <option value="synced">Sort: Last synced</option>
