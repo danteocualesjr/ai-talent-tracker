@@ -40,7 +40,7 @@ export function MarketingHero({
       <div className="pointer-events-none absolute inset-0 noise opacity-30" />
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
-      <div className="container relative py-12 md:py-20">
+      <div className="container relative py-12 md:py-[4.75rem]">
         <div
           className={cn(
             "flex flex-wrap gap-6",
