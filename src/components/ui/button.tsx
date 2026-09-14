@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost:
           "text-foreground hover:bg-accent/80 hover:text-foreground",
         link:
-          "text-foreground underline-offset-4 hover:underline",
+          "text-foreground underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2",
         signal:
           "btn-signal-glow bg-signal text-[hsl(var(--signal-foreground))] hover:bg-signal/92",
       },
