@@ -27,7 +27,7 @@ export function TestAlertButton({ channelId }: { channelId: string }) {
       type="button"
       variant="ghost"
       size="icon"
-      className="rounded-lg text-muted-foreground hover:text-signal"
+      className="rounded-lg text-muted-foreground hover:bg-signal/10 hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
       disabled={pending}
       aria-busy={pending}
       aria-label="Send test alert"
