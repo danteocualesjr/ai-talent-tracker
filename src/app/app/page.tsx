@@ -464,7 +464,7 @@ function StatCard({
   const rail = STAT_RAIL[accent] ?? STAT_RAIL["text-signal"];
 
   return (
-    <div className={`group surface-card surface-card-hover relative overflow-hidden p-5 ${highlight ? "ring-1 ring-signal/10" : ""}`}>
+    <div className={`group surface-card surface-card-hover relative overflow-hidden p-5 transition-[box-shadow] focus-within:ring-2 focus-within:ring-signal/20 ${highlight ? "ring-1 ring-signal/10" : ""}`}>
       <span
         aria-hidden
         className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
