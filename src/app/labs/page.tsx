@@ -56,7 +56,7 @@ export default async function PublicLabsPage() {
               <Link
                 key={l.id}
                 href={`/labs/${l.slug}`}
-                className="group surface-card surface-card-hover relative flex flex-col overflow-hidden p-6"
+                className="group surface-card surface-card-hover relative flex flex-col overflow-hidden p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {l.is_featured && (
                   <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-inset ring-signal/15 transition-all duration-300 group-hover:ring-signal/30" aria-hidden />
