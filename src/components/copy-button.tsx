@@ -24,7 +24,7 @@ export function CopyButton({ value, className }: { value: string; className?: st
       )}
       aria-label={copied ? "Copied" : "Copy to clipboard"}
     >
-      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+      {copied ? <Check className="h-3 w-3 motion-safe:scale-110" /> : <Copy className="h-3 w-3" />}
       {copied ? "Copied" : "Copy"}
     </button>
   );

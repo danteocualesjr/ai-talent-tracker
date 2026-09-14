@@ -685,12 +685,19 @@
 
   /* Interactive list rows (settings, logs) */
   .list-row-interactive {
-    @apply rounded-lg border border-transparent px-3 py-2.5 transition-colors duration-200;
+    @apply rounded-lg border border-transparent px-3 py-2.5 transition-colors duration-200 motion-safe:transition-shadow;
   }
   .list-row-interactive:hover {
     @apply border-border/60 bg-muted/30;
   }
   .list-row-interactive:focus-within {
     @apply border-signal/25 bg-signal/[0.04];
+  }
+
+  .shadow-pop {
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.75),
+      0 12px 40px -16px hsl(var(--foreground) / 0.22),
+      0 4px 12px -6px hsl(var(--foreground) / 0.08);
   }
 }

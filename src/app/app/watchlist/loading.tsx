@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function WatchlistLoading() {
   return (
-    <div className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+    <div aria-busy="true" aria-label="Loading watchlist" className="container max-w-5xl space-y-8 px-4 py-8 md:px-6 md:py-10">
       <div className="space-y-3 border-b border-border/60 pb-5">
         <Skeleton className="h-3 w-16 rounded" />
         <Skeleton className="h-8 w-40" />

@@ -72,7 +72,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
               setCommandOpen(true);
               setOpen(false);
             }}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 md:hidden"
             aria-label="Open search and navigation"
           >
             <Search className="h-5 w-5" />
@@ -108,7 +108,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
           <Logo href="/app" />
           <button
             onClick={() => setOpen(false)}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:hidden"
+            className="rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 md:hidden"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -139,7 +139,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
           <button
             type="button"
             onClick={() => setCommandOpen(true)}
-            className="group flex w-full items-center gap-2 rounded-md border border-border/70 surface-inset px-3 py-2 text-xs text-muted-foreground transition-all hover:border-signal/30 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group flex w-full items-center gap-2 rounded-md border border-border/70 surface-inset px-3 py-2 text-xs text-muted-foreground transition-all hover:border-signal/30 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Search className="h-3.5 w-3.5 shrink-0" />
             <span className="flex-1 text-left">Search…</span>
@@ -170,7 +170,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
                       "group flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150",
                       active
                         ? "nav-active-rail bg-signal/10 pl-3.5 font-semibold text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.08)]"
-                        : "text-muted-foreground hover:bg-accent/60 hover:pl-3 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        : "text-muted-foreground hover:bg-accent/60 hover:pl-3 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-1",
                     )}
                   >
                     <Icon

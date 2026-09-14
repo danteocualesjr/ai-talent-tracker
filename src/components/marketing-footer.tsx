@@ -122,7 +122,7 @@ export function MarketingFooter() {
               <ArrowUp className="h-3 w-3 transition-transform motion-safe:group-hover/top:-translate-y-0.5" />
             </a>
             <span className="hidden h-3 w-px bg-border/80 sm:block" aria-hidden />
-            <div className="font-mono text-[11px] opacity-70">Next.js · Supabase · Inngest · Stripe</div>
+            <div className="font-mono text-[11px] text-muted-foreground/80">Next.js · Supabase · Inngest · Stripe</div>
           </div>
         </div>
       </div>

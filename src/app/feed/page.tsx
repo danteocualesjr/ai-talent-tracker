@@ -74,7 +74,7 @@ export default async function PublicFeedPage({
                 Updated {formatRelative(latestDetectedAt)}
               </span>
             )}
-            <Button asChild variant="outline" size="sm" className="shrink-0">
+            <Button asChild variant="outline" size="sm" className="shrink-0 hover:border-signal/35 hover:bg-signal/5">
               <a href="/feed/rss.xml">
                 <Rss className="h-3.5 w-3.5" /> RSS
               </a>

@@ -8,7 +8,7 @@ export function DashboardPreview() {
     <div aria-hidden="true" className="preview-frame preview-float preview-tilt">
       <div className="overflow-hidden rounded-[calc(0.65rem-1px)] border border-border/40 bg-card">
         {/* Browser chrome */}
-        <div className="relative flex items-center gap-3 border-b border-border/70 bg-muted/30 px-4 py-3">
+        <div className="relative flex items-center gap-3 border-b border-border/70 bg-muted/30 px-4 py-3 shadow-[inset_0_-1px_0_0_hsl(var(--background)/0.5)]">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
           <div className="flex gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57] ring-1 ring-black/10" />
