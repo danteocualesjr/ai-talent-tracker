@@ -100,7 +100,7 @@ export function MarketingNav() {
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-nav"
