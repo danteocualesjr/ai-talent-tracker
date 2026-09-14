@@ -50,7 +50,7 @@ export default async function PricingPage({
               ].map((item) => (
                 <div
                   key={item}
-                  className="flex items-center justify-center gap-2 rounded-full border border-border/70 bg-card/80 px-3 py-2 text-center text-[11px] font-medium text-muted-foreground"
+                  className="flex items-center justify-center gap-2 rounded-full border border-border/70 bg-card/80 px-3 py-2 text-center text-[11px] font-medium text-muted-foreground transition-colors hover:border-signal/25 hover:bg-signal/[0.04] hover:text-foreground"
                 >
                   <Check className="h-3 w-3 shrink-0 text-signal" />
                   {item}
