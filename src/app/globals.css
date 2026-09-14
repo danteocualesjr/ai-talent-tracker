@@ -563,7 +563,7 @@
   }
 
   .link-subtle {
-    @apply font-medium text-foreground underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm;
+    @apply font-medium text-foreground underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm;
   }
 
   /* Progress */
@@ -593,7 +593,7 @@
 
   /* Chip style for tags / pills */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   /* Stat strip — segmented metric bar for feed / marketing pages */
@@ -647,7 +647,7 @@
 
   /* Animated underline for inline links */
   .link-animated {
-    @apply relative font-medium text-foreground transition-colors hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded-sm;
+    @apply relative font-medium text-foreground transition-colors hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm;
   }
   .link-animated::after {
     content: "";
@@ -692,5 +692,9 @@
   }
   .list-row-interactive:focus-within {
     @apply border-signal/25 bg-signal/[0.04];
+  }
+
+  .focus-ring-signal {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 }
