@@ -45,7 +45,7 @@ export function MarketingNav() {
         "sticky top-0 z-30 w-full motion-safe:transition-all motion-safe:duration-300",
         scrolled
           ? "border-b border-border/80 bg-background/92 shadow-[0_4px_24px_-12px_hsl(var(--foreground)/0.08)] backdrop-blur-xl"
-          : "border-b border-border/50 bg-background/40 backdrop-blur-sm",
+          : "border-b border-border/50 bg-background/55 backdrop-blur-md",
       )}
     >
       <div

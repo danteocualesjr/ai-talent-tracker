@@ -32,9 +32,10 @@ const SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer aria-label="Site footer" className="relative overflow-hidden border-t border-border/80 bg-card/50">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-signal" />
+    <footer aria-label="Site footer" className="relative overflow-hidden border-t border-border/80 bg-card/50 section-edge-glow">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal to-transparent" />
       <div className="pointer-events-none absolute inset-0 noise opacity-30" />
+      <div className="pointer-events-none absolute inset-0 hero-mesh opacity-40" />
       <div className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-signal/8 blur-3xl" />
 
       <div className="container relative grid gap-12 py-14 md:grid-cols-[1.4fr_2fr] md:py-16">

@@ -21,7 +21,7 @@ const buttonVariants = cva(
         link:
           "text-foreground underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2",
         signal:
-          "btn-signal-glow bg-signal text-[hsl(var(--signal-foreground))] hover:bg-signal/92",
+          "btn-signal-glow bg-signal text-[hsl(var(--signal-foreground))] hover:bg-signal/92 motion-safe:hover:brightness-[1.03]",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -90,7 +90,7 @@ export function DashboardGreeting({
               daily brief
             </p>
             <h2 className="mt-1 font-serif text-2xl font-medium tracking-tight md:text-[1.7rem]">
-              {orgName}
+              <span className="text-gradient-hero">{orgName}</span>
             </h2>
             <p className="mt-1.5 text-xs text-muted-foreground">
               <time dateTime={now.toISOString()} className="tnum">

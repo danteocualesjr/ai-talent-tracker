@@ -40,6 +40,9 @@ export function MarketingHero({
       <div className="pointer-events-none absolute inset-0 noise opacity-30" />
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
+      <div className="pointer-events-none absolute inset-0 hero-mesh opacity-70" />
+      <div aria-hidden className="pointer-events-none absolute -left-20 top-1/4 h-64 w-64 aurora-orb aurora-orb-a bg-signal/15" />
+      <div aria-hidden className="pointer-events-none absolute -right-12 bottom-0 h-48 w-48 aurora-orb aurora-orb-b bg-accent-amber/12" />
       <div className="container relative py-12 md:py-[4.75rem]">
         <div
           className={cn(
