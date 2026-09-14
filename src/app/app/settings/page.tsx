@@ -75,7 +75,7 @@ export default async function SettingsPage() {
           </div>
           <button
             type="submit"
-            className="inline-flex h-8 items-center rounded-md border border-border/70 bg-background px-3 text-xs font-semibold text-muted-foreground transition-colors hover:border-destructive/30 hover:bg-destructive/8 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="inline-flex h-8 items-center rounded-md border border-border/70 bg-background px-3 text-xs font-semibold text-muted-foreground transition-colors hover:border-destructive/30 hover:bg-destructive/8 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
           >
             Sign out
           </button>
