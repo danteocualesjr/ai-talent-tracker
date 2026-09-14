@@ -12,7 +12,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
       <div className="absolute left-0 top-0 z-10 p-6">
         <Link
           href="/"
-          className="group inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-background/85 px-3 py-2 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm transition-all hover:border-foreground/15 hover:text-foreground"
+          className="group inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-background/85 px-3 py-2 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm transition-all hover:border-signal/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <ArrowLeft className="h-3.5 w-3.5 transition-transform motion-safe:group-hover:-translate-x-0.5" />
           Home
