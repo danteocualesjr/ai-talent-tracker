@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Iteration 8 — Wire Brief: warm paper, ink type, copper signal */
+    /* Iteration 9 — Wire Brief: warm paper, ink type, copper signal */
     --background: 36 32% 96%;
     --foreground: 24 22% 10%;
     --card: 36 40% 99%;
@@ -174,6 +174,19 @@
       radial-gradient(ellipse 80% 60% at 12% -8%, hsl(var(--signal) / 0.16) 0%, transparent 52%),
       radial-gradient(ellipse 50% 40% at 92% 8%, hsl(var(--accent-amber) / 0.1) 0%, transparent 48%),
       radial-gradient(ellipse 40% 30% at 50% 100%, hsl(var(--foreground) / 0.04) 0%, transparent 50%);
+  }
+
+  .hero-mesh {
+    background-image:
+      radial-gradient(at 20% 30%, hsl(var(--signal) / 0.12) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, hsl(var(--accent-amber) / 0.08) 0px, transparent 45%),
+      radial-gradient(at 60% 85%, hsl(var(--accent-violet) / 0.06) 0px, transparent 40%);
+  }
+
+  .section-edge-glow {
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--signal) / 0.08),
+      inset 0 -1px 0 0 hsl(var(--border) / 0.5);
   }
 
   .aurora-orb {
@@ -703,5 +716,63 @@
 
   .focus-ring-signal {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn-shine::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 40%,
+        hsl(var(--signal-foreground) / 0.18) 50%,
+        transparent 60%
+      );
+      transform: translateX(-120%);
+      transition: transform 0.55s ease;
+    }
+    .btn-shine:hover::after {
+      transform: translateX(120%);
+    }
+  }
+
+  .corner-brackets {
+    position: relative;
+  }
+  .corner-brackets::before,
+  .corner-brackets::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: hsl(var(--signal) / 0.35);
+    pointer-events: none;
+  }
+  .corner-brackets::before {
+    top: 12px;
+    left: 12px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .corner-brackets::after {
+    bottom: 12px;
+    right: 12px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-soft-breathe {
+      animation: soft-breathe 6s ease-in-out infinite;
+    }
+  }
+  @keyframes soft-breathe {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
   }
 }

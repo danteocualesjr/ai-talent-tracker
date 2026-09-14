@@ -60,6 +60,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="pointer-events-none absolute inset-0 noise opacity-35" />
         <div className="pointer-events-none absolute inset-0 hero-backdrop" />
         <div className="pointer-events-none absolute inset-0 grid-bg grid-fade opacity-40" />
+        <div className="pointer-events-none absolute inset-0 hero-mesh opacity-80" />
         <div aria-hidden className="pointer-events-none absolute -left-24 top-8 h-72 w-72 aurora-orb aurora-orb-a bg-signal/20" />
         <div aria-hidden className="pointer-events-none absolute -right-16 top-1/3 h-56 w-56 aurora-orb aurora-orb-b bg-accent-amber/15" />
 
@@ -100,7 +101,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </p>
 
               <div className="animate-fade-up animate-fade-up-delay-3 mt-10 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" variant="signal" className="group">
+                <Button asChild size="lg" variant="signal" className="group btn-shine">
                   <Link href="/login">
                     Start tracking free
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -140,7 +141,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       <section className="section-wash border-b border-border/60">
         <div className="container py-10 md:py-12">
           <div className="mx-auto grid max-w-5xl gap-4 lg:grid-cols-[1.25fr_0.75fr]">
-            <div className="surface-card relative overflow-hidden p-5 sm:p-6">
+            <div className="surface-card corner-brackets relative overflow-hidden p-5 sm:p-6 section-edge-glow">
               <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/70 to-transparent" />
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-signal/10 text-signal">
@@ -449,7 +450,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
 
 function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="group surface-card surface-card-hover relative overflow-hidden p-7 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 focus-within:border-signal/25">
+    <div className="group surface-card surface-card-hover relative overflow-hidden p-7 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1 focus-within:border-signal/25">
       <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-signal/8 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="pointer-events-none absolute inset-x-7 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="relative flex h-10 w-10 items-center justify-center rounded-md border border-border/70 bg-background text-foreground shadow-sm transition-all duration-300 group-hover:border-signal/40 group-hover:bg-signal/5 group-hover:text-signal">
