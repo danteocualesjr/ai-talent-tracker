@@ -120,7 +120,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           className={cn(
             "group inline-flex h-9 items-center gap-2 rounded-md border border-border/70 surface-inset px-3 text-xs text-muted-foreground shadow-sm transition-all duration-200",
             "hover:border-signal/25 hover:bg-muted/40 hover:text-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
             commandOpen && "border-signal/30 ring-2 ring-signal/40",
           )}
           aria-keyshortcuts="Meta+K"
@@ -148,7 +148,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
             "relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/70 bg-card text-muted-foreground shadow-sm transition-all duration-200",
             "hover:border-foreground/20 hover:text-foreground",
             unreadCount > 0 && "border-signal/20 bg-signal/5 text-signal",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
           )}
         >
           <Bell aria-hidden="true" className="h-4 w-4" />
@@ -166,7 +166,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="ml-1 inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="ml-1 inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
                 {initials}
