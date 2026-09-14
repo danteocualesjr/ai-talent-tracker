@@ -23,7 +23,7 @@ export function Panel({
   return (
     <div
       className={cn(
-        "surface-card group/panel overflow-hidden transition-colors duration-200 hover:border-border focus-within:border-signal/25",
+        "surface-card group/panel overflow-hidden transition-colors duration-200 hover:border-signal/15 focus-within:border-signal/25",
         tone === "muted" && "bg-muted/35",
         tone === "accent" && "border-signal/25 bg-signal/[0.04] shadow-[0_0_0_1px_hsl(var(--signal)/0.06),0_12px_32px_-20px_hsl(var(--signal)/0.25)]",
         className,
