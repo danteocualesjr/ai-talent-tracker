@@ -23,7 +23,7 @@ export function RefreshStaleButton({ count }: { count: number }) {
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" disabled={pending} aria-busy={pending} onClick={onRefresh}>
+    <Button type="button" variant="outline" size="sm" className="hover:border-signal/35 hover:bg-signal/5" disabled={pending} aria-busy={pending} onClick={onRefresh}>
       <RefreshCw className={`h-3.5 w-3.5 ${pending ? "animate-spin" : ""}`} />
       Refresh {count} stale
     </Button>

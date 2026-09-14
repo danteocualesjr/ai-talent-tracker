@@ -40,7 +40,7 @@ export default function PrivacyPage() {
               <a
                 key={section.id}
                 href={`#${section.id}`}
-                className="chip text-[10px] transition-colors hover:border-signal/30 hover:bg-signal/5 hover:text-foreground"
+                className="chip text-[10px] transition-colors hover:border-signal/30 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35"
               >
                 {section.label}
               </a>

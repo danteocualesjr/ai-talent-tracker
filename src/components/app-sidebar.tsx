@@ -80,7 +80,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
@@ -217,7 +217,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
           <div className="px-3 pb-3">
             <Link
               href="/feed"
-              className="group flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="group flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
@@ -239,7 +239,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
             <button
               type="button"
               onClick={() => signOut()}
-              className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
               aria-label="Sign out"
             >
               <LogOut className="h-3.5 w-3.5" />

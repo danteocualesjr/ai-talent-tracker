@@ -37,9 +37,7 @@ export function AppEventsFilterChips() {
             onClick={() => selectFilter(param)}
             className={cn(
               "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 motion-safe:active:scale-95",
-              active
-                ? "border-signal/40 bg-signal/10 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.2)] ring-1 ring-signal/20 motion-safe:scale-[1.02]"
-                : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
+              active ? "chip-active motion-safe:scale-[1.02]" : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
             )}
           >
             {active ? (

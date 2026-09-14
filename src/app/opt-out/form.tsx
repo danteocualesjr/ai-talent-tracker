@@ -30,7 +30,7 @@ export function OptOutForm() {
 
   if (sent) {
     return (
-      <div className="rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+      <div className="animate-fade-up rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
         <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal">
           <Check className="h-4 w-4" aria-hidden />
         </div>

@@ -35,7 +35,7 @@ export function ExportEventsButton() {
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" className="gap-1.5" disabled={pending} aria-busy={pending} onClick={onExport}>
+    <Button type="button" variant="outline" size="sm" className="gap-1.5 hover:border-signal/35 hover:bg-signal/5" disabled={pending} aria-busy={pending} onClick={onExport}>
       <Download className="h-3.5 w-3.5" />
       {pending ? "Exporting…" : "Export CSV"}
     </Button>

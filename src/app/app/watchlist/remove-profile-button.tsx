@@ -34,7 +34,7 @@ export function RemoveProfileButton({
       variant="ghost"
       size="icon"
       title="Remove"
-      className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+      className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/35"
       disabled={pending}
       aria-busy={pending}
       aria-label={`Remove ${profileName || "profile"} from watchlist`}

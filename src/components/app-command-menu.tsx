@@ -171,7 +171,7 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
                         "relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                         active
                           ? "nav-active-rail bg-signal/10 pl-4 font-medium text-foreground shadow-[inset_0_1px_0_0_hsl(var(--signal)/0.08)]"
-                          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal/30",
                       )}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => run(item.href)}
