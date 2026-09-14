@@ -49,7 +49,7 @@ export function ImportCsvForm() {
         required
       />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-within:ring-2 focus-within:ring-signal/30">
           <Upload className="h-3.5 w-3.5" />
           <span>Upload .csv file</span>
           <input
