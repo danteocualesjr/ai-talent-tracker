@@ -40,7 +40,7 @@ export function SnapshotList({ snapshots }: { snapshots: ProfileSnapshot[] }) {
           <div key={snapshot.id} className="border-b border-border/60 last:border-0">
             <button
               type="button"
-              className="flex w-full items-center justify-between px-5 py-3 text-left text-xs transition-colors hover:bg-muted/30 disabled:cursor-default"
+              className="flex w-full items-center justify-between px-5 py-3 text-left text-xs transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal/30 disabled:cursor-default"
               disabled={!canExpand}
               onClick={() => canExpand && setExpandedId(expanded ? null : snapshot.id)}
             >
