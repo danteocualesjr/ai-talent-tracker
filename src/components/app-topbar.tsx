@@ -38,6 +38,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   app: "Workspace",
   watchlist: "Watchlist",
   events: "Events",
+  insights: "Insights",
   labs: "Lab rosters",
   alerts: "Alerts",
   billing: "Billing",

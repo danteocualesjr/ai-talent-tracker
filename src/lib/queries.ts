@@ -181,6 +181,127 @@ export type DeliveryLogEntry = NotificationDelivery & {
   event: Pick<EventRow, "id" | "type" | "summary"> | null;
 };
 
+export type OrgInsights = {
+  days: number;
+  totalEvents: number;
+  dailyCounts: number[];
+  byType: { type: EventType; count: number }[];
+  topProfiles: {
+    profileId: string;
+    name: string;
+    count: number;
+    latestAt: string;
+    latestType: EventType;
+  }[];
+  peakDayIndex: number;
+  peakDayCount: number;
+};
+
+/** Aggregated signal analytics for the workspace insights view. */
+export async function getOrgInsights(orgId: string, days = 30): Promise<OrgInsights> {
+  const empty: OrgInsights = {
+    days,
+    totalEvents: 0,
+    dailyCounts: Array(days).fill(0),
+    byType: [],
+    topProfiles: [],
+    peakDayIndex: 0,
+    peakDayCount: 0,
+  };
+  if (!isSupabaseConfigured()) return empty;
+
+  const db = createAdminClient();
+  const { data: watched } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  if (ids.length === 0) return empty;
+
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const { data } = await db
+    .from("events")
+    .select("id, type, detected_at, profile_id, profile:profiles(id, full_name, linkedin_handle)")
+    .in("profile_id", ids)
+    .gte("detected_at", since)
+    .order("detected_at", { ascending: false });
+
+  type Row = {
+    id: string;
+    type: EventType;
+    detected_at: string;
+    profile_id: string;
+    profile: Pick<Profile, "id" | "full_name" | "linkedin_handle"> | null;
+  };
+  const rows = (data ?? []) as unknown as Row[];
+
+  const dailyCounts = Array(days).fill(0) as number[];
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - (days - 1));
+
+  const typeCounts = new Map<EventType, number>();
+  const profileCounts = new Map<
+    string,
+    { count: number; latestAt: string; latestType: EventType; name: string }
+  >();
+
+  for (const row of rows) {
+    typeCounts.set(row.type, (typeCounts.get(row.type) ?? 0) + 1);
+
+    const dayIndex = Math.floor((new Date(row.detected_at).getTime() - start.getTime()) / 86400000);
+    if (dayIndex >= 0 && dayIndex < days) dailyCounts[dayIndex] += 1;
+
+    const name =
+      row.profile?.full_name ?? row.profile?.linkedin_handle ?? row.profile_id.slice(0, 8);
+    const existing = profileCounts.get(row.profile_id);
+    if (!existing) {
+      profileCounts.set(row.profile_id, {
+        count: 1,
+        latestAt: row.detected_at,
+        latestType: row.type,
+        name,
+      });
+    } else {
+      existing.count += 1;
+    }
+  }
+
+  let peakDayIndex = 0;
+  let peakDayCount = 0;
+  dailyCounts.forEach((c, i) => {
+    if (c > peakDayCount) {
+      peakDayCount = c;
+      peakDayIndex = i;
+    }
+  });
+
+  const byType = [...typeCounts.entries()]
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count);
+
+  const topProfiles = [...profileCounts.entries()]
+    .map(([profileId, v]) => ({
+      profileId,
+      name: v.name,
+      count: v.count,
+      latestAt: v.latestAt,
+      latestType: v.latestType,
+    }))
+    .sort((a, b) => b.count - a.count || b.latestAt.localeCompare(a.latestAt))
+    .slice(0, 8);
+
+  return {
+    days,
+    totalEvents: rows.length,
+    dailyCounts,
+    byType,
+    topProfiles,
+    peakDayIndex,
+    peakDayCount,
+  };
+}
+
 export async function getOrgDeliveries(orgId: string, limit = 50): Promise<DeliveryLogEntry[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
