@@ -69,22 +69,26 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
 
       <div className="relative flex w-full flex-col items-center justify-center bg-background p-6 lg:w-[54%]">
         <div className="pointer-events-none absolute inset-0 hero-backdrop opacity-50" />
+        <div className="pointer-events-none absolute inset-0 dot-bg dot-fade opacity-30" aria-hidden />
         <div className="relative w-full max-w-md">
           <div className="mb-8 flex justify-center animate-fade-up lg:hidden">
             <Logo />
           </div>
-          <div className="surface-card surface-elevated relative overflow-hidden p-8 animate-fade-up animate-fade-up-delay-1">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/80 via-signal to-signal/80" />
-            <h1 className="text-balance font-serif text-3xl font-medium tracking-tight">
-              Sign in
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              We&apos;ll email you a magic link — no password required.
-            </p>
-            <LoginForm searchParams={searchParams} />
-            <div className="mt-6 flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5 text-[11px] text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 shrink-0 text-signal" />
-              <span>Magic links expire in 15 minutes. We never store passwords.</span>
+          <div className="border-gradient-signal animate-fade-up animate-fade-up-delay-1 shadow-pop">
+            <div className="surface-card surface-elevated relative overflow-hidden bg-card p-8">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/80 via-signal to-signal/80" />
+              <div className="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-signal/10 blur-3xl" aria-hidden />
+              <h1 className="text-balance font-serif text-3xl font-medium tracking-tight">
+                Sign in
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                We&apos;ll email you a magic link — no password required.
+              </p>
+              <LoginForm searchParams={searchParams} />
+              <div className="mt-6 flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5 text-[11px] text-muted-foreground transition-colors hover:border-signal/25 hover:bg-signal/[0.04]">
+                <Shield className="h-3.5 w-3.5 shrink-0 text-signal" />
+                <span>Magic links expire in 15 minutes. We never store passwords.</span>
+              </div>
             </div>
           </div>
           <div className="mt-8 grid gap-3 animate-fade-up animate-fade-up-delay-2 lg:hidden">

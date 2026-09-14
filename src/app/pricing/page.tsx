@@ -153,7 +153,7 @@ function PlanCard({ slug, priceEnv, ctaHref, cta, highlighted }: { slug: keyof t
     <div
       className={`relative flex flex-col overflow-hidden p-7 ${
         highlighted
-          ? "surface-card z-10 border-signal/45 ring-1 ring-signal/20 lg:-my-2 lg:py-9 lg:shadow-[0_20px_50px_-20px_hsl(var(--signal)/0.25)]"
+          ? "surface-card z-10 border-signal/45 ring-1 ring-signal/20 lg:-my-2 lg:py-9 lg:shadow-[0_20px_50px_-20px_hsl(var(--signal)/0.25)] motion-safe:animate-soft-breathe"
           : "surface-card surface-card-hover lg:rounded-none lg:first:rounded-l-lg lg:last:rounded-r-lg"
       }`}
     >
