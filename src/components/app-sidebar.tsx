@@ -16,6 +16,7 @@ import {
   Settings,
   Sparkles,
   Activity,
+  BarChart3,
   X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ const NAV_SECTIONS: { label: string; items: { href: string; icon: typeof LayoutD
       { href: "/app", icon: LayoutDashboard, label: "Dashboard" },
       { href: "/app/watchlist", icon: ListChecks, label: "Watchlist" },
       { href: "/app/events", icon: Activity, label: "Events" },
+      { href: "/app/insights", icon: BarChart3, label: "Insights" },
       { href: "/app/labs", icon: Building2, label: "Lab rosters" },
     ],
   },

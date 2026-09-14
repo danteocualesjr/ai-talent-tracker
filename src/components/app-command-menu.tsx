@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity,
+  BarChart3,
   Bell,
   Building2,
   CreditCard,
@@ -30,6 +31,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard, group: "Navigate" },
   { href: "/app/watchlist", label: "Watchlist", icon: ListChecks, keywords: ["profiles", "tracked"], group: "Navigate" },
   { href: "/app/events", label: "Events", icon: Activity, keywords: ["activity", "inbox", "changes"], group: "Navigate" },
+  { href: "/app/insights", label: "Insights", icon: BarChart3, keywords: ["analytics", "stats", "brief", "trends"], group: "Navigate" },
   { href: "/app/labs", label: "Lab rosters", icon: Building2, keywords: ["labs", "openai", "anthropic"], group: "Navigate" },
   { href: "/app/alerts", label: "Alerts", icon: Bell, keywords: ["slack", "email", "webhook"], group: "Navigate" },
   { href: "/app/billing", label: "Billing", icon: CreditCard, keywords: ["plan", "upgrade", "subscription"], group: "Navigate" },

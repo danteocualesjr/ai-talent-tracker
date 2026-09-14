@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCw,
   Sparkles,
+  BarChart3,
   TrendingUp,
   Users2,
   Zap,
@@ -103,6 +104,7 @@ export default async function DashboardPage() {
         {[
           { href: "/app/watchlist", label: "Add profiles", icon: Plus },
           { href: "/app/events", label: "Review events", icon: Activity },
+          { href: "/app/insights", label: "View insights", icon: BarChart3 },
           { href: "/app/alerts", label: "Configure alerts", icon: Bell },
           { href: "/app/labs", label: "Browse labs", icon: Building2 },
         ].map(({ href, label, icon: Icon }) => (
