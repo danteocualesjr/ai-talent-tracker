@@ -168,7 +168,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
   }
 
   return (
-    <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+    <form className="mt-6 space-y-4 rounded-lg focus-within:outline-none" onSubmit={onSubmit}>
       <LoginStepper current={1} />
       {params.error === "auth" && (
         <div

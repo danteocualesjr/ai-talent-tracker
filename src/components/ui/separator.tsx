@@ -6,7 +6,7 @@ export function Separator({ className, orientation = "horizontal", ...props }: R
     <div
       role="separator"
       className={cn(
-        "shrink-0 bg-border/80",
+        "shrink-0 bg-border/70",
         orientation === "horizontal"
           ? "h-px w-full bg-gradient-to-r from-transparent via-border to-transparent"
           : "h-full w-px bg-gradient-to-b from-transparent via-border to-transparent",

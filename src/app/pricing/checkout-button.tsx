@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function CheckoutButton({
@@ -38,7 +39,7 @@ export function CheckoutButton({
   }
 
   return (
-    <Button className="w-full" variant={variant} onClick={go} disabled={loading} aria-busy={loading}>
+    <Button className={cn("w-full", loading && "opacity-90")} variant={variant} onClick={go} disabled={loading} aria-busy={loading}>
       {loading ? "Loading..." : label}
     </Button>
   );

@@ -82,7 +82,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
         ) : (
           <Link
             href="/app"
-            className="group/dash flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+            className="group/dash flex items-center gap-1.5 rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35"
           >
             <LayoutDashboard aria-hidden="true" className="h-3.5 w-3.5 transition-transform motion-safe:group-hover/dash:scale-110" />
             <span className="hidden lg:inline">Dashboard</span>
@@ -103,7 +103,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
               ) : (
                 <Link
                   href={href}
-                  className="truncate rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
+                  className="truncate rounded-md px-1.5 py-1 text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35"
                 >
                   {label}
                 </Link>
@@ -166,7 +166,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="ml-1 inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
+              className="ml-1 inline-flex h-9 items-center gap-2 rounded-md border border-border/70 bg-card pl-1.5 pr-2.5 text-sm shadow-sm transition-all hover:border-signal/25 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-[10px] font-bold text-background">
                 {initials}

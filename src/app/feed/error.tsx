@@ -24,7 +24,9 @@ export default function FeedError({
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive shadow-sm ring-4 ring-destructive/5">
         <AlertTriangle className="h-5 w-5" aria-hidden />
       </div>
-      <h1 className="mt-5 text-xl font-bold tracking-tight">Feed unavailable</h1>
+      <h1 className="mt-5 font-serif text-2xl font-medium tracking-tight md:text-3xl">
+        Feed <span className="italic text-gradient-hero">unavailable</span>
+      </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
         We couldn&apos;t load the departure feed. Try again in a moment.
       </p>
@@ -34,7 +36,7 @@ export default function FeedError({
           {error.digest}
         </p>
       )}
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <div className="animate-fade-up animate-fade-up-delay-3 mt-6 flex flex-wrap items-center justify-center gap-3">
         <Button onClick={reset} variant="signal" className="gap-2">
           <RefreshCw className="h-4 w-4" aria-hidden />
           Retry

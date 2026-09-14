@@ -68,7 +68,7 @@ export function MarketingNav() {
                   "relative inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-all",
                   active
                     ? "font-semibold text-foreground after:absolute after:inset-x-3 after:-bottom-[15px] after:h-0.5 after:bg-signal"
-                    : "text-muted-foreground hover:bg-accent/80 hover:text-foreground",
+                    : "text-muted-foreground hover:bg-accent/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 )}
               >
                 {l.label}
@@ -85,7 +85,7 @@ export function MarketingNav() {
 
         <div className="hidden items-center gap-2.5 md:flex">
           <ThemeToggle />
-          <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground">
+          <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             Log in
           </Link>
           <Button asChild size="sm" variant="signal" className="group">
@@ -100,7 +100,7 @@ export function MarketingNav() {
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
+            className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-nav"
@@ -130,7 +130,7 @@ export function MarketingNav() {
                     "flex items-center gap-2 rounded-md px-4 py-3 font-medium transition-colors",
                     active
                       ? "border-l-2 border-signal bg-signal/10 pl-[14px] text-foreground"
-                      : "hover:bg-accent",
+                      : "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal/30",
                   )}
                 >
                   {l.label}
