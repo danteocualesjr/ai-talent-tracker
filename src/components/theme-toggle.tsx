@@ -31,7 +31,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       onClick={toggleTheme}
       className={cn(
         "inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/70 bg-card text-muted-foreground shadow-sm transition-all duration-200",
-        "hover:border-foreground/20 hover:text-foreground hover:shadow-sm",
+        "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground hover:shadow-sm",
         isDark && "border-signal/30 bg-signal/8 text-signal",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
         "motion-safe:active:scale-95",
