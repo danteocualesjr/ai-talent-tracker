@@ -43,7 +43,7 @@ export function AddProfileForm() {
           />
         </div>
       </div>
-      <Button type="submit" variant="signal" disabled={pending} aria-busy={pending} className="h-11 shrink-0 px-6">
+      <Button type="submit" variant="signal" disabled={pending} aria-busy={pending} className="h-11 shrink-0 px-6 disabled:opacity-90">
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
