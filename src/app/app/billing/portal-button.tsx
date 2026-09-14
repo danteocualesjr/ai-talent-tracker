@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function PortalButton() {
@@ -26,7 +27,7 @@ export function PortalButton() {
   }
 
   return (
-    <Button type="button" onClick={openPortal} disabled={loading} aria-busy={loading}>
+    <Button type="button" className={cn(loading && "opacity-90")} onClick={openPortal} disabled={loading} aria-busy={loading}>
       {loading ? "Opening…" : "Manage subscription"}
     </Button>
   );
