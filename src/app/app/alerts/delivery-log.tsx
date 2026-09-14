@@ -15,7 +15,7 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
         />
       ) : (
         deliveries.map((d) => (
-          <div key={d.id} className="flex items-start gap-3 px-5 py-4 text-sm">
+          <div key={d.id} className="flex items-start gap-3 px-5 py-4 text-sm transition-colors hover:bg-muted/25">
             <StatusIcon status={d.status} />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
