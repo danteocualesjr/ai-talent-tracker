@@ -134,11 +134,22 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
               : "Paste a LinkedIn URL above, import a CSV roster, or browse curated lab rosters to bulk-add."
           }
           cta={
-            !query && status === "all" ? (
+            query || status !== "all" ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setQuery("");
+                  setStatus("all");
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : (
               <Button asChild variant="outline">
                 <Link href="/app/labs">Browse lab rosters</Link>
               </Button>
-            ) : undefined
+            )
           }
         />
       ) : (
