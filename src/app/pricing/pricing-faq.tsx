@@ -48,8 +48,10 @@ export function PricingFaq() {
                   <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-0.5 rounded-full bg-signal" />
                 )}
                 <button
+                  id={`faq-trigger-${i}`}
                   type="button"
                   aria-expanded={isOpen}
+                  aria-controls={`faq-panel-${i}`}
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="group flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal/35 sm:px-6"
                 >
@@ -69,6 +71,7 @@ export function PricingFaq() {
                     </span>
                   </span>
                   <ChevronDown
+                    aria-hidden="true"
                     className={cn(
                       "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
                       isOpen && "rotate-180 text-signal",
@@ -76,6 +79,10 @@ export function PricingFaq() {
                   />
                 </button>
                 <div
+                  id={`faq-panel-${i}`}
+                  role="region"
+                  aria-labelledby={`faq-trigger-${i}`}
+                  aria-hidden={!isOpen}
                   className={cn(
                     "grid transition-all duration-200 motion-safe:transition-[grid-template-rows,opacity]",
                     isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
