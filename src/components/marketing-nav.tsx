@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -20,6 +20,9 @@ export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
+  const mobileNavId = useId();
 
   useEffect(() => {
     const onScroll = () => {
@@ -33,10 +36,29 @@ export function MarketingNav() {
   }, []);
 
   useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    const firstLink = mobileNavRef.current?.querySelector<HTMLElement>("a, button");
+    firstLink?.focus();
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
   return (
@@ -103,7 +125,8 @@ export function MarketingNav() {
             className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            aria-controls="mobile-nav"
+            aria-controls={mobileNavId}
+            ref={menuButtonRef}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -114,7 +137,8 @@ export function MarketingNav() {
         <>
           <button aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm motion-safe:animate-fade-in md:hidden" onClick={() => setOpen(false)} />
           <nav
-            id="mobile-nav"
+            id={mobileNavId}
+            ref={mobileNavRef}
             aria-label="Primary mobile"
             className="relative z-30 border-t border-border/70 bg-background/96 px-6 py-4 backdrop-blur-xl motion-safe:animate-fade-up md:hidden"
           >
