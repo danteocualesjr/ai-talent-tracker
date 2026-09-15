@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { FileSpreadsheet, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { importProfilesFromCsv } from "./actions";
 
 export function ImportCsvForm() {
   const [pending, start] = useTransition();
+  const [selectedFile, setSelectedFile] = useState("");
   const ref = useRef<HTMLFormElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -25,13 +26,18 @@ export function ImportCsvForm() {
         toast.success(`Import complete — ${parts.join(", ")}.`);
         ref.current?.reset();
         if (fileRef.current) fileRef.current.value = "";
+        setSelectedFile("");
       }
     });
   }
 
   function onFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setSelectedFile("");
+      return;
+    }
+    setSelectedFile(file.name);
     const reader = new FileReader();
     reader.onload = () => {
       const textarea = ref.current?.querySelector("textarea[name='csv_text']") as HTMLTextAreaElement | null;
@@ -50,8 +56,10 @@ export function ImportCsvForm() {
       />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-within:ring-2 focus-within:ring-signal/30">
-          <Upload className="h-3.5 w-3.5" />
-          <span>Upload .csv file</span>
+          <Upload className="h-3.5 w-3.5" aria-hidden />
+          <span className="max-w-[220px] truncate" aria-live="polite">
+            {selectedFile ? `Selected: ${selectedFile}` : "Upload .csv file"}
+          </span>
           <input
             ref={fileRef}
             type="file"
