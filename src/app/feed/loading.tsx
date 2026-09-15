@@ -2,7 +2,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FeedLoading() {
   return (
-    <div className="container max-w-3xl space-y-8 px-4 py-12 md:py-16">
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label="Loading departure feed"
+      className="container max-w-3xl space-y-8 px-4 py-12 md:py-16"
+    >
+      <span className="sr-only">Loading the public departure feed…</span>
       <div className="animate-fade-up space-y-3 text-center">
         <Skeleton className="mx-auto h-3 w-16 rounded" />
         <Skeleton className="mx-auto h-9 w-56" />
