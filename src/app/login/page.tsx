@@ -22,7 +22,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
         <ThemeToggle />
       </div>
 
-      <div className="relative hidden w-[46%] overflow-hidden bg-foreground lg:block">
+      <aside aria-label="Product overview" className="relative hidden w-[46%] overflow-hidden bg-foreground lg:block">
         <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-signal/20 blur-[100px] aurora-orb aurora-orb-a" aria-hidden />
         <div className="pointer-events-none absolute -right-16 bottom-1/4 h-56 w-56 rounded-full bg-accent-amber/15 blur-[80px] aurora-orb aurora-orb-b" aria-hidden />
         <div className="pointer-events-none absolute inset-0 terminal-scanlines opacity-60" aria-hidden />
@@ -65,9 +65,9 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
           </div>
           <p className="text-xs text-background/40">© {new Date().getFullYear()} AI Talent Tracker</p>
         </div>
-      </div>
+      </aside>
 
-      <div className="relative flex w-full flex-col items-center justify-center bg-background p-6 lg:w-[54%]">
+      <main id="main-content" tabIndex={-1} className="relative flex w-full flex-col items-center justify-center bg-background p-6 outline-none lg:w-[54%]">
         <div className="pointer-events-none absolute inset-0 hero-backdrop opacity-50" />
         <div className="pointer-events-none absolute inset-0 dot-bg dot-fade opacity-30" aria-hidden />
         <div className="relative w-full max-w-md">
@@ -113,7 +113,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
             <Link href="/privacy" className="link-subtle">privacy policy</Link>.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
