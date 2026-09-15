@@ -59,11 +59,14 @@ export function EmptyPanel({
   title,
   body,
   cta,
+  secondaryCta,
 }: {
   icon: React.ReactNode;
   title: string;
   body: string;
   cta?: React.ReactNode;
+  /** Optional secondary action shown beside the primary CTA (e.g. clear filters). */
+  secondaryCta?: React.ReactNode;
 }) {
   return (
     <div role="status" className="group relative flex flex-col items-center gap-3 px-6 py-16 text-center sm:py-20">
@@ -82,7 +85,12 @@ export function EmptyPanel({
       <p className="animate-fade-up animate-fade-up-delay-2 relative max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
         {body}
       </p>
-      {cta && <div className="animate-fade-up animate-fade-up-delay-3 relative mt-1">{cta}</div>}
+      {(cta || secondaryCta) && (
+        <div className="animate-fade-up animate-fade-up-delay-3 relative mt-1 flex flex-wrap items-center justify-center gap-2">
+          {cta}
+          {secondaryCta}
+        </div>
+      )}
     </div>
   );
 }

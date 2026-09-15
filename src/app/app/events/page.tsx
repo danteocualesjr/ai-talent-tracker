@@ -109,13 +109,20 @@ export default async function EventsPage({
             title={type ? "No matching events" : "No events yet"}
             body={
               type
-                ? "Try a different filter or add more profiles to your watchlist."
+                ? "Nothing matched this filter. Clear it to see all events, or add more profiles to your watchlist."
                 : "Once a tracked profile changes company, headline, or location, you'll see it here."
             }
             cta={
               <Button asChild>
                 <Link href="/app/watchlist">Add profiles</Link>
               </Button>
+            }
+            secondaryCta={
+              type ? (
+                <Button asChild variant="outline">
+                  <Link href="/app/events">Clear filter</Link>
+                </Button>
+              ) : undefined
             }
           />
         ) : (
