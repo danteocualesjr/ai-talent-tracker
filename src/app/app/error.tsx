@@ -20,7 +20,7 @@ export default function AppError({
     <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-20 md:py-28">
       <div className="pointer-events-none absolute inset-0 hero-backdrop" />
       <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
-      <div className="relative flex max-w-lg flex-col items-center text-center">
+      <div role="alert" className="relative flex max-w-lg flex-col items-center text-center">
       <span aria-hidden className="pointer-events-none absolute -top-8 left-1/2 h-0.5 w-24 -translate-x-1/2 rounded-full bg-gradient-to-r from-transparent via-destructive/50 to-transparent" />
       <div className="animate-fade-up flex h-14 w-14 items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive shadow-sm ring-4 ring-destructive/5">
         <AlertTriangle className="h-6 w-6" aria-hidden />
