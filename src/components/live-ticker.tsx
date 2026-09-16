@@ -65,10 +65,10 @@ export async function LiveTicker() {
   const colB = items.slice(half).concat(items.slice(0, Math.max(0, half - (items.length - half))));
 
   return (
-    <div aria-live="polite" aria-atomic="true" className="relative">
+    <div className="relative">
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="relative flex h-1.5 w-1.5">
+          <span className="relative flex h-1.5 w-1.5" aria-hidden>
             <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
           </span>
@@ -84,7 +84,11 @@ export async function LiveTicker() {
           <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </Link>
       </div>
+      <p className="sr-only">
+        Recent public talent moves. Open the feed for the full list. Animated previews are decorative.
+      </p>
       <div
+        aria-hidden
         className="grid h-[300px] grid-cols-1 gap-4 overflow-hidden sm:grid-cols-2 marquee-pause"
         style={{
           maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
