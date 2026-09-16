@@ -29,6 +29,8 @@ export function ScrollToTop() {
   return (
     <button
       type="button"
+      tabIndex={visible ? 0 : -1}
+      aria-hidden={!visible}
       aria-label={`Scroll to top (${Math.round(progress)}% read)`}
       title={`Back to top · ${Math.round(progress)}% read`}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
