@@ -37,10 +37,10 @@ export function RemoveProfileButton({
       className="rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/35"
       disabled={pending}
       aria-busy={pending}
-      aria-label={`Remove ${profileName || "profile"} from watchlist`}
+      aria-label={pending ? `Removing ${profileName || "profile"}` : `Remove ${profileName || "profile"} from watchlist`}
       onClick={onRemove}
     >
-      <Trash2 className="h-4 w-4" />
+      <Trash2 className="h-4 w-4" aria-hidden />
     </Button>
   );
 }
