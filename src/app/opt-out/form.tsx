@@ -30,7 +30,11 @@ export function OptOutForm() {
 
   if (sent) {
     return (
-      <div className="animate-fade-up rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed">
+      <div
+        role="status"
+        aria-live="polite"
+        className="animate-fade-up rounded-xl border border-signal/20 bg-signal/5 p-5 text-sm leading-relaxed"
+      >
         <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal">
           <Check className="h-4 w-4" aria-hidden />
         </div>
@@ -47,15 +51,15 @@ export function OptOutForm() {
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="space-y-2">
         <Label htmlFor="linkedin_url">LinkedIn URL</Label>
-        <Input id="linkedin_url" name="linkedin_url" type="url" required placeholder="https://www.linkedin.com/in/..." />
+        <Input id="linkedin_url" name="linkedin_url" type="url" required placeholder="https://www.linkedin.com/in/..." disabled={loading} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Your email (for confirmation)</Label>
-        <Input id="email" name="email" type="email" required />
+        <Input id="email" name="email" type="email" required disabled={loading} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Additional notes (optional)</Label>
-        <Textarea id="notes" name="notes" rows={3} />
+        <Textarea id="notes" name="notes" rows={3} disabled={loading} />
       </div>
       <Button type="submit" disabled={loading} aria-busy={loading}>{loading ? "Submitting..." : "Submit request"}</Button>
     </form>
