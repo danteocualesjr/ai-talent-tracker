@@ -93,6 +93,12 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       setActiveIndex((index) => Math.max(index - 1, 0));
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      setActiveIndex(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      setActiveIndex(Math.max(filtered.length - 1, 0));
     } else if (event.key === "Enter" && filtered[activeIndex]) {
       event.preventDefault();
       run(filtered[activeIndex].href);
@@ -120,9 +126,13 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
         <DialogTitle className="sr-only">Jump to page</DialogTitle>
         <div className="border-b border-border/60 px-4 py-3">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search aria-hidden className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               ref={inputRef}
+              role="combobox"
+              aria-expanded={open}
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={onKeyDown}
