@@ -25,6 +25,8 @@ import { Button } from "@/components/ui/button";
 import { EventListItem } from "@/components/event-row";
 import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { Sparkline } from "@/components/sparkline";
+import { ActivityBarChart, buildDayLabels } from "@/components/activity-bar-chart";
+import { cn } from "@/lib/utils";
 import { RefreshStaleButton } from "@/app/app/watchlist/refresh-stale-button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
@@ -108,13 +110,27 @@ export default async function DashboardPage() {
         {[
           { href: "/app/watchlist", label: "Add profiles", icon: Plus },
           { href: "/app/events", label: "Review events", icon: Activity },
-          { href: "/app/insights", label: "View insights", icon: BarChart3 },
+          { href: "/app/insights", label: "View insights", icon: BarChart3, highlight: last7 > 0 },
           { href: "/app/alerts", label: "Configure alerts", icon: Bell },
           { href: "/app/labs", label: "Browse labs", icon: Building2 },
-        ].map(({ href, label, icon: Icon }) => (
-          <Button key={href} asChild variant="outline" size="sm" className="group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)] focus-visible:ring-signal/30 active:scale-[0.98]">
+        ].map(({ href, label, icon: Icon, highlight }) => (
+          <Button
+            key={href}
+            asChild
+            variant="outline"
+            size="sm"
+            className={cn(
+              "group h-8 gap-1.5 rounded-full border-border/70 bg-card/60 px-3 text-xs shadow-sm transition-all hover:-translate-y-px hover:border-signal/35 hover:bg-signal/5 hover:shadow-[0_4px_14px_-6px_hsl(var(--signal)/0.35)] focus-visible:ring-signal/30 active:scale-[0.98]",
+              highlight && "border-signal/35 bg-signal/[0.06] shadow-[0_4px_14px_-8px_hsl(var(--signal)/0.4)]",
+            )}
+          >
             <Link href={href}>
-              <Icon className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal" />
+              <Icon
+                className={cn(
+                  "h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal",
+                  highlight && "text-signal",
+                )}
+              />
               {label}
             </Link>
           </Button>
@@ -161,6 +177,35 @@ export default async function DashboardPage() {
           href="/app/watchlist?status=left"
         />
       </div>
+
+      {profiles.length > 0 && eventTrend.some((v) => v > 0) && (
+        <div className="surface-card surface-card-hover overflow-hidden p-5 lg:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="label-caps flex items-center gap-2">
+                <BarChart3 className="h-3.5 w-3.5 text-signal" />
+                Activity snapshot
+              </div>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                Daily detected changes over the last 14 days. Open Insights for signal mix and top movers.
+              </p>
+            </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0 gap-1.5">
+              <Link href="/app/insights">
+                Full insights
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-5 max-w-3xl">
+            <ActivityBarChart
+              data={eventTrend}
+              labels={buildDayLabels(14)}
+              height={100}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Plan-capacity bar */}
       <div className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6 lg:p-5">
