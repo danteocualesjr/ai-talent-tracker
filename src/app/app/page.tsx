@@ -16,7 +16,7 @@ import {
   Users2,
   Zap,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { getOrgEvents, listOrgProfiles, getOrgDailyEventCounts, getOrgWatchlistTrend } from "@/lib/queries";
 import { PageHeader } from "@/components/page-header";
@@ -35,15 +35,18 @@ export default async function DashboardPage() {
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
 
-  const [events, profiles, eventTrend, watchlistTrend, stealthTrend, departureTrend] = await Promise.all([
+  const db = createAdminClient();
+  const [events, profiles, eventTrend, watchlistTrend, stealthTrend, departureTrend, channelsRes] = await Promise.all([
     getOrgEvents(org.id, 20),
     listOrgProfiles(org.id),
     getOrgDailyEventCounts(org.id, 14),
     getOrgWatchlistTrend(org.id, 14),
     getOrgDailyEventCounts(org.id, 14, ["went_stealth", "headline_signals_founding"]),
     getOrgDailyEventCounts(org.id, 14, ["left_company"]),
+    db.from("notification_channels").select("id").eq("org_id", org.id).limit(1),
   ]);
   const plan = PLAN_DETAILS[org.plan];
+  const hasAlertChannels = ((channelsRes.data ?? []) as { id: string }[]).length > 0;
 
   const stealth = profiles.filter((p) => p.status === "stealth").length;
   const founders = profiles.filter((p) => p.status === "founder").length;
@@ -98,6 +101,7 @@ export default async function DashboardPage() {
         hasProfiles={profiles.length > 0}
         hasEvents={events.length > 0}
         staleCount={staleProfiles}
+        hasAlertChannels={hasAlertChannels}
       />
 
       <div className="flex flex-wrap gap-2">
@@ -349,10 +353,12 @@ function GettingStarted({
   hasProfiles,
   hasEvents,
   staleCount,
+  hasAlertChannels,
 }: {
   hasProfiles: boolean;
   hasEvents: boolean;
   staleCount: number;
+  hasAlertChannels: boolean;
 }) {
   const steps = [
     {
@@ -381,15 +387,17 @@ function GettingStarted({
       cta: staleCount > 0 ? "Refresh stale" : "Manage profiles",
     },
     {
-      done: false,
+      done: hasAlertChannels,
       title: "Route alerts",
-      body: "Send Slack, email, or HMAC webhooks the moment someone moves.",
+      body: hasAlertChannels
+        ? "At least one Slack, email, or webhook channel is connected."
+        : "Send Slack, email, or HMAC webhooks the moment someone moves.",
       href: "/app/alerts",
       cta: "Configure alerts",
     },
   ];
 
-  const requiredDone = hasProfiles && hasEvents && staleCount === 0;
+  const requiredDone = hasProfiles && hasEvents && staleCount === 0 && hasAlertChannels;
   if (requiredDone) return null;
   const remaining = steps.filter((step) => !step.done).length;
 
