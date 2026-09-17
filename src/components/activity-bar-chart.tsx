@@ -28,6 +28,9 @@ export function ActivityBarChart({
   const barWidth = width / data.length;
   const innerH = height - padTop - padBottom;
 
+  const total = data.reduce((a, b) => a + b, 0);
+  const baselineY = padTop + innerH;
+
   const bars = data.map((v, i) => {
     const h = (v / max) * innerH;
     const x = i * barWidth + barWidth * 0.12;
@@ -42,8 +45,17 @@ export function ActivityBarChart({
         viewBox={`0 0 ${width} ${height}`}
         className="h-auto w-full overflow-visible"
         role="img"
-        aria-label={`Activity chart showing ${data.reduce((a, b) => a + b, 0)} events over ${data.length} days`}
+        aria-label={`Activity chart showing ${total} events over ${data.length} days`}
       >
+        <line
+          x1={0}
+          y1={baselineY}
+          x2={width}
+          y2={baselineY}
+          className="stroke-border/80"
+          strokeWidth={0.35}
+          vectorEffect="non-scaling-stroke"
+        />
         {bars.map(({ x, y, w, h, v, i }) => (
           <g key={i}>
             <rect
@@ -53,8 +65,9 @@ export function ActivityBarChart({
               height={Math.max(h, v > 0 ? 1.5 : 0)}
               rx={0.8}
               className={cn(
-                "fill-signal/75 transition-opacity hover:fill-signal",
-                v === max && max > 0 && "fill-signal",
+                "fill-signal/60 motion-safe:transition-[fill-opacity] hover:fill-signal/90",
+                v === max && max > 0 && "fill-signal drop-shadow-[0_0_2px_hsl(var(--signal)/0.45)]",
+                v === 0 && "fill-muted-foreground/15",
                 barClassName,
               )}
             >
@@ -68,10 +81,12 @@ export function ActivityBarChart({
         ))}
       </svg>
       {labels && labels.length === data.length && (
-        <figcaption className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-          <span className="tnum">{formatShortDate(labels[0])}</span>
-          <span className="tnum hidden sm:inline">{formatShortDate(labels[Math.floor(labels.length / 2)])}</span>
-          <span className="tnum">{formatShortDate(labels[labels.length - 1])}</span>
+        <figcaption className="mt-2.5 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+          <span className="tnum shrink-0">{formatShortDate(labels[0])}</span>
+          <span className="tnum hidden min-w-0 truncate text-center font-medium text-foreground/80 sm:inline">
+            {total} event{total === 1 ? "" : "s"} · {data.length}d
+          </span>
+          <span className="tnum shrink-0">{formatShortDate(labels[labels.length - 1])}</span>
         </figcaption>
       )}
       <div className="sr-only">

@@ -70,6 +70,7 @@ export default async function InsightsPage() {
               sub={`~${avgPerDay} / day avg`}
               icon={<TrendingUp className="h-3.5 w-3.5" />}
               accent="text-signal"
+              accentBar="via-signal/45"
             />
             <MetricCard
               label="Busiest day"
@@ -77,6 +78,7 @@ export default async function InsightsPage() {
               sub={peakLabel}
               icon={<Sparkles className="h-3.5 w-3.5" />}
               accent="text-amber-accent"
+              accentBar="via-amber-500/40"
             />
             <MetricCard
               label="Tracked profiles"
@@ -84,6 +86,7 @@ export default async function InsightsPage() {
               sub={`Limit ${org.profile_limit}`}
               icon={<Users2 className="h-3.5 w-3.5" />}
               accent="text-violet-accent"
+              accentBar="via-violet-500/40"
             />
           </div>
 
@@ -147,13 +150,19 @@ export default async function InsightsPage() {
               {insights.topProfiles.length === 0 ? (
                 <p className="p-5 text-sm text-muted-foreground">No movers in this period.</p>
               ) : (
-                insights.topProfiles.map((row) => (
+                insights.topProfiles.map((row, index) => (
                   <Link
                     key={row.profileId}
                     href={`/app/profiles/${row.profileId}`}
                     className="group flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/30"
                   >
-                    <div className="min-w-0">
+                    <span
+                      className="tnum flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-[11px] font-bold text-muted-foreground group-hover:border-signal/30 group-hover:text-signal"
+                      aria-hidden
+                    >
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold group-hover:text-signal">{row.name}</div>
                       <div className="mt-0.5 text-xs text-muted-foreground">
                         Latest {labelForEventType(row.latestType).toLowerCase()} ·{" "}
@@ -180,15 +189,21 @@ function MetricCard({
   sub,
   icon,
   accent,
+  accentBar,
 }: {
   label: string;
   value: string | number;
   sub: string;
   icon: React.ReactNode;
   accent: string;
+  accentBar: string;
 }) {
   return (
     <div className="surface-card surface-card-hover relative overflow-hidden p-5">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div
+        className={`pointer-events-none absolute inset-x-4 top-0 h-0.5 rounded-full bg-gradient-to-r from-transparent ${accentBar} to-transparent opacity-90`}
+      />
       <div className="flex items-start justify-between gap-2">
         <div className="label-caps">{label}</div>
         <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent}`}>
