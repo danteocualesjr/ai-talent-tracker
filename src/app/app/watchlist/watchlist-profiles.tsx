@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Compass, ListChecks, LogOut, Search, Star, Users2 } from "lucide-react";
+import { Compass, ListChecks, LogOut, RefreshCw, Search, Star, Users2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,14 @@ const STATUS_DOT: Record<string, string> = {
 };
 
 type SortKey = "name" | "synced" | "company";
-type StatusFilter = "all" | Profile["status"];
+type StatusFilter = "all" | Profile["status"] | "stale";
+
+const STALE_MS = 7 * 86400000;
+
+function isStaleProfile(profile: Profile): boolean {
+  if (!profile.last_synced_at) return true;
+  return new Date(profile.last_synced_at).getTime() < Date.now() - STALE_MS;
+}
 
 export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchlist_id: string })[] }) {
   const [query, setQuery] = useState("");
@@ -40,7 +47,11 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = profiles.filter((p) => {
-      if (status !== "all" && p.status !== status) return false;
+      if (status === "stale") {
+        if (!isStaleProfile(p)) return false;
+      } else if (status !== "all" && p.status !== status) {
+        return false;
+      }
       if (!q) return true;
       const haystack = [p.full_name, p.linkedin_handle, p.current_company, p.headline, p.current_title]
         .filter(Boolean)
@@ -70,6 +81,7 @@ export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchli
     { key: "stealth", label: "Stealth", icon: <Compass className="h-3 w-3" /> },
     { key: "founder", label: "Founder", icon: <Star className="h-3 w-3" /> },
     { key: "left", label: "Left", icon: <LogOut className="h-3 w-3" /> },
+    { key: "stale", label: "Needs refresh", icon: <RefreshCw className="h-3 w-3" /> },
   ];
 
   return (
