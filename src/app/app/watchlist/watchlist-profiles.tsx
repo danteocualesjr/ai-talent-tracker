@@ -39,9 +39,15 @@ function isStaleProfile(profile: Profile): boolean {
   return new Date(profile.last_synced_at).getTime() < Date.now() - STALE_MS;
 }
 
-export function WatchlistProfiles({ profiles }: { profiles: (Profile & { watchlist_id: string })[] }) {
+export function WatchlistProfiles({
+  profiles,
+  initialStatus = "all",
+}: {
+  profiles: (Profile & { watchlist_id: string })[];
+  initialStatus?: StatusFilter;
+}) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("all");
+  const [status, setStatus] = useState<StatusFilter>(initialStatus);
   const [sort, setSort] = useState<SortKey>("name");
 
   const filtered = useMemo(() => {

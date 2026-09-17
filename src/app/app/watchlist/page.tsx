@@ -13,7 +13,18 @@ import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Watchlist" };
 
-export default async function WatchlistPage() {
+const STATUS_PARAMS = new Set(["active", "stealth", "founder", "left", "stale"]);
+
+export default async function WatchlistPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status: statusParam } = await searchParams;
+  const initialStatus =
+    statusParam && STATUS_PARAMS.has(statusParam)
+      ? (statusParam as "active" | "stealth" | "founder" | "left" | "stale")
+      : "all";
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
@@ -155,7 +166,7 @@ export default async function WatchlistPage() {
             }
           />
         ) : (
-          <WatchlistProfiles profiles={profiles} />
+          <WatchlistProfiles profiles={profiles} initialStatus={initialStatus} />
         )}
       </Panel>
     </div>

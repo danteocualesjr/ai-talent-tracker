@@ -131,6 +131,7 @@ export default async function DashboardPage() {
           accent="text-foreground/70"
           series={watchlistTrend.some((v) => v > 0) ? watchlistTrend : undefined}
           highlight={profiles.length > 0}
+          href="/app/watchlist"
         />
         <StatCard
           label="Events (7d)"
@@ -139,6 +140,7 @@ export default async function DashboardPage() {
           sub={`${last30} in last 30 days`}
           accent="text-signal"
           series={eventTrend.some((v) => v > 0) ? eventTrend : undefined}
+          href="/app/events"
         />
         <StatCard
           label="Stealth + founders"
@@ -147,6 +149,7 @@ export default async function DashboardPage() {
           sub={`${stealth} stealth · ${founders} founder`}
           accent="text-amber-accent"
           series={stealthTrend.some((v) => v > 0) ? stealthTrend : undefined}
+          href="/app/watchlist?status=stealth"
         />
         <StatCard
           label="Departures"
@@ -155,6 +158,7 @@ export default async function DashboardPage() {
           sub="flagged left"
           accent="text-violet-accent"
           series={departureTrend.some((v) => v > 0) ? departureTrend : undefined}
+          href="/app/watchlist?status=left"
         />
       </div>
 
@@ -462,6 +466,7 @@ function StatCard({
   series,
   accent = "text-signal",
   highlight = false,
+  href,
 }: {
   label: string;
   value: string | number;
@@ -470,11 +475,13 @@ function StatCard({
   series?: number[];
   accent?: string;
   highlight?: boolean;
+  href?: string;
 }) {
   const rail = STAT_RAIL[accent] ?? STAT_RAIL["text-signal"];
+  const className = `group surface-card surface-card-hover relative overflow-hidden p-5 transition-[box-shadow] focus-within:ring-2 focus-within:ring-signal/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30 ${highlight ? "ring-1 ring-signal/10" : ""}`;
 
-  return (
-    <div className={`group surface-card surface-card-hover relative overflow-hidden p-5 transition-[box-shadow] focus-within:ring-2 focus-within:ring-signal/20 ${highlight ? "ring-1 ring-signal/10" : ""}`}>
+  const inner = (
+    <>
       <span
         aria-hidden
         className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
@@ -497,6 +504,16 @@ function StatCard({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className={`${className} block`} aria-label={`Open ${label}`}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{inner}</div>;
 }
