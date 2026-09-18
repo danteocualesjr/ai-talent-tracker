@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { addChannel } from "./actions";
 import type { ChannelType } from "@/types/db";
 
-type Field = { id: string; name: string; label: string; type: string; placeholder: string; required?: boolean };
+type Field = { id: string; name: string; label: string; type: string; placeholder: string; required?: boolean; autoComplete?: string };
 
 const FIELDS: Record<ChannelType, Field[]> = {
   email: [{ id: "to", name: "to", label: "Email", type: "email", placeholder: "alerts@you.com", required: true }],
@@ -25,7 +25,7 @@ const FIELDS: Record<ChannelType, Field[]> = {
   ],
   webhook: [
     { id: "url", name: "url", label: "URL", type: "url", placeholder: "https://api.you.com/events", required: true },
-    { id: "secret", name: "secret", label: "Secret (optional)", type: "text", placeholder: "signing secret" },
+    { id: "secret", name: "secret", label: "Secret (optional)", type: "password", placeholder: "signing secret", autoComplete: "off" },
   ],
 };
 
@@ -81,6 +81,7 @@ export function AddChannelForm({
             type={field.type}
             required={field.required}
             placeholder={field.placeholder}
+            autoComplete={field.autoComplete}
             disabled={disabled}
           />
         </div>
