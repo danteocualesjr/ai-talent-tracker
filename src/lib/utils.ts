@@ -42,7 +42,8 @@ export function normalizeLinkedInUrl(url: string): string | null {
     const parts = u.pathname.split("/").filter(Boolean);
     const inIdx = parts.indexOf("in");
     if (inIdx === -1 || !parts[inIdx + 1]) return null;
-    const handle = parts[inIdx + 1].toLowerCase();
+    const handle = parts[inIdx + 1].toLowerCase().replace(/\/+$/, "").split("?")[0].split("#")[0];
+    if (!handle || handle.length < 2) return null;
     return `https://www.linkedin.com/in/${handle}`;
   } catch {
     return null;
