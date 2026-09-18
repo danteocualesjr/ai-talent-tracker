@@ -22,6 +22,7 @@ export function formatRelative(date: Date | string | null | undefined) {
     return `in ${day}d`;
   }
   const sec = Math.floor(diff / 1000);
+  if (sec < 5) return "just now";
   if (sec < 60) return `${sec}s ago`;
   const min = Math.floor(sec / 60);
   if (min < 60) return `${min}m ago`;
