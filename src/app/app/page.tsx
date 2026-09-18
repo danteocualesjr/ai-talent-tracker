@@ -252,19 +252,26 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          { label: "Fresh profiles", value: freshProfiles, description: "Synced within the last 7 days", icon: RefreshCw, accent: "text-signal bg-signal/10" },
-          { label: "Needs refresh", value: staleProfiles, description: "Missing or older profile snapshots", icon: AlertTriangle, accent: "text-amber-accent bg-amber-500/10" },
-          { label: "Cadence", value: org.refresh_cadence, description: "Current workspace refresh schedule", icon: Clock, accent: "text-violet-accent bg-violet-500/10" },
-        ].map(({ label, value, description, icon: Icon, accent }) => (
+          { label: "Fresh profiles", value: freshProfiles, description: "Synced within the last 7 days", icon: RefreshCw, accent: "text-signal bg-signal/10", href: "/app/watchlist" as string | undefined },
+          { label: "Needs refresh", value: staleProfiles, description: "Missing or older profile snapshots", icon: AlertTriangle, accent: "text-amber-accent bg-amber-500/10", href: staleProfiles > 0 ? "/app/watchlist?status=stale" : undefined },
+          { label: "Cadence", value: org.refresh_cadence, description: "Current workspace refresh schedule", icon: Clock, accent: "text-violet-accent bg-violet-500/10", href: undefined },
+        ].map(({ label, value, description, icon: Icon, accent, href }) => (
           <div key={label} className="group surface-card surface-card-hover relative overflow-hidden p-5">
             <span aria-hidden className="pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
             <div className="flex items-start justify-between gap-3">
               <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
               <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-3.5 w-3.5" aria-hidden />
               </div>
             </div>
-            <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
+            {href ? (
+              <Link href={href} className="tnum mt-2 block text-2xl font-bold capitalize transition-colors hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30 rounded-sm">
+                {value}
+                <span className="sr-only"> — open {label}</span>
+              </Link>
+            ) : (
+              <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>
+            )}
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{description}</p>
             {label === "Needs refresh" && staleProfiles > 0 && (
               <div className="mt-3">
