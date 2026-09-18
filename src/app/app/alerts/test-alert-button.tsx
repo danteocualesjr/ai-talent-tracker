@@ -30,10 +30,10 @@ export function TestAlertButton({ channelId }: { channelId: string }) {
       className="rounded-lg text-muted-foreground hover:bg-signal/10 hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
       disabled={pending}
       aria-busy={pending}
-      aria-label="Send test alert"
+      aria-label={pending ? "Sending test alert" : "Send test alert"}
       onClick={onSend}
     >
-      <Send className="h-4 w-4" />
+      <Send className="h-4 w-4" aria-hidden />
     </Button>
   );
 }
