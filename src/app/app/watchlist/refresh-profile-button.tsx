@@ -36,10 +36,10 @@ export function RefreshProfileButton({
       className={labeled ? "gap-1.5" : "rounded-lg text-muted-foreground hover:text-foreground"}
       disabled={pending}
       aria-busy={pending}
-      aria-label={`Refresh ${profileName || "profile"}`}
+      aria-label={pending ? `Queuing refresh for ${profileName || "profile"}` : `Refresh ${profileName || "profile"}`}
       onClick={onRefresh}
     >
-      <RefreshCw className={`h-4 w-4 ${pending ? "animate-spin" : ""}`} />
+      <RefreshCw className={`h-4 w-4 ${pending ? "animate-spin" : ""}`} aria-hidden />
       {labeled ? (pending ? "Refreshing…" : "Refresh now") : null}
     </Button>
   );
