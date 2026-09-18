@@ -60,7 +60,7 @@ export function DashboardGreeting({
         : eventCount7d > 0
           ? `${eventCount7d} event${eventCount7d === 1 ? "" : "s"} in the last 7 days — review high-confidence moves first.`
           : hint;
-  const nextHref = profileCount === 0 ? "/app/watchlist" : staleCount > 0 ? "/app/watchlist" : "/app/events";
+  const nextHref = profileCount === 0 ? "/app/watchlist" : staleCount > 0 ? "/app/watchlist?status=stale" : "/app/events";
   const nextLabel = profileCount === 0 ? "Add profiles" : staleCount > 0 ? "Refresh stale" : "Open event inbox";
   const showInsightsLink = profileCount > 0 && staleCount === 0 && eventCount7d > 0;
 
@@ -82,7 +82,7 @@ export function DashboardGreeting({
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border/60 bg-signal/10 text-signal motion-safe:transition-transform motion-safe:group-hover/greeting:scale-105">
-            <Icon className="h-4 w-4" />
+            <Icon className="h-4 w-4" aria-hidden />
           </div>
           <div>
             <p className="label-caps flex items-center gap-2">
