@@ -65,12 +65,19 @@ export function PageHeader({
               {icon}
             </span>
           )}
-          <h1 id="page-title" className="text-balance font-serif text-[30px] font-medium leading-tight tracking-tight text-shadow-soft md:text-[34px]">
+          <h1
+            id="page-title"
+            className="text-balance font-serif text-[30px] font-medium leading-tight tracking-tight text-shadow-soft md:text-[34px]"
+            aria-describedby={description ? "page-header-description" : undefined}
+          >
             {renderedTitle}
           </h1>
         </div>
         {description && (
-          <p className="mt-2.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground/90 md:text-[15px] md:leading-[1.65]">
+          <p
+            id="page-header-description"
+            className="mt-2.5 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground/90 md:text-[15px] md:leading-[1.65]"
+          >
             {description}
           </p>
         )}
