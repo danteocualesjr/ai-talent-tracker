@@ -34,9 +34,16 @@ export function WorkspaceNameForm({ currentName }: { currentName: string }) {
           defaultValue={currentName}
           required
           maxLength={80}
+          minLength={2}
+          autoComplete="organization"
+          spellCheck={false}
           placeholder="My workspace"
           disabled={pending}
+          aria-describedby="workspace-name-hint"
         />
+        <p id="workspace-name-hint" className="text-[11px] text-muted-foreground">
+          Shown in the sidebar and on shared alert messages. 2–80 characters.
+        </p>
       </div>
       <Button type="submit" size="sm" disabled={pending} aria-busy={pending}>
         {pending ? "Saving…" : "Save"}
