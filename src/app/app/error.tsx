@@ -45,6 +45,12 @@ export default function AppError({
         <Button variant="outline" asChild>
           <Link href="/app">Back to dashboard</Link>
         </Button>
+        <Button variant="ghost" asChild>
+          <Link href="/app/events">Open events</Link>
+        </Button>
+        <Button variant="ghost" asChild>
+          <Link href="/app/watchlist">Open watchlist</Link>
+        </Button>
       </div>
       </div>
     </div>
