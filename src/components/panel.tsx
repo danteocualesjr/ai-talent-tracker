@@ -35,10 +35,10 @@ export function Panel({
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-60 transition-opacity group-hover/panel:opacity-100 group-focus-within/panel:opacity-100" />
           <div className="min-w-0">
             {title && (
-              <div className="font-serif text-base font-medium leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">
+              <h2 className="font-serif text-base font-medium leading-tight tracking-tight text-foreground/90 transition-colors group-hover/panel:text-foreground">
                 <span aria-hidden className="mr-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-signal/60 opacity-0 transition-opacity group-hover/panel:opacity-100 motion-safe:group-focus-within/panel:opacity-100" />
                 {title}
-              </div>
+              </h2>
             )}
             {description && (
               <div className="mt-1 text-xs leading-relaxed text-muted-foreground/90">
