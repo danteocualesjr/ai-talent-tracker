@@ -73,8 +73,8 @@ export function ActivityBarChart({
             >
               <title>
                 {labels?.[i]
-                  ? `${labels[i]}: ${v} event${v === 1 ? "" : "s"}`
-                  : `${v} event${v === 1 ? "" : "s"}`}
+                  ? `${formatShortDate(labels[i])}: ${v} event${v === 1 ? "" : "s"}`
+                  : `Day ${i + 1}: ${v} event${v === 1 ? "" : "s"}`}
               </title>
             </rect>
           </g>
