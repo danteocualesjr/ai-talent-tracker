@@ -47,7 +47,8 @@ export function Sparkline({
   const areaPath = `${linePath} L${width.toFixed(2)},${height} L0,${height} Z`;
 
   const [lastX, lastY] = points[points.length - 1];
-  const gradId = `spark-grad-${Math.random().toString(36).slice(2, 8)}`;
+  // Deterministic id avoids SSR/client hydration mismatch from Math.random().
+  const gradId = `spark-grad-${width}x${height}-${data.length}-${min}-${max}`;
 
   return (
     <svg
