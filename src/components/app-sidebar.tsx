@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   Bell,
@@ -60,6 +60,15 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
   const [open, setOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const isFree = orgPlan === "free";
+
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <>
