@@ -25,8 +25,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "could not save opt-out" }, { status: 500 });
   }
 
-  // In production, also email the team. Logged for now.
-  console.log("[opt-out] received", { url, email: emailParsed.data, notes });
+  // Avoid logging email/notes (PII). Hosted email fan-out can be wired later.
+  if (process.env.NODE_ENV !== "production") {
+    console.info("[opt-out] saved", { handle: url.split("/in/")[1] ?? "unknown" });
+  }
 
   return NextResponse.json({ ok: true });
 }
