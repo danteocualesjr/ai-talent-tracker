@@ -185,6 +185,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
                   : "bg-muted text-muted-foreground ring-border/60"
               }`}
               title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
+              aria-label={`Detection confidence ${Math.round(event.confidence * 100)} percent`}
             >
               {Math.round(event.confidence * 100)}%
             </span>
@@ -232,6 +233,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
                 : "bg-muted text-muted-foreground ring-border/60"
             }`}
             title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
+            aria-label={`Detection confidence ${Math.round(event.confidence * 100)} percent`}
           >
             {Math.round(event.confidence * 100)}%
           </span>
