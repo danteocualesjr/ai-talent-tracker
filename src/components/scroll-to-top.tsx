@@ -12,6 +12,11 @@ export function ScrollToTop() {
   const onFeed = pathname === "/feed" || pathname.startsWith("/feed/");
 
   useEffect(() => {
+    setVisible(false);
+    setProgress(0);
+  }, [pathname]);
+
+  useEffect(() => {
     const onScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -21,7 +26,7 @@ export function ScrollToTop() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [pathname]);
 
   const circumference = 2 * Math.PI * 17;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
