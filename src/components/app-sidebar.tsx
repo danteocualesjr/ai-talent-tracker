@@ -86,16 +86,18 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 md:hidden"
             aria-label="Open search and navigation"
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-5 w-5" aria-hidden />
           </button>
           <ThemeToggle />
           <button
+            type="button"
             onClick={() => setOpen(!open)}
             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
+            aria-controls="app-sidebar"
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
           </button>
         </div>
       </div>
@@ -109,6 +111,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
       )}
 
       <aside
+        id="app-sidebar"
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-border/50 app-sidebar-bg backdrop-blur-2xl motion-safe:transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
@@ -118,11 +121,12 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
         <div className="relative flex h-[60px] items-center justify-between border-b border-border/60 px-4">
           <Logo href="/app" />
           <button
+            type="button"
             onClick={() => setOpen(false)}
             className="rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 md:hidden"
-            aria-label="Close"
+            aria-label="Close menu"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5" aria-hidden />
           </button>
         </div>
 
@@ -150,9 +154,10 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
           <button
             type="button"
             onClick={() => setCommandOpen(true)}
+            aria-label="Open search and navigation"
             className="group flex w-full items-center gap-2 rounded-md border border-border/70 surface-inset px-3 py-2 text-xs text-muted-foreground transition-all hover:border-signal/30 hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <Search className="h-3.5 w-3.5 shrink-0" />
+            <Search className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span className="flex-1 text-left">Search…</span>
             <span className="hidden items-center gap-0.5 sm:flex">
               <Kbd>⌘</Kbd>
@@ -185,6 +190,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
                     )}
                   >
                     <Icon
+                      aria-hidden
                       className={cn(
                         "h-4 w-4 shrink-0 transition-colors",
                         active ? "text-signal" : "text-muted-foreground/80 group-hover:text-foreground",
@@ -192,7 +198,10 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
                     />
                     <span className="flex-1">{item.label}</span>
                     {item.href === "/app/events" && unreadCount > 0 && (
-                      <span className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-signal/15 px-1.5 text-[10px] font-bold text-signal">
+                      <span
+                        className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-signal/15 px-1.5 text-[10px] font-bold text-signal"
+                        aria-label={`${unreadCount > 9 ? "More than 9" : unreadCount} unread events`}
+                      >
                         {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
@@ -230,7 +239,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
               href="/feed"
               className="group flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-foreground/15 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             >
-              <span className="relative flex h-1.5 w-1.5">
+              <span className="relative flex h-1.5 w-1.5" aria-hidden>
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
               </span>
