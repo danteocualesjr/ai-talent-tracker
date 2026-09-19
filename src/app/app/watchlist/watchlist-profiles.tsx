@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Compass, ListChecks, LogOut, RefreshCw, Search, Star, Users2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -46,9 +47,18 @@ export function WatchlistProfiles({
   profiles: (Profile & { watchlist_id: string })[];
   initialStatus?: StatusFilter;
 }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>(initialStatus);
   const [sort, setSort] = useState<SortKey>("name");
+
+  function setStatusFilter(next: StatusFilter) {
+    setStatus(next);
+    const params = new URLSearchParams();
+    if (next !== "all") params.set("status", next);
+    const queryString = params.toString();
+    router.replace(queryString ? `/app/watchlist?${queryString}` : "/app/watchlist", { scroll: false });
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -94,7 +104,7 @@ export function WatchlistProfiles({
     <>
       <div className="border-b border-border/60 px-5 py-4 space-y-3">
         <div className="relative group rounded-lg transition-shadow focus-within:shadow-[0_0_0_3px_hsl(var(--signal)/0.1)]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-signal" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-signal" aria-hidden />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -110,7 +120,7 @@ export function WatchlistProfiles({
                 key={key}
                 type="button"
                 aria-pressed={status === key}
-                onClick={() => setStatus(key)}
+                onClick={() => setStatusFilter(key)}
                 className={cn(
                   "chip motion-safe:active:scale-95",
                   status === key
@@ -119,12 +129,12 @@ export function WatchlistProfiles({
                 )}
               >
                 {status === key && (
-                  <span className="relative flex h-1.5 w-1.5 shrink-0">
+                  <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden>
                     <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
                   </span>
                 )}
-                {icon}
+                <span aria-hidden>{icon}</span>
                 {label}
               </button>
             ))}
@@ -141,6 +151,11 @@ export function WatchlistProfiles({
           </select>
         </div>
       </div>
+      <p className="sr-only" aria-live="polite">
+        Showing {filtered.length} profile{filtered.length === 1 ? "" : "s"}
+        {status !== "all" ? ` with status ${status}` : ""}
+        {query.trim() ? ` matching “${query.trim()}”` : ""}.
+      </p>
 
       {filtered.length === 0 ? (
         <EmptyPanel
@@ -158,7 +173,7 @@ export function WatchlistProfiles({
                 variant="outline"
                 onClick={() => {
                   setQuery("");
-                  setStatus("all");
+                  setStatusFilter("all");
                 }}
               >
                 Clear filters
