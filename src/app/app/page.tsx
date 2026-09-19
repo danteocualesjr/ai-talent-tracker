@@ -78,7 +78,7 @@ export default async function DashboardPage() {
             Refresh: <span className="font-medium text-foreground">{org.refresh_cadence}</span>
             <span className="mx-2 text-border">·</span>
             <span className="inline-flex items-center gap-1.5 text-signal">
-              <span className="relative flex h-1.5 w-1.5">
+              <span className="relative flex h-1.5 w-1.5" aria-hidden>
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
               </span>
@@ -126,6 +126,7 @@ export default async function DashboardPage() {
           >
             <Link href={href}>
               <Icon
+                aria-hidden
                 className={cn(
                   "h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-signal",
                   highlight && "text-signal",
@@ -323,7 +324,10 @@ export default async function DashboardPage() {
                   <div className="truncate text-sm font-semibold transition-colors group-hover:text-foreground">
                     {event.profile.full_name ?? event.profile.linkedin_handle}
                   </div>
-                  <span className="tnum shrink-0 rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal">
+                  <span
+                    className="tnum shrink-0 rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal"
+                    aria-label={`Detection confidence ${Math.round(event.confidence * 100)} percent`}
+                  >
                     {Math.round(event.confidence * 100)}%
                   </span>
                 </div>
@@ -479,8 +483,9 @@ function GettingStarted({
                   ? "bg-signal/15 text-signal"
                   : "bg-foreground text-background"
               }`}
+              aria-label={step.done ? "Completed" : `Step ${index + 1}`}
             >
-              {step.done ? <Check className="h-3.5 w-3.5" /> : index + 1}
+              {step.done ? <Check className="h-3.5 w-3.5" aria-hidden /> : <span aria-hidden>{index + 1}</span>}
             </span>
             <div className="min-w-0 flex-1">
               <div className={`text-sm font-semibold ${step.done ? "text-muted-foreground line-through decoration-muted-foreground/40" : ""}`}>
@@ -543,7 +548,7 @@ function StatCard({
         <div className="label-caps text-muted-foreground transition-colors group-hover:text-foreground/80">
           {label}
         </div>
-        <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} shadow-sm`}>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} shadow-sm`} aria-hidden>
           {icon}
         </div>
       </div>
