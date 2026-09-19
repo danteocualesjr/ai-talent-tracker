@@ -71,6 +71,7 @@ export default async function InsightsPage() {
               icon={<TrendingUp className="h-3.5 w-3.5" />}
               accent="text-signal"
               accentBar="via-signal/45"
+              href="/app/events"
             />
             <MetricCard
               label="Busiest day"
@@ -87,6 +88,7 @@ export default async function InsightsPage() {
               icon={<Users2 className="h-3.5 w-3.5" />}
               accent="text-violet-accent"
               accentBar="via-violet-500/40"
+              href="/app/watchlist"
             />
           </div>
 
@@ -113,16 +115,25 @@ export default async function InsightsPage() {
                 <ul className="space-y-3">
                   {insights.byType.map(({ type, count }) => {
                     const pct = Math.round((count / insights.totalEvents) * 100);
+                    const label = labelForEventType(type);
                     return (
                       <li key={type}>
                         <div className="flex items-center justify-between gap-3 text-sm">
-                          <span className="font-medium">{labelForEventType(type)}</span>
+                          <span className="font-medium" id={`signal-mix-${type}`}>{label}</span>
                           <span className="tnum text-muted-foreground">
                             {count}{" "}
                             <span className="text-[11px]">({pct}%)</span>
                           </span>
                         </div>
-                        <div className="progress-track mt-1.5">
+                        <div
+                          className="progress-track mt-1.5"
+                          role="progressbar"
+                          aria-valuemin={0}
+                          aria-valuemax={insights.totalEvents}
+                          aria-valuenow={count}
+                          aria-labelledby={`signal-mix-${type}`}
+                          aria-valuetext={`${count} of ${insights.totalEvents} events (${pct} percent)`}
+                        >
                           <div
                             className="progress-fill h-full"
                             style={{ width: `${Math.max(4, (count / maxTypeCount) * 100)}%` }}
@@ -190,6 +201,7 @@ function MetricCard({
   icon,
   accent,
   accentBar,
+  href,
 }: {
   label: string;
   value: string | number;
@@ -197,21 +209,40 @@ function MetricCard({
   icon: React.ReactNode;
   accent: string;
   accentBar: string;
+  href?: string;
 }) {
-  return (
-    <div className="surface-card surface-card-hover relative overflow-hidden p-5">
+  const body = (
+    <>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div
         className={`pointer-events-none absolute inset-x-4 top-0 h-0.5 rounded-full bg-gradient-to-r from-transparent ${accentBar} to-transparent opacity-90`}
       />
       <div className="flex items-start justify-between gap-2">
         <div className="label-caps">{label}</div>
-        <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent}`}>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent}`} aria-hidden>
           {icon}
         </div>
       </div>
-      <div className="tnum mt-2 font-serif text-3xl font-bold tracking-tight">{value}</div>
+      <div className="tnum mt-2 font-serif text-3xl font-bold tracking-tight transition-colors group-hover:text-signal">{value}</div>
       <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        aria-label={`Open ${label}`}
+        className="surface-card surface-card-hover group relative block overflow-hidden p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30"
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="surface-card surface-card-hover relative overflow-hidden p-5">
+      {body}
     </div>
   );
 }
