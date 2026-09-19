@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatRelative } from "@/lib/utils";
 import { getPublicEvents } from "@/lib/queries";
+import { shortLabelForEventType } from "@/lib/event-labels";
 import type { EventType } from "@/types/db";
 
 const TONE: Record<EventType, "success" | "warning" | "info" | "purple" | "secondary"> = {
@@ -16,19 +17,6 @@ const TONE: Record<EventType, "success" | "warning" | "info" | "purple" | "secon
   github_dark: "purple",
   new_domain: "success",
   other: "secondary",
-};
-
-const LABEL: Record<EventType, string> = {
-  left_company: "Left",
-  joined_company: "Joined",
-  went_stealth: "Stealth",
-  headline_signals_founding: "Founding",
-  role_change_internal: "Role",
-  about_changed: "About",
-  location_changed: "Location",
-  github_dark: "GH dark",
-  new_domain: "Domain",
-  other: "Update",
 };
 
 const FALLBACK = [
@@ -145,7 +133,7 @@ function TickerCard({ event }: { event: { name: string; type: EventType; summary
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="truncate text-[13px] font-semibold">{event.name}</span>
           <Badge variant={TONE[event.type] ?? "secondary"} className="text-[10px]">
-            {LABEL[event.type] ?? "Update"}
+            {shortLabelForEventType(event.type)}
           </Badge>
         </div>
         <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-muted-foreground">{event.summary}</p>
