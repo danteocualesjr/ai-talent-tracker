@@ -7,10 +7,13 @@ import {
   BarChart3,
   Bell,
   Building2,
+  Compass,
   CreditCard,
   LayoutDashboard,
   ListChecks,
   Plus,
+  RefreshCw,
+  Rss,
   Search,
   Settings,
 } from "lucide-react";
@@ -36,7 +39,12 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/alerts", label: "Alerts", icon: Bell, keywords: ["slack", "email", "webhook"], group: "Navigate" },
   { href: "/app/billing", label: "Billing", icon: CreditCard, keywords: ["plan", "upgrade", "subscription"], group: "Navigate" },
   { href: "/app/settings", label: "Settings", icon: Settings, keywords: ["account", "workspace"], group: "Navigate" },
+  { href: "/feed", label: "Public feed", icon: Rss, keywords: ["rss", "public", "stream"], group: "Navigate" },
   { href: "/app/watchlist", label: "Add profile", icon: Plus, keywords: ["new", "track", "linkedin"], group: "Actions" },
+  { href: "/app/watchlist?status=stale", label: "Needs refresh", icon: RefreshCw, keywords: ["stale", "sync", "outdated"], group: "Actions" },
+  { href: "/app/watchlist?status=stealth", label: "Stealth profiles", icon: Compass, keywords: ["stealth", "blank", "hidden"], group: "Actions" },
+  { href: "/app/events?type=stealth", label: "Stealth events", icon: Compass, keywords: ["went stealth", "filter"], group: "Actions" },
+  { href: "/app/alerts", label: "Configure alerts", icon: Bell, keywords: ["slack", "webhook", "notify"], group: "Actions" },
 ];
 
 type AppCommandMenuProps = {
