@@ -92,33 +92,41 @@ export default async function WatchlistPage({
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {([
-          { label: "Active", value: statusCounts.active, icon: Users2, accent: "text-foreground/70", rail: "from-foreground/0 via-foreground/25 to-foreground/0" },
-          { label: "Stealth", value: statusCounts.stealth, icon: Compass, accent: "text-amber-accent", rail: "from-amber-400/0 via-amber-accent/70 to-amber-400/0" },
-          { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", rail: "from-signal/0 via-signal/60 to-signal/0" },
-          { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", rail: "from-violet-400/0 via-violet-accent/65 to-violet-400/0" },
-        ] as const).map(({ label, value, icon: Icon, accent, rail }) => (
-          <div
-            key={label}
-            className={cn(
-              "group surface-card surface-card-hover relative overflow-hidden p-4",
-              value > 0 && "ring-1 ring-signal/10",
-            )}
-          >
-            <span
-              aria-hidden
-              className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
-            />
-            <div className="relative flex items-start justify-between">
-              <div>
-                <div className="tnum font-serif text-2xl font-medium tracking-tight">{value}</div>
-                <div className="mt-1 label-caps text-muted-foreground">{label}</div>
+          { label: "Active", value: statusCounts.active, icon: Users2, accent: "text-foreground/70", rail: "from-foreground/0 via-foreground/25 to-foreground/0", status: "active" },
+          { label: "Stealth", value: statusCounts.stealth, icon: Compass, accent: "text-amber-accent", rail: "from-amber-400/0 via-amber-accent/70 to-amber-400/0", status: "stealth" },
+          { label: "Founder", value: statusCounts.founder, icon: Star, accent: "text-signal", rail: "from-signal/0 via-signal/60 to-signal/0", status: "founder" },
+          { label: "Left", value: statusCounts.left, icon: LogOut, accent: "text-violet-accent", rail: "from-violet-400/0 via-violet-accent/65 to-violet-400/0", status: "left" },
+        ] as const).map(({ label, value, icon: Icon, accent, rail, status }) => {
+          const href = `/app/watchlist?status=${status}`;
+          const active = initialStatus === status;
+          return (
+            <Link
+              key={label}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              aria-label={`Filter watchlist to ${label.toLowerCase()} profiles (${value})`}
+              className={cn(
+                "group surface-card surface-card-hover relative block overflow-hidden p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30",
+                (value > 0 || active) && "ring-1 ring-signal/10",
+                active && "border-signal/35 bg-signal/[0.04]",
+              )}
+            >
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute inset-y-3 left-0 w-0.5 rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${rail}`}
+              />
+              <div className="relative flex items-start justify-between">
+                <div>
+                  <div className="tnum font-serif text-2xl font-medium tracking-tight transition-colors group-hover:text-signal">{value}</div>
+                  <div className="mt-1 label-caps text-muted-foreground">{label}</div>
+                </div>
+                <div className={`flex h-7 w-7 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                </div>
               </div>
-              <div className={`flex h-7 w-7 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
-                <Icon className="h-3.5 w-3.5" />
-              </div>
-            </div>
-          </div>
-        ))}
+            </Link>
+          );
+        })}
       </div>
 
       <Panel title="Add profiles" description="Track a single URL or bulk-import a CSV roster. The first refresh runs immediately." bodyClassName="p-5">
@@ -166,7 +174,7 @@ export default async function WatchlistPage({
             }
           />
         ) : (
-          <WatchlistProfiles profiles={profiles} initialStatus={initialStatus} />
+          <WatchlistProfiles key={initialStatus} profiles={profiles} initialStatus={initialStatus} />
         )}
       </Panel>
     </div>
