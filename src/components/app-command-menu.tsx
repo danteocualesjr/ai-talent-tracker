@@ -95,6 +95,13 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
   );
 
   function onKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "Escape" && query.trim()) {
+      event.preventDefault();
+      event.stopPropagation();
+      setQuery("");
+      setActiveIndex(0);
+      return;
+    }
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setActiveIndex((index) => Math.min(index + 1, Math.max(filtered.length - 1, 0)));
