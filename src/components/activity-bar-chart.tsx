@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, formatShortDate } from "@/lib/utils";
 
 type Props = {
   data: number[];
@@ -98,11 +98,6 @@ export function ActivityBarChart({
       </div>
     </figure>
   );
-}
-
-function formatShortDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 /** Build ISO date strings for the last N days (oldest first). */
