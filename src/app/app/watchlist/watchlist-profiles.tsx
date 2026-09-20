@@ -108,6 +108,12 @@ export function WatchlistProfiles({
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && query) {
+                e.preventDefault();
+                setQuery("");
+              }
+            }}
             placeholder="Search by name, company, or headline…"
             className="pl-9"
             aria-label="Search watchlist"
