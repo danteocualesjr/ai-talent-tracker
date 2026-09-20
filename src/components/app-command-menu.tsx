@@ -8,6 +8,8 @@ import {
   Bell,
   Building2,
   Compass,
+  LogOut,
+  Star,
   CreditCard,
   LayoutDashboard,
   ListChecks,
@@ -44,6 +46,9 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/watchlist?status=stale", label: "Needs refresh", icon: RefreshCw, keywords: ["stale", "sync", "outdated"], group: "Actions" },
   { href: "/app/watchlist?status=stealth", label: "Stealth profiles", icon: Compass, keywords: ["stealth", "blank", "hidden"], group: "Actions" },
   { href: "/app/events?type=stealth", label: "Stealth events", icon: Compass, keywords: ["went stealth", "filter"], group: "Actions" },
+  { href: "/app/events?type=departures", label: "Departure events", icon: LogOut, keywords: ["left", "departures", "filter"], group: "Actions" },
+  { href: "/app/events?type=founders", label: "Founder events", icon: Star, keywords: ["founding", "founders", "filter"], group: "Actions" },
+  { href: "/app/watchlist?status=founder", label: "Founder profiles", icon: Star, keywords: ["founder", "status"], group: "Actions" },
   { href: "/app/alerts", label: "Configure alerts", icon: Bell, keywords: ["slack", "webhook", "notify"], group: "Actions" },
 ];
 
