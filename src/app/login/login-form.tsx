@@ -32,8 +32,9 @@ function LoginStepper({ current }: { current: 1 | 2 | 3 }) {
                   !done && !active && "border border-border/70 bg-muted/50 text-muted-foreground",
                 )}
                 aria-current={active ? "step" : undefined}
+                aria-label={done ? `${step.label} complete` : active ? `${step.label}, current step` : step.label}
               >
-                {done ? "✓" : step.n}
+                {done ? <span aria-hidden>✓</span> : step.n}
               </span>
               <span
                 className={cn(
