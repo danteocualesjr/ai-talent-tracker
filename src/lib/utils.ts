@@ -119,3 +119,10 @@ export function githubProfileUrl(handle: string): string {
 export function xProfileUrl(handle: string): string {
   return `https://x.com/${normalizeSocialHandle(handle)}`;
 }
+
+/** Compact month/day label for charts and dense UI. */
+export function formatShortDate(iso: string | Date) {
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
