@@ -78,6 +78,7 @@ export default async function WatchlistPage({
           </div>
           {capacityTone !== "default" && (
             <p
+              role="status"
               className={cn(
                 "mt-2 text-[11px] font-medium",
                 capacityTone === "full" ? "text-destructive" : "text-amber-700 dark:text-amber-400",
