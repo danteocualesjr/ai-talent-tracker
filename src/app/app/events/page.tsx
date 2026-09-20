@@ -56,9 +56,9 @@ export default async function EventsPage({
       </Suspense>
 
       <div className="stat-strip grid-cols-3">
-        <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
-        <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
-        <EventMetric label="Public feed" value={publicEvents} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-amber-accent" />
+        <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" href="/app/events" />
+        <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/app/events" />
+        <EventMetric label="Public feed" value={publicEvents} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed" />
       </div>
 
       <div className="surface-card relative grid gap-4 overflow-hidden p-5 md:grid-cols-3">
@@ -138,25 +138,37 @@ function EventMetric({
   value,
   icon,
   accent = "text-muted-foreground",
+  href,
 }: {
   label: string;
   value: number;
   icon?: React.ReactNode;
   accent?: string;
+  href?: string;
 }) {
-  return (
-    <div className="group stat-strip-item">
+  const inner = (
       <div className="relative flex items-start justify-between gap-3">
         <div>
           <div className="tnum font-serif text-2xl font-medium tracking-tight">{value}</div>
           <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`} aria-hidden>
             {icon}
           </div>
         )}
       </div>
-    </div>
   );
+  if (href) {
+    return (
+      <Link
+        href={href}
+        aria-label={`Open ${label} (${value})`}
+        className="group stat-strip-item block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30"
+      >
+        {inner}
+      </Link>
+    );
+  }
+  return <div className="group stat-strip-item">{inner}</div>;
 }
