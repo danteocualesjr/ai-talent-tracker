@@ -20,6 +20,7 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   founders: ["headline_signals_founding"],
   joiners: ["joined_company"],
   github: ["github_dark"],
+  location: ["location_changed"],
 };
 
 export default async function EventsPage({
