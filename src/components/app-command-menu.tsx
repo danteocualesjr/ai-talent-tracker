@@ -172,12 +172,25 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
           className="max-h-[min(320px,50vh)] overflow-y-auto p-2"
         >
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
+            <div className="flex flex-col items-center gap-2 px-3 py-8 text-center" role="status">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border/60 bg-muted/50 text-muted-foreground">
-                <Search className="h-4 w-4 text-signal/70" />
+                <Search className="h-4 w-4 text-signal/70" aria-hidden />
               </div>
               <p className="text-sm font-medium text-foreground">No matches found</p>
               <p className="text-xs text-muted-foreground">Try a different search term</p>
+              {query.trim() && (
+                <button
+                  type="button"
+                  className="mt-1 text-xs font-semibold text-signal underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
+                  onClick={() => {
+                    setQuery("");
+                    setActiveIndex(0);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           ) : (
             groups.map(([group, items]) => (
