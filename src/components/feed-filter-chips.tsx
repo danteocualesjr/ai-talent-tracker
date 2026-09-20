@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Briefcase, Compass, Filter, LogOut, Star } from "lucide-react";
+import { Briefcase, Compass, Filter, Github, LogOut, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -11,6 +11,7 @@ const FILTERS = [
   { label: "Stealth", param: "stealth", icon: Compass },
   { label: "Founders", param: "founders", icon: Star },
   { label: "Joiners", param: "joiners", icon: Briefcase },
+  { label: "GitHub", param: "github", icon: Github },
 ] as const;
 
 export function FeedFilterChips() {

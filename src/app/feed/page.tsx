@@ -26,6 +26,7 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   stealth: ["went_stealth"],
   founders: ["headline_signals_founding"],
   joiners: ["joined_company"],
+  github: ["github_dark"],
 };
 
 const FILTER_LABELS: Record<string, string> = {
@@ -33,6 +34,7 @@ const FILTER_LABELS: Record<string, string> = {
   stealth: "stealth moves",
   founders: "founder signals",
   joiners: "joiners",
+  github: "GitHub dark signals",
 };
 
 export default async function PublicFeedPage({
