@@ -38,15 +38,15 @@ const FALLBACK = [
  */
 export async function LiveTicker() {
   const events = await getPublicEvents(16);
+  const realItems = events.map((e) => ({
+    name: e.profile.full_name || e.profile.linkedin_handle || "Unknown",
+    type: e.type,
+    summary: e.summary,
+    when: formatRelative(e.detected_at),
+  }));
+  // Prefer live data as soon as any public events exist; pad with samples only when empty.
   const items: Array<{ name: string; type: EventType; summary: string; when: string }> =
-    events.length >= 6
-      ? events.map((e) => ({
-          name: e.profile.full_name || e.profile.linkedin_handle || "Unknown",
-          type: e.type,
-          summary: e.summary,
-          when: formatRelative(e.detected_at),
-        }))
-      : FALLBACK;
+    realItems.length > 0 ? realItems : FALLBACK;
 
   const half = Math.ceil(items.length / 2);
   const colA = items.slice(0, half);
