@@ -37,8 +37,12 @@ export default function NotFound() {
           <p className="mx-auto mt-4 max-w-sm text-pretty text-muted-foreground">
             That page doesn&apos;t exist or may have moved. Try one of these routes instead.
           </p>
-          <p className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 text-xs text-muted-foreground">
-            Tip: use <span className="kbd">⌘</span><span className="kbd">K</span> in the app to jump anywhere
+          <p
+            role="note"
+            aria-label="Tip: use Command K in the app to jump anywhere"
+            className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 text-xs text-muted-foreground"
+          >
+            Tip: use <span className="kbd" aria-hidden>⌘</span><span className="kbd" aria-hidden>K</span> in the app to jump anywhere
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg" variant="signal">
