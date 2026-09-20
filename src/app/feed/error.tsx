@@ -52,6 +52,9 @@ export default function FeedError({
               <Link href="/labs">Browse labs</Link>
             </Button>
             <Button variant="ghost" asChild>
+              <Link href="/feed/rss.xml">Open RSS</Link>
+            </Button>
+            <Button variant="ghost" asChild>
               <Link href="/">Go home</Link>
             </Button>
           </div>
