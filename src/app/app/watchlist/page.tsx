@@ -64,6 +64,7 @@ export default async function WatchlistPage({
             aria-valuemin={0}
             aria-valuemax={org.profile_limit}
             aria-valuenow={profiles.length}
+            aria-valuetext={`${profiles.length} of ${org.profile_limit} profiles (${Math.round(fill)} percent)`}
             aria-label="Watchlist capacity"
           >
             <div
