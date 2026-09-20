@@ -80,7 +80,7 @@ export function Sparkline({
         className="motion-safe:transition-opacity motion-safe:duration-300"
       />
       <circle cx={lastX} cy={lastY} r={2.5} fill={stroke} />
-      <circle cx={lastX} cy={lastY} r={5} fill={stroke} fillOpacity="0.18" className="signal-pulse" />
+      <circle cx={lastX} cy={lastY} r={5} fill={stroke} fillOpacity="0.18" className="signal-pulse motion-reduce:animate-none" />
     </svg>
   );
 }
