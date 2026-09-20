@@ -66,10 +66,11 @@ export async function LiveTicker() {
         </div>
         <Link
           href="/feed"
-          className="link-animated group inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+          aria-label="Open the public talent feed"
+          className="link-animated group inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
         >
           Open feed
-          <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <ArrowUpRight className="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
         </Link>
       </div>
       <p className="sr-only">
