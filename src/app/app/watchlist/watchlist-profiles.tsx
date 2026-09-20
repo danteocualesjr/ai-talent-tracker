@@ -30,7 +30,7 @@ const STATUS_DOT: Record<string, string> = {
   unknown: "bg-muted-foreground",
 };
 
-type SortKey = "name" | "synced" | "company";
+type SortKey = "name" | "synced" | "company" | "status";
 type StatusFilter = "all" | Profile["status"] | "stale";
 
 const STALE_MS = 7 * 86400000;
@@ -84,6 +84,9 @@ export function WatchlistProfiles({
       }
       if (sort === "company") {
         return (a.current_company ?? "").localeCompare(b.current_company ?? "");
+      }
+      if (sort === "status") {
+        return (a.status ?? "").localeCompare(b.status ?? "") || (a.full_name ?? a.linkedin_handle ?? "").localeCompare(b.full_name ?? b.linkedin_handle ?? "");
       }
       return (a.full_name ?? a.linkedin_handle ?? "").localeCompare(b.full_name ?? b.linkedin_handle ?? "");
     });
@@ -154,6 +157,7 @@ export function WatchlistProfiles({
             <option value="name">Sort: Name</option>
             <option value="synced">Sort: Last synced</option>
             <option value="company">Sort: Company</option>
+            <option value="status">Sort: Status</option>
           </select>
         </div>
       </div>
