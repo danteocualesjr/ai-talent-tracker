@@ -83,7 +83,7 @@ export function ScrollToTop() {
           className="motion-safe:transition-[stroke-dashoffset] motion-safe:duration-150"
         />
       </svg>
-      <ArrowUp className="relative h-4 w-4" />
+      <ArrowUp className="relative h-4 w-4" aria-hidden />
     </button>
   );
 }
