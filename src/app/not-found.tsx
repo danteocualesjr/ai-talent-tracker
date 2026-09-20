@@ -25,7 +25,7 @@ export default function NotFound() {
         </p>
         <div className="relative text-center animate-fade-up">
           <p className="label-caps inline-flex items-center gap-2">
-            <span className="relative flex h-1.5 w-1.5">
+            <span className="relative flex h-1.5 w-1.5" aria-hidden>
               <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
             </span>
@@ -57,11 +57,11 @@ export default function NotFound() {
               <Link key={href} href={href} className="surface-card surface-card-hover group relative block overflow-hidden p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                 <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-muted/50 text-muted-foreground transition-colors group-hover:border-signal/30 group-hover:bg-signal/10 group-hover:text-signal">
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" aria-hidden />
                 </div>
                 <div className="flex items-center gap-1 text-sm font-semibold">
                   {title}
-                  <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100 group-hover:text-signal" />
+                  <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100 group-hover:text-signal" aria-hidden />
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{body}</p>
               </Link>
