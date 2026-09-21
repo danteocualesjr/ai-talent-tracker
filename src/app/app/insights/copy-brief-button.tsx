@@ -8,7 +8,10 @@ export function CopyBriefButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  const [pending, setPending] = useState(false);
+
   async function copy() {
+    setPending(true);
     try {
       await navigator.clipboard.writeText(text);
       setFailed(false);
@@ -18,11 +21,13 @@ export function CopyBriefButton({ text }: { text: string }) {
       setCopied(false);
       setFailed(true);
       window.setTimeout(() => setFailed(false), 2500);
+    } finally {
+      setPending(false);
     }
   }
 
   const empty = !text.trim();
-  const label = failed ? "Copy failed - try again" : copied ? "Copied to clipboard" : empty ? "Nothing to copy" : "Copy brief";
+  const label = failed ? "Copy failed - try again" : copied ? "Copied to clipboard" : empty ? "Nothing to copy" : pending ? "Copying brief" : "Copy brief";
 
   return (
     <Button
@@ -31,7 +36,8 @@ export function CopyBriefButton({ text }: { text: string }) {
       size="sm"
       className={`gap-1.5 transition-colors ${copied ? "border-signal/40 bg-signal/5 text-signal" : ""} ${failed ? "border-destructive/40 bg-destructive/5 text-destructive" : ""}`}
       onClick={copy}
-      disabled={empty}
+      disabled={empty || pending}
+      aria-busy={pending}
       aria-label={label}
     >
       {copied ? <Check className="h-3.5 w-3.5" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
