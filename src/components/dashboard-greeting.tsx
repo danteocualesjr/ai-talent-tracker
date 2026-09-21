@@ -110,7 +110,7 @@ export function DashboardGreeting({
               className="group/hint inline-flex items-center gap-1 text-xs font-semibold text-foreground transition-colors hover:text-signal"
             >
               {nextLabel}
-              <ArrowRight className="h-3 w-3 transition-transform motion-safe:group-hover/hint:translate-x-0.5" />
+              <ArrowRight className="h-3 w-3 transition-transform motion-safe:group-hover/hint:translate-x-0.5" aria-hidden />
             </Link>
             {showInsightsLink && (
               <Link
