@@ -92,7 +92,7 @@ export function ActivityBarChart({
       <div className="sr-only">
         {bars.map(({ v, i }) => (
           <span key={i}>
-            {labels?.[i] ?? `Day ${i + 1}`}: {v}
+            {labels?.[i] ? formatShortDate(labels[i]) : `Day ${i + 1}`}: {v} event{v === 1 ? "" : "s"}
           </span>
         ))}
       </div>
