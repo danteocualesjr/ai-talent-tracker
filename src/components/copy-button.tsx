@@ -20,14 +20,16 @@ export function CopyButton({ value, className }: { value: string; className?: st
     }
   }
 
-  const label = failed ? "Copy failed" : copied ? "Copied" : "Copy to clipboard";
+  const empty = !value.trim();
+  const label = failed ? "Copy failed" : copied ? "Copied" : empty ? "Nothing to copy" : "Copy to clipboard";
 
   return (
     <button
       type="button"
       onClick={handleCopy}
+      disabled={empty}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-[10px] font-medium text-muted-foreground shadow-sm transition-all hover:border-signal/30 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
+        "inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background px-2 py-1 text-[10px] font-medium text-muted-foreground shadow-sm transition-all hover:border-signal/30 hover:bg-signal/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 disabled:pointer-events-none disabled:opacity-50",
         copied && "border-signal/30 bg-signal/5 text-signal motion-safe:scale-[1.02] motion-safe:duration-300",
         failed && "border-destructive/40 bg-destructive/5 text-destructive",
         className,
