@@ -74,7 +74,7 @@ export default async function EventsPage({
           <div key={title} className="group relative rounded-md border border-transparent p-3 transition-colors hover:border-border/70 hover:bg-muted/30 focus-within:border-signal/25 focus-within:bg-muted/25 focus-within:ring-2 focus-within:ring-signal/20">
             <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/55 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-signal/10 text-signal motion-safe:transition-transform motion-safe:group-hover:scale-105">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-signal/10 text-signal motion-safe:transition-transform motion-safe:group-hover:scale-105" aria-hidden>
                 <Icon className="h-3.5 w-3.5" />
               </div>
               <div>
