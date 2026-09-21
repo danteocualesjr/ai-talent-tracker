@@ -118,9 +118,19 @@ export function WatchlistProfiles({
               }
             }}
             placeholder="Search by name, company, or headline…"
-            className="pl-9"
+            className={query ? "pl-9 pr-16" : "pl-9"}
             aria-label="Search watchlist"
           />
+          {query ? (
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
+              onClick={() => setQuery("")}
+              aria-label="Clear watchlist search"
+            >
+              Clear
+            </button>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
