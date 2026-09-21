@@ -47,6 +47,9 @@ export function FeedFilterChips() {
     } else if (event.key === "End") {
       event.preventDefault();
       focusChip(FILTERS.length - 1);
+    } else if (event.key === "Escape" && activeParam) {
+      event.preventDefault();
+      selectFilter(null);
     }
   }
 
