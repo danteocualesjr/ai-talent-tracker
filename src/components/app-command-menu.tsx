@@ -170,6 +170,11 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
           </div>
         </div>
 
+        <p className="sr-only" aria-live="polite">
+          {filtered.length === 0
+            ? "No matching commands"
+            : `${filtered.length} command${filtered.length === 1 ? "" : "s"} available`}
+        </p>
         <div
           id="command-list"
           ref={listRef}
