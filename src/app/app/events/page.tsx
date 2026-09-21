@@ -28,15 +28,20 @@ const FILTER_TYPES: Record<string, EventType[]> = {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; confidence?: string }>;
 }) {
-  const { type } = await searchParams;
+  const { type, confidence } = await searchParams;
+  const highOnly = confidence === "high";
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const events = await getOrgEvents(org.id, 200);
   const allowedTypes = type ? FILTER_TYPES[type] : undefined;
-  const filtered = allowedTypes ? events.filter((event) => allowedTypes.includes(event.type)) : events;
+  const filtered = events.filter((event) => {
+    if (allowedTypes && !allowedTypes.includes(event.type)) return false;
+    if (highOnly && event.confidence < 0.8) return false;
+    return true;
+  });
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
   const publicEvents = events.filter((event) => event.is_public).length;
@@ -109,9 +114,9 @@ export default async function EventsPage({
         {filtered.length === 0 ? (
           <EmptyPanel
             icon={<Bell className="h-5 w-5" />}
-            title={type ? "No matching events" : "No events yet"}
+            title={type || highOnly ? "No matching events" : "No events yet"}
             body={
-              type
+              type || highOnly
                 ? "Nothing matched this filter. Clear it to see all events, or add more profiles to your watchlist."
                 : "Once a tracked profile changes company, headline, or location, you'll see it here."
             }
@@ -121,7 +126,7 @@ export default async function EventsPage({
               </Button>
             }
             secondaryCta={
-              type ? (
+              type || highOnly ? (
                 <Button asChild variant="outline">
                   <Link href="/app/events">Clear filter</Link>
                 </Button>
