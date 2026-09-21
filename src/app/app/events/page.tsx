@@ -65,7 +65,7 @@ export default async function EventsPage({
 
       <div className="stat-strip grid-cols-3">
         <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" href="/app/events" />
-        <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/app/events" />
+        <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/app/events?confidence=high" />
         <EventMetric label="Public feed" value={publicEvents} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed" />
       </div>
 
