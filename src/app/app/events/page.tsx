@@ -21,6 +21,8 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   joiners: ["joined_company"],
   github: ["github_dark"],
   location: ["location_changed"],
+  about: ["about_changed"],
+  role: ["role_change_internal"],
 };
 
 export default async function EventsPage({
