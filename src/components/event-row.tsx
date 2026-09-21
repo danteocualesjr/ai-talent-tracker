@@ -169,7 +169,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
             className="inline-flex min-w-0 max-w-full items-center gap-1 truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4"
           >
             <span className="truncate">{profile.full_name || profile.linkedin_handle}</span>
-            <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100" />
+            <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 transition-all motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:opacity-100" aria-hidden />
           </Link>
           <Badge variant={meta.tone}>{meta.label}</Badge>
           {profile.current_company && (
@@ -208,7 +208,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
         aria-label={`Open ${profile.full_name || profile.linkedin_handle} on LinkedIn`}
         className="inline-flex shrink-0 items-center gap-1 self-center rounded-md border border-border/70 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground opacity-80 shadow-sm transition-all hover:border-signal/40 hover:bg-signal/5 hover:text-signal sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus:opacity-100 focus-visible:ring-2 focus-visible:ring-signal/40"
       >
-        LinkedIn <ExternalLink className="h-3 w-3" />
+        LinkedIn <ExternalLink className="h-3 w-3" aria-hidden />
       </a>
     </div>
   );
@@ -247,7 +247,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
         className="link-animated mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground"
       >
         Open profile{" "}
-        <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </Link>
     </div>
   );
