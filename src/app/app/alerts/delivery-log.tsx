@@ -44,7 +44,7 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
 }
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === "sent") return <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" />;
-  if (status === "failed") return <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />;
-  return <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />;
+  if (status === "sent") return <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" aria-hidden />;
+  if (status === "failed") return <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />;
+  return <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />;
 }
