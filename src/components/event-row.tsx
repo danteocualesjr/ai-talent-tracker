@@ -158,7 +158,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
           <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
         </Avatar>
         <div className={`absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-card bg-card shadow-sm ${meta.ring}`}>
-          <Icon className="h-2.5 w-2.5" />
+          <Icon className="h-2.5 w-2.5" aria-hidden />
         </div>
       </div>
 
@@ -221,7 +221,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
     <div className="group relative pb-8 pl-10 last:pb-0 motion-safe:transition-colors motion-safe:hover:rounded-lg motion-safe:hover:bg-muted/25 motion-safe:hover:pl-11 [&:last-child_.timeline-connector]:hidden">
       <div className="timeline-connector absolute bottom-0 left-[13px] top-7 w-px bg-gradient-to-b from-border via-border/60 to-transparent" aria-hidden />
       <div className={`absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-card ring-4 ring-background shadow-sm transition-shadow motion-safe:group-hover:shadow-md ${meta.ring}`}>
-        <Icon className="h-3.5 w-3.5" />
+        <Icon className="h-3.5 w-3.5" aria-hidden />
       </div>
       <div className="flex items-center gap-2">
         <Badge variant={meta.tone}>{meta.label}</Badge>
