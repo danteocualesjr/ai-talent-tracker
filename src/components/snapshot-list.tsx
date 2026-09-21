@@ -42,13 +42,19 @@ export function SnapshotList({ snapshots }: { snapshots: ProfileSnapshot[] }) {
               type="button"
               className="flex w-full items-center justify-between px-5 py-3 text-left text-xs transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal/30 disabled:cursor-default"
               disabled={!canExpand}
+              aria-expanded={canExpand ? expanded : undefined}
+              aria-label={
+                canExpand
+                  ? `${expanded ? "Collapse" : "Expand"} snapshot from ${formatRelative(snapshot.fetched_at)}${diffs.length ? `, ${diffs.length} change${diffs.length === 1 ? "" : "s"}` : ""}`
+                  : `Snapshot from ${formatRelative(snapshot.fetched_at)}`
+              }
               onClick={() => canExpand && setExpandedId(expanded ? null : snapshot.id)}
             >
               <span className="flex items-center gap-2">
                 {canExpand ? (
-                  expanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  expanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
                 ) : (
-                  <span className="inline-block w-3.5" />
+                  <span className="inline-block w-3.5" aria-hidden />
                 )}
                 <span className="font-medium text-foreground">Snapshot {formatRelative(snapshot.fetched_at)}</span>
                 {canExpand && (
