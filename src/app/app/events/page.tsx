@@ -60,6 +60,14 @@ export default async function EventsPage({
         <div className="surface-card relative overflow-hidden p-4">
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent" />
           <AppEventsFilterChips />
+          {highOnly ? (
+            <p className="mt-3 text-xs text-muted-foreground" role="status">
+              Showing high-confidence events only (≥80%).{" "}
+              <Link href="/app/events" className="link-subtle text-xs font-semibold">
+                Clear confidence filter
+              </Link>
+            </p>
+          ) : null}
         </div>
       </Suspense>
 
