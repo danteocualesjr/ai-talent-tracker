@@ -3,7 +3,7 @@ import { ArrowRight, Briefcase, Compass, ExternalLink, Globe, LogOut, Pencil, Sp
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatRelative } from "@/lib/utils";
+import { formatConfidencePercent, formatRelative } from "@/lib/utils";
 import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db";
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
@@ -184,10 +184,10 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
                   ? "bg-signal/10 text-signal ring-signal/25"
                   : "bg-muted text-muted-foreground ring-border/60"
               }`}
-              title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
-              aria-label={`Detection confidence ${Math.round(event.confidence * 100)} percent`}
+              title={`Detection confidence: ${formatConfidencePercent(event.confidence)}%`}
+              aria-label={`Detection confidence ${formatConfidencePercent(event.confidence)} percent`}
             >
-              {Math.round(event.confidence * 100)}%
+              {formatConfidencePercent(event.confidence)}%
             </span>
           )}
           <span className="tnum ml-auto text-xs text-muted-foreground sm:ml-0">{formatRelative(event.detected_at)}</span>
@@ -232,10 +232,10 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
                 ? "bg-signal/10 text-signal ring-signal/25"
                 : "bg-muted text-muted-foreground ring-border/60"
             }`}
-            title={`Detection confidence: ${Math.round(event.confidence * 100)}%`}
-            aria-label={`Detection confidence ${Math.round(event.confidence * 100)} percent`}
+            title={`Detection confidence: ${formatConfidencePercent(event.confidence)}%`}
+            aria-label={`Detection confidence ${formatConfidencePercent(event.confidence)} percent`}
           >
-            {Math.round(event.confidence * 100)}%
+            {formatConfidencePercent(event.confidence)}%
           </span>
         )}
         <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
