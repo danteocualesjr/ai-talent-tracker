@@ -201,7 +201,7 @@ function FeedStat({
           <div className="mt-1.5 label-caps text-muted-foreground transition-colors group-hover/stat:text-foreground/70">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 shadow-sm ${accent} motion-safe:transition-all motion-safe:group-hover/stat:scale-105 motion-safe:group-hover/stat:border-signal/30 motion-safe:group-hover/stat:bg-signal/10`}>
+          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/60 shadow-sm ${accent} motion-safe:transition-all motion-safe:group-hover/stat:scale-105 motion-safe:group-hover/stat:border-signal/30 motion-safe:group-hover/stat:bg-signal/10`} aria-hidden>
             {icon}
           </div>
         )}
