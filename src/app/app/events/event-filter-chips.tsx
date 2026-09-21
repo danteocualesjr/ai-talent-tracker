@@ -12,6 +12,8 @@ const FILTERS = [
   { label: "Joiners", param: "joiners", dot: "bg-signal/70" },
   { label: "GitHub", param: "github", dot: "bg-rose-500" },
   { label: "Location", param: "location", dot: "bg-sky-500" },
+  { label: "About", param: "about", dot: "bg-muted-foreground" },
+  { label: "Role", param: "role", dot: "bg-muted-foreground/70" },
 ] as const;
 
 export function AppEventsFilterChips() {
