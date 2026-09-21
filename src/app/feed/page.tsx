@@ -97,7 +97,7 @@ export default async function PublicFeedPage({
           <div className="surface-card corner-brackets relative flex flex-col gap-4 overflow-hidden p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-signal/80 via-signal to-signal/80" />
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal" aria-hidden>
                 <Filter className="h-4 w-4" />
               </div>
               <div>
