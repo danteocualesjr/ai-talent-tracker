@@ -126,3 +126,9 @@ export function formatShortDate(iso: string | Date) {
   if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
+
+/** Whole-number percent for detection confidence (0–1). */
+export function formatConfidencePercent(confidence: number): number {
+  if (!Number.isFinite(confidence)) return 0;
+  return Math.max(0, Math.min(100, Math.round(confidence * 100)));
+}
