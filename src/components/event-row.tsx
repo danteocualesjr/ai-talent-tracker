@@ -3,7 +3,7 @@ import { ArrowRight, Briefcase, Compass, ExternalLink, Globe, LogOut, Pencil, Sp
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatConfidencePercent, formatRelative } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, isHighConfidence } from "@/lib/utils";
 import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db";
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
@@ -180,7 +180,7 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
           {event.confidence >= 0.7 && (
             <span
               className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
-                event.confidence >= 0.8
+                isHighConfidence(event.confidence)
                   ? "bg-signal/10 text-signal ring-signal/25"
                   : "bg-muted text-muted-foreground ring-border/60"
               }`}
