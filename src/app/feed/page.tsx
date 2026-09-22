@@ -28,6 +28,8 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   joiners: ["joined_company"],
   github: ["github_dark"],
   location: ["location_changed"],
+  about: ["about_changed"],
+  role: ["role_change_internal"],
 };
 
 const FILTER_LABELS: Record<string, string> = {
@@ -37,6 +39,8 @@ const FILTER_LABELS: Record<string, string> = {
   joiners: "joiners",
   github: "GitHub dark signals",
   location: "location changes",
+  about: "about updates",
+  role: "role changes",
 };
 
 export default async function PublicFeedPage({
