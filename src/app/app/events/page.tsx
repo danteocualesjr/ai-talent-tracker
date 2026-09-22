@@ -29,10 +29,11 @@ const FILTER_TYPES: Record<string, EventType[]> = {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; confidence?: string }>;
+  searchParams: Promise<{ type?: string; confidence?: string; days?: string }>;
 }) {
-  const { type, confidence } = await searchParams;
+  const { type, confidence, days } = await searchParams;
   const highOnly = confidence === "high";
+  const last7Only = days === "7";
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
@@ -41,6 +42,7 @@ export default async function EventsPage({
   const filtered = events.filter((event) => {
     if (allowedTypes && !allowedTypes.includes(event.type)) return false;
     if (highOnly && !isHighConfidence(event.confidence)) return false;
+    if (last7Only && new Date(event.detected_at).getTime() <= Date.now() - 7 * 86400000) return false;
     return true;
   });
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
