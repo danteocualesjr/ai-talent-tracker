@@ -233,7 +233,7 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
         {event.confidence >= 0.7 && (
           <span
             className={`tnum rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
-              event.confidence >= 0.8
+              isHighConfidence(event.confidence)
                 ? "bg-signal/10 text-signal ring-signal/25"
                 : "bg-muted text-muted-foreground ring-border/60"
             }`}
