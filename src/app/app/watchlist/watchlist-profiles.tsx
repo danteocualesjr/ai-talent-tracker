@@ -176,6 +176,14 @@ export function WatchlistProfiles({
         {status !== "all" ? ` with status ${status}` : ""}
         {query.trim() ? ` matching “${query.trim()}”` : ""}.
       </p>
+      {(query.trim() || status !== "all") && filtered.length > 0 ? (
+        <div className="border-b border-border/60 px-5 py-2 text-xs text-muted-foreground" role="status">
+          Showing <span className="tnum font-semibold text-foreground">{filtered.length}</span> of{" "}
+          <span className="tnum">{profiles.length}</span> profiles
+          {status !== "all" ? ` · ${status}` : ""}
+          {query.trim() ? ` · “${query.trim()}”` : ""}
+        </div>
+      ) : null}
 
       {filtered.length === 0 ? (
         <EmptyPanel
