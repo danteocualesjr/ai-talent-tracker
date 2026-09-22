@@ -54,11 +54,11 @@ export function DashboardGreeting({
   const now = new Date();
   const nextHint =
     profileCount === 0
-      ? "Your watchlist is empty — add a few LinkedIn URLs to start the brief."
+      ? "Your watchlist is empty - add a few LinkedIn URLs to start the brief."
       : staleCount > 0
         ? `${staleCount} profile${staleCount === 1 ? "" : "s"} need a refresh before the next cycle.`
         : eventCount7d > 0
-          ? `${eventCount7d} event${eventCount7d === 1 ? "" : "s"} in the last 7 days — review high-confidence moves first.`
+          ? `${eventCount7d} event${eventCount7d === 1 ? "" : "s"} in the last 7 days - review high-confidence moves first.`
           : hint;
   const nextHref = profileCount === 0 ? "/app/watchlist" : staleCount > 0 ? "/app/watchlist?status=stale" : "/app/events";
   const nextLabel = profileCount === 0 ? "Add profiles" : staleCount > 0 ? "Refresh stale" : "Open event inbox";
