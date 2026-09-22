@@ -10,6 +10,7 @@ import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
 import { AppEventsFilterChips } from "./event-filter-chips";
 import { ExportEventsButton } from "./export-events-button";
+import { isHighConfidence } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 export const metadata = { title: "Events" };
@@ -39,11 +40,11 @@ export default async function EventsPage({
   const allowedTypes = type ? FILTER_TYPES[type] : undefined;
   const filtered = events.filter((event) => {
     if (allowedTypes && !allowedTypes.includes(event.type)) return false;
-    if (highOnly && event.confidence < 0.8) return false;
+    if (highOnly && !isHighConfidence(event.confidence)) return false;
     return true;
   });
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
-  const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
+  const highConfidence = events.filter((event) => isHighConfidence(event.confidence)).length;
   const publicEvents = events.filter((event) => event.is_public).length;
 
   return (
