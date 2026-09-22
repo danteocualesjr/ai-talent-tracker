@@ -256,7 +256,7 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
           </span>
           <span className="inline-flex items-center gap-1">
             <Kbd>esc</Kbd>
-            close
+            {query.trim() ? "clear search" : "close"}
           </span>
         </div>
       </DialogContent>
