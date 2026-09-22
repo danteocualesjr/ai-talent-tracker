@@ -63,11 +63,21 @@ export default async function EventsPage({
         <div className="surface-card relative overflow-hidden p-4">
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent" />
           <AppEventsFilterChips />
-          {highOnly ? (
+          {(highOnly || last7Only) ? (
             <p className="mt-3 text-xs text-muted-foreground" role="status">
-              Showing high-confidence events only (≥80%).{" "}
-              <Link href="/app/events" className="link-subtle text-xs font-semibold">
-                Clear confidence filter
+              {highOnly ? "Showing high-confidence events only (≥80%). " : ""}
+              {last7Only ? "Limited to the last 7 days. " : ""}
+              <Link
+                href={
+                  highOnly && last7Only
+                    ? "/app/events"
+                    : highOnly
+                      ? "/app/events?days=7"
+                      : "/app/events?confidence=high"
+                }
+                className="link-subtle text-xs font-semibold"
+              >
+                {highOnly && last7Only ? "Clear filters" : highOnly ? "Clear confidence filter" : "Clear date filter"}
               </Link>
             </p>
           ) : null}
@@ -75,7 +85,7 @@ export default async function EventsPage({
       </Suspense>
 
       <div className="stat-strip grid-cols-3">
-        <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" href="/app/events" />
+        <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" href="/app/events?days=7" />
         <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/app/events?confidence=high" />
         <EventMetric label="Public feed" value={publicEvents} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed" />
       </div>
@@ -125,9 +135,9 @@ export default async function EventsPage({
         {filtered.length === 0 ? (
           <EmptyPanel
             icon={<Bell className="h-5 w-5" />}
-            title={type || highOnly ? "No matching events" : "No events yet"}
+            title={type || highOnly || last7Only ? "No matching events" : "No events yet"}
             body={
-              type || highOnly
+              type || highOnly || last7Only
                 ? "Nothing matched this filter. Clear it to see all events, or add more profiles to your watchlist."
                 : "Once a tracked profile changes company, headline, or location, you'll see it here."
             }
@@ -137,7 +147,7 @@ export default async function EventsPage({
               </Button>
             }
             secondaryCta={
-              type || highOnly ? (
+              type || highOnly || last7Only ? (
                 <Button asChild variant="outline">
                   <Link href="/app/events">Clear filter</Link>
                 </Button>
