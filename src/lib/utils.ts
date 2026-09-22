@@ -127,8 +127,30 @@ export function formatShortDate(iso: string | Date) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+/** Minimum confidence treated as high-quality in filters and badges. */
+export const HIGH_CONFIDENCE_THRESHOLD = 0.8;
+
+/** True when detection confidence meets the high-quality bar (≥80%). */
+export function isHighConfidence(confidence: number): boolean {
+  return Number.isFinite(confidence) && confidence >= HIGH_CONFIDENCE_THRESHOLD;
+}
+
 /** Whole-number percent for detection confidence (0–1). */
 export function formatConfidencePercent(confidence: number): number {
   if (!Number.isFinite(confidence)) return 0;
   return Math.max(0, Math.min(100, Math.round(confidence * 100)));
+}
+
+/** Absolute local datetime for tooltips beside relative timestamps. */
+export function formatAbsoluteDateTime(iso: string | Date | null | undefined): string {
+  if (!iso) return "";
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
