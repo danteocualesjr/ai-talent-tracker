@@ -26,7 +26,7 @@ import { EventListItem } from "@/components/event-row";
 import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { Sparkline } from "@/components/sparkline";
 import { ActivityBarChart, buildDayLabels } from "@/components/activity-bar-chart";
-import { cn } from "@/lib/utils";
+import { cn, isHighConfidence } from "@/lib/utils";
 import { RefreshStaleButton } from "@/app/app/watchlist/refresh-stale-button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
   }).length;
   const freshProfiles = Math.max(0, profiles.length - staleProfiles);
   const priorityEvents = events
-    .filter((event) => event.confidence >= 0.8 || event.type === "went_stealth" || event.type === "headline_signals_founding")
+    .filter((event) => isHighConfidence(event.confidence) || event.type === "went_stealth" || event.type === "headline_signals_founding")
     .slice(0, 3);
 
   return (
