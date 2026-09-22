@@ -190,7 +190,12 @@ export function EventListItem({ event, profile, href }: { event: EventRowT; prof
               {formatConfidencePercent(event.confidence)}%
             </span>
           )}
-          <span className="tnum ml-auto text-xs text-muted-foreground sm:ml-0">{formatRelative(event.detected_at)}</span>
+          <span
+            className="tnum ml-auto text-xs text-muted-foreground sm:ml-0"
+            title={formatAbsoluteDateTime(event.detected_at) || undefined}
+          >
+            {formatRelative(event.detected_at)}
+          </span>
         </div>
         <p className="mt-1.5 text-pretty text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {event.summary}
@@ -238,7 +243,12 @@ export function EventTimelineItem({ event, profile }: { event: EventRowT; profil
             {formatConfidencePercent(event.confidence)}%
           </span>
         )}
-        <span className="tnum text-xs text-muted-foreground">{formatRelative(event.detected_at)}</span>
+        <span
+          className="tnum text-xs text-muted-foreground"
+          title={formatAbsoluteDateTime(event.detected_at) || undefined}
+        >
+          {formatRelative(event.detected_at)}
+        </span>
       </div>
       <p className="mt-1.5 text-pretty text-sm leading-relaxed">{event.summary}</p>
       <EventFieldDiff before={event.before} after={event.after} />
