@@ -21,6 +21,7 @@ export function FeedFilterChips() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeParam = searchParams.get("type");
+  const highOnly = searchParams.get("confidence") === "high";
   const groupRef = useRef<HTMLDivElement>(null);
 
   function selectFilter(param: (typeof FILTERS)[number]["param"]) {
@@ -49,9 +50,13 @@ export function FeedFilterChips() {
     } else if (event.key === "End") {
       event.preventDefault();
       focusChip(FILTERS.length - 1);
-    } else if (event.key === "Escape" && activeParam) {
+    } else if (event.key === "Escape" && (activeParam || highOnly)) {
       event.preventDefault();
-      selectFilter(null);
+      const next = new URLSearchParams(searchParams.toString());
+      next.delete("type");
+      next.delete("confidence");
+      const query = next.toString();
+      router.push(query ? `/feed?${query}` : "/feed", { scroll: false });
     }
   }
 
@@ -94,7 +99,7 @@ export function FeedFilterChips() {
         })}
       </div>
       <p className="sr-only" aria-live="polite">
-        Showing {activeLabel} signals
+        Showing {activeLabel} signals{highOnly ? ", high confidence only" : ""}
       </p>
     </div>
   );
