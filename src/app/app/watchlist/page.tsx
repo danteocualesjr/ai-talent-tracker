@@ -85,7 +85,7 @@ export default async function WatchlistPage({
               )}
             >
               {capacityTone === "full"
-                ? "Profile limit reached — remove profiles or upgrade your plan."
+                ? "Profile limit reached - remove profiles or upgrade your plan."
                 : "Almost at your profile limit."}
             </p>
           )}
