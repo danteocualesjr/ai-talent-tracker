@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { EmptyPanel } from "@/components/panel";
 import { RemoveProfileButton } from "./remove-profile-button";
 import { RefreshProfileButton } from "./refresh-profile-button";
-import { formatRelative, cn } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative, cn } from "@/lib/utils";
 import type { Profile } from "@/types/db";
 
 const STATUS_TONE: Record<string, "default" | "secondary" | "success" | "warning"> = {
@@ -252,7 +252,11 @@ export function WatchlistProfiles({
                   {p.headline || p.current_title || p.current_company || "—"}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
-                  Last synced {formatRelative(p.last_synced_at)} · {p.current_company ?? "no current company"}
+                  Last synced{" "}
+                  <span title={formatAbsoluteDateTime(p.last_synced_at) || undefined}>
+                    {formatRelative(p.last_synced_at)}
+                  </span>{" "}
+                  · {p.current_company ?? "no current company"}
                 </p>
               </div>
               <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
