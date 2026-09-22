@@ -109,7 +109,7 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
               <p className="font-semibold text-foreground">Check your inbox</p>
               <p className="mt-1 text-muted-foreground">
                 We sent a magic link to{" "}
-                <span className="font-medium text-foreground">{email}</span>. Click it to sign in — you can close this tab afterward.
+                <span className="font-medium text-foreground">{email}</span>. Click it to sign in - you can close this tab afterward.
               </p>
               <ol className="mt-4 space-y-2 text-xs text-muted-foreground">
                 {[
