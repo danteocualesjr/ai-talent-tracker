@@ -233,6 +233,12 @@ export function WatchlistProfiles({
                   <Badge variant={STATUS_TONE[p.status] ?? "secondary"} className="capitalize">
                     {p.status}
                   </Badge>
+                  {isStaleProfile(p) ? (
+                    <Badge variant="warning" className="gap-1">
+                      <RefreshCw className="h-2.5 w-2.5" aria-hidden />
+                      Needs refresh
+                    </Badge>
+                  ) : null}
                 </div>
                 <p className="mt-0.5 truncate text-sm text-muted-foreground">
                   {p.headline || p.current_title || p.current_company || "—"}
