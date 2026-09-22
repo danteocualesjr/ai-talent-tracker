@@ -99,7 +99,7 @@ export default async function PublicFeedPage({
           <div className="container max-w-3xl space-y-5 py-10 pb-28 md:py-12 md:pb-12">
           <div className="stat-strip grid-cols-3 shadow-pop">
             <FeedStat label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" />
-            <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" />
+            <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/feed?confidence=high" />
             <FeedStat label="Founder signals" value={foundingSignals} icon={<Compass className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed?type=founders" />
           </div>
 
@@ -119,6 +119,14 @@ export default async function PublicFeedPage({
             <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-md bg-muted/60" />}>
               <FeedFilterChips />
             </Suspense>
+            {highOnly ? (
+              <p className="w-full text-xs text-muted-foreground sm:text-right" role="status">
+                Showing high-confidence events only (≥80%).{" "}
+                <Link href={type ? `/feed?type=${type}` : "/feed"} className="link-subtle text-xs font-semibold">
+                  Clear confidence filter
+                </Link>
+              </p>
+            ) : null}
           </div>
 
           <Panel
@@ -148,14 +156,14 @@ export default async function PublicFeedPage({
             {filtered.length === 0 ? (
               <EmptyPanel
                 icon={filterLabel ? <Filter className="h-5 w-5" /> : <Rss className="h-5 w-5" />}
-                title={filterLabel ? `No ${filterLabel} in this window` : "Feed is warming up"}
+                title={filterLabel || highOnly ? (filterLabel ? `No ${filterLabel} in this window` : "No high-confidence events in this window") : "Feed is warming up"}
                 body={
-                  filterLabel
+                  filterLabel || highOnly
                     ? "Try another signal type or clear the filter to see the full stream."
                     : "We're indexing the first departures. Check back soon or subscribe via RSS."
                 }
                 cta={
-                  filterLabel ? (
+                  filterLabel || highOnly ? (
                     <Button asChild variant="outline" size="sm">
                       <Link href="/feed">Clear filter</Link>
                     </Button>
