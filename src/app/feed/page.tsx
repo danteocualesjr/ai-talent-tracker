@@ -11,7 +11,7 @@ import { FeedFilterChips } from "@/components/feed-filter-chips";
 import { FeedMobileCta } from "@/components/feed-mobile-cta";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { getPublicEvents } from "@/lib/queries";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, isHighConfidence } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 export const metadata = {
@@ -51,7 +51,7 @@ export default async function PublicFeedPage({
   const filterLabel = type ? FILTER_LABELS[type] : null;
 
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
-  const highConfidence = events.filter((event) => event.confidence >= 0.8).length;
+  const highConfidence = events.filter((event) => isHighConfidence(event.confidence)).length;
   const foundingSignals = events.filter((event) => event.type === "headline_signals_founding" || event.type === "went_stealth").length;
   const latestDetectedAt = events[0]?.detected_at ?? null;
 
