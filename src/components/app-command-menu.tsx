@@ -56,6 +56,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/events?type=github", label: "GitHub dark events", icon: Github, keywords: ["github", "dark", "commits", "filter"], group: "Actions" },
   { href: "/app/events?confidence=high", label: "High-confidence events", icon: Sparkles, keywords: ["confidence", "high", "quality", "filter"], group: "Actions" },
   { href: "/app/events?days=7", label: "Events from last 7 days", icon: Clock, keywords: ["week", "recent", "7", "days", "filter"], group: "Actions" },
+  { href: "/app/events?confidence=high&days=7", label: "High-confidence events this week", icon: Sparkles, keywords: ["confidence", "high", "week", "7", "days", "recent", "filter"], group: "Actions" },
   { href: "/app/events?type=location", label: "Location events", icon: Globe, keywords: ["location", "moved", "filter"], group: "Actions" },
   { href: "/app/events?type=about", label: "About updates", icon: Pencil, keywords: ["about", "bio", "filter"], group: "Actions" },
   { href: "/app/events?type=role", label: "Role changes", icon: Pencil, keywords: ["role", "title", "internal", "filter"], group: "Actions" },
