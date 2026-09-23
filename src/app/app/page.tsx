@@ -268,7 +268,7 @@ export default async function DashboardPage() {
             {href ? (
               <Link href={href} className="tnum mt-2 block text-2xl font-bold capitalize transition-colors hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30 rounded-sm">
                 {value}
-                <span className="sr-only"> — open {label}</span>
+                <span className="sr-only"> - open {label}</span>
               </Link>
             ) : (
               <div className="tnum mt-2 text-2xl font-bold capitalize">{value}</div>

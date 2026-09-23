@@ -123,7 +123,7 @@ export function xProfileUrl(handle: string): string {
 /** Compact month/day label for charts and dense UI. */
 export function formatShortDate(iso: string | Date) {
   const d = typeof iso === "string" ? new Date(iso) : iso;
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "n/a";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
