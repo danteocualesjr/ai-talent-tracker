@@ -85,8 +85,36 @@ export default async function EventsPage({
       </Suspense>
 
       <div className="stat-strip grid-cols-3">
-        <EventMetric label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" href="/app/events?days=7" />
-        <EventMetric label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/app/events?confidence=high" />
+        <EventMetric
+          label="Last 7 days"
+          value={last7}
+          icon={<TrendingUp className="h-3.5 w-3.5" />}
+          accent="text-signal"
+          href={
+            (() => {
+              const params = new URLSearchParams();
+              if (type) params.set("type", type);
+              if (highOnly) params.set("confidence", "high");
+              params.set("days", "7");
+              return `/app/events?${params.toString()}`;
+            })()
+          }
+        />
+        <EventMetric
+          label="High confidence"
+          value={highConfidence}
+          icon={<Sparkles className="h-3.5 w-3.5" />}
+          accent="text-violet-accent"
+          href={
+            (() => {
+              const params = new URLSearchParams();
+              if (type) params.set("type", type);
+              params.set("confidence", "high");
+              if (last7Only) params.set("days", "7");
+              return `/app/events?${params.toString()}`;
+            })()
+          }
+        />
         <EventMetric label="Public feed" value={publicEvents} icon={<Globe2 className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed" />
       </div>
 
