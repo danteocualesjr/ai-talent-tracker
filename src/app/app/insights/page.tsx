@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/page-header";
 import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { ActivityBarChart, buildDayLabels } from "@/components/activity-bar-chart";
-import { formatRelative } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative } from "@/lib/utils";
 import { CopyBriefButton } from "./copy-brief-button";
 
 export const metadata = { title: "Insights" };
@@ -178,7 +178,9 @@ export default async function InsightsPage() {
                       <div className="truncate text-sm font-semibold group-hover:text-signal">{row.name}</div>
                       <div className="mt-0.5 text-xs text-muted-foreground">
                         Latest {labelForEventType(row.latestType).toLowerCase()} ·{" "}
-                        {formatRelative(row.latestAt)}
+                        <span title={formatAbsoluteDateTime(row.latestAt) || undefined}>
+                          {formatRelative(row.latestAt)}
+                        </span>
                       </div>
                     </div>
                     <span className="tnum shrink-0 rounded-full bg-signal/10 px-2.5 py-0.5 text-xs font-bold text-signal">
