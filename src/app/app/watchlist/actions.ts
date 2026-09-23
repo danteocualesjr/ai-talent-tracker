@@ -173,7 +173,7 @@ export async function importProfilesFromCsv(formData: FormData): Promise<ImportR
   }
 
   if (added === 0 && skipped === 0 && !limitReached) {
-    return { error: "Import failed — no profiles could be added." };
+    return { error: "Import failed - no profiles could be added." };
   }
 
   revalidatePath("/app/watchlist");

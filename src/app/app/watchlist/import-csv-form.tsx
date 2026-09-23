@@ -23,7 +23,7 @@ export function ImportCsvForm() {
         if (res.skipped) parts.push(`${res.skipped} already tracked`);
         if (res.invalid) parts.push(`${res.invalid} invalid`);
         if (res.limitReached) parts.push("plan limit reached");
-        toast.success(`Import complete — ${parts.join(", ")}.`);
+        toast.success(`Import complete - ${parts.join(", ")}.`);
         ref.current?.reset();
         if (fileRef.current) fileRef.current.value = "";
         setSelectedFile("");
@@ -50,7 +50,7 @@ export function ImportCsvForm() {
     <form ref={ref} action={onSubmit} className="space-y-4">
       <Textarea
         name="csv_text"
-        placeholder={`Paste LinkedIn URLs — one per line or CSV with a linkedin_url column:\n\nhttps://www.linkedin.com/in/jane-researcher\nhttps://www.linkedin.com/in/john-engineer`}
+        placeholder={`Paste LinkedIn URLs - one per line or CSV with a linkedin_url column:\n\nhttps://www.linkedin.com/in/jane-researcher\nhttps://www.linkedin.com/in/john-engineer`}
         className="min-h-[140px] font-mono text-xs leading-relaxed"
         required
       />

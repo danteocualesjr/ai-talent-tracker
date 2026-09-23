@@ -18,7 +18,7 @@ export function AddProfileForm() {
       if ("error" in res) {
         toast.error(res.error);
       } else {
-        toast.success("Profile added — first refresh queued.");
+        toast.success("Profile added - first refresh queued.");
         ref.current?.reset();
       }
     });
