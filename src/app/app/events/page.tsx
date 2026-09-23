@@ -63,21 +63,13 @@ export default async function EventsPage({
         <div className="surface-card relative overflow-hidden p-4">
           <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-signal/50 to-transparent" />
           <AppEventsFilterChips />
-          {(highOnly || last7Only) ? (
+          {(type || highOnly || last7Only) ? (
             <p className="mt-3 text-xs text-muted-foreground" role="status">
+              {type ? `Type filter: ${type}. ` : ""}
               {highOnly ? "Showing high-confidence events only (≥80%). " : ""}
               {last7Only ? "Limited to the last 7 days. " : ""}
-              <Link
-                href={
-                  highOnly && last7Only
-                    ? "/app/events"
-                    : highOnly
-                      ? "/app/events?days=7"
-                      : "/app/events?confidence=high"
-                }
-                className="link-subtle text-xs font-semibold"
-              >
-                {highOnly && last7Only ? "Clear filters" : highOnly ? "Clear confidence filter" : "Clear date filter"}
+              <Link href="/app/events" className="link-subtle text-xs font-semibold">
+                Clear filters
               </Link>
             </p>
           ) : null}
