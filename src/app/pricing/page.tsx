@@ -44,7 +44,7 @@ export default async function PricingPage({
             </div>
             <div className="mx-auto mt-10 grid max-w-3xl gap-2 sm:grid-cols-3">
               {[
-                "Cancel anytime — no lock-in",
+                "Cancel anytime - no lock-in",
                 "Free tier needs no credit card",
                 "Licensed data + DSAR / opt-out",
               ].map((item) => (

@@ -142,7 +142,7 @@ export function AppTopbar({ email, orgPlan, unreadCount = 0 }: Props) {
           href="/app/events"
           aria-label={
             unreadCount > 0
-              ? `${unreadCount} recent event${unreadCount === 1 ? "" : "s"} in the last 7 days — open events`
+              ? `${unreadCount} recent event${unreadCount === 1 ? "" : "s"} in the last 7 days - open events`
               : "Open events"
           }
           className={cn(

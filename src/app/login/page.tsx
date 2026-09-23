@@ -82,7 +82,7 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ ne
                 Sign in
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                We&apos;ll email you a magic link — no password required.
+                We&apos;ll email you a magic link - no password required.
               </p>
               <LoginForm searchParams={searchParams} />
               <div className="mt-6 flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5 text-[11px] text-muted-foreground transition-colors hover:border-signal/25 hover:bg-signal/[0.04]">
