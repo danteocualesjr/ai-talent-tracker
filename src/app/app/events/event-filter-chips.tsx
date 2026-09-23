@@ -22,6 +22,7 @@ export function AppEventsFilterChips() {
   const searchParams = useSearchParams();
   const activeParam = searchParams.get("type");
   const highOnly = searchParams.get("confidence") === "high";
+  const last7Only = searchParams.get("days") === "7";
   const groupRef = useRef<HTMLDivElement>(null);
 
   function pushParams(mutate: (next: URLSearchParams) => void) {
@@ -65,11 +66,12 @@ export function AppEventsFilterChips() {
     } else if (event.key === "End") {
       event.preventDefault();
       focusChip(total - 1);
-    } else if (event.key === "Escape" && (activeParam || highOnly)) {
+    } else if (event.key === "Escape" && (activeParam || highOnly || last7Only)) {
       event.preventDefault();
       pushParams((next) => {
         next.delete("type");
         next.delete("confidence");
+        next.delete("days");
       });
     }
   }
@@ -127,7 +129,7 @@ export function AppEventsFilterChips() {
         </button>
       </div>
       <p className="sr-only" aria-live="polite">
-        Showing {activeLabel} events{highOnly ? ", high confidence only" : ""}
+        Showing {activeLabel} events{highOnly ? ", high confidence only" : ""}{last7Only ? ", last 7 days" : ""}
       </p>
     </div>
   );
