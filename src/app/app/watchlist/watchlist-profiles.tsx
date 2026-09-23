@@ -249,7 +249,7 @@ export function WatchlistProfiles({
                   ) : null}
                 </div>
                 <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  {p.headline || p.current_title || p.current_company || "—"}
+                  {p.headline || p.current_title || p.current_company || "No headline yet"}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
                   Last synced{" "}
