@@ -34,7 +34,7 @@ export function AddLabRosterButton({
         const parts = [`${res.added} added`];
         if (res.skipped) parts.push(`${res.skipped} already tracked`);
         if (res.limitReached) parts.push("plan limit reached");
-        toast.success(`Watchlist updated — ${parts.join(", ")}.`);
+        toast.success(`Watchlist updated - ${parts.join(", ")}.`);
       }
     });
   }

@@ -95,7 +95,7 @@ export default async function BillingPage({
               )}
             >
               {capacityTone === "full"
-                ? "Profile limit reached — upgrade or remove profiles."
+                ? "Profile limit reached - upgrade or remove profiles."
                 : "Almost at your profile limit."}
             </p>
           )}

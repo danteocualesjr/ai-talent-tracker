@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export function BillingStatusToast({ status }: { status?: string }) {
   useEffect(() => {
     if (status === "success") {
-      toast.success("Subscription updated — your plan limits are now active.");
+      toast.success("Subscription updated - your plan limits are now active.");
     }
   }, [status]);
 
