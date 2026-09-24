@@ -66,6 +66,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/feed?confidence=high", label: "Public high-confidence events", icon: Sparkles, keywords: ["feed", "confidence", "high", "public", "quality"], group: "Actions" },
   { href: "/feed?type=joiners", label: "Public joiner events", icon: Briefcase, keywords: ["feed", "joiners", "joined", "public", "hire"], group: "Actions" },
   { href: "/app/watchlist?status=founder", label: "Founder profiles", icon: Star, keywords: ["founder", "status"], group: "Actions" },
+  { href: "/app/watchlist?status=left", label: "Departed profiles", icon: LogOut, keywords: ["left", "departed", "status", "alumni"], group: "Actions" },
   { href: "/app/alerts", label: "Configure alerts", icon: Bell, keywords: ["slack", "webhook", "notify"], group: "Actions" },
 ];
 
