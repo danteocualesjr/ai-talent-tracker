@@ -121,11 +121,15 @@ export default async function PublicFeedPage({
             <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-md bg-muted/60" />}>
               <FeedFilterChips />
             </Suspense>
-            {highOnly ? (
+            {(highOnly || last7Only) ? (
               <p className="w-full text-xs text-muted-foreground sm:text-right" role="status">
-                Showing high-confidence events only (≥80%).{" "}
-                <Link href={type ? `/feed?type=${type}` : "/feed"} className="link-subtle text-xs font-semibold">
-                  Clear confidence filter
+                {highOnly ? "Showing high-confidence events only (≥80%). " : ""}
+                {last7Only ? "Limited to the last 7 days. " : ""}
+                <Link
+                  href={type ? `/feed?type=${type}` : "/feed"}
+                  className="link-subtle text-xs font-semibold"
+                >
+                  Clear filters
                 </Link>
               </p>
             ) : null}
@@ -158,14 +162,14 @@ export default async function PublicFeedPage({
             {filtered.length === 0 ? (
               <EmptyPanel
                 icon={filterLabel ? <Filter className="h-5 w-5" /> : <Rss className="h-5 w-5" />}
-                title={filterLabel || highOnly ? (filterLabel ? `No ${filterLabel} in this window` : "No high-confidence events in this window") : "Feed is warming up"}
+                title={filterLabel || highOnly || last7Only ? (filterLabel ? `No ${filterLabel} in this window` : highOnly ? "No high-confidence events in this window" : "No events in the last 7 days") : "Feed is warming up"}
                 body={
-                  filterLabel || highOnly
+                  filterLabel || highOnly || last7Only
                     ? "Try another signal type or clear the filter to see the full stream."
                     : "We're indexing the first departures. Check back soon or subscribe via RSS."
                 }
                 cta={
-                  filterLabel || highOnly ? (
+                  filterLabel || highOnly || last7Only ? (
                     <Button asChild variant="outline" size="sm">
                       <Link href="/feed">Clear filter</Link>
                     </Button>
