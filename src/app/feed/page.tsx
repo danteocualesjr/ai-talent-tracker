@@ -183,7 +183,10 @@ export default async function PublicFeedPage({
             }
             action={
               latestDetectedAt ? (
-                <span className="tnum text-xs text-muted-foreground">
+                <span
+                  className="tnum text-xs text-muted-foreground"
+                  title={formatAbsoluteDateTime(latestDetectedAt) || undefined}
+                >
                   Latest {formatRelative(latestDetectedAt)}
                 </span>
               ) : undefined
