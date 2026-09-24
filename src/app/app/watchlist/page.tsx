@@ -131,6 +131,21 @@ export default async function WatchlistPage({
         })}
       </div>
 
+      {initialStatus !== "all" ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          Showing{" "}
+          {initialStatus === "left"
+            ? "departed"
+            : initialStatus === "stale"
+              ? "needs-refresh"
+              : initialStatus}{" "}
+          profiles only.{" "}
+          <Link href="/app/watchlist" className="link-subtle text-xs font-semibold">
+            Clear status filter
+          </Link>
+        </p>
+      ) : null}
+
       <Panel title="Add profiles" description="Track a single URL or bulk-import a CSV roster. The first refresh runs immediately." bodyClassName="p-5">
         <AddProfilesPanel />
       </Panel>
