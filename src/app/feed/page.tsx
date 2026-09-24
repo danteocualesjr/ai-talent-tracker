@@ -46,15 +46,17 @@ const FILTER_LABELS: Record<string, string> = {
 export default async function PublicFeedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; confidence?: string }>;
+  searchParams: Promise<{ type?: string; confidence?: string; days?: string }>;
 }) {
-  const { type, confidence } = await searchParams;
+  const { type, confidence, days } = await searchParams;
   const highOnly = confidence === "high";
+  const last7Only = days === "7";
   const events = await getPublicEvents(100);
   const allowedTypes = type ? FILTER_TYPES[type] : undefined;
   const filtered = events.filter((event) => {
     if (allowedTypes && !allowedTypes.includes(event.type)) return false;
     if (highOnly && !isHighConfidence(event.confidence)) return false;
+    if (last7Only && new Date(event.detected_at).getTime() <= Date.now() - 7 * 86400000) return false;
     return true;
   });
   const filterLabel = type ? FILTER_LABELS[type] : null;
