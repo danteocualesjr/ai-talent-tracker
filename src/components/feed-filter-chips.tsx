@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Briefcase, Compass, Filter, Github, Globe, LogOut, Pencil, Sparkles, Star } from "lucide-react";
+import { Briefcase, Clock, Compass, Filter, Github, Globe, LogOut, Pencil, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -22,6 +22,7 @@ export function FeedFilterChips() {
   const searchParams = useSearchParams();
   const activeParam = searchParams.get("type");
   const highOnly = searchParams.get("confidence") === "high";
+  const last7Only = searchParams.get("days") === "7";
   const groupRef = useRef<HTMLDivElement>(null);
 
   function pushParams(mutate: (next: URLSearchParams) => void) {
@@ -45,13 +46,20 @@ export function FeedFilterChips() {
     });
   }
 
+  function toggleLast7Days() {
+    pushParams((next) => {
+      if (last7Only) next.delete("days");
+      else next.set("days", "7");
+    });
+  }
+
   function focusChip(index: number) {
     const buttons = groupRef.current?.querySelectorAll<HTMLButtonElement>("button[data-filter-chip]");
     buttons?.[index]?.focus();
   }
 
   function onChipKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
-    const total = FILTERS.length + 1;
+    const total = FILTERS.length + 2;
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
       focusChip((index + 1) % total);
@@ -64,11 +72,12 @@ export function FeedFilterChips() {
     } else if (event.key === "End") {
       event.preventDefault();
       focusChip(total - 1);
-    } else if (event.key === "Escape" && (activeParam || highOnly)) {
+    } else if (event.key === "Escape" && (activeParam || highOnly || last7Only)) {
       event.preventDefault();
       pushParams((next) => {
         next.delete("type");
         next.delete("confidence");
+        next.delete("days");
       });
     }
   }
@@ -124,9 +133,23 @@ export function FeedFilterChips() {
           <Sparkles className={cn("h-3 w-3 shrink-0", highOnly ? "text-signal" : "text-muted-foreground/70")} aria-hidden />
           High confidence
         </button>
+        <button
+          type="button"
+          data-filter-chip
+          aria-pressed={last7Only}
+          onClick={toggleLast7Days}
+          onKeyDown={(event) => onChipKeyDown(event, FILTERS.length + 1)}
+          className={cn(
+            "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 motion-safe:active:scale-95",
+            last7Only ? "chip-active motion-safe:scale-[1.02]" : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground hover:shadow-sm",
+          )}
+        >
+          <Clock className={cn("h-3 w-3 shrink-0", last7Only ? "text-signal" : "text-muted-foreground/70")} aria-hidden />
+          Last 7 days
+        </button>
       </div>
       <p className="sr-only" aria-live="polite">
-        Showing {activeLabel} signals{highOnly ? ", high confidence only" : ""}
+        Showing {activeLabel} signals{highOnly ? ", high confidence only" : ""}{last7Only ? ", last 7 days" : ""}
       </p>
     </div>
   );
