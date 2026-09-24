@@ -64,6 +64,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/events?type=role", label: "Role changes", icon: Pencil, keywords: ["role", "title", "internal", "filter"], group: "Actions" },
   { href: "/feed?type=location", label: "Public location moves", icon: Globe, keywords: ["feed", "location", "public"], group: "Actions" },
   { href: "/feed?confidence=high", label: "Public high-confidence events", icon: Sparkles, keywords: ["feed", "confidence", "high", "public", "quality"], group: "Actions" },
+  { href: "/feed?days=7", label: "Public events from last 7 days", icon: Clock, keywords: ["feed", "week", "recent", "7", "days", "public"], group: "Actions" },
   { href: "/feed?type=joiners", label: "Public joiner events", icon: Briefcase, keywords: ["feed", "joiners", "joined", "public", "hire"], group: "Actions" },
   { href: "/app/watchlist?status=founder", label: "Founder profiles", icon: Star, keywords: ["founder", "status"], group: "Actions" },
   { href: "/app/watchlist?status=left", label: "Departed profiles", icon: LogOut, keywords: ["left", "departed", "status", "alumni"], group: "Actions" },
