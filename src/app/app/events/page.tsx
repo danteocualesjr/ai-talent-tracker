@@ -26,6 +26,17 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   role: ["role_change_internal"],
 };
 
+const FILTER_LABELS: Record<string, string> = {
+  departures: "Departures",
+  stealth: "Stealth",
+  founders: "Founders",
+  joiners: "Joiners",
+  github: "GitHub",
+  location: "Location",
+  about: "About",
+  role: "Role",
+};
+
 export default async function EventsPage({
   searchParams,
 }: {
@@ -65,7 +76,7 @@ export default async function EventsPage({
           <AppEventsFilterChips />
           {(type || highOnly || last7Only) ? (
             <p className="mt-3 text-xs text-muted-foreground" role="status">
-              {type ? `Type filter: ${type}. ` : ""}
+              {type ? `Type filter: ${FILTER_LABELS[type] ?? type}. ` : ""}
               {highOnly ? "Showing high-confidence events only (≥80%). " : ""}
               {last7Only ? "Limited to the last 7 days. " : ""}
               <Link href="/app/events" className="link-subtle text-xs font-semibold">
