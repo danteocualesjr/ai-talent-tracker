@@ -62,6 +62,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/events?type=location", label: "Location events", icon: Globe, keywords: ["location", "moved", "filter"], group: "Actions" },
   { href: "/app/events?type=about", label: "About updates", icon: Pencil, keywords: ["about", "bio", "filter"], group: "Actions" },
   { href: "/app/events?type=role", label: "Role changes", icon: Pencil, keywords: ["role", "title", "internal", "filter"], group: "Actions" },
+  { href: "/feed?type=departures", label: "Public departure events", icon: LogOut, keywords: ["feed", "departures", "left", "public"], group: "Actions" },
   { href: "/feed?type=location", label: "Public location moves", icon: Globe, keywords: ["feed", "location", "public"], group: "Actions" },
   { href: "/feed?confidence=high", label: "Public high-confidence events", icon: Sparkles, keywords: ["feed", "confidence", "high", "public", "quality"], group: "Actions" },
   { href: "/feed?days=7", label: "Public events from last 7 days", icon: Clock, keywords: ["feed", "week", "recent", "7", "days", "public"], group: "Actions" },
