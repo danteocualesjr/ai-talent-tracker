@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
-import { formatRelative } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative } from "@/lib/utils";
 import type { DeliveryLogEntry } from "@/lib/queries";
 
 export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) {
@@ -25,7 +25,7 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
                 <Badge variant={d.status === "sent" ? "success" : d.status === "failed" ? "destructive" : "secondary"}>
                   {d.status}
                 </Badge>
-                <span className="text-xs text-muted-foreground">{formatRelative(d.created_at)}</span>
+                <span className="text-xs text-muted-foreground" title={formatAbsoluteDateTime(d.created_at) || undefined}>{formatRelative(d.created_at)}</span>
               </div>
               {d.event && (
                 <p className="mt-1 truncate text-muted-foreground">
