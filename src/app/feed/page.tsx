@@ -103,8 +103,36 @@ export default async function PublicFeedPage({
         <section className="section-wash border-b border-border/50">
           <div className="container max-w-3xl space-y-5 py-10 pb-28 md:py-12 md:pb-12">
           <div className="stat-strip grid-cols-3 shadow-pop">
-            <FeedStat label="Last 7 days" value={last7} icon={<TrendingUp className="h-3.5 w-3.5" />} accent="text-signal" href="/feed?days=7" />
-            <FeedStat label="High confidence" value={highConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-violet-accent" href="/feed?confidence=high" />
+            <FeedStat
+              label="Last 7 days"
+              value={last7}
+              icon={<TrendingUp className="h-3.5 w-3.5" />}
+              accent="text-signal"
+              href={
+                (() => {
+                  const params = new URLSearchParams();
+                  if (type) params.set("type", type);
+                  if (highOnly) params.set("confidence", "high");
+                  params.set("days", "7");
+                  return `/feed?${params.toString()}`;
+                })()
+              }
+            />
+            <FeedStat
+              label="High confidence"
+              value={highConfidence}
+              icon={<Sparkles className="h-3.5 w-3.5" />}
+              accent="text-violet-accent"
+              href={
+                (() => {
+                  const params = new URLSearchParams();
+                  if (type) params.set("type", type);
+                  params.set("confidence", "high");
+                  if (last7Only) params.set("days", "7");
+                  return `/feed?${params.toString()}`;
+                })()
+              }
+            />
             <FeedStat label="Founder signals" value={foundingSignals} icon={<Compass className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed?type=founders" />
           </div>
 
