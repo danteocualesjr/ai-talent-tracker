@@ -80,7 +80,7 @@ export default async function InsightsPage() {
               icon={<Sparkles className="h-3.5 w-3.5" />}
               accent="text-amber-accent"
               accentBar="via-amber-500/40"
-              href="/app/events"
+              href="/app/events?days=7"
             />
             <MetricCard
               label="Tracked profiles"
