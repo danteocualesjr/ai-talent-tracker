@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Briefcase, Compass, Filter, Github, Globe, LogOut, Pencil, Star } from "lucide-react";
+import { Briefcase, Compass, Filter, Github, Globe, LogOut, Pencil, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -24,12 +24,25 @@ export function FeedFilterChips() {
   const highOnly = searchParams.get("confidence") === "high";
   const groupRef = useRef<HTMLDivElement>(null);
 
-  function selectFilter(param: (typeof FILTERS)[number]["param"]) {
+  function pushParams(mutate: (next: URLSearchParams) => void) {
     const next = new URLSearchParams(searchParams.toString());
-    if (param) next.set("type", param);
-    else next.delete("type");
+    mutate(next);
     const query = next.toString();
     router.push(query ? `/feed?${query}` : "/feed", { scroll: false });
+  }
+
+  function selectFilter(param: (typeof FILTERS)[number]["param"]) {
+    pushParams((next) => {
+      if (param) next.set("type", param);
+      else next.delete("type");
+    });
+  }
+
+  function toggleHighConfidence() {
+    pushParams((next) => {
+      if (highOnly) next.delete("confidence");
+      else next.set("confidence", "high");
+    });
   }
 
   function focusChip(index: number) {
@@ -38,25 +51,25 @@ export function FeedFilterChips() {
   }
 
   function onChipKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
+    const total = FILTERS.length + 1;
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      focusChip((index + 1) % FILTERS.length);
+      focusChip((index + 1) % total);
     } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      focusChip((index - 1 + FILTERS.length) % FILTERS.length);
+      focusChip((index - 1 + total) % total);
     } else if (event.key === "Home") {
       event.preventDefault();
       focusChip(0);
     } else if (event.key === "End") {
       event.preventDefault();
-      focusChip(FILTERS.length - 1);
+      focusChip(total - 1);
     } else if (event.key === "Escape" && (activeParam || highOnly)) {
       event.preventDefault();
-      const next = new URLSearchParams(searchParams.toString());
-      next.delete("type");
-      next.delete("confidence");
-      const query = next.toString();
-      router.push(query ? `/feed?${query}` : "/feed", { scroll: false });
+      pushParams((next) => {
+        next.delete("type");
+        next.delete("confidence");
+      });
     }
   }
 
@@ -97,6 +110,20 @@ export function FeedFilterChips() {
             </button>
           );
         })}
+        <button
+          type="button"
+          data-filter-chip
+          aria-pressed={highOnly}
+          onClick={toggleHighConfidence}
+          onKeyDown={(event) => onChipKeyDown(event, FILTERS.length)}
+          className={cn(
+            "chip transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40 motion-safe:active:scale-95",
+            highOnly ? "chip-active motion-safe:scale-[1.02]" : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground hover:shadow-sm",
+          )}
+        >
+          <Sparkles className={cn("h-3 w-3 shrink-0", highOnly ? "text-signal" : "text-muted-foreground/70")} aria-hidden />
+          High confidence
+        </button>
       </div>
       <p className="sr-only" aria-live="polite">
         Showing {activeLabel} signals{highOnly ? ", high confidence only" : ""}
