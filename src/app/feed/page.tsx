@@ -11,7 +11,7 @@ import { FeedFilterChips } from "@/components/feed-filter-chips";
 import { FeedMobileCta } from "@/components/feed-mobile-cta";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { getPublicEvents } from "@/lib/queries";
-import { formatRelative, isHighConfidence } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative, isHighConfidence } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 export const metadata = {
@@ -84,7 +84,10 @@ export default async function PublicFeedPage({
         >
           <div className="flex flex-wrap items-center gap-2">
             {latestDetectedAt && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground"
+                title={formatAbsoluteDateTime(latestDetectedAt) || undefined}
+              >
                 <Clock className="h-3 w-3 text-signal" />
                 Updated {formatRelative(latestDetectedAt)}
               </span>
