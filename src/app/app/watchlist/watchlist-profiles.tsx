@@ -140,8 +140,14 @@ export function WatchlistProfiles({
                 type="button"
                 aria-pressed={status === key}
                 onClick={() => setStatusFilter(key)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape" && status !== "all") {
+                    e.preventDefault();
+                    setStatusFilter("all");
+                  }
+                }}
                 className={cn(
-                  "chip motion-safe:active:scale-95",
+                  "chip motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
                   status === key
                     ? "border-signal/40 bg-signal/10 text-foreground ring-1 ring-signal/20"
                     : "hover:border-signal/25 hover:bg-signal/5",
