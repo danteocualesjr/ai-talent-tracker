@@ -133,7 +133,21 @@ export default async function PublicFeedPage({
                 })()
               }
             />
-            <FeedStat label="Founder signals" value={foundingSignals} icon={<Compass className="h-3.5 w-3.5" />} accent="text-amber-accent" href="/feed?type=founders" />
+            <FeedStat
+              label="Founder signals"
+              value={foundingSignals}
+              icon={<Compass className="h-3.5 w-3.5" />}
+              accent="text-amber-accent"
+              href={
+                (() => {
+                  const params = new URLSearchParams();
+                  params.set("type", "founders");
+                  if (highOnly) params.set("confidence", "high");
+                  if (last7Only) params.set("days", "7");
+                  return `/feed?${params.toString()}`;
+                })()
+              }
+            />
           </div>
 
           <div className="surface-card corner-brackets relative flex flex-col gap-4 overflow-hidden p-5 sm:flex-row sm:items-center sm:justify-between">
