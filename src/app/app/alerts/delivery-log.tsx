@@ -1,6 +1,7 @@
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
+import { labelForEventType } from "@/lib/event-labels";
 import { formatAbsoluteDateTime, formatRelative } from "@/lib/utils";
 import type { DeliveryLogEntry } from "@/lib/queries";
 
@@ -29,7 +30,9 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
               </div>
               {d.event && (
                 <p className="mt-1 truncate text-muted-foreground">
-                  {d.event.type}: {d.event.summary}
+                  <span className="font-medium text-foreground/80">{labelForEventType(d.event.type)}</span>
+                  {": "}
+                  {d.event.summary}
                 </p>
               )}
               {d.error && (
@@ -44,7 +47,8 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
 }
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === "sent") return <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" aria-hidden />;
-  if (status === "failed") return <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />;
-  return <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />;
+  const label = status === "sent" ? "Sent" : status === "failed" ? "Failed" : "Pending";
+  if (status === "sent") return <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" aria-label={label} />;
+  if (status === "failed") return <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-label={label} />;
+  return <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-label={label} />;
 }
