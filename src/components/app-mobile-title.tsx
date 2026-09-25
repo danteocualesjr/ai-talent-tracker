@@ -6,6 +6,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   app: "Dashboard",
   watchlist: "Watchlist",
   events: "Events",
+  insights: "Insights",
   labs: "Lab rosters",
   alerts: "Alerts",
   billing: "Billing",
@@ -17,11 +18,25 @@ function prettify(segment: string) {
   return segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function looksLikeId(segment: string) {
+  // UUID, cuid-ish, or long opaque slug - avoid showing raw ids in the mobile title.
+  if (segment.length >= 20) return true;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) return true;
+  return false;
+}
+
 export function AppMobileTitle() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const leaf = segments[segments.length - 1] ?? "app";
-  const title = SEGMENT_LABELS[leaf] ?? prettify(leaf);
+  const parent = segments.length >= 2 ? segments[segments.length - 2] : undefined;
+
+  let title: string;
+  if (looksLikeId(leaf) && parent && SEGMENT_LABELS[parent]) {
+    title = SEGMENT_LABELS[parent];
+  } else {
+    title = SEGMENT_LABELS[leaf] ?? prettify(leaf);
+  }
 
   return (
     <div className="flex h-12 items-center border-b border-border/60 bg-background/90 px-4 backdrop-blur-md md:hidden">
