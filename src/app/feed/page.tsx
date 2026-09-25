@@ -69,7 +69,7 @@ export default async function PublicFeedPage({
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main id="main-content" className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 scroll-mt-4 outline-none">
         <MarketingHero
           eyebrow={<LiveBadge />}
           title="AI lab departure feed"

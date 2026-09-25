@@ -35,7 +35,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="pointer-events-none absolute inset-0 dot-bg opacity-[0.04]" aria-hidden style={{ maskImage: "radial-gradient(ellipse 70% 50% at 50% 0%, black, transparent)", WebkitMaskImage: "radial-gradient(ellipse 70% 50% at 50% 0%, black, transparent)" }} />
         <AppTopbar email={user.email ?? ""} orgPlan={org.plan} unreadCount={recentEventCount} />
         <AppMobileTitle />
-        <main id="main-content" className="relative flex-1 min-w-0">{children}</main>
+        <main id="main-content" tabIndex={-1} className="relative min-w-0 flex-1 scroll-mt-4 outline-none">{children}</main>
       </div>
     </div>
   );
