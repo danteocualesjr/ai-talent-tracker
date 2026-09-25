@@ -15,6 +15,18 @@ export const metadata = { title: "Insights" };
 
 const DAYS = 30;
 
+const EVENT_TYPE_FILTER_PARAM: Partial<Record<string, string>> = {
+  left_company: "departures",
+  went_stealth: "stealth",
+  headline_signals_founding: "founders",
+  joined_company: "joiners",
+  github_dark: "github",
+  location_changed: "location",
+  about_changed: "about",
+  role_change_internal: "role",
+};
+
+
 export default async function InsightsPage() {
   const supa = await createClient();
   const {
@@ -117,29 +129,37 @@ export default async function InsightsPage() {
                   {insights.byType.map(({ type, count }) => {
                     const pct = Math.round((count / insights.totalEvents) * 100);
                     const label = labelForEventType(type);
+                    const filterParam = EVENT_TYPE_FILTER_PARAM[type];
+                    const href = filterParam ? `/app/events?type=${filterParam}` : "/app/events";
                     return (
                       <li key={type}>
-                        <div className="flex items-center justify-between gap-3 text-sm">
-                          <span className="font-medium" id={`signal-mix-${type}`}>{label}</span>
-                          <span className="tnum text-muted-foreground">
-                            {count}{" "}
-                            <span className="text-[11px]">({pct}%)</span>
-                          </span>
-                        </div>
-                        <div
-                          className="progress-track mt-1.5"
-                          role="progressbar"
-                          aria-valuemin={0}
-                          aria-valuemax={insights.totalEvents}
-                          aria-valuenow={count}
-                          aria-labelledby={`signal-mix-${type}`}
-                          aria-valuetext={`${count} of ${insights.totalEvents} events (${pct} percent)`}
+                        <Link
+                          href={href}
+                          className="group/mix block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/30"
+                          aria-label={`View ${label.toLowerCase()} events (${count})`}
                         >
+                          <div className="flex items-center justify-between gap-3 text-sm">
+                            <span className="font-medium transition-colors group-hover/mix:text-signal" id={`signal-mix-${type}`}>{label}</span>
+                            <span className="tnum text-muted-foreground">
+                              {count}{" "}
+                              <span className="text-[11px]">({pct}%)</span>
+                            </span>
+                          </div>
                           <div
-                            className="progress-fill h-full"
-                            style={{ width: `${Math.max(4, (count / maxTypeCount) * 100)}%` }}
-                          />
-                        </div>
+                            className="progress-track mt-1.5"
+                            role="progressbar"
+                            aria-valuemin={0}
+                            aria-valuemax={insights.totalEvents}
+                            aria-valuenow={count}
+                            aria-labelledby={`signal-mix-${type}`}
+                            aria-valuetext={`${count} of ${insights.totalEvents} events (${pct} percent)`}
+                          >
+                            <div
+                              className="progress-fill h-full"
+                              style={{ width: `${Math.max(4, (count / maxTypeCount) * 100)}%` }}
+                            />
+                          </div>
+                        </Link>
                       </li>
                     );
                   })}
