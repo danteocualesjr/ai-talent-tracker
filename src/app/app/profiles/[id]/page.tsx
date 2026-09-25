@@ -40,7 +40,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
   const eventList = (events ?? []) as EventRow[];
   const snapshotList = (snaps ?? []) as ProfileSnapshot[];
-  const latestConfidence = eventList[0] ? `${Math.round(eventList[0].confidence * 100)}%` : "—";
+  const latestConfidence = eventList[0] ? `${Math.round(eventList[0].confidence * 100)}%` : "-";
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -75,7 +75,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
           <div className="min-w-0 flex-1">
             <p className="text-sm text-muted-foreground">
               {p.current_title ? `${p.current_title} at ` : ""}
-              <span className="font-medium text-foreground">{p.current_company ?? "—"}</span>
+              <span className="font-medium text-foreground">{p.current_company ?? "-"}</span>
               {p.location && <> · {p.location}</>}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">

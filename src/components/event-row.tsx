@@ -25,8 +25,8 @@ function formatFieldChanges(before: Json | null, after: Json | null): string[] {
     const to = next[key];
     if (from == null && to == null) continue;
     if (String(from ?? "") === String(to ?? "")) continue;
-    const fromLabel = from != null && String(from) ? String(from) : "—";
-    const toLabel = to != null && String(to) ? String(to) : "—";
+    const fromLabel = from != null && String(from) ? String(from) : "-";
+    const toLabel = to != null && String(to) ? String(to) : "-";
     lines.push(`${label}: ${fromLabel} → ${toLabel}`);
   }
   return lines;

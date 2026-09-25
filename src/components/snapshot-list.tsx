@@ -74,8 +74,8 @@ export function SnapshotList({ snapshots }: { snapshots: ProfileSnapshot[] }) {
                   <div key={d.field} className="grid gap-1 text-xs sm:grid-cols-[7rem_1fr]">
                     <span className="font-semibold text-foreground/80">{FIELD_LABELS[d.field]}</span>
                     <div className="space-y-0.5">
-                      <div className="text-muted-foreground line-through">{d.before || "—"}</div>
-                      <div className="font-medium text-foreground">{d.after || "—"}</div>
+                      <div className="text-muted-foreground line-through">{d.before || "-"}</div>
+                      <div className="font-medium text-foreground">{d.after || "-"}</div>
                     </div>
                   </div>
                 ))}

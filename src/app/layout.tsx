@@ -27,7 +27,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "AI Talent Tracker — Real-time monitoring of AI lab departures",
+    default: "AI Talent Tracker - Real-time monitoring of AI lab departures",
     template: "%s · AI Talent Tracker",
   },
   description:
