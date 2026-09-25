@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
 import { EventTimelineItem } from "@/components/event-row";
 import { SnapshotList } from "@/components/snapshot-list";
-import { formatRelative, githubProfileUrl, xProfileUrl } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, githubProfileUrl, xProfileUrl } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -40,7 +40,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
   const eventList = (events ?? []) as EventRow[];
   const snapshotList = (snaps ?? []) as ProfileSnapshot[];
-  const latestConfidence = eventList[0] ? `${Math.round(eventList[0].confidence * 100)}%` : "-";
+  const latestConfidence = eventList[0] ? `${formatConfidencePercent(eventList[0].confidence)}%` : "n/a";
 
   return (
     <div className="container max-w-4xl space-y-8 px-4 py-8 md:px-6 md:py-10">
@@ -75,33 +75,55 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
           <div className="min-w-0 flex-1">
             <p className="text-sm text-muted-foreground">
               {p.current_title ? `${p.current_title} at ` : ""}
-              <span className="font-medium text-foreground">{p.current_company ?? "-"}</span>
+              <span className="font-medium text-foreground">{p.current_company ?? "Unknown company"}</span>
               {p.location && <> · {p.location}</>}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <RefreshProfileButton profileId={p.id} profileName={p.full_name || p.linkedin_handle || "profile"} labeled />
               <Button asChild size="sm" variant="outline" className="hover:border-signal/35 hover:bg-signal/5">
-                <a href={p.linkedin_url} target="_blank" rel="noreferrer noopener">
-                  LinkedIn <ExternalLink className="ml-1 h-3 w-3" />
+                <a
+                  href={p.linkedin_url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on LinkedIn`}
+                >
+                  LinkedIn <ExternalLink className="ml-1 h-3 w-3" aria-hidden />
                 </a>
               </Button>
               {p.github_handle && (
                 <Button asChild size="sm" variant="outline">
-                  <a href={githubProfileUrl(p.github_handle)} target="_blank" rel="noreferrer noopener">
-                    <Github className="mr-1 h-3 w-3" /> {p.github_handle}
+                  <a
+                    href={githubProfileUrl(p.github_handle)}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on GitHub`}
+                  >
+                    <Github className="mr-1 h-3 w-3" aria-hidden /> {p.github_handle}
                   </a>
                 </Button>
               )}
               {p.x_handle && (
                 <Button asChild size="sm" variant="outline">
-                  <a href={xProfileUrl(p.x_handle)} target="_blank" rel="noreferrer noopener">
-                    <span className="mr-1 text-xs font-bold">𝕏</span> {p.x_handle}
+                  <a
+                    href={xProfileUrl(p.x_handle)}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on X`}
+                  >
+                    <span className="mr-1 text-xs font-bold" aria-hidden>𝕏</span> {p.x_handle}
                   </a>
                 </Button>
               )}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Last synced {formatRelative(p.last_synced_at)} · next sync {formatRelative(p.next_sync_at)}
+              Last synced{" "}
+              <span title={formatAbsoluteDateTime(p.last_synced_at) || undefined}>
+                {formatRelative(p.last_synced_at)}
+              </span>
+              {" · "}next sync{" "}
+              <span title={formatAbsoluteDateTime(p.next_sync_at) || undefined}>
+                {formatRelative(p.next_sync_at)}
+              </span>
             </p>
           </div>
         </div>
