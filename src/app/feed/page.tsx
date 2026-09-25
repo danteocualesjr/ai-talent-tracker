@@ -152,14 +152,12 @@ export default async function PublicFeedPage({
             <Suspense fallback={<div className="h-8 w-48 animate-pulse rounded-md bg-muted/60" />}>
               <FeedFilterChips />
             </Suspense>
-            {(highOnly || last7Only) ? (
+            {(type || highOnly || last7Only) ? (
               <p className="w-full text-xs text-muted-foreground sm:text-right" role="status">
+                {filterLabel ? `Type filter: ${filterLabel}. ` : ""}
                 {highOnly ? "Showing high-confidence events only (≥80%). " : ""}
                 {last7Only ? "Limited to the last 7 days. " : ""}
-                <Link
-                  href={type ? `/feed?type=${type}` : "/feed"}
-                  className="link-subtle text-xs font-semibold"
-                >
+                <Link href="/feed" className="link-subtle text-xs font-semibold">
                   Clear filters
                 </Link>
               </p>
