@@ -173,14 +173,20 @@ export default async function EventsPage({
                 : "Once a tracked profile changes company, headline, or location, you'll see it here."
             }
             cta={
-              <Button asChild>
-                <Link href="/app/watchlist">Add profiles</Link>
-              </Button>
+              type || highOnly || last7Only ? (
+                <Button asChild>
+                  <Link href="/app/events">Clear filters</Link>
+                </Button>
+              ) : (
+                <Button asChild>
+                  <Link href="/app/watchlist">Add profiles</Link>
+                </Button>
+              )
             }
             secondaryCta={
               type || highOnly || last7Only ? (
                 <Button asChild variant="outline">
-                  <Link href="/app/events">Clear filter</Link>
+                  <Link href="/app/watchlist">Add profiles</Link>
                 </Button>
               ) : undefined
             }
