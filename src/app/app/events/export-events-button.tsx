@@ -5,6 +5,11 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
+function stampedFilename(prefix: string) {
+  const stamp = new Date().toISOString().slice(0, 10);
+  return `${prefix}-${stamp}.csv`;
+}
+
 export function ExportEventsButton() {
   const [pending, start] = useTransition();
 
@@ -24,7 +29,7 @@ export function ExportEventsButton() {
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = url;
-        anchor.download = "events.csv";
+        anchor.download = stampedFilename("events");
         anchor.click();
         URL.revokeObjectURL(url);
         toast.success("Events exported.");
@@ -35,9 +40,21 @@ export function ExportEventsButton() {
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" className="gap-1.5 hover:border-signal/35 hover:bg-signal/5" disabled={pending} aria-busy={pending} onClick={onExport}>
-      <Download className="h-3.5 w-3.5" />
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      className="gap-1.5 hover:border-signal/35 hover:bg-signal/5"
+      disabled={pending}
+      aria-busy={pending}
+      aria-label={pending ? "Exporting events CSV" : "Export events CSV"}
+      onClick={onExport}
+    >
+      <Download className="h-3.5 w-3.5" aria-hidden />
       {pending ? "Exporting…" : "Export CSV"}
+      <span className="sr-only" aria-live="polite">
+        {pending ? "Preparing events CSV export" : ""}
+      </span>
     </Button>
   );
 }
