@@ -156,7 +156,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                     </span>
                   </div>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                    A digest of stealth flips, founders, and high-confidence moves — scored before they hit the press.
+                    A digest of stealth flips, founders, and high-confidence moves - scored before they hit the press.
                   </p>
                 </div>
               </div>
@@ -230,7 +230,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               <span className="italic text-gradient-signal">moves first</span>.
             </h2>
             <p className="mt-5 max-w-md text-pretty text-muted-foreground md:text-lg">
-              Headline changes, stealth flips, and founding signals — surfaced minutes after they happen,
+              Headline changes, stealth flips, and founding signals - surfaced minutes after they happen,
               not weeks after they hit the press.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">

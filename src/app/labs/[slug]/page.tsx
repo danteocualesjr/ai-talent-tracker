@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const lab = await getLabBySlug(slug);
   if (!lab) return { title: "Lab not found" };
   return {
-    title: `${lab.name} — roster & departures`,
+    title: `${lab.name} - roster & departures`,
     description: `Live roster of ${lab.name} employees, departures, and stealth flips.`,
   };
 }

@@ -68,7 +68,7 @@ export default function PrivacyPage() {
               the subject. You can object at any time via the form below.
             </p>
 
-            <h2 id="your-rights" className="scroll-mt-24">Your rights — opt out / DSAR</h2>
+            <h2 id="your-rights" className="scroll-mt-24">Your rights - opt out / DSAR</h2>
             <p>
               Anyone listed in our index can request removal or a copy of the data we hold. Use{" "}
               <Link href="/opt-out">the opt-out form</Link> or email{" "}

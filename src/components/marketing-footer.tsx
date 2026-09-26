@@ -98,7 +98,7 @@ export function MarketingFooter() {
               Stay ahead of the next move
             </div>
             <p className="mt-1 max-w-md text-xs text-muted-foreground">
-              Get Slack alerts when researchers go stealth — before they hit your LinkedIn feed.
+              Get Slack alerts when researchers go stealth - before they hit your LinkedIn feed.
             </p>
           </div>
           <Link

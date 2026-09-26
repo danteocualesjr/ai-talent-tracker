@@ -26,7 +26,7 @@ export default function OptOutPage() {
         <div className="container max-w-xl pb-16">
           <ol className="mb-6 grid gap-3 sm:grid-cols-3">
             {[
-              ["01", "Submit", "Tell us what you need — removal, a data copy, or both."],
+              ["01", "Submit", "Tell us what you need - removal, a data copy, or both."],
               ["02", "Verify", "We confirm the request belongs to you or an authorized agent."],
               ["03", "Resolve", "We stop monitoring and complete the request within 30 days."],
             ].map(([step, title, body]) => (

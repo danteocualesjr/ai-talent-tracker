@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const FAQ_ITEMS = [
   {
     q: "How does profile monitoring work?",
-    a: "We poll LinkedIn profiles on your plan's refresh cadence, hash-diff against historical snapshots, and classify meaningful changes — departures, stealth flips, founding signals, and more.",
+    a: "We poll LinkedIn profiles on your plan's refresh cadence, hash-diff against historical snapshots, and classify meaningful changes - departures, stealth flips, founding signals, and more.",
   },
   {
     q: "Can I cancel anytime?",
