@@ -38,7 +38,10 @@ export function formatRelative(date: Date | string | null | undefined) {
 export function normalizeLinkedInUrl(url: string): string | null {
   try {
     const u = new URL(url.trim());
-    if (!u.hostname.includes("linkedin.com")) return null;
+    const host = u.hostname.toLowerCase();
+    // Exact domain or a real subdomain only; `includes` let hosts like
+    // "linkedin.com.evil.io" or "notlinkedin.com" slip through.
+    if (host !== "linkedin.com" && !host.endsWith(".linkedin.com")) return null;
     const parts = u.pathname.split("/").filter(Boolean);
     const inIdx = parts.indexOf("in");
     if (inIdx === -1 || !parts[inIdx + 1]) return null;
