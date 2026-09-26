@@ -1,22 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function CopyButton({ value, className }: { value: string; className?: string }) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Drop any pending reset when the button unmounts so it never sets state afterwards.
+  useEffect(() => () => {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+  }, []);
+
+  function scheduleReset(reset: () => void, ms: number) {
+    // Rapid repeat clicks used to stack timers, so an older one could clear the
+    // "Copied" state early. Always replace the pending reset instead.
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => {
+      resetTimer.current = null;
+      reset();
+    }, ms);
+  }
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(value);
       setFailed(false);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      scheduleReset(() => setCopied(false), 1500);
     } catch {
+      setCopied(false);
       setFailed(true);
-      setTimeout(() => setFailed(false), 2000);
+      scheduleReset(() => setFailed(false), 2000);
     }
   }
 
