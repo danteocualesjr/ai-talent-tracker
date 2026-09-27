@@ -4,11 +4,7 @@ import { useTransition } from "react";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-
-function stampedFilename(prefix: string) {
-  const stamp = new Date().toISOString().slice(0, 10);
-  return `${prefix}-${stamp}.csv`;
-}
+import { downloadBlob, stampedCsvFilename } from "@/lib/utils";
 
 export function ExportWatchlistButton() {
   const [pending, start] = useTransition();
@@ -26,12 +22,7 @@ export function ExportWatchlistButton() {
           return;
         }
         const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = stampedFilename("watchlist");
-        anchor.click();
-        URL.revokeObjectURL(url);
+        downloadBlob(blob, stampedCsvFilename("watchlist"));
         toast.success("Watchlist exported.");
       } catch {
         toast.error("Export failed. Try again.");

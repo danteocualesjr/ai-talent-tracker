@@ -157,3 +157,25 @@ export function formatAbsoluteDateTime(iso: string | Date | null | undefined): s
     minute: "2-digit",
   });
 }
+
+/** Date-stamped CSV download name (UTC YYYY-MM-DD). */
+export function stampedCsvFilename(prefix: string): string {
+  const stamp = new Date().toISOString().slice(0, 10);
+  return `${prefix}-${stamp}.csv`;
+}
+
+/**
+ * Trigger a browser download for a blob and revoke the object URL after a short
+ * delay so Chromium/Safari finish starting the download first.
+ */
+export function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.rel = "noopener";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
