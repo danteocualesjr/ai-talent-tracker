@@ -24,6 +24,7 @@ const EVENT_TYPE_FILTER_PARAM: Partial<Record<string, string>> = {
   location_changed: "location",
   about_changed: "about",
   role_change_internal: "role",
+  new_domain: "domain",
 };
 
 

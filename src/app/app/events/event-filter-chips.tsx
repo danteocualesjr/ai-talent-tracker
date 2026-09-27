@@ -15,6 +15,7 @@ const FILTERS = [
   { label: "Location", param: "location", dot: "bg-sky-500" },
   { label: "About", param: "about", dot: "bg-muted-foreground" },
   { label: "Role", param: "role", dot: "bg-muted-foreground/70" },
+  { label: "Domain", param: "domain", dot: "bg-emerald-500" },
 ] as const;
 
 export function AppEventsFilterChips() {

@@ -24,6 +24,7 @@ const FILTER_TYPES: Record<string, EventType[]> = {
   location: ["location_changed"],
   about: ["about_changed"],
   role: ["role_change_internal"],
+  domain: ["new_domain"],
 };
 
 const FILTER_LABELS: Record<string, string> = {
@@ -35,6 +36,7 @@ const FILTER_LABELS: Record<string, string> = {
   location: "Location",
   about: "About",
   role: "Role",
+  domain: "New domain",
 };
 
 export default async function EventsPage({
