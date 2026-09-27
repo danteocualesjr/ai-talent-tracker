@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Compass, ListChecks, LogOut, RefreshCw, Search, Star, Users2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,6 +51,12 @@ export function WatchlistProfiles({
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>(initialStatus);
   const [sort, setSort] = useState<SortKey>("name");
+
+  // Keep chip state aligned when navigating via metric cards / Cmd+K while
+  // this client tree stays mounted on /app/watchlist.
+  useEffect(() => {
+    setStatus(initialStatus);
+  }, [initialStatus]);
 
   function setStatusFilter(next: StatusFilter) {
     setStatus(next);
