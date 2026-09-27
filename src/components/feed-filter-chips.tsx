@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Briefcase, Clock, Compass, Filter, Github, Globe, Link2, LogOut, Pencil, Sparkles, Star } from "lucide-react";
+import { ArrowLeftRight, Briefcase, Clock, Compass, Filter, Github, Globe, Link2, LogOut, Pencil, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -14,7 +14,7 @@ const FILTERS = [
   { label: "GitHub", param: "github", icon: Github },
   { label: "Location", param: "location", icon: Globe },
   { label: "About", param: "about", icon: Pencil },
-  { label: "Role", param: "role", icon: Pencil },
+  { label: "Role", param: "role", icon: ArrowLeftRight },
   { label: "Domain", param: "domain", icon: Link2 },
 ] as const;
 

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity,
+  ArrowLeftRight,
   BarChart3,
   Bell,
   Briefcase,
@@ -62,7 +63,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/events?confidence=high&days=7", label: "High-confidence events this week", icon: Sparkles, keywords: ["confidence", "high", "week", "7", "days", "recent", "filter"], group: "Actions" },
   { href: "/app/events?type=location", label: "Location events", icon: Globe, keywords: ["location", "moved", "filter"], group: "Actions" },
   { href: "/app/events?type=about", label: "About updates", icon: Pencil, keywords: ["about", "bio", "filter"], group: "Actions" },
-  { href: "/app/events?type=role", label: "Role changes", icon: Pencil, keywords: ["role", "title", "internal", "filter"], group: "Actions" },
+  { href: "/app/events?type=role", label: "Role changes", icon: ArrowLeftRight, keywords: ["role", "title", "internal", "filter"], group: "Actions" },
   { href: "/app/events?type=domain", label: "New domain events", icon: Link2, keywords: ["domain", "website", "registered", "filter"], group: "Actions" },
   { href: "/feed?type=domain", label: "Public new domain events", icon: Link2, keywords: ["feed", "domain", "website", "public"], group: "Actions" },
   { href: "/feed?type=departures", label: "Public departure events", icon: LogOut, keywords: ["feed", "departures", "left", "public"], group: "Actions" },

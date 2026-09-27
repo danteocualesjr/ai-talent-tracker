@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Briefcase, Compass, ExternalLink, Globe, LogOut, Pencil, Sparkles, Star } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Briefcase, Compass, ExternalLink, Github, Globe, Link2, LogOut, Pencil, Star } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -97,7 +97,7 @@ const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone
   },
   role_change_internal: {
     label: "Role change",
-    icon: Pencil,
+    icon: ArrowLeftRight,
     tone: "secondary",
     ring: "text-muted-foreground",
     rail: "from-border/0 via-border to-border/0",
@@ -118,14 +118,14 @@ const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone
   },
   github_dark: {
     label: "GitHub dark",
-    icon: Sparkles,
+    icon: Github,
     tone: "purple",
     ring: "text-violet-accent",
     rail: "from-violet-400/0 via-violet-accent/70 to-violet-400/0",
   },
   new_domain: {
     label: "New domain",
-    icon: Globe,
+    icon: Link2,
     tone: "success",
     ring: "text-signal",
     rail: "from-signal/0 via-signal/75 to-signal/0",
