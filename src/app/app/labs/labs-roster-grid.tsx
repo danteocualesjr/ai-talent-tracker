@@ -15,14 +15,17 @@ export function LabsRosterGrid({ labs }: { labs: Lab[] }) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return labs;
-    return labs.filter((lab) => {
-      const haystack = [lab.name, lab.slug, lab.domain, lab.description]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(q);
-    });
+    const list = !q
+      ? [...labs]
+      : labs.filter((lab) => {
+          const haystack = [lab.name, lab.slug, lab.domain, lab.description]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(q);
+        });
+    // Featured labs stay easy to find even when the roster is filtered.
+    return list.sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.name.localeCompare(b.name));
   }, [labs, query]);
 
   return (
