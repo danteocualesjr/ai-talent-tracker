@@ -26,7 +26,7 @@ export function renderEventEmail(args: {
   linkedinUrl: string;
   detectedAt: string;
 }): { subject: string; html: string } {
-  const subject = `[Tracker] ${args.name} — ${labelFor(args.type)}`;
+  const subject = `[Tracker] ${args.name} - ${labelFor(args.type)}`;
   const html = `
     <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px;margin:auto;padding:24px">
       <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666">${labelFor(args.type)}</div>
