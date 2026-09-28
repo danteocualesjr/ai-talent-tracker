@@ -13,6 +13,7 @@ const DIFF_FIELDS = [
   { key: "current_title", label: "title" },
   { key: "headline", label: "headline" },
   { key: "location", label: "location" },
+  { key: "about", label: "about" },
 ] as const;
 
 function formatFieldChanges(before: Json | null, after: Json | null): string[] {
