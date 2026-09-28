@@ -15,7 +15,7 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${payload.linkedinUrl}|${payload.name}>* — _${payload.type.replace(/_/g, " ")}_\n${payload.summary}`,
+            text: `*<${payload.linkedinUrl}|${payload.name}>* - _${payload.type.replace(/_/g, " ")}_\n${payload.summary}`,
           },
         },
       ],
