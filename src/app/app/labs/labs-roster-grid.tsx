@@ -62,6 +62,13 @@ export function LabsRosterGrid({ labs }: { labs: Lab[] }) {
           : `${filtered.length} lab${filtered.length === 1 ? "" : "s"} shown`}
         {query.trim() ? ` matching "${query.trim()}"` : ""}.
       </p>
+      {query.trim() && filtered.length > 0 ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          Showing <span className="tnum font-semibold text-foreground">{filtered.length}</span> of{" "}
+          <span className="tnum">{labs.length}</span> labs matching{" "}
+          <span className="font-medium text-foreground">&ldquo;{query.trim()}&rdquo;</span>
+        </p>
+      ) : null}
 
       {filtered.length === 0 ? (
         <EmptyPanel
