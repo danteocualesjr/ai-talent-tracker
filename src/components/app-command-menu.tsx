@@ -26,6 +26,7 @@ import {
   Rss,
   Search,
   Settings,
+  Users2,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/watchlist", label: "Add profile", icon: Plus, keywords: ["new", "track", "linkedin"], group: "Actions" },
   { href: "/app/watchlist?status=stale", label: "Needs refresh", icon: RefreshCw, keywords: ["stale", "sync", "outdated"], group: "Actions" },
   { href: "/app/watchlist?status=stealth", label: "Stealth profiles", icon: Compass, keywords: ["stealth", "blank", "hidden"], group: "Actions" },
+  { href: "/app/watchlist?status=active", label: "Active profiles", icon: Users2, keywords: ["active", "employed", "status", "current"], group: "Actions" },
   { href: "/app/events?type=stealth", label: "Stealth events", icon: Compass, keywords: ["went stealth", "filter"], group: "Actions" },
   { href: "/app/events?type=departures", label: "Departure events", icon: LogOut, keywords: ["left", "departures", "filter"], group: "Actions" },
   { href: "/app/events?type=founders", label: "Founder events", icon: Star, keywords: ["founding", "founders", "filter"], group: "Actions" },
