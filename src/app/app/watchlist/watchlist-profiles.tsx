@@ -242,7 +242,8 @@ export function WatchlistProfiles({
                 <span
                   className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ${STATUS_DOT[p.status] ?? STATUS_DOT.unknown}`}
                   title={p.status}
-                  aria-hidden
+                  aria-label={`Status: ${p.status}`}
+                  role="img"
                 />
               </div>
               <div className="min-w-0 flex-1">
