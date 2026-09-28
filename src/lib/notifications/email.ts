@@ -48,6 +48,9 @@ function labelFor(type: string): string {
     case "headline_signals_founding": return "Founding signal";
     case "role_change_internal": return "Role change";
     case "about_changed": return "About updated";
+    case "location_changed": return "Location change";
+    case "github_dark": return "GitHub dark";
+    case "new_domain": return "New domain";
     default: return "Profile change";
   }
 }
