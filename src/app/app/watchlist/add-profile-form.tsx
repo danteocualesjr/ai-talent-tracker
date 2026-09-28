@@ -43,6 +43,15 @@ export function AddProfileForm() {
             inputMode="url"
             aria-describedby="linkedin-url-hint"
             className="h-11 pl-10"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                const input = event.currentTarget;
+                if (input.value) {
+                  event.preventDefault();
+                  input.value = "";
+                }
+              }
+            }}
           />
         </div>
         <p id="linkedin-url-hint" className="text-[11px] text-muted-foreground">
