@@ -74,13 +74,19 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
   }, [params.error]);
 
   async function sendLink(targetEmail: string) {
+    const normalizedEmail = targetEmail.trim().toLowerCase();
+    if (!normalizedEmail) {
+      toast.error("Enter a valid email address.");
+      return;
+    }
     setLoading(true);
     try {
       const supa = createClient();
       const origin = window.location.origin;
       const redirect = `${origin}/auth/callback?next=${encodeURIComponent(safeRedirectPath(params.next))}`;
-      const { error } = await supa.auth.signInWithOtp({ email: targetEmail, options: { emailRedirectTo: redirect } });
+      const { error } = await supa.auth.signInWithOtp({ email: normalizedEmail, options: { emailRedirectTo: redirect } });
       if (error) throw error;
+      setEmail(normalizedEmail);
       setSent(true);
       toast.success("Magic link sent");
     } catch (err) {
