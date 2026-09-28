@@ -1,4 +1,6 @@
 import "server-only";
+import { shortLabelForEventType } from "@/lib/event-labels";
+import type { EventType } from "@/types/db";
 
 export async function sendSlack(webhookUrl: string, payload: {
   name: string;
@@ -6,6 +8,7 @@ export async function sendSlack(webhookUrl: string, payload: {
   type: string;
   linkedinUrl: string;
 }): Promise<void> {
+  const typeLabel = shortLabelForEventType(payload.type as EventType);
   const res = await fetch(webhookUrl, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -15,7 +18,7 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${payload.linkedinUrl}|${payload.name}>* - _${payload.type.replace(/_/g, " ")}_\n${payload.summary}`,
+            text: `*<${payload.linkedinUrl}|${payload.name}>* - _${typeLabel}_\n${payload.summary}`,
           },
         },
       ],
