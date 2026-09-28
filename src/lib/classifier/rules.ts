@@ -47,7 +47,7 @@ export function classifyByRules(
         type: "went_stealth",
         confidence: 0.9,
         status: "stealth",
-        summary: `Headline now reads "${headline}" — stealth signal.`,
+        summary: `Headline now reads "${headline}" - stealth signal.`,
       };
     }
   }
@@ -58,7 +58,7 @@ export function classifyByRules(
         type: "headline_signals_founding",
         confidence: 0.85,
         status: "founder",
-        summary: `Headline now reads "${headline}" — founding signal.`,
+        summary: `Headline now reads "${headline}" - founding signal.`,
       };
     }
   }
@@ -69,7 +69,7 @@ export function classifyByRules(
         type: "headline_signals_founding",
         confidence: 0.7,
         status: "founder",
-        summary: `Headline now reads "${headline}" — founding-team signal.`,
+        summary: `Headline now reads "${headline}" - founding-team signal.`,
       };
     }
   }
