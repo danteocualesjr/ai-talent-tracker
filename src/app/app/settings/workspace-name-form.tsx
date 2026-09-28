@@ -42,7 +42,7 @@ export function WorkspaceNameForm({ currentName }: { currentName: string }) {
           aria-describedby="workspace-name-hint"
         />
         <p id="workspace-name-hint" className="text-[11px] text-muted-foreground">
-          Shown in the sidebar and on shared alert messages. 2–80 characters.
+          Shown in the sidebar and on shared alert messages. 2-80 characters.
         </p>
       </div>
       <Button type="submit" size="sm" disabled={pending} aria-busy={pending}>
