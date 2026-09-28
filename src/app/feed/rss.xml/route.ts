@@ -9,7 +9,7 @@ export async function GET() {
     const link = `${siteUrl()}/feed/${e.id}`;
     return `
       <item>
-        <title><![CDATA[${escapeRssCdata(`${e.profile.full_name || e.profile.linkedin_handle} — ${e.type.replace(/_/g, " ")}`)}]]></title>
+        <title><![CDATA[${escapeRssCdata(`${e.profile.full_name || e.profile.linkedin_handle} - ${e.type.replace(/_/g, " ")}`)}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
@@ -24,7 +24,7 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>AI Talent Tracker — Departures</title>
+    <title>AI Talent Tracker - Departures</title>
     <link>${siteUrl()}/feed</link>
     <description>Real-time AI lab departures, stealth flips, and founding signals.</description>
     <lastBuildDate>${lastBuild}</lastBuildDate>
