@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { downloadBlob, stampedCsvFilename } from "@/lib/utils";
 
 export function ExportWatchlistButton() {
   const [pending, start] = useTransition();
+  const [done, setDone] = useState(false);
 
   function onExport() {
     start(async () => {
+      setDone(false);
       try {
         const res = await fetch("/api/watchlist/export");
         if (res.status === 403) {
@@ -23,6 +25,7 @@ export function ExportWatchlistButton() {
         }
         const blob = await res.blob();
         downloadBlob(blob, stampedCsvFilename("watchlist"));
+        setDone(true);
         toast.success("Watchlist exported.");
       } catch {
         toast.error("Export failed. Try again.");
@@ -44,7 +47,7 @@ export function ExportWatchlistButton() {
       <Download className="h-3.5 w-3.5" aria-hidden />
       {pending ? "Exporting…" : "Export CSV"}
       <span className="sr-only" aria-live="polite">
-        {pending ? "Preparing watchlist CSV export" : ""}
+        {pending ? "Preparing watchlist CSV export" : done ? "Watchlist CSV export complete" : ""}
       </span>
     </Button>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { downloadBlob, stampedCsvFilename } from "@/lib/utils";
 
 export function ExportEventsButton() {
   const [pending, start] = useTransition();
+  const [done, setDone] = useState(false);
 
   function onExport() {
     start(async () => {
+      setDone(false);
       try {
         const res = await fetch("/api/events/export");
         if (res.status === 403) {
@@ -23,6 +25,7 @@ export function ExportEventsButton() {
         }
         const blob = await res.blob();
         downloadBlob(blob, stampedCsvFilename("events"));
+        setDone(true);
         toast.success("Events exported.");
       } catch {
         toast.error("Export failed. Try again.");
@@ -44,7 +47,7 @@ export function ExportEventsButton() {
       <Download className="h-3.5 w-3.5" aria-hidden />
       {pending ? "Exporting…" : "Export CSV"}
       <span className="sr-only" aria-live="polite">
-        {pending ? "Preparing events CSV export" : ""}
+        {pending ? "Preparing events CSV export" : done ? "Events CSV export complete" : ""}
       </span>
     </Button>
   );
