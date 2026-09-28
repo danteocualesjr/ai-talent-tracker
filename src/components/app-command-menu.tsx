@@ -66,6 +66,7 @@ const COMMANDS: CommandItem[] = [
   { href: "/app/events?type=role", label: "Role changes", icon: ArrowLeftRight, keywords: ["role", "title", "internal", "filter"], group: "Actions" },
   { href: "/app/events?type=domain", label: "New domain events", icon: Link2, keywords: ["domain", "website", "registered", "filter"], group: "Actions" },
   { href: "/feed?type=domain", label: "Public new domain events", icon: Link2, keywords: ["feed", "domain", "website", "public"], group: "Actions" },
+  { href: "/feed?type=github", label: "Public GitHub dark events", icon: Github, keywords: ["feed", "github", "dark", "commits", "public"], group: "Actions" },
   { href: "/feed?type=departures", label: "Public departure events", icon: LogOut, keywords: ["feed", "departures", "left", "public"], group: "Actions" },
   { href: "/feed?type=stealth", label: "Public stealth events", icon: Compass, keywords: ["feed", "stealth", "went stealth", "public"], group: "Actions" },
   { href: "/feed?type=founders", label: "Public founder events", icon: Star, keywords: ["feed", "founders", "founding", "public"], group: "Actions" },
