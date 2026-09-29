@@ -11,7 +11,7 @@ export interface GitHubDarkSignal {
 }
 
 /**
- * Detect when a previously active GitHub user stops committing — a common
+ * Detect when a previously active GitHub user stops committing  -  a common
  * precursor to stealth mode or a new venture.
  */
 export function detectGitHubDark(

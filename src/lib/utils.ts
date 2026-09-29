@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Two-letter avatar initials from a full name or handle (e.g. "Jane Doe" → "JD"). */
+/** Two-letter avatar initials from a full name or handle (e.g. "Jane Doe" -> "JD"). */
 export function initialsFromName(name: string | null | undefined, fallback = "??"): string {
   const raw = (name ?? "").trim();
   if (!raw) return fallback;
@@ -151,7 +151,7 @@ export function isHighConfidence(confidence: number): boolean {
   return Number.isFinite(confidence) && confidence >= HIGH_CONFIDENCE_THRESHOLD;
 }
 
-/** Whole-number percent for detection confidence (0–1). */
+/** Whole-number percent for detection confidence (0-1). */
 export function formatConfidencePercent(confidence: number): number {
   if (!Number.isFinite(confidence)) return 0;
   return Math.max(0, Math.min(100, Math.round(confidence * 100)));
