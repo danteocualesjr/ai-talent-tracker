@@ -5,13 +5,13 @@ import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 
-const NameSchema = z.object({ name: z.string().trim().min(1).max(80) });
+const NameSchema = z.object({ name: z.string().trim().min(2).max(80) });
 
 export type ActionResult = { ok: true } | { error: string };
 
 export async function updateWorkspaceName(formData: FormData): Promise<ActionResult> {
   const parsed = NameSchema.safeParse({ name: formData.get("name") });
-  if (!parsed.success) return { error: "Enter a workspace name (1-80 characters)." };
+  if (!parsed.success) return { error: "Enter a workspace name (2-80 characters)." };
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
