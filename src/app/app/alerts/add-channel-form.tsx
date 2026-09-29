@@ -83,6 +83,12 @@ export function AddChannelForm({
             placeholder={field.placeholder}
             autoComplete={field.autoComplete}
             disabled={disabled}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && event.currentTarget.value) {
+                event.preventDefault();
+                event.currentTarget.value = "";
+              }
+            }}
           />
         </div>
       ))}
