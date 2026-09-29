@@ -76,7 +76,7 @@ export function OptOutForm() {
         <Label htmlFor="notes">Additional notes (optional)</Label>
         <Textarea id="notes" name="notes" rows={3} disabled={loading} />
       </div>
-      <Button type="submit" disabled={loading} aria-busy={loading}>{loading ? "Submitting..." : "Submit request"}</Button>
+      <Button type="submit" disabled={loading} aria-busy={loading}>{loading ? "Submitting…" : "Submit request"}</Button>
     </form>
   );
 }
