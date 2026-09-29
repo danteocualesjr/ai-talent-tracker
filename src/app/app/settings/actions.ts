@@ -11,7 +11,7 @@ export type ActionResult = { ok: true } | { error: string };
 
 export async function updateWorkspaceName(formData: FormData): Promise<ActionResult> {
   const parsed = NameSchema.safeParse({ name: formData.get("name") });
-  if (!parsed.success) return { error: "Enter a workspace name (1–80 characters)." };
+  if (!parsed.success) return { error: "Enter a workspace name (1-80 characters)." };
 
   const supa = await createClient();
   const { data: { user } } = await supa.auth.getUser();
