@@ -38,7 +38,7 @@ export function ExportWatchlistButton() {
       type="button"
       variant="outline"
       size="sm"
-      className="gap-1.5"
+      className="gap-1.5 hover:border-signal/35 hover:bg-signal/5"
       disabled={pending}
       aria-busy={pending}
       aria-label={pending ? "Exporting watchlist CSV" : "Export watchlist CSV"}
