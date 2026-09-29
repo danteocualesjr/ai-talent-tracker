@@ -3,7 +3,7 @@ import { ArrowLeftRight, ArrowRight, Briefcase, Compass, ExternalLink, Github, G
 import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, isHighConfidence } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, initialsFromName, isHighConfidence } from "@/lib/utils";
 import type { EventRow as EventRowT, Profile, EventType, Json } from "@/types/db";
 
 type Tone = "success" | "warning" | "default" | "secondary" | "info" | "purple";
@@ -141,7 +141,7 @@ const TYPE_META: Record<EventType, { label: string; icon: LucideIcon; tone: Tone
 };
 
 export function EventListItem({ event, profile, href }: { event: EventRowT; profile: Profile; href?: string }) {
-  const initials = (profile.full_name || profile.linkedin_handle || "??").slice(0, 2).toUpperCase();
+  const initials = initialsFromName(profile.full_name || profile.linkedin_handle);
   const meta = TYPE_META[event.type] ?? TYPE_META.other;
   const Icon = meta.icon;
 

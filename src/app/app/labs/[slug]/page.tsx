@@ -7,7 +7,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, initialsFromName } from "@/lib/utils";
 import { AddLabRosterButton } from "../add-lab-roster-button";
 import { TrackProfileButton } from "../track-profile-button";
 
@@ -88,7 +88,7 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
           />
         ) : (
           people.map((p) => {
-            const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
+            const initials = initialsFromName(p.full_name || p.linkedin_handle);
             return (
               <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.08] hover:bg-muted/35">
                 <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/60 to-signal/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

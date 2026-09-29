@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshProfileButton } from "@/app/app/watchlist/refresh-profile-button";
 import { EventTimelineItem } from "@/components/event-row";
 import { SnapshotList } from "@/components/snapshot-list";
-import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, githubProfileUrl, xProfileUrl } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, githubProfileUrl, initialsFromName, xProfileUrl } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,7 +37,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
     db.from("profile_snapshots").select("*").eq("profile_id", id).order("fetched_at", { ascending: false }).limit(10),
   ]);
 
-  const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
+  const initials = initialsFromName(p.full_name || p.linkedin_handle);
   const eventList = (events ?? []) as EventRow[];
   const snapshotList = (snaps ?? []) as ProfileSnapshot[];
   const latestConfidence = eventList[0] ? `${formatConfidencePercent(eventList[0].confidence)}%` : "n/a";

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { EmptyPanel } from "@/components/panel";
 import { RemoveProfileButton } from "./remove-profile-button";
 import { RefreshProfileButton } from "./refresh-profile-button";
-import { formatAbsoluteDateTime, formatRelative, cn } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative, cn, initialsFromName } from "@/lib/utils";
 import type { Profile } from "@/types/db";
 
 const STATUS_TONE: Record<string, "default" | "secondary" | "success" | "warning"> = {
@@ -227,7 +227,7 @@ export function WatchlistProfiles({
         />
       ) : (
         filtered.map((p) => {
-          const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
+          const initials = initialsFromName(p.full_name || p.linkedin_handle);
           return (
             <div key={p.id} className="group relative flex items-center gap-4 px-5 py-4 transition-all duration-200 odd:bg-muted/[0.08] hover:bg-muted/35 motion-safe:hover:shadow-[inset_0_0_0_1px_hsl(var(--border)/0.45)]">
               <span

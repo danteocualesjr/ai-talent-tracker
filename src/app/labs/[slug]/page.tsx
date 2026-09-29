@@ -9,6 +9,7 @@ import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { initialsFromName } from "@/lib/utils";
 
 export const revalidate = 600;
 
@@ -89,7 +90,7 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
               />
             ) : (
               people.map((p) => {
-                const initials = (p.full_name || p.linkedin_handle || "??").slice(0, 2).toUpperCase();
+                const initials = initialsFromName(p.full_name || p.linkedin_handle);
                 return (
                   <div key={p.id} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
                     <Avatar className="h-10 w-10">

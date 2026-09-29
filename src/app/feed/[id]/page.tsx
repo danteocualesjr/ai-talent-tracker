@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, initialsFromName } from "@/lib/utils";
 import type { EventRow, EventType, Profile } from "@/types/db";
 
 export const revalidate = 300;
@@ -38,7 +38,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
     .maybeSingle();
   if (!data) notFound();
   const ev = data as unknown as EventRow & { profile: Profile };
-  const initials = (ev.profile.full_name || ev.profile.linkedin_handle || "??").slice(0, 2).toUpperCase();
+  const initials = initialsFromName(ev.profile.full_name || ev.profile.linkedin_handle);
   const typeMeta = TYPE_META[ev.type] ?? TYPE_META.other;
 
   return (
