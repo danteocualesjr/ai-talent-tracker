@@ -51,7 +51,22 @@ export function OptOutForm() {
     <form className="space-y-4" onSubmit={onSubmit}>
       <div className="space-y-2">
         <Label htmlFor="linkedin_url">LinkedIn URL</Label>
-        <Input id="linkedin_url" name="linkedin_url" type="url" required placeholder="https://www.linkedin.com/in/..." disabled={loading} />
+        <Input
+          id="linkedin_url"
+          name="linkedin_url"
+          type="url"
+          required
+          placeholder="https://www.linkedin.com/in/..."
+          disabled={loading}
+          autoComplete="url"
+          spellCheck={false}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && event.currentTarget.value) {
+              event.preventDefault();
+              event.currentTarget.value = "";
+            }
+          }}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Your email (for confirmation)</Label>
