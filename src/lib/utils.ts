@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Two-letter avatar initials from a full name or handle (e.g. "Jane Doe" → "JD"). */
+export function initialsFromName(name: string | null | undefined, fallback = "??"): string {
+  const raw = (name ?? "").trim();
+  if (!raw) return fallback;
+  const parts = raw.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase() || fallback;
+  }
+  const single = parts[0] ?? "";
+  if (single.length >= 2) return single.slice(0, 2).toUpperCase();
+  return (single[0] ?? fallback[0] ?? "?").toUpperCase().padEnd(2, fallback[1] ?? "?");
+}
+
 export function formatRelative(date: Date | string | null | undefined) {
   if (!date) return "never";
   const d = typeof date === "string" ? new Date(date) : date;
