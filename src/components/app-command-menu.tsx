@@ -255,7 +255,7 @@ export function AppCommandMenu({ open, onOpenChange }: AppCommandMenuProps) {
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => run(item.href)}
                     >
-                      <Icon className={cn("h-4 w-4 shrink-0", active ? "text-signal" : "opacity-70")} />
+                      <Icon className={cn("h-4 w-4 shrink-0", active ? "text-signal" : "opacity-70")} aria-hidden />
                       <span className="font-medium">{item.label}</span>
                     </button>
                   );
