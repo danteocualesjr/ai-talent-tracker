@@ -53,6 +53,15 @@ export function ImportCsvForm() {
         placeholder={`Paste LinkedIn URLs - one per line or CSV with a linkedin_url column:\n\nhttps://www.linkedin.com/in/jane-researcher\nhttps://www.linkedin.com/in/john-engineer`}
         className="min-h-[140px] font-mono text-xs leading-relaxed"
         required
+        aria-label="LinkedIn URLs or CSV roster"
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && event.currentTarget.value) {
+            event.preventDefault();
+            event.currentTarget.value = "";
+            setSelectedFile("");
+            if (fileRef.current) fileRef.current.value = "";
+          }
+        }}
       />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-within:ring-2 focus-within:ring-signal/30">
