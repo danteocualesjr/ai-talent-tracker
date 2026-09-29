@@ -8,7 +8,7 @@ const EmailSchema = z.string().email();
 export async function POST(req: NextRequest) {
   const form = await req.formData();
   const url = normalizeLinkedInUrl(String(form.get("linkedin_url") ?? ""));
-  const emailParsed = EmailSchema.safeParse(String(form.get("email") ?? "").trim());
+  const emailParsed = EmailSchema.safeParse(String(form.get("email") ?? "").trim().toLowerCase());
   const notes = String(form.get("notes") ?? "");
   if (!url || !emailParsed.success) {
     return NextResponse.json({ error: "missing or invalid fields" }, { status: 400 });
