@@ -48,27 +48,33 @@ export function EventTypesEditor({ channelId, eventTypes }: { channelId: string;
   }
 
   return (
-    <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="Event types">
-      {EVENT_TYPE_OPTIONS.map(({ value, label }) => {
-        const active = selected.has(value);
-        return (
-          <button
-            key={value}
-            type="button"
-            disabled={pending}
-            aria-pressed={active}
-            onClick={() => toggleType(value)}
-            className={cn(
-              "rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors",
-              active
-                ? "border-signal/40 bg-signal/10 text-foreground"
-                : "border-border/60 bg-muted/40 text-muted-foreground hover:border-border hover:text-foreground",
-            )}
-          >
-            {label}
-          </button>
-        );
-      })}
+    <div className="mt-2 space-y-1.5">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Event types">
+        {EVENT_TYPE_OPTIONS.map(({ value, label }) => {
+          const active = selected.has(value);
+          return (
+            <button
+              key={value}
+              type="button"
+              disabled={pending}
+              aria-pressed={active}
+              onClick={() => toggleType(value)}
+              className={cn(
+                "rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40",
+                active
+                  ? "border-signal/40 bg-signal/10 text-foreground"
+                  : "border-border/60 bg-muted/40 text-muted-foreground hover:border-border hover:text-foreground",
+              )}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="sr-only" aria-live="polite">
+        {selected.size} event type{selected.size === 1 ? "" : "s"} selected
+        {pending ? ", saving" : ""}
+      </p>
     </div>
   );
 }
