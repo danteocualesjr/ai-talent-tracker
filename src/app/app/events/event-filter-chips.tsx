@@ -2,20 +2,20 @@
 
 import { useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Clock, Sparkles } from "lucide-react";
+import { ArrowLeftRight, Briefcase, Clock, Compass, Filter, Github, Globe, Link2, LogOut, Pencil, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
-  { label: "All", param: null, dot: "bg-foreground/40" },
-  { label: "Departures", param: "departures", dot: "bg-violet-accent" },
-  { label: "Stealth", param: "stealth", dot: "bg-amber-accent" },
-  { label: "Founders", param: "founders", dot: "bg-signal" },
-  { label: "Joiners", param: "joiners", dot: "bg-signal/70" },
-  { label: "GitHub", param: "github", dot: "bg-rose-500" },
-  { label: "Location", param: "location", dot: "bg-sky-500" },
-  { label: "About", param: "about", dot: "bg-muted-foreground" },
-  { label: "Role", param: "role", dot: "bg-muted-foreground/70" },
-  { label: "Domain", param: "domain", dot: "bg-emerald-500" },
+  { label: "All", param: null, icon: Filter },
+  { label: "Departures", param: "departures", icon: LogOut },
+  { label: "Stealth", param: "stealth", icon: Compass },
+  { label: "Founders", param: "founders", icon: Star },
+  { label: "Joiners", param: "joiners", icon: Briefcase },
+  { label: "GitHub", param: "github", icon: Github },
+  { label: "Location", param: "location", icon: Globe },
+  { label: "About", param: "about", icon: Pencil },
+  { label: "Role", param: "role", icon: ArrowLeftRight },
+  { label: "Domain", param: "domain", icon: Link2 },
 ] as const;
 
 export function AppEventsFilterChips() {
@@ -94,7 +94,7 @@ export function AppEventsFilterChips() {
         role="toolbar"
         aria-label="Filter events by type"
       >
-        {FILTERS.map(({ label, param, dot }, index) => {
+        {FILTERS.map(({ label, param, icon: Icon }, index) => {
           const active = (param ?? null) === (activeParam ?? null);
           return (
             <button
@@ -109,13 +109,12 @@ export function AppEventsFilterChips() {
                 active ? "chip-active motion-safe:scale-[1.02]" : "hover:border-signal/25 hover:bg-signal/5 hover:text-foreground",
               )}
             >
-              {active ? (
+              <Icon className={cn("h-3 w-3 shrink-0", active ? "text-signal" : "text-muted-foreground/70")} aria-hidden />
+              {active && (
                 <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden>
                   <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
                 </span>
-              ) : (
-                <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
               )}
               {label}
             </button>
