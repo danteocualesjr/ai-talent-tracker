@@ -24,7 +24,7 @@ export async function addChannel(formData: FormData): Promise<ActionResult> {
 
   let config: unknown;
   if (type === "email") {
-    const r = EmailSchema.safeParse({ to: formData.get("to") });
+    const r = EmailSchema.safeParse({ to: String(formData.get("to") ?? "").trim().toLowerCase() });
     if (!r.success) return { error: "Enter a valid email address." };
     config = r.data;
   } else if (type === "slack") {
@@ -64,7 +64,7 @@ async function channelExists(
 ): Promise<boolean> {
   const { data } = await db.from("notification_channels").select("id, config").eq("org_id", orgId).eq("type", type);
   const rows = (data ?? []) as { id: string; config: Record<string, unknown> }[];
-  if (type === "email") return rows.some((row) => row.config.to === config.to);
+  if (type === "email") return rows.some((row) => String(row.config.to ?? "").toLowerCase() === String(config.to ?? "").toLowerCase());
   if (type === "slack") return rows.some((row) => row.config.webhook_url === config.webhook_url);
   if (type === "webhook") return rows.some((row) => row.config.url === config.url);
   return false;
