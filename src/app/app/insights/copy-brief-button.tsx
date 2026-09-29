@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CopyBriefButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const [failed, setFailed] = useState(false);
-
   const [pending, setPending] = useState(false);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+  }, []);
+
+  function scheduleReset(reset: () => void, ms: number) {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => {
+      resetTimer.current = null;
+      reset();
+    }, ms);
+  }
 
   async function copy() {
     setPending(true);
@@ -16,11 +28,11 @@ export function CopyBriefButton({ text }: { text: string }) {
       await navigator.clipboard.writeText(text);
       setFailed(false);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      scheduleReset(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
       setFailed(true);
-      window.setTimeout(() => setFailed(false), 2500);
+      scheduleReset(() => setFailed(false), 2500);
     } finally {
       setPending(false);
     }
