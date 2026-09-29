@@ -69,7 +69,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               className={`absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-card ${
                 p.status === "stealth" ? "bg-amber-accent" : p.status === "founder" ? "bg-signal" : p.status === "left" ? "bg-violet-accent" : "bg-muted-foreground"
               }`}
-              aria-hidden
+              title={p.status}
+              aria-label={`Status: ${p.status}`}
+              role="img"
             />
           </div>
           <div className="min-w-0 flex-1">
