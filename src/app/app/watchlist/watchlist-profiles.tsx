@@ -89,7 +89,12 @@ export function WatchlistProfiles({
         return bt - at;
       }
       if (sort === "company") {
-        return (a.current_company ?? "").localeCompare(b.current_company ?? "");
+        const ac = (a.current_company ?? "").trim();
+        const bc = (b.current_company ?? "").trim();
+        if (!ac && !bc) return 0;
+        if (!ac) return 1;
+        if (!bc) return -1;
+        return ac.localeCompare(bc);
       }
       if (sort === "status") {
         return (a.status ?? "").localeCompare(b.status ?? "") || (a.full_name ?? a.linkedin_handle ?? "").localeCompare(b.full_name ?? b.linkedin_handle ?? "");
