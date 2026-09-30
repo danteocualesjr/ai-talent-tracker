@@ -129,7 +129,7 @@ export function LabsRosterGrid({ labs }: { labs: Lab[] }) {
                 </div>
               )}
               <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-muted-foreground transition-colors group-hover:text-signal">
-                View roster <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                View roster <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
               </div>
             </Link>
           ))}
