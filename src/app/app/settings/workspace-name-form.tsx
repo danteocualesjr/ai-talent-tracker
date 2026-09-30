@@ -40,6 +40,12 @@ export function WorkspaceNameForm({ currentName }: { currentName: string }) {
           placeholder="My workspace"
           disabled={pending}
           aria-describedby="workspace-name-hint"
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && event.currentTarget.value !== currentName) {
+              event.preventDefault();
+              event.currentTarget.value = currentName;
+            }
+          }}
         />
         <p id="workspace-name-hint" className="text-[11px] text-muted-foreground">
           Shown in the sidebar and on shared alert messages. 2-80 characters.
