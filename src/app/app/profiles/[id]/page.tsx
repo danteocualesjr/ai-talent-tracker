@@ -138,9 +138,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <div className="stat-strip grid-cols-3">
-        <ProfileMetric label="Events" value={eventList.length} icon={<Activity className="h-3.5 w-3.5" />} accent="text-signal" />
-        <ProfileMetric label="Snapshots" value={snapshotList.length} icon={<Camera className="h-3.5 w-3.5" />} accent="text-violet-accent" />
-        <ProfileMetric label="Latest confidence" value={latestConfidence} icon={<Sparkles className="h-3.5 w-3.5" />} accent="text-amber-accent" />
+        <ProfileMetric label="Events" value={eventList.length} icon={<Activity className="h-3.5 w-3.5" aria-hidden />} accent="text-signal" />
+        <ProfileMetric label="Snapshots" value={snapshotList.length} icon={<Camera className="h-3.5 w-3.5" aria-hidden />} accent="text-violet-accent" />
+        <ProfileMetric label="Latest confidence" value={latestConfidence} icon={<Sparkles className="h-3.5 w-3.5" aria-hidden />} accent="text-amber-accent" />
       </div>
 
       {p.github_handle && (
@@ -216,7 +216,10 @@ function ProfileMetric({
           <div className="mt-1 label-caps text-muted-foreground">{label}</div>
         </div>
         {icon && (
-          <div className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}>
+          <div
+            aria-hidden
+            className={`flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-muted/70 ${accent} motion-safe:transition-transform motion-safe:group-hover:scale-105`}
+          >
             {icon}
           </div>
         )}
