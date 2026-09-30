@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { listOrgProfiles } from "@/lib/queries";
+import { stampedCsvFilename } from "@/lib/utils";
 
 export async function GET() {
   const supa = await createClient();
@@ -31,7 +32,7 @@ export async function GET() {
   return new NextResponse(body, {
     headers: {
       "content-type": "text/csv; charset=utf-8",
-      "content-disposition": 'attachment; filename="watchlist.csv"',
+      "content-disposition": `attachment; filename="${stampedCsvFilename("watchlist")}"`,
     },
   });
 }
