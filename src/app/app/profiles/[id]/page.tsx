@@ -189,14 +189,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
               title="No snapshots yet"
               body="Profile snapshots appear after the first successful sync from our data provider."
             />
-          ) : snapshotList.map((s) => (
-            <div key={s.id} className="group relative flex items-center justify-between gap-3 px-5 py-3 text-xs transition-colors hover:bg-muted/30">
-              <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
-              <span className="font-medium text-foreground">Snapshot {formatRelative(s.fetched_at)}</span>
-              <span className="text-muted-foreground">source: {s.source}</span>
-              <span className="font-mono text-muted-foreground/70">{s.content_hash.slice(0, 8)}…</span>
-            </div>
-          ))}
+          ) : (
+            <SnapshotList snapshots={snapshotList} />
+          )}
       </Panel>
     </div>
   );
