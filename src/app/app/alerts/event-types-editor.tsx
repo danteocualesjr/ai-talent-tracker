@@ -4,18 +4,20 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { updateChannelEventTypes } from "./actions";
 import type { EventType } from "@/types/db";
+import { EVENT_TYPE_LABELS } from "@/lib/event-labels";
 import { cn } from "@/lib/utils";
 
-const EVENT_TYPE_OPTIONS: { value: EventType; label: string }[] = [
-  { value: "left_company", label: "Departures" },
-  { value: "joined_company", label: "Joiners" },
-  { value: "went_stealth", label: "Stealth" },
-  { value: "headline_signals_founding", label: "Founders" },
-  { value: "github_dark", label: "GitHub dark" },
-  { value: "role_change_internal", label: "Role change" },
-  { value: "about_changed", label: "About changed" },
-  { value: "location_changed", label: "Location" },
-  { value: "new_domain", label: "New domain" },
+const EVENT_TYPE_OPTIONS: EventType[] = [
+  "left_company",
+  "joined_company",
+  "went_stealth",
+  "headline_signals_founding",
+  "github_dark",
+  "role_change_internal",
+  "about_changed",
+  "location_changed",
+  "new_domain",
+  "other",
 ];
 
 export function EventTypesEditor({ channelId, eventTypes }: { channelId: string; eventTypes: EventType[] }) {
@@ -50,7 +52,7 @@ export function EventTypesEditor({ channelId, eventTypes }: { channelId: string;
   return (
     <div className="mt-2 space-y-1.5">
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Event types">
-        {EVENT_TYPE_OPTIONS.map(({ value, label }) => {
+        {EVENT_TYPE_OPTIONS.map((value) => {
           const active = selected.has(value);
           return (
             <button
@@ -66,7 +68,7 @@ export function EventTypesEditor({ channelId, eventTypes }: { channelId: string;
                   : "border-border/60 bg-muted/40 text-muted-foreground hover:border-border hover:text-foreground",
               )}
             >
-              {label}
+              {EVENT_TYPE_LABELS[value]}
             </button>
           );
         })}
