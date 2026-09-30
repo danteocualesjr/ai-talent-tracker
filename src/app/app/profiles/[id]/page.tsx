@@ -93,7 +93,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                 </a>
               </Button>
               {p.github_handle && (
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="outline" className="hover:border-signal/35 hover:bg-signal/5">
                   <a
                     href={githubProfileUrl(p.github_handle)}
                     target="_blank"
@@ -105,7 +105,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                 </Button>
               )}
               {p.x_handle && (
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm" variant="outline" className="hover:border-signal/35 hover:bg-signal/5">
                   <a
                     href={xProfileUrl(p.x_handle)}
                     target="_blank"
