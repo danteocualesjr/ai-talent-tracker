@@ -43,6 +43,11 @@ export function ImportCsvForm() {
       const textarea = ref.current?.querySelector("textarea[name='csv_text']") as HTMLTextAreaElement | null;
       if (textarea) textarea.value = String(reader.result ?? "");
     };
+    reader.onerror = () => {
+      setSelectedFile("");
+      if (fileRef.current) fileRef.current.value = "";
+      toast.error("Could not read that file. Try pasting the URLs instead.");
+    };
     reader.readAsText(file);
   }
 
