@@ -1,5 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
+import { shortLabelForEventType } from "@/lib/event-labels";
+import type { EventType } from "@/types/db";
 
 const FROM = process.env.RESEND_FROM || "AI Talent Tracker <alerts@example.com>";
 
@@ -26,10 +28,11 @@ export function renderEventEmail(args: {
   linkedinUrl: string;
   detectedAt: string;
 }): { subject: string; html: string } {
-  const subject = `[Tracker] ${args.name} - ${labelFor(args.type)}`;
+  const typeLabel = shortLabelForEventType(args.type as EventType);
+  const subject = `[Tracker] ${args.name} - ${typeLabel}`;
   const html = `
     <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px;margin:auto;padding:24px">
-      <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666">${labelFor(args.type)}</div>
+      <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666">${escapeHtml(typeLabel)}</div>
       <h2 style="margin:8px 0 16px">${escapeHtml(args.name)}</h2>
       <p style="font-size:15px;line-height:1.5">${escapeHtml(args.summary)}</p>
       <p style="margin-top:24px">
@@ -38,21 +41,6 @@ export function renderEventEmail(args: {
       <p style="color:#888;font-size:12px;margin-top:32px">Detected ${escapeHtml(args.detectedAt)}</p>
     </div>`;
   return { subject, html };
-}
-
-function labelFor(type: string): string {
-  switch (type) {
-    case "left_company": return "Left their company";
-    case "joined_company": return "Joined a new company";
-    case "went_stealth": return "Went stealth";
-    case "headline_signals_founding": return "Founding signal";
-    case "role_change_internal": return "Role change";
-    case "about_changed": return "About updated";
-    case "location_changed": return "Location change";
-    case "github_dark": return "GitHub dark";
-    case "new_domain": return "New domain";
-    default: return "Profile change";
-  }
 }
 
 function escapeHtml(s: string): string {
