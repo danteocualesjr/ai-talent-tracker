@@ -194,6 +194,12 @@ export function LoginForm({ searchParams }: { searchParams: Promise<{ next?: str
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && email) {
+                e.preventDefault();
+                setEmail("");
+              }
+            }}
             required
             autoComplete="email"
             placeholder="you@company.com"
