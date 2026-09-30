@@ -70,11 +70,35 @@ export function OptOutForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Your email (for confirmation)</Label>
-        <Input id="email" name="email" type="email" required disabled={loading} />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          disabled={loading}
+          autoComplete="email"
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && event.currentTarget.value) {
+              event.preventDefault();
+              event.currentTarget.value = "";
+            }
+          }}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Additional notes (optional)</Label>
-        <Textarea id="notes" name="notes" rows={3} disabled={loading} />
+        <Textarea
+          id="notes"
+          name="notes"
+          rows={3}
+          disabled={loading}
+          onKeyDown={(event) => {
+            if (event.key === "Escape" && event.currentTarget.value) {
+              event.preventDefault();
+              event.currentTarget.value = "";
+            }
+          }}
+        />
       </div>
       <Button type="submit" disabled={loading} aria-busy={loading}>{loading ? "Submitting…" : "Submit request"}</Button>
     </form>
