@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { formatRelative, initialsFromName } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative, initialsFromName } from "@/lib/utils";
 import type { EventRow, EventType, Profile } from "@/types/db";
 
 export const revalidate = 300;
@@ -76,7 +76,14 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
               </span>
-              Detected <span className="font-medium text-foreground">{formatRelative(ev.detected_at)}</span>
+              Detected{" "}
+              <time
+                dateTime={ev.detected_at}
+                title={formatAbsoluteDateTime(ev.detected_at) || undefined}
+                className="font-medium text-foreground"
+              >
+                {formatRelative(ev.detected_at)}
+              </time>
             </span>
             <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-signal/10 px-2.5 py-1 text-[11px] font-semibold text-signal">
               <Sparkles className="h-3 w-3" aria-hidden />
