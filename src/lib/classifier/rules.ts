@@ -1,4 +1,4 @@
-import type { FieldDiff } from "@/lib/diff";
+import type { DiffField, FieldDiff } from "@/lib/diff";
 import type { EventType, ProfileStatus } from "@/types/db";
 
 export interface ClassifiedEvent {
@@ -25,6 +25,17 @@ const FOUNDER_PATTERNS = [
 const STAFF_FOUNDING_PATTERNS = [
   /founding (engineer|researcher|designer|product|gtm)/i,
 ];
+
+const FIELD_LABELS: Record<DiffField, string> = {
+  full_name: "name",
+  headline: "headline",
+  current_company: "company",
+  current_title: "title",
+  location: "location",
+  about: "about",
+  github_handle: "GitHub",
+  x_handle: "X handle",
+};
 
 /**
  * Heuristics-only classifier. Cheap, deterministic. The LLM classifier in
@@ -118,7 +129,7 @@ export function classifyByRules(
   return {
     type: "other",
     confidence: 0.3,
-    summary: `Profile updated (${diffs.map((d) => d.field).join(", ")}).`,
+    summary: `Profile updated (${diffs.map((d) => FIELD_LABELS[d.field] ?? d.field).join(", ")}).`,
   };
 }
 
