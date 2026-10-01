@@ -18,6 +18,22 @@ export function initialsFromName(name: string | null | undefined, fallback = "??
   return (single[0] ?? fallback[0] ?? "?").toUpperCase().padEnd(2, fallback[1] ?? "?");
 }
 
+/**
+ * Best-effort display name from a LinkedIn handle ("jane-2-doe-81a" -> "Jane Doe A").
+ * Strips digits and collapses the gaps they leave behind.
+ */
+export function humanizeLinkedInHandle(handle: string | null | undefined): string | null {
+  if (!handle) return null;
+  return (
+    handle
+      .replace(/[-_]+/g, " ")
+      .replace(/\d+/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase()) || null
+  );
+}
+
 export function formatRelative(date: Date | string | null | undefined) {
   if (!date) return "never";
   const d = typeof date === "string" ? new Date(date) : date;

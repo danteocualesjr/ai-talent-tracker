@@ -1,3 +1,4 @@
+import { humanizeLinkedInHandle } from "@/lib/utils";
 import type { ProfileProvider, ProviderProfile } from "./types";
 
 /**
@@ -15,7 +16,7 @@ export class ManualProvider implements ProfileProvider {
       ?.split(/[/?#]/)[0] ?? "";
     return {
       linkedin_url: linkedinUrl,
-      full_name: humanize(handle),
+      full_name: humanizeLinkedInHandle(handle),
       headline: null,
       current_company: null,
       current_title: null,
@@ -27,13 +28,4 @@ export class ManualProvider implements ProfileProvider {
       raw: { source: "manual", handle },
     };
   }
-}
-
-function humanize(handle: string): string | null {
-  if (!handle) return null;
-  return handle
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-    .replace(/\d+/g, "")
-    .trim() || null;
 }
