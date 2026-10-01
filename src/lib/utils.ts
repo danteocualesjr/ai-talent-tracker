@@ -191,8 +191,11 @@ export function formatAbsoluteDateTime(iso: string | Date | null | undefined): s
 
 /** Quote a CSV cell when it contains a delimiter, quote, or line break. */
 export function csvEscape(value: string): string {
-  if (/[",\r\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
+  // Profile text is user-controlled; prefix cells that spreadsheets would
+  // evaluate as formulas (=, +, -, @, tab, CR) so they open as plain text.
+  const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  if (/[",\r\n]/.test(safe)) return `"${safe.replace(/"/g, '""')}"`;
+  return safe;
 }
 
 /** Date-stamped CSV download name (UTC YYYY-MM-DD). */
