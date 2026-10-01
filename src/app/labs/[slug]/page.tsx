@@ -106,7 +106,7 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
                       >
                         {p.full_name || p.linkedin_handle}
                       </a>
-                      <p className="truncate text-sm text-muted-foreground">{p.headline ?? p.current_title ?? ""}</p>
+                      <p className="truncate text-sm text-muted-foreground">{p.headline || p.current_title || ""}</p>
                     </div>
                     <Badge variant="secondary" className="capitalize">
                       {p.status}
