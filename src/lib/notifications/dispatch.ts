@@ -135,6 +135,9 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
       event_id: event.id,
       profile_id: profile.id,
       ...payload,
+      // Machine-readable fields alongside the human-friendly ones above.
+      detected_at: new Date(event.detected_at).toISOString(),
+      confidence: event.confidence,
     });
     return;
   }
