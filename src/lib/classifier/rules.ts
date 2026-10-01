@@ -41,8 +41,12 @@ export function classifyByRules(
   const companyChanged = diffs.some((d) => d.field === "current_company");
   const headlineChanged = diffs.some((d) => d.field === "headline");
 
+  // Only read headline signals when the headline itself changed; otherwise an
+  // existing "Stealth" or "Founder" headline re-fires on every unrelated edit.
+  const headlineSignals = headlineChanged ? headline : "";
+
   for (const re of STEALTH_PATTERNS) {
-    if (re.test(headline)) {
+    if (re.test(headlineSignals)) {
       return {
         type: "went_stealth",
         confidence: 0.9,
@@ -53,7 +57,7 @@ export function classifyByRules(
   }
 
   for (const re of FOUNDER_PATTERNS) {
-    if (re.test(headline)) {
+    if (re.test(headlineSignals)) {
       return {
         type: "headline_signals_founding",
         confidence: 0.85,
@@ -64,7 +68,7 @@ export function classifyByRules(
   }
 
   for (const re of STAFF_FOUNDING_PATTERNS) {
-    if (re.test(headline)) {
+    if (re.test(headlineSignals)) {
       return {
         type: "headline_signals_founding",
         confidence: 0.7,
