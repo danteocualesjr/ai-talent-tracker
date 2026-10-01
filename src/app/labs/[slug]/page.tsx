@@ -94,8 +94,10 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
                 return (
                   <div key={p.id} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/30">
                     <Avatar className="h-10 w-10">
-                      {p.avatar_url ? <AvatarImage src={p.avatar_url} alt={p.full_name ?? ""} /> : null}
-                      <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
+                      {p.avatar_url ? <AvatarImage src={p.avatar_url} alt="" /> : null}
+                      <AvatarFallback className="text-[11px]" aria-hidden>
+                        {initials}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <a
@@ -105,6 +107,7 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
                         className="truncate text-sm font-semibold hover:underline"
                       >
                         {p.full_name || p.linkedin_handle}
+                        <span className="sr-only"> on LinkedIn (opens in a new tab)</span>
                       </a>
                       <p className="truncate text-sm text-muted-foreground">{p.headline || p.current_title || ""}</p>
                     </div>
