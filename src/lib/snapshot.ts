@@ -1,6 +1,6 @@
 import type { Json } from "@/types/db";
 import type { ProfileSnapshot } from "@/types/db";
-import { humanizeLinkedInHandle } from "./utils";
+import { hostMatchesDomain, humanizeLinkedInHandle } from "./utils";
 import type { ProviderProfile } from "./providers/types";
 
 interface ProxycurlExperience {
@@ -51,17 +51,12 @@ function parseProxycurlRaw(raw: Json): Partial<ProviderProfile> {
   };
 }
 
-/** Exact domain or a real subdomain, so "dropbox.com" never matches "x.com". */
-function hostMatches(hostname: string, domains: string[]): boolean {
-  const host = hostname.toLowerCase();
-  return domains.some((d) => host === d || host.endsWith(`.${d}`));
-}
 
 function extractHandle(url: string | undefined, domains: string[]): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
-    if (!hostMatches(u.hostname, domains)) return null;
+    if (!hostMatchesDomain(u.hostname, domains)) return null;
     const handle = u.pathname.split("/").filter(Boolean)[0];
     return handle || null;
   } catch {

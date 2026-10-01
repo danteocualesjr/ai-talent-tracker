@@ -142,6 +142,12 @@ export function escapeRssCdata(text: string): string {
   return text.replace(/]]>/g, "]]]]><![CDATA[>");
 }
 
+/** Exact domain or a real subdomain, so "dropbox.com" never matches "x.com". */
+export function hostMatchesDomain(hostname: string, domains: readonly string[]): boolean {
+  const host = hostname.toLowerCase();
+  return domains.some((d) => host === d || host.endsWith(`.${d}`));
+}
+
 export function normalizeSocialHandle(handle: string): string {
   return handle.trim().replace(/^@/, "");
 }
