@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { formatAbsoluteDateTime, formatRelative, initialsFromName } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, initialsFromName } from "@/lib/utils";
 import type { EventRow, EventType, Profile } from "@/types/db";
 
 export const revalidate = 300;
@@ -87,7 +87,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
             </span>
             <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-signal/10 px-2.5 py-1 text-[11px] font-semibold text-signal">
               <Sparkles className="h-3 w-3" aria-hidden />
-              {Math.round(Number(ev.confidence) * 100)}% confidence
+              {formatConfidencePercent(Number(ev.confidence))}% confidence
             </span>
           </div>
           <div className="p-6 md:p-8">
