@@ -14,6 +14,7 @@ export async function GET() {
         <title><![CDATA[${escapeRssCdata(`${e.profile.full_name || e.profile.linkedin_handle} - ${typeLabel}`)}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
+        <category><![CDATA[${escapeRssCdata(typeLabel)}]]></category>
         <pubDate>${new Date(e.detected_at).toUTCString()}</pubDate>
         <description><![CDATA[${escapeRssCdata(e.summary)}]]></description>
       </item>`;
