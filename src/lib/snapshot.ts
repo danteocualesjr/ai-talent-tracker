@@ -1,5 +1,6 @@
 import type { Json } from "@/types/db";
 import type { ProfileSnapshot } from "@/types/db";
+import { humanizeLinkedInHandle } from "./utils";
 import type { ProviderProfile } from "./providers/types";
 
 interface ProxycurlExperience {
@@ -28,10 +29,7 @@ export function snapshotToPartialProfile(snapshot: ProfileSnapshot): Partial<Pro
   }
   if (snapshot.source === "manual" && snapshot.raw && typeof snapshot.raw === "object") {
     const raw = snapshot.raw as { handle?: string };
-    const name = raw.handle
-      ? raw.handle.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).replace(/\d+/g, "").trim() || null
-      : null;
-    return { full_name: name };
+    return { full_name: humanizeLinkedInHandle(raw.handle) };
   }
   return {};
 }
