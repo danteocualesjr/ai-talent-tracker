@@ -10,8 +10,11 @@ export async function POST(req: NextRequest) {
   const url = normalizeLinkedInUrl(String(form.get("linkedin_url") ?? ""));
   const emailParsed = EmailSchema.safeParse(String(form.get("email") ?? "").trim().toLowerCase());
   const notes = String(form.get("notes") ?? "");
-  if (!url || !emailParsed.success) {
-    return NextResponse.json({ error: "missing or invalid fields" }, { status: 400 });
+  if (!url) {
+    return NextResponse.json({ error: "invalid linkedin_url", field: "linkedin_url" }, { status: 400 });
+  }
+  if (!emailParsed.success) {
+    return NextResponse.json({ error: "invalid email", field: "email" }, { status: 400 });
   }
 
   const db = createAdminClient();

@@ -8,6 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
+const FIELD_ERRORS: Record<string, string> = {
+  linkedin_url: "Enter a LinkedIn profile URL like https://www.linkedin.com/in/your-name.",
+  email: "Enter a valid email address so we can confirm your request.",
+};
+
 export function OptOutForm() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -18,6 +23,14 @@ export function OptOutForm() {
     const fd = new FormData(e.currentTarget);
     try {
       const res = await fetch("/api/opt-out", { method: "POST", body: fd });
+      if (res.status === 400) {
+        const data = (await res.json().catch(() => null)) as { field?: string } | null;
+        const message = data?.field ? FIELD_ERRORS[data.field] : undefined;
+        if (message) {
+          toast.error(message);
+          return;
+        }
+      }
       if (!res.ok) throw new Error("submit failed");
       setSent(true);
       toast.success("Request received. We'll email you within 30 days.");
