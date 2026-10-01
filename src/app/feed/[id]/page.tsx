@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Bell, ExternalLink, Sparkles } from "lucide-react";
@@ -26,9 +28,11 @@ const TYPE_META: Record<EventType, { label: string; tone: "success" | "warning" 
   other: { label: "Update", tone: "secondary" },
 };
 
-export default async function PublicEventPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  if (!isSupabaseConfigured()) notFound();
+type PublicEvent = EventRow & { profile: Profile };
+
+/** Deduped per request so metadata and the page share one query. */
+const getPublicEvent = cache(async (id: string): Promise<PublicEvent | null> => {
+  if (!isSupabaseConfigured()) return null;
   const db = createAdminClient();
   const { data } = await db
     .from("events")
@@ -36,8 +40,25 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
     .eq("id", id)
     .eq("is_public", true)
     .maybeSingle();
-  if (!data) notFound();
-  const ev = data as unknown as EventRow & { profile: Profile };
+  return (data as unknown as PublicEvent | null) ?? null;
+});
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const ev = await getPublicEvent(id);
+  if (!ev) return { title: "Event not found" };
+  const name = ev.profile.full_name || ev.profile.linkedin_handle;
+  const label = (TYPE_META[ev.type] ?? TYPE_META.other).label;
+  return {
+    title: `${name} - ${label}`,
+    description: ev.summary,
+  };
+}
+
+export default async function PublicEventPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const ev = await getPublicEvent(id);
+  if (!ev) notFound();
   const initials = initialsFromName(ev.profile.full_name || ev.profile.linkedin_handle);
   const typeMeta = TYPE_META[ev.type] ?? TYPE_META.other;
 
