@@ -31,6 +31,7 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
 
   const stealth = people.filter((p) => p.status === "stealth").length;
   const left = people.filter((p) => p.status === "left").length;
+  const founders = people.filter((p) => p.status === "founder").length;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -62,9 +63,10 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
                 <p className="mt-2 max-w-xl text-muted-foreground md:text-lg">{lab.description}</p>
               </div>
             </div>
-            <div className="mt-8 grid max-w-lg grid-cols-3 gap-3">
+            <div className="mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
               <MiniStat label="Indexed" value={people.length} />
               <MiniStat label="Stealth" value={stealth} highlight />
+              <MiniStat label="Founders" value={founders} highlight />
               <MiniStat label="Left" value={left} />
             </div>
             <Button asChild className="mt-8">
