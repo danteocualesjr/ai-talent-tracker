@@ -26,6 +26,8 @@ export function formatRelative(date: Date | string | null | undefined) {
   if (diff < 0) {
     const ahead = Math.abs(diff);
     const sec = Math.floor(ahead / 1000);
+    // Small negative diffs are server/client clock skew, not real future times.
+    if (sec < 5) return "just now";
     if (sec < 60) return `in ${sec}s`;
     const min = Math.floor(sec / 60);
     if (min < 60) return `in ${min}m`;
