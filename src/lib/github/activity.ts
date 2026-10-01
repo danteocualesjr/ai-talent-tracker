@@ -1,4 +1,5 @@
 import "server-only";
+import { normalizeSocialHandle } from "@/lib/utils";
 
 export interface GitHubActivity {
   lastCommitAt: string | null;
@@ -18,7 +19,7 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
  * Uses the unauthenticated REST API (60 req/hr) or GITHUB_TOKEN when set (5000 req/hr).
  */
 export async function fetchGitHubActivity(handle: string): Promise<GitHubActivity | null> {
-  const normalized = handle.trim().replace(/^@/, "");
+  const normalized = normalizeSocialHandle(handle);
   if (!normalized) return null;
 
   const headers: Record<string, string> = {
@@ -42,12 +43,16 @@ export async function fetchGitHubActivity(handle: string): Promise<GitHubActivit
     const events = (await res.json()) as GitHubEvent[];
     const cutoff = Date.now() - THIRTY_DAYS_MS;
     let lastCommitAt: string | null = null;
+    let lastCommitMs = -Infinity;
     let commits30d = 0;
 
     for (const event of events) {
       if (event.type !== "PushEvent") continue;
       const at = new Date(event.created_at).getTime();
-      if (!lastCommitAt || at > new Date(lastCommitAt).getTime()) {
+      // Skip malformed timestamps so they cannot become the "latest" commit.
+      if (Number.isNaN(at)) continue;
+      if (at > lastCommitMs) {
+        lastCommitMs = at;
         lastCommitAt = event.created_at;
       }
       if (at >= cutoff) {
