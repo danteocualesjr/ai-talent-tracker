@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { getOrgEvents } from "@/lib/queries";
-import { stampedCsvFilename } from "@/lib/utils";
+import { csvEscape, stampedCsvFilename } from "@/lib/utils";
 
 export async function GET() {
   const supa = await createClient();
@@ -38,9 +38,4 @@ export async function GET() {
       "content-disposition": `attachment; filename="${stampedCsvFilename("events")}"`,
     },
   });
-}
-
-function csvEscape(value: string): string {
-  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
 }

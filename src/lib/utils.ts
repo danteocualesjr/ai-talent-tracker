@@ -189,6 +189,12 @@ export function formatAbsoluteDateTime(iso: string | Date | null | undefined): s
   });
 }
 
+/** Quote a CSV cell when it contains a delimiter, quote, or line break. */
+export function csvEscape(value: string): string {
+  if (/[",\r\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+  return value;
+}
+
 /** Date-stamped CSV download name (UTC YYYY-MM-DD). */
 export function stampedCsvFilename(prefix: string): string {
   const stamp = new Date().toISOString().slice(0, 10);
