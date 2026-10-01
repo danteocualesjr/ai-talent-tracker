@@ -46,17 +46,22 @@ function parseProxycurlRaw(raw: Json): Partial<ProviderProfile> {
     current_title: current?.title ?? null,
     location: [data.city, data.state, data.country_full_name].filter(Boolean).join(", ") || null,
     about: data.summary ?? null,
-    github_handle: extractHandle(data.github_profile_url, "github.com"),
-    x_handle: extractHandle(data.twitter_profile_url, /twitter\.com|x\.com/),
+    github_handle: extractHandle(data.github_profile_url, ["github.com"]),
+    x_handle: extractHandle(data.twitter_profile_url, ["twitter.com", "x.com"]),
   };
 }
 
-function extractHandle(url: string | undefined, host: string | RegExp): string | null {
+/** Exact domain or a real subdomain, so "dropbox.com" never matches "x.com". */
+function hostMatches(hostname: string, domains: string[]): boolean {
+  const host = hostname.toLowerCase();
+  return domains.some((d) => host === d || host.endsWith(`.${d}`));
+}
+
+function extractHandle(url: string | undefined, domains: string[]): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
-    const matches = typeof host === "string" ? u.hostname.includes(host) : host.test(u.hostname);
-    if (!matches) return null;
+    if (!hostMatches(u.hostname, domains)) return null;
     const handle = u.pathname.split("/").filter(Boolean)[0];
     return handle || null;
   } catch {
