@@ -72,14 +72,14 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
           <div className="pointer-events-none h-0.5 bg-gradient-to-r from-signal/80 via-signal to-signal/80" />
           <div className="relative flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-muted/40 via-muted/20 to-signal/[0.06] px-6 py-3.5 text-xs text-muted-foreground">
             <span className="flex items-center gap-2">
-              <span className="relative flex h-1.5 w-1.5">
+              <span className="relative flex h-1.5 w-1.5" aria-hidden>
                 <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-signal" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
               </span>
               Detected <span className="font-medium text-foreground">{formatRelative(ev.detected_at)}</span>
             </span>
             <span className="tnum inline-flex items-center gap-1.5 rounded-full bg-signal/10 px-2.5 py-1 text-[11px] font-semibold text-signal">
-              <Sparkles className="h-3 w-3" />
+              <Sparkles className="h-3 w-3" aria-hidden />
               {Math.round(Number(ev.confidence) * 100)}% confidence
             </span>
           </div>
@@ -112,7 +112,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal">
-                    <Bell className="h-4 w-4" />
+                    <Bell className="h-4 w-4" aria-hidden />
                   </div>
                   <div>
                     <p className="text-sm font-semibold">Want alerts when profiles like this change?</p>
@@ -122,7 +122,8 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Button asChild variant="outline" className="flex-1 sm:flex-none">
                     <a href={ev.profile.linkedin_url} target="_blank" rel="noreferrer noopener">
-                      View on LinkedIn <ExternalLink className="ml-1 h-3.5 w-3.5" />
+                      View on LinkedIn <ExternalLink className="ml-1 h-3.5 w-3.5" aria-hidden />
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </a>
                   </Button>
                   <Button asChild variant="signal" className="flex-1 sm:flex-none">
