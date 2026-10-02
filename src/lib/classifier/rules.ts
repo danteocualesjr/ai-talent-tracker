@@ -138,6 +138,27 @@ export function classifyByRules(
     };
   }
 
+  const locationDiff = diffs.find((d) => d.field === "location");
+  if (locationDiff) {
+    const nextLocation = locationDiff.after?.trim();
+    return {
+      type: "location_changed",
+      confidence: 0.5,
+      summary: nextLocation
+        ? `Location changed to "${nextLocation}".`
+        : "Location removed from profile.",
+    };
+  }
+
+  const aboutDiff = diffs.find((d) => d.field === "about");
+  if (aboutDiff) {
+    return {
+      type: "about_changed",
+      confidence: 0.4,
+      summary: "About section updated.",
+    };
+  }
+
   return {
     type: "other",
     confidence: 0.3,
