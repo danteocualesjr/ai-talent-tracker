@@ -26,7 +26,7 @@ import { EventListItem } from "@/components/event-row";
 import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { Sparkline } from "@/components/sparkline";
 import { ActivityBarChart, buildDayLabels } from "@/components/activity-bar-chart";
-import { cn, isHighConfidence } from "@/lib/utils";
+import { cn, formatConfidencePercent, isHighConfidence } from "@/lib/utils";
 import { RefreshStaleButton } from "@/app/app/watchlist/refresh-stale-button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
@@ -326,9 +326,9 @@ export default async function DashboardPage() {
                   </div>
                   <span
                     className="tnum shrink-0 rounded-full bg-signal/10 px-2 py-0.5 text-[11px] font-semibold text-signal"
-                    aria-label={`Detection confidence ${Math.round(event.confidence * 100)} percent`}
+                    aria-label={`Detection confidence ${formatConfidencePercent(event.confidence)} percent`}
                   >
-                    {Math.round(event.confidence * 100)}%
+                    {formatConfidencePercent(event.confidence)}%
                   </span>
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
