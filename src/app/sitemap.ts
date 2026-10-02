@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${base}/`, lastModified: now, priority: 1 },
     { url: `${base}/feed`, lastModified: now, priority: 0.9 },
+    { url: `${base}/feed/rss.xml`, lastModified: now, priority: 0.75 },
     { url: `${base}/labs`, lastModified: now, priority: 0.8 },
     { url: `${base}/pricing`, lastModified: now, priority: 0.7 },
     { url: `${base}/login`, lastModified: now, priority: 0.5 },
