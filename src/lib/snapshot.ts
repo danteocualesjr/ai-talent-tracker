@@ -58,7 +58,7 @@ function extractHandle(url: string | undefined, domains: string[]): string | nul
     const u = new URL(url);
     if (!hostMatchesDomain(u.hostname, domains)) return null;
     const handle = u.pathname.split("/").filter(Boolean)[0];
-    return handle || null;
+    return handle ? handle.toLowerCase() : null;
   } catch {
     return null;
   }
