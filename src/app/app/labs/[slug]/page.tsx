@@ -71,7 +71,7 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
                 <div className="tnum text-2xl font-bold">{value}</div>
                 <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
               </div>
-              <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105`}>
+              <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-muted/80 ${accent} transition-transform motion-safe:group-hover:scale-105` aria-hidden}>
                 <Icon className="h-3.5 w-3.5" />
               </div>
             </div>
