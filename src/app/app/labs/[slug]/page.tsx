@@ -7,7 +7,7 @@ import { EmptyPanel, Panel } from "@/components/panel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getLabBySlug, listLabProfiles } from "@/lib/queries";
-import { formatRelative, initialsFromName } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative, initialsFromName } from "@/lib/utils";
 import { AddLabRosterButton } from "../add-lab-roster-button";
 import { TrackProfileButton } from "../track-profile-button";
 
@@ -108,7 +108,10 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
                 {p.linkedin_url && (
                   <TrackProfileButton linkedinUrl={p.linkedin_url} profileName={p.full_name || p.linkedin_handle || "profile"} />
                 )}
-                <div className="tnum hidden font-mono text-xs text-muted-foreground sm:block">
+                <div
+                  className="tnum hidden font-mono text-xs text-muted-foreground sm:block"
+                  title={formatAbsoluteDateTime(p.last_synced_at) || undefined}
+                >
                   {formatRelative(p.last_synced_at)}
                 </div>
               </div>
