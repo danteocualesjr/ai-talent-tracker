@@ -14,6 +14,9 @@ interface GitHubEvent {
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
+/** GitHub usually answers quickly; do not hang profile refresh on a slow API. */
+const GITHUB_TIMEOUT_MS = 10_000;
+
 /**
  * Fetch recent public push activity for a GitHub user.
  * Uses the unauthenticated REST API (60 req/hr) or GITHUB_TOKEN when set (5000 req/hr).
@@ -32,7 +35,7 @@ export async function fetchGitHubActivity(handle: string): Promise<GitHubActivit
   try {
     const res = await fetch(
       `https://api.github.com/users/${encodeURIComponent(normalized)}/events/public?per_page=100`,
-      { headers, next: { revalidate: 0 } },
+      { headers, next: { revalidate: 0 }, signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS) },
     );
     if (res.status === 404) return { lastCommitAt: null, commits30d: 0 };
     if (!res.ok) {
