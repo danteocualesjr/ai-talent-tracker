@@ -1,6 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
 import { shortLabelForEventType } from "@/lib/event-labels";
+import { formatConfidencePercent } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 const FROM = process.env.RESEND_FROM || "AI Talent Tracker <alerts@example.com>";
@@ -27,6 +28,7 @@ export function renderEventEmail(args: {
   type: string;
   linkedinUrl: string;
   detectedAt: string;
+  confidence?: number;
 }): { subject: string; html: string } {
   const typeLabel = shortLabelForEventType(args.type as EventType);
   const subject = `[Tracker] ${args.name} - ${typeLabel}`;
@@ -38,7 +40,7 @@ export function renderEventEmail(args: {
       <p style="margin-top:24px">
         <a href="${escapeHtml(args.linkedinUrl)}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
       </p>
-      <p style="color:#888;font-size:12px;margin-top:32px">Detected ${escapeHtml(args.detectedAt)}</p>
+      <p style="color:#888;font-size:12px;margin-top:32px">Detected ${escapeHtml(args.detectedAt)}${typeof args.confidence === "number" ? ` · ${formatConfidencePercent(args.confidence)}% confidence` : ""}</p>
     </div>`;
   return { subject, html };
 }

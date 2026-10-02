@@ -116,6 +116,7 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
     type: event.type,
     linkedinUrl: profile.linkedin_url,
     detectedAt: new Date(event.detected_at).toUTCString(),
+    confidence: event.confidence,
   };
 
   if (ch.type === "email") {
