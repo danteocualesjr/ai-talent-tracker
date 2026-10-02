@@ -126,6 +126,18 @@ export function classifyByRules(
     };
   }
 
+  const titleDiff = diffs.find((d) => d.field === "current_title");
+  if (titleDiff) {
+    const nextTitle = titleDiff.after?.trim();
+    return {
+      type: "role_change_internal",
+      confidence: 0.55,
+      summary: nextTitle
+        ? `Title changed to "${nextTitle}".`
+        : "Current title removed from profile.",
+    };
+  }
+
   return {
     type: "other",
     confidence: 0.3,
