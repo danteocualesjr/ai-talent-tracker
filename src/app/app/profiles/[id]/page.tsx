@@ -90,6 +90,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                   aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on LinkedIn`}
                 >
                   LinkedIn <ExternalLink className="ml-1 h-3 w-3" aria-hidden />
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </Button>
               {p.github_handle && (
@@ -101,6 +102,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                     aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on GitHub`}
                   >
                     <Github className="mr-1 h-3 w-3" aria-hidden /> {p.github_handle}
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </Button>
               )}
@@ -113,6 +115,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                     aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on X`}
                   >
                     <span className="mr-1 text-xs font-bold" aria-hidden>𝕏</span> {p.x_handle}
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </Button>
               )}
