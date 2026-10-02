@@ -24,6 +24,9 @@ interface ProxycurlResponse {
 
 const ENDPOINT = "https://nubela.co/proxycurl/api/v2/linkedin";
 
+/** Fail closed so a stuck Proxycurl call cannot stall Inngest refresh jobs. */
+const PROXYCURL_TIMEOUT_MS = 15_000;
+
 export class ProxycurlProvider implements ProfileProvider {
   readonly name = "proxycurl";
 
@@ -38,6 +41,7 @@ export class ProxycurlProvider implements ProfileProvider {
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${this.apiKey}` },
       cache: "no-store",
+      signal: AbortSignal.timeout(PROXYCURL_TIMEOUT_MS),
     });
     if (!res.ok) {
       throw new Error(`Proxycurl ${res.status}: ${await res.text()}`);
