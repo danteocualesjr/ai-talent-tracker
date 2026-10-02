@@ -1,5 +1,5 @@
 import "server-only";
-import { hostMatchesDomain } from "@/lib/utils";
+import { extractSocialHandle } from "@/lib/utils";
 import type { ProfileProvider, ProviderProfile } from "./types";
 
 interface ProxycurlExperience {
@@ -55,21 +55,10 @@ export class ProxycurlProvider implements ProfileProvider {
       location: [data.city, data.state, data.country_full_name].filter(Boolean).join(", ") || null,
       avatar_url: data.profile_pic_url ?? null,
       about: data.summary ?? null,
-      github_handle: extractHandle(data.github_profile_url, ["github.com"]),
-      x_handle: extractHandle(data.twitter_profile_url, ["twitter.com", "x.com"]),
+      github_handle: extractSocialHandle(data.github_profile_url, ["github.com"]),
+      x_handle: extractSocialHandle(data.twitter_profile_url, ["twitter.com", "x.com"]),
       raw: data,
     };
   }
 }
 
-function extractHandle(url: string | undefined, domains: readonly string[]): string | null {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    if (!hostMatchesDomain(u.hostname, domains)) return null;
-    const handle = u.pathname.split("/").filter(Boolean)[0];
-    return handle ? handle.toLowerCase() : null;
-  } catch {
-    return null;
-  }
-}

@@ -148,6 +148,20 @@ export function hostMatchesDomain(hostname: string, domains: readonly string[]):
   return domains.some((d) => host === d || host.endsWith(`.${d}`));
 }
 
+
+/** First path segment of a social profile URL when the host matches. */
+export function extractSocialHandle(url: string | null | undefined, domains: readonly string[]): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (!hostMatchesDomain(u.hostname, domains)) return null;
+    const handle = u.pathname.split("/").filter(Boolean)[0];
+    return handle ? handle.toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function normalizeSocialHandle(handle: string): string {
   return handle.trim().replace(/^@/, "");
 }
