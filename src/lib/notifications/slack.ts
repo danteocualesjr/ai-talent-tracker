@@ -18,10 +18,18 @@ export async function sendSlack(webhookUrl: string, payload: {
   summary: string;
   type: string;
   linkedinUrl: string;
+  detectedAt?: string;
+  confidence?: number;
 }): Promise<void> {
   const typeLabel = shortLabelForEventType(payload.type as EventType);
   const safeName = escapeMrkdwn(payload.name);
   const safeSummary = escapeMrkdwn(payload.summary);
+  const metaParts: string[] = [];
+  if (payload.detectedAt) metaParts.push(escapeMrkdwn(payload.detectedAt));
+  if (typeof payload.confidence === "number" && Number.isFinite(payload.confidence)) {
+    metaParts.push(`${Math.max(0, Math.min(100, Math.round(payload.confidence * 100)))}% confidence`);
+  }
+  const metaLine = metaParts.length ? `\n_${metaParts.join(" · ")}_` : "";
   const res = await fetch(webhookUrl, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -32,7 +40,7 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${payload.linkedinUrl}|${safeName}>* - _${typeLabel}_\n${safeSummary}`,
+            text: `*<${payload.linkedinUrl}|${safeName}>* - _${typeLabel}_\n${safeSummary}${metaLine}`,
           },
         },
       ],
