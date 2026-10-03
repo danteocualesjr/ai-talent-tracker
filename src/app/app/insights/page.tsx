@@ -188,6 +188,7 @@ export default async function InsightsPage() {
                     key={row.profileId}
                     href={`/app/profiles/${row.profileId}`}
                     className="group flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/30"
+                    aria-label={`Rank ${index + 1}: ${row.name}, ${row.count} event${row.count === 1 ? "" : "s"}, latest ${labelForEventType(row.latestType).toLowerCase()}`}
                   >
                     <span
                       className="tnum flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/60 bg-muted/40 text-[11px] font-bold text-muted-foreground group-hover:border-signal/30 group-hover:text-signal"
@@ -204,7 +205,10 @@ export default async function InsightsPage() {
                         </span>
                       </div>
                     </div>
-                    <span className="tnum shrink-0 rounded-full bg-signal/10 px-2.5 py-0.5 text-xs font-bold text-signal">
+                    <span
+                      className="tnum shrink-0 rounded-full bg-signal/10 px-2.5 py-0.5 text-xs font-bold text-signal"
+                      aria-hidden
+                    >
                       {row.count}
                     </span>
                   </Link>
