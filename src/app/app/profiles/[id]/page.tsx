@@ -162,7 +162,10 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
             )}
           </span>
           {p.github_last_commit_at && (
-            <span className="text-muted-foreground">
+            <span
+              className="text-muted-foreground"
+              title={formatAbsoluteDateTime(p.github_last_commit_at) || undefined}
+            >
               Last commit {formatRelative(p.github_last_commit_at)}
             </span>
           )}
