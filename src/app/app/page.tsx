@@ -26,7 +26,8 @@ import { EventListItem } from "@/components/event-row";
 import { DashboardGreeting } from "@/components/dashboard-greeting";
 import { Sparkline } from "@/components/sparkline";
 import { ActivityBarChart, buildDayLabels } from "@/components/activity-bar-chart";
-import { cn, formatConfidencePercent, isHighConfidence } from "@/lib/utils";
+import { shortLabelForEventType } from "@/lib/event-labels";
+import { cn, formatAbsoluteDateTime, formatConfidencePercent, formatRelative, isHighConfidence } from "@/lib/utils";
 import { RefreshStaleButton } from "@/app/app/watchlist/refresh-stale-button";
 import { PLAN_DETAILS } from "@/lib/stripe";
 
@@ -329,6 +330,13 @@ export default async function DashboardPage() {
                     aria-label={`Detection confidence ${formatConfidencePercent(event.confidence)} percent`}
                   >
                     {formatConfidencePercent(event.confidence)}%
+                  </span>
+                </div>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground/80">{shortLabelForEventType(event.type)}</span>
+                  <span aria-hidden>·</span>
+                  <span title={formatAbsoluteDateTime(event.detected_at) || undefined}>
+                    {formatRelative(event.detected_at)}
                   </span>
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
