@@ -90,7 +90,7 @@ export default async function PublicFeedPage({
                 className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground"
                 title={formatAbsoluteDateTime(latestDetectedAt) || undefined}
               >
-                <Clock className="h-3 w-3 text-signal" />
+                <Clock className="h-3 w-3 text-signal" aria-hidden />
                 Updated {formatRelative(latestDetectedAt)}
               </span>
             )}
