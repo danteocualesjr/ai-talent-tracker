@@ -11,8 +11,8 @@ import { FeedFilterChips } from "@/components/feed-filter-chips";
 import { FeedMobileCta } from "@/components/feed-mobile-cta";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { getPublicEvents } from "@/lib/queries";
+import { EVENT_FILTER_FEED_LABELS, EVENT_FILTER_TYPES } from "@/lib/event-labels";
 import { formatAbsoluteDateTime, formatRelative, isHighConfidence } from "@/lib/utils";
-import type { EventType } from "@/types/db";
 
 export const metadata = {
   title: "AI lab departure feed",
@@ -20,30 +20,6 @@ export const metadata = {
 };
 
 export const revalidate = 300;
-
-const FILTER_TYPES: Record<string, EventType[]> = {
-  departures: ["left_company"],
-  stealth: ["went_stealth"],
-  founders: ["headline_signals_founding"],
-  joiners: ["joined_company"],
-  github: ["github_dark"],
-  location: ["location_changed"],
-  about: ["about_changed"],
-  role: ["role_change_internal"],
-  domain: ["new_domain"],
-};
-
-const FILTER_LABELS: Record<string, string> = {
-  departures: "departures",
-  stealth: "stealth moves",
-  founders: "founder signals",
-  joiners: "joiners",
-  github: "GitHub dark signals",
-  location: "location changes",
-  about: "about updates",
-  role: "role changes",
-  domain: "new domain signals",
-};
 
 export default async function PublicFeedPage({
   searchParams,
@@ -54,14 +30,14 @@ export default async function PublicFeedPage({
   const highOnly = confidence === "high";
   const last7Only = days === "7";
   const events = await getPublicEvents(100);
-  const allowedTypes = type ? FILTER_TYPES[type] : undefined;
+  const allowedTypes = type ? EVENT_FILTER_TYPES[type] : undefined;
   const filtered = events.filter((event) => {
     if (allowedTypes && !allowedTypes.includes(event.type)) return false;
     if (highOnly && !isHighConfidence(event.confidence)) return false;
     if (last7Only && new Date(event.detected_at).getTime() <= Date.now() - 7 * 86400000) return false;
     return true;
   });
-  const filterLabel = type ? FILTER_LABELS[type] : null;
+  const filterLabel = type ? EVENT_FILTER_FEED_LABELS[type] : null;
 
   const last7 = events.filter((event) => new Date(event.detected_at).getTime() > Date.now() - 7 * 86400000).length;
   const highConfidence = events.filter((event) => isHighConfidence(event.confidence)).length;

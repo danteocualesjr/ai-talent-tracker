@@ -3,7 +3,7 @@ import { ArrowRight, BarChart3, Sparkles, TrendingUp, Users2 } from "lucide-reac
 import { createClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { getOrgInsights, listOrgProfiles } from "@/lib/queries";
-import { labelForEventType } from "@/lib/event-labels";
+import { EVENT_TYPE_TO_FILTER_PARAM, labelForEventType } from "@/lib/event-labels";
 import { PageHeader } from "@/components/page-header";
 import { Panel, EmptyPanel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
@@ -14,19 +14,6 @@ import { CopyBriefButton } from "./copy-brief-button";
 export const metadata = { title: "Insights" };
 
 const DAYS = 30;
-
-const EVENT_TYPE_FILTER_PARAM: Partial<Record<string, string>> = {
-  left_company: "departures",
-  went_stealth: "stealth",
-  headline_signals_founding: "founders",
-  joined_company: "joiners",
-  github_dark: "github",
-  location_changed: "location",
-  about_changed: "about",
-  role_change_internal: "role",
-  new_domain: "domain",
-};
-
 
 export default async function InsightsPage() {
   const supa = await createClient();
@@ -130,7 +117,7 @@ export default async function InsightsPage() {
                   {insights.byType.map(({ type, count }) => {
                     const pct = Math.round((count / insights.totalEvents) * 100);
                     const label = labelForEventType(type);
-                    const filterParam = EVENT_TYPE_FILTER_PARAM[type];
+                    const filterParam = EVENT_TYPE_TO_FILTER_PARAM[type];
                     const href = filterParam ? `/app/events?type=${filterParam}` : "/app/events";
                     return (
                       <li key={type}>

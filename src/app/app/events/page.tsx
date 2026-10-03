@@ -10,34 +10,10 @@ import { EventListItem } from "@/components/event-row";
 import { Button } from "@/components/ui/button";
 import { AppEventsFilterChips } from "./event-filter-chips";
 import { ExportEventsButton } from "./export-events-button";
+import { EVENT_FILTER_PARAM_LABELS, EVENT_FILTER_TYPES } from "@/lib/event-labels";
 import { isHighConfidence } from "@/lib/utils";
-import type { EventType } from "@/types/db";
 
 export const metadata = { title: "Events" };
-
-const FILTER_TYPES: Record<string, EventType[]> = {
-  departures: ["left_company"],
-  stealth: ["went_stealth"],
-  founders: ["headline_signals_founding"],
-  joiners: ["joined_company"],
-  github: ["github_dark"],
-  location: ["location_changed"],
-  about: ["about_changed"],
-  role: ["role_change_internal"],
-  domain: ["new_domain"],
-};
-
-const FILTER_LABELS: Record<string, string> = {
-  departures: "Departures",
-  stealth: "Stealth",
-  founders: "Founders",
-  joiners: "Joiners",
-  github: "GitHub",
-  location: "Location",
-  about: "About",
-  role: "Role",
-  domain: "New domain",
-};
 
 export default async function EventsPage({
   searchParams,
@@ -51,7 +27,7 @@ export default async function EventsPage({
   const { data: { user } } = await supa.auth.getUser();
   const org = await ensureOrgForUser(user!.id, user!.email ?? null);
   const events = await getOrgEvents(org.id, 200);
-  const allowedTypes = type ? FILTER_TYPES[type] : undefined;
+  const allowedTypes = type ? EVENT_FILTER_TYPES[type] : undefined;
   const filtered = events.filter((event) => {
     if (allowedTypes && !allowedTypes.includes(event.type)) return false;
     if (highOnly && !isHighConfidence(event.confidence)) return false;
@@ -78,7 +54,7 @@ export default async function EventsPage({
           <AppEventsFilterChips />
           {(type || highOnly || last7Only) ? (
             <p className="mt-3 text-xs text-muted-foreground" role="status">
-              {type ? `Type filter: ${FILTER_LABELS[type] ?? type}. ` : ""}
+              {type ? `Type filter: ${EVENT_FILTER_PARAM_LABELS[type] ?? type}. ` : ""}
               {highOnly ? "Showing high-confidence events only (≥80%). " : ""}
               {last7Only ? "Limited to the last 7 days. " : ""}
               <Link href="/app/events" className="link-subtle text-xs font-semibold">
