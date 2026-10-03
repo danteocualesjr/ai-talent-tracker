@@ -271,9 +271,16 @@ export function WatchlistProfiles({
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
                   Last synced{" "}
-                  <span title={formatAbsoluteDateTime(p.last_synced_at) || undefined}>
-                    {formatRelative(p.last_synced_at)}
-                  </span>{" "}
+                  {p.last_synced_at ? (
+                    <time
+                      dateTime={p.last_synced_at}
+                      title={formatAbsoluteDateTime(p.last_synced_at) || undefined}
+                    >
+                      {formatRelative(p.last_synced_at)}
+                    </time>
+                  ) : (
+                    <span>never</span>
+                  )}{" "}
                   · {p.current_company ?? "no current company"}
                 </p>
               </div>
