@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { diffProfiles, type FieldDiff } from "@/lib/diff";
 import { snapshotToPartialProfile, toProviderProfile } from "@/lib/snapshot";
-import { formatRelative } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative } from "@/lib/utils";
 import type { ProfileSnapshot } from "@/types/db";
 
 const FIELD_LABELS: Record<FieldDiff["field"], string> = {
@@ -56,7 +56,12 @@ export function SnapshotList({ snapshots }: { snapshots: ProfileSnapshot[] }) {
                 ) : (
                   <span className="inline-block w-3.5" aria-hidden />
                 )}
-                <span className="font-medium text-foreground">Snapshot {formatRelative(snapshot.fetched_at)}</span>
+                <span
+                  className="font-medium text-foreground"
+                  title={formatAbsoluteDateTime(snapshot.fetched_at) || undefined}
+                >
+                  Snapshot {formatRelative(snapshot.fetched_at)}
+                </span>
                 {canExpand && (
                   <span className="rounded-full bg-signal/10 px-2 py-0.5 text-[10px] font-semibold text-signal">
                     {diffs.length} change{diffs.length === 1 ? "" : "s"}
