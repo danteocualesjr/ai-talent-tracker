@@ -10,22 +10,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { labelForEventType } from "@/lib/event-labels";
 import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, initialsFromName } from "@/lib/utils";
 import type { EventRow, EventType, Profile } from "@/types/db";
 
 export const revalidate = 300;
 
-const TYPE_META: Record<EventType, { label: string; tone: "success" | "warning" | "info" | "purple" | "secondary" }> = {
-  left_company: { label: "Left company", tone: "warning" },
-  joined_company: { label: "Joined company", tone: "info" },
-  went_stealth: { label: "Went stealth", tone: "warning" },
-  headline_signals_founding: { label: "Founding signal", tone: "success" },
-  role_change_internal: { label: "Role change", tone: "secondary" },
-  about_changed: { label: "About updated", tone: "secondary" },
-  location_changed: { label: "Location change", tone: "secondary" },
-  github_dark: { label: "GitHub dark", tone: "purple" },
-  new_domain: { label: "New domain", tone: "success" },
-  other: { label: "Update", tone: "secondary" },
+const TYPE_TONE: Record<EventType, "success" | "warning" | "info" | "purple" | "secondary"> = {
+  left_company: "warning",
+  joined_company: "info",
+  went_stealth: "warning",
+  headline_signals_founding: "success",
+  role_change_internal: "secondary",
+  about_changed: "secondary",
+  location_changed: "secondary",
+  github_dark: "purple",
+  new_domain: "success",
+  other: "secondary",
 };
 
 type PublicEvent = EventRow & { profile: Profile };
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const ev = await getPublicEvent(id);
   if (!ev) return { title: "Event not found" };
   const name = ev.profile.full_name || ev.profile.linkedin_handle;
-  const label = (TYPE_META[ev.type] ?? TYPE_META.other).label;
+  const label = labelForEventType(ev.type);
   return {
     title: `${name} - ${label}`,
     description: ev.summary,
@@ -60,7 +61,8 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
   const ev = await getPublicEvent(id);
   if (!ev) notFound();
   const initials = initialsFromName(ev.profile.full_name || ev.profile.linkedin_handle);
-  const typeMeta = TYPE_META[ev.type] ?? TYPE_META.other;
+  const typeTone = TYPE_TONE[ev.type] ?? TYPE_TONE.other;
+  const typeLabel = labelForEventType(ev.type);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -101,7 +103,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
                   {ev.profile.full_name || ev.profile.linkedin_handle}
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <Badge variant={typeMeta.tone}>{typeMeta.label}</Badge>
+                  <Badge variant={typeTone}>{typeLabel}</Badge>
                   {ev.profile.current_company && (
                     <span className="rounded-full border border-border/60 bg-muted/50 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                       {ev.profile.current_company}
