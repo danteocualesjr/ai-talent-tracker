@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const form = await req.formData();
   const url = normalizeLinkedInUrl(String(form.get("linkedin_url") ?? ""));
   const emailParsed = EmailSchema.safeParse(String(form.get("email") ?? "").trim().toLowerCase());
-  const notes = String(form.get("notes") ?? "");
+  const notes = String(form.get("notes") ?? "").slice(0, 2000);
   if (!url) {
     return NextResponse.json({ error: "invalid linkedin_url", field: "linkedin_url" }, { status: 400 });
   }
@@ -30,7 +30,10 @@ export async function POST(req: NextRequest) {
 
   // Avoid logging email/notes (PII). Hosted email fan-out can be wired later.
   if (process.env.NODE_ENV !== "production") {
-    console.info("[opt-out] saved", { handle: url.split("/in/")[1] ?? "unknown" });
+    console.info("[opt-out] saved", {
+      handle: url.split("/in/")[1] ?? "unknown",
+      notesLength: notes.length,
+    });
   }
 
   return NextResponse.json({ ok: true });
