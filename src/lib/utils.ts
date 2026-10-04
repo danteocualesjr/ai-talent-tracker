@@ -119,8 +119,10 @@ export function extractLinkedInUrlsFromText(text: string): string[] {
   return urls;
 }
 
+/** Public site origin without a trailing slash, so `${siteUrl()}/path` never doubles up. */
 export function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+  return raw.replace(/\/+$/, "");
 }
 
 /** Allow only same-origin relative paths after login (blocks open redirects). */
