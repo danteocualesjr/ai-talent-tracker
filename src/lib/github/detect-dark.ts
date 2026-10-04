@@ -22,7 +22,8 @@ export function detectGitHubDark(
   if (priorCommits < MIN_PRIOR_COMMITS) return null;
 
   const lastAt = next.lastCommitAt ? new Date(next.lastCommitAt).getTime() : null;
-  if (lastAt === null) {
+  // Treat missing or malformed timestamps as "no recent commits".
+  if (lastAt === null || Number.isNaN(lastAt)) {
     return {
       type: "github_dark",
       confidence: 0.75,
@@ -33,9 +34,12 @@ export function detectGitHubDark(
   const daysSince = (Date.now() - lastAt) / (24 * 60 * 60 * 1000);
   if (daysSince < DARK_THRESHOLD_DAYS) return null;
 
+  const priorLastMs = prev.github_last_commit_at
+    ? new Date(prev.github_last_commit_at).getTime()
+    : Number.NaN;
   const hadRecentActivity =
-    prev.github_last_commit_at &&
-    Date.now() - new Date(prev.github_last_commit_at).getTime() < 45 * 24 * 60 * 60 * 1000;
+    Number.isFinite(priorLastMs) &&
+    Date.now() - priorLastMs < 45 * 24 * 60 * 60 * 1000;
   if (!hadRecentActivity) return null;
 
   const days = Math.floor(daysSince);
