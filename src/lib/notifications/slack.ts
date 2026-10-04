@@ -1,6 +1,6 @@
 import "server-only";
 import { shortLabelForEventType } from "@/lib/event-labels";
-import { formatConfidencePercent } from "@/lib/utils";
+import { formatConfidenceLabel } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 /** Slack usually answers in well under a second; do not hang the dispatch loop. */
@@ -38,10 +38,12 @@ export async function sendSlack(webhookUrl: string, payload: {
   const typeLabel = shortLabelForEventType(payload.type as EventType);
   const safeName = escapeMrkdwn(payload.name);
   const safeSummary = escapeMrkdwn(payload.summary);
+  // Strip characters that break Slack mrkdwn link targets.
+  const safeLinkedInUrl = payload.linkedinUrl.replace(/[<>|]/g, "");
   const metaParts: string[] = [];
   if (payload.detectedAt) metaParts.push(escapeMrkdwn(payload.detectedAt));
   if (typeof payload.confidence === "number" && Number.isFinite(payload.confidence)) {
-    metaParts.push(`${formatConfidencePercent(payload.confidence)}% confidence`);
+    metaParts.push(escapeMrkdwn(formatConfidenceLabel(payload.confidence)));
   }
   const metaLine = metaParts.length ? `\n_${metaParts.join(" · ")}_` : "";
   const res = await fetch(webhookUrl, {
@@ -54,7 +56,7 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${payload.linkedinUrl}|${safeName}>* - _${typeLabel}_\n${safeSummary}${metaLine}`,
+            text: `*<${safeLinkedInUrl}|${safeName}>* - _${typeLabel}_\n${safeSummary}${metaLine}`,
           },
         },
       ],
