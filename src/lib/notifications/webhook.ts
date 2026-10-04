@@ -4,7 +4,20 @@ import { createHmac } from "node:crypto";
 /** Give up on slow receivers so one stuck endpoint cannot stall the dispatch loop. */
 const WEBHOOK_TIMEOUT_MS = 10_000;
 
+function assertHttpsUrl(url: string, label: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`${label} URL is invalid`);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error(`${label} URL must use HTTPS`);
+  }
+}
+
 export async function sendWebhook(url: string, secret: string | undefined, payload: object): Promise<void> {
+  assertHttpsUrl(url, "Webhook");
   const body = JSON.stringify(payload);
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (secret) {
