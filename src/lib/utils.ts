@@ -195,6 +195,11 @@ export function formatConfidencePercent(confidence: number): number {
   return Math.max(0, Math.min(100, Math.round(confidence * 100)));
 }
 
+/** Human-readable confidence label, e.g. "82% confidence". */
+export function formatConfidenceLabel(confidence: number): string {
+  return `${formatConfidencePercent(confidence)}% confidence`;
+}
+
 /** Absolute local datetime for tooltips beside relative timestamps. */
 export function formatAbsoluteDateTime(iso: string | Date | null | undefined): string {
   if (!iso) return "";
