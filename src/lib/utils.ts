@@ -135,6 +135,9 @@ export function safeRedirectPath(next: string | null | undefined, fallback = "/a
     return fallback;
   }
   if (!path.startsWith("/") || path.startsWith("//")) return fallback;
+  // Browsers read a backslash as "/" and strip tabs/newlines, so a path like
+  // "/\evil.com" would still resolve to a protocol-relative URL.
+  if (/[\\\u0000-\u001f\u007f]/.test(path)) return fallback;
   if (/^\/[^/]*:/i.test(path)) return fallback;
   return path;
 }
