@@ -27,10 +27,12 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>AI Talent Tracker - Departures</title>
+    <title>AI Talent Tracker - Public talent moves</title>
     <link>${siteUrl()}/feed</link>
     <atom:link href="${siteUrl()}/feed/rss.xml" rel="self" type="application/rss+xml" />
     <description>Real-time AI lab departures, stealth flips, and founding signals.</description>
+    <language>en-us</language>
+    <generator>AI Talent Tracker</generator>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <ttl>5</ttl>
     ${items}
