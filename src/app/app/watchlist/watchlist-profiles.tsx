@@ -106,12 +106,12 @@ export function WatchlistProfiles({
   }, [profiles, query, status, sort]);
 
   const statusFilters: { key: StatusFilter; label: string; icon: React.ReactNode }[] = [
-    { key: "all", label: "All", icon: <Users2 className="h-3 w-3" /> },
-    { key: "active", label: "Active", icon: <Users2 className="h-3 w-3" /> },
-    { key: "stealth", label: "Stealth", icon: <Compass className="h-3 w-3" /> },
-    { key: "founder", label: "Founder", icon: <Star className="h-3 w-3" /> },
-    { key: "left", label: "Left", icon: <LogOut className="h-3 w-3" /> },
-    { key: "stale", label: "Needs refresh", icon: <RefreshCw className="h-3 w-3" /> },
+    { key: "all", label: "All", icon: <Users2 className="h-3 w-3" aria-hidden /> },
+    { key: "active", label: "Active", icon: <Users2 className="h-3 w-3" aria-hidden /> },
+    { key: "stealth", label: "Stealth", icon: <Compass className="h-3 w-3" aria-hidden /> },
+    { key: "founder", label: "Founder", icon: <Star className="h-3 w-3" aria-hidden /> },
+    { key: "left", label: "Left", icon: <LogOut className="h-3 w-3" aria-hidden /> },
+    { key: "stale", label: "Needs refresh", icon: <RefreshCw className="h-3 w-3" aria-hidden /> },
   ];
 
   return (
