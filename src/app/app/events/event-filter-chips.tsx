@@ -4,19 +4,20 @@ import { useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeftRight, Briefcase, Clock, Compass, Filter, Github, Globe, Link2, LogOut, Pencil, Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { labelForFilterChipParam, type EventFilterChipParam } from "@/lib/event-filter-chips";
 
-const FILTERS = [
-  { label: "All", param: null, icon: Filter },
-  { label: "Departures", param: "departures", icon: LogOut },
-  { label: "Stealth", param: "stealth", icon: Compass },
-  { label: "Founders", param: "founders", icon: Star },
-  { label: "Joiners", param: "joiners", icon: Briefcase },
-  { label: "GitHub", param: "github", icon: Github },
-  { label: "Location", param: "location", icon: Globe },
-  { label: "About", param: "about", icon: Pencil },
-  { label: "Role", param: "role", icon: ArrowLeftRight },
-  { label: "Domain", param: "domain", icon: Link2 },
-] as const;
+const FILTERS: { label: string; param: EventFilterChipParam; icon: typeof Filter }[] = [
+  { label: labelForFilterChipParam(null), param: null, icon: Filter },
+  { label: labelForFilterChipParam("departures"), param: "departures", icon: LogOut },
+  { label: labelForFilterChipParam("stealth"), param: "stealth", icon: Compass },
+  { label: labelForFilterChipParam("founders"), param: "founders", icon: Star },
+  { label: labelForFilterChipParam("joiners"), param: "joiners", icon: Briefcase },
+  { label: labelForFilterChipParam("github"), param: "github", icon: Github },
+  { label: labelForFilterChipParam("location"), param: "location", icon: Globe },
+  { label: labelForFilterChipParam("about"), param: "about", icon: Pencil },
+  { label: labelForFilterChipParam("role"), param: "role", icon: ArrowLeftRight },
+  { label: labelForFilterChipParam("domain"), param: "domain", icon: Link2 },
+];
 
 export function AppEventsFilterChips() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export function AppEventsFilterChips() {
     router.push(query ? `/app/events?${query}` : "/app/events", { scroll: false });
   }
 
-  function selectFilter(param: (typeof FILTERS)[number]["param"]) {
+  function selectFilter(param: EventFilterChipParam) {
     pushParams((next) => {
       if (param) next.set("type", param);
       else next.delete("type");
