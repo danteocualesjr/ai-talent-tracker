@@ -36,6 +36,27 @@ export function shortLabelForEventType(type: EventType): string {
 }
 
 
+/** Badge tone per event type for feed rows, tickers, and public event pages. */
+export type EventBadgeTone = "success" | "warning" | "info" | "purple" | "secondary";
+
+export const EVENT_TYPE_TONES: Record<EventType, EventBadgeTone> = {
+  left_company: "warning",
+  joined_company: "info",
+  went_stealth: "warning",
+  headline_signals_founding: "success",
+  role_change_internal: "secondary",
+  about_changed: "secondary",
+  location_changed: "secondary",
+  github_dark: "purple",
+  new_domain: "success",
+  other: "secondary",
+};
+
+export function toneForEventType(type: EventType): EventBadgeTone {
+  return EVENT_TYPE_TONES[type] ?? "secondary";
+}
+
+
 /** URL `type=` query values used by /feed and /app/events filters. */
 export const EVENT_FILTER_TYPES: Record<string, EventType[]> = {
   departures: ["left_company"],
