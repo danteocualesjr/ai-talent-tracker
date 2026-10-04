@@ -1,5 +1,6 @@
 import "server-only";
 import { shortLabelForEventType } from "@/lib/event-labels";
+import { formatConfidencePercent } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 /** Slack usually answers in well under a second; do not hang the dispatch loop. */
@@ -27,7 +28,7 @@ export async function sendSlack(webhookUrl: string, payload: {
   const metaParts: string[] = [];
   if (payload.detectedAt) metaParts.push(escapeMrkdwn(payload.detectedAt));
   if (typeof payload.confidence === "number" && Number.isFinite(payload.confidence)) {
-    metaParts.push(`${Math.max(0, Math.min(100, Math.round(payload.confidence * 100)))}% confidence`);
+    metaParts.push(`${formatConfidencePercent(payload.confidence)}% confidence`);
   }
   const metaLine = metaParts.length ? `\n_${metaParts.join(" · ")}_` : "";
   const res = await fetch(webhookUrl, {
