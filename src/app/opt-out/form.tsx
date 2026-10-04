@@ -104,6 +104,7 @@ export function OptOutForm() {
           id="notes"
           name="notes"
           rows={3}
+          maxLength={2000}
           disabled={loading}
           onKeyDown={(event) => {
             if (event.key === "Escape" && event.currentTarget.value) {
