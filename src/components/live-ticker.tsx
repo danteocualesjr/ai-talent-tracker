@@ -1,23 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatRelative } from "@/lib/utils";
+import { formatAbsoluteDateTime, formatRelative, initialsFromName } from "@/lib/utils";
 import { getPublicEvents } from "@/lib/queries";
-import { shortLabelForEventType } from "@/lib/event-labels";
+import { shortLabelForEventType, toneForEventType } from "@/lib/event-labels";
 import type { EventType } from "@/types/db";
-
-const TONE: Record<EventType, "success" | "warning" | "info" | "purple" | "secondary"> = {
-  left_company: "warning",
-  joined_company: "info",
-  went_stealth: "warning",
-  headline_signals_founding: "success",
-  role_change_internal: "secondary",
-  about_changed: "secondary",
-  location_changed: "secondary",
-  github_dark: "purple",
-  new_domain: "success",
-  other: "secondary",
-};
 
 const FALLBACK = [
   { name: "Jane Researcher", type: "went_stealth" as EventType, summary: "Member of Technical Staff → Building something new.", when: "14m" },
@@ -43,10 +30,11 @@ export async function LiveTicker() {
     type: e.type,
     summary: e.summary,
     when: formatRelative(e.detected_at),
+    detectedAt: e.detected_at as string | null,
   }));
   // Prefer live data as soon as any public events exist; pad with samples only when empty.
-  const items: Array<{ name: string; type: EventType; summary: string; when: string }> =
-    realItems.length > 0 ? realItems : FALLBACK;
+  const items: Array<{ name: string; type: EventType; summary: string; when: string; detectedAt?: string | null }> =
+    realItems.length > 0 ? realItems : FALLBACK.map((f) => ({ ...f, detectedAt: null }));
 
   const half = Math.ceil(items.length / 2);
   const colA = items.slice(0, half);
@@ -96,7 +84,7 @@ function Column({
   reverse,
   className,
 }: {
-  items: Array<{ name: string; type: EventType; summary: string; when: string }>;
+  items: Array<{ name: string; type: EventType; summary: string; when: string; detectedAt?: string | null }>;
   reverse?: boolean;
   className?: string;
 }) {
@@ -117,28 +105,30 @@ function Column({
   );
 }
 
-function TickerCard({ event }: { event: { name: string; type: EventType; summary: string; when: string } }) {
-  const initials = event.name
-    .split(" ")
-    .slice(0, 2)
-    .map((p) => p[0] ?? "")
-    .join("")
-    .toUpperCase();
+function TickerCard({ event }: { event: { name: string; type: EventType; summary: string; when: string; detectedAt?: string | null } }) {
+  const initials = initialsFromName(event.name);
+  const absolute = event.detectedAt ? formatAbsoluteDateTime(event.detectedAt) : "";
   return (
     <div className="group surface-card relative flex items-start gap-3 p-3.5 transition-all duration-200 hover:border-signal/30 hover:shadow-[0_4px_16px_-6px_hsl(var(--signal)/0.2)] focus-within:border-signal/35 focus-within:shadow-[0_4px_16px_-6px_hsl(var(--signal)/0.25)]">
       <span aria-hidden className="pointer-events-none absolute inset-y-2 left-0 w-0.5 rounded-full bg-gradient-to-b from-signal/0 via-signal/50 to-signal/0 opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-muted to-muted/40 text-[10px] font-bold text-foreground ring-2 ring-background transition-all duration-200 group-hover:ring-signal/25 group-hover:shadow-sm">
-        {initials || "??"}
+        {initials}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="truncate text-[13px] font-semibold">{event.name}</span>
-          <Badge variant={TONE[event.type] ?? "secondary"} className="text-[10px]">
+          <Badge variant={toneForEventType(event.type)} className="text-[10px]">
             {shortLabelForEventType(event.type)}
           </Badge>
         </div>
         <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-muted-foreground">{event.summary}</p>
-        <div className="tnum mt-1.5 inline-flex rounded-full bg-muted/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">{event.when}</div>
+        <time
+          className="tnum mt-1.5 inline-flex rounded-full bg-muted/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground"
+          dateTime={event.detectedAt || undefined}
+          title={absolute || undefined}
+        >
+          {event.when}
+        </time>
       </div>
     </div>
   );
