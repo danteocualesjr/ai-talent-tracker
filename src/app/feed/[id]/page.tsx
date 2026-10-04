@@ -10,24 +10,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { labelForEventType } from "@/lib/event-labels";
+import { labelForEventType, toneForEventType } from "@/lib/event-labels";
 import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, initialsFromName } from "@/lib/utils";
-import type { EventRow, EventType, Profile } from "@/types/db";
+import type { EventRow, Profile } from "@/types/db";
 
 export const revalidate = 300;
-
-const TYPE_TONE: Record<EventType, "success" | "warning" | "info" | "purple" | "secondary"> = {
-  left_company: "warning",
-  joined_company: "info",
-  went_stealth: "warning",
-  headline_signals_founding: "success",
-  role_change_internal: "secondary",
-  about_changed: "secondary",
-  location_changed: "secondary",
-  github_dark: "purple",
-  new_domain: "success",
-  other: "secondary",
-};
 
 type PublicEvent = EventRow & { profile: Profile };
 
@@ -61,7 +48,7 @@ export default async function PublicEventPage({ params }: { params: Promise<{ id
   const ev = await getPublicEvent(id);
   if (!ev) notFound();
   const initials = initialsFromName(ev.profile.full_name || ev.profile.linkedin_handle);
-  const typeTone = TYPE_TONE[ev.type] ?? TYPE_TONE.other;
+  const typeTone = toneForEventType(ev.type);
   const typeLabel = labelForEventType(ev.type);
 
   return (
