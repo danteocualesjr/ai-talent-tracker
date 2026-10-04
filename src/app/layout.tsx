@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { PostHogAnalytics } from "@/components/analytics";
 import { SkipLink } from "@/components/skip-link";
 import { ThemeProvider } from "@/components/theme-provider";
+import { siteUrl } from "@/lib/utils";
 
 const sans = Source_Sans_3({
   subsets: ["latin"],
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   },
   description:
     "Know the moment researchers, engineers, and operators leave OpenAI, Anthropic, DeepMind and other top AI labs. Real-time alerts via email, Slack, and webhooks.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(siteUrl()),
   openGraph: {
     title: "AI Talent Tracker",
     description: "Real-time monitoring of AI lab talent movement.",
