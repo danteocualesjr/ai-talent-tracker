@@ -1,7 +1,7 @@
 import "server-only";
 import { Resend } from "resend";
 import { shortLabelForEventType } from "@/lib/event-labels";
-import { formatConfidencePercent } from "@/lib/utils";
+import { formatConfidenceLabel } from "@/lib/utils";
 import type { EventType } from "@/types/db";
 
 const FROM = process.env.RESEND_FROM || "AI Talent Tracker <alerts@example.com>";
@@ -40,7 +40,7 @@ export function renderEventEmail(args: {
       <p style="margin-top:24px">
         <a href="${escapeHtml(args.linkedinUrl)}" style="display:inline-block;padding:8px 14px;background:#111;color:#fff;text-decoration:none;border-radius:6px">View LinkedIn</a>
       </p>
-      <p style="color:#888;font-size:12px;margin-top:32px">Detected ${escapeHtml(args.detectedAt)}${typeof args.confidence === "number" ? ` · ${formatConfidencePercent(args.confidence)}% confidence` : ""}</p>
+      <p style="color:#888;font-size:12px;margin-top:32px">Detected ${escapeHtml(args.detectedAt)}${typeof args.confidence === "number" ? ` · ${escapeHtml(formatConfidenceLabel(args.confidence))}` : ""}</p>
     </div>`;
   return { subject, html };
 }
