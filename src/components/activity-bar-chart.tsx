@@ -89,13 +89,13 @@ export function ActivityBarChart({
           <span className="tnum shrink-0">{formatShortDate(labels[labels.length - 1])}</span>
         </figcaption>
       )}
-      <div className="sr-only">
+      <ul className="sr-only" aria-label="Daily event counts">
         {bars.map(({ v, i }) => (
-          <span key={i}>
+          <li key={i}>
             {labels?.[i] ? formatShortDate(labels[i]) : `Day ${i + 1}`}: {v} event{v === 1 ? "" : "s"}
-          </span>
+          </li>
         ))}
-      </div>
+      </ul>
     </figure>
   );
 }
