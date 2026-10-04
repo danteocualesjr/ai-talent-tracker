@@ -62,12 +62,16 @@ export default async function PublicFeedPage({
         >
           <div className="flex flex-wrap items-center gap-2">
             {latestDetectedAt && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground"
-                title={formatAbsoluteDateTime(latestDetectedAt) || undefined}
-              >
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
                 <Clock className="h-3 w-3 text-signal" aria-hidden />
-                Updated {formatRelative(latestDetectedAt)}
+                Updated{" "}
+                <time
+                  dateTime={latestDetectedAt}
+                  title={formatAbsoluteDateTime(latestDetectedAt) || undefined}
+                  className="font-medium text-foreground"
+                >
+                  {formatRelative(latestDetectedAt)}
+                </time>
               </span>
             )}
             <Button asChild variant="outline" size="sm" className="shrink-0 hover:border-signal/35 hover:bg-signal/5">
