@@ -14,6 +14,18 @@ function escapeMrkdwn(text: string): string {
     .replace(/>/g, "&gt;");
 }
 
+function assertHttpsSlackWebhook(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("Slack webhook URL is invalid");
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error("Slack webhook URL must use HTTPS");
+  }
+}
+
 export async function sendSlack(webhookUrl: string, payload: {
   name: string;
   summary: string;
@@ -22,6 +34,7 @@ export async function sendSlack(webhookUrl: string, payload: {
   detectedAt?: string;
   confidence?: number;
 }): Promise<void> {
+  assertHttpsSlackWebhook(webhookUrl);
   const typeLabel = shortLabelForEventType(payload.type as EventType);
   const safeName = escapeMrkdwn(payload.name);
   const safeSummary = escapeMrkdwn(payload.summary);
