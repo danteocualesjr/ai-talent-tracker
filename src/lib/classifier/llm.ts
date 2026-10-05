@@ -4,6 +4,9 @@ import { z } from "zod";
 import type { FieldDiff } from "@/lib/diff";
 import type { ClassifiedEvent } from "./rules";
 
+/** Classification is a short JSON reply; anything slower is a stuck request. */
+const LLM_TIMEOUT_MS = 20_000;
+
 const ResponseSchema = z.object({
   type: z.enum([
     "left_company",
@@ -36,7 +39,8 @@ export async function classifyWithLLM(input: {
   const key = process.env.OPENAI_API_KEY;
   if (!key) return null;
 
-  const client = new OpenAI({ apiKey: key });
+  // Keep one slow completion from holding the Inngest step open for minutes.
+  const client = new OpenAI({ apiKey: key, timeout: LLM_TIMEOUT_MS, maxRetries: 1 });
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
   const payload = {
