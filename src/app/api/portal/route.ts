@@ -17,5 +17,7 @@ export async function POST() {
     return_url: `${siteUrl()}/app/billing`,
   });
   if (!session.url) return NextResponse.json({ error: "portal unavailable" }, { status: 500 });
-  return NextResponse.redirect(session.url);
+  // The billing page calls this with fetch() and reads `url` from JSON; a
+  // redirect here would make fetch chase Stripe cross-origin and fail.
+  return NextResponse.json({ url: session.url });
 }
