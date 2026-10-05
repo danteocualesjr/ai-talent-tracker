@@ -28,9 +28,10 @@ export function CheckoutButton({
         window.location.href = `/login?next=${encodeURIComponent("/pricing")}`;
         return;
       }
-      const data = (await res.json()) as { url?: string; error?: string };
+      // A crashed route can return HTML; avoid showing a raw JSON parse error.
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (data.url) window.location.href = data.url;
-      else toast.error(data.error || "Checkout failed");
+      else toast.error(data.error || `Checkout failed (${res.status})`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Checkout failed");
     } finally {
