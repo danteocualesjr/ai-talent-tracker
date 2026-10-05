@@ -16,8 +16,10 @@ export function PortalButton() {
         window.location.href = "/login?next=/app/billing";
         return;
       }
-      const data = (await res.json()) as { url?: string; error?: string };
+      // A crashed route can return HTML; avoid showing a raw JSON parse error.
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
       if (data.url) window.location.href = data.url;
+      else if (data.error === "no customer") toast.error("No subscription yet. Pick a plan on the pricing page first.");
       else toast.error(data.error || "Could not open billing portal.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not open billing portal.");
