@@ -5,7 +5,13 @@ import { siteUrl } from "@/lib/utils";
 import { ensureOrgForUser } from "@/lib/org";
 
 export async function POST(req: NextRequest) {
-  const { priceId } = (await req.json()) as { priceId?: string };
+  let body: { priceId?: unknown };
+  try {
+    body = (await req.json()) as { priceId?: unknown };
+  } catch {
+    return NextResponse.json({ error: "invalid JSON body" }, { status: 400 });
+  }
+  const priceId = typeof body?.priceId === "string" ? body.priceId : "";
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
   // `in` also matches inherited keys like "constructor"; only accept real price ids.
   if (!Object.hasOwn(PRICE_PLAN_MAP, priceId)) {
