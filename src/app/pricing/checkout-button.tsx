@@ -41,7 +41,7 @@ export function CheckoutButton({
 
   return (
     <Button className={cn("w-full", loading && "opacity-90")} variant={variant} onClick={go} disabled={loading} aria-busy={loading}>
-      {loading ? "Loading..." : label}
+      {loading ? "Redirecting…" : label}
     </Button>
   );
 }
