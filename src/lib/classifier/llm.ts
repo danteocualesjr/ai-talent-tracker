@@ -1,7 +1,7 @@
 import "server-only";
 import OpenAI from "openai";
 import { z } from "zod";
-import type { FieldDiff } from "@/lib/diff";
+import { DIFFED_FIELDS, type FieldDiff } from "@/lib/diff";
 import type { ClassifiedEvent } from "./rules";
 
 /** Classification is a short JSON reply; anything slower is a stuck request. */
@@ -47,8 +47,8 @@ export async function classifyWithLLM(input: {
 
   const payload = {
     diffs: input.diffs,
-    before: input.prev,
-    after: input.next,
+    before: pickDiffedFields(input.prev),
+    after: pickDiffedFields(input.next),
   };
 
   let content: string | null | undefined;
@@ -79,4 +79,17 @@ export async function classifyWithLLM(input: {
   } catch {
     return null;
   }
+}
+
+/**
+ * Callers pass whole profile objects, including the raw provider payload.
+ * Send only the compared fields so prompts stay small and raw data stays local.
+ */
+function pickDiffedFields(profile: Record<string, unknown>): Record<string, string | null> {
+  const out: Record<string, string | null> = {};
+  for (const field of DIFFED_FIELDS) {
+    const value = profile?.[field];
+    out[field] = typeof value === "string" ? value : null;
+  }
+  return out;
 }
