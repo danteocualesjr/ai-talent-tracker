@@ -7,6 +7,8 @@ import type { ClassifiedEvent } from "./rules";
 /** Classification is a short JSON reply; anything slower is a stuck request. */
 const LLM_TIMEOUT_MS = 20_000;
 
+const SUMMARY_MAX = 280;
+
 const ResponseSchema = z.object({
   type: z.enum([
     "left_company",
@@ -21,7 +23,7 @@ const ResponseSchema = z.object({
     "other",
   ]),
   confidence: z.number().min(0).max(1),
-  summary: z.string().min(1).max(280),
+  summary: z.string().min(1).max(SUMMARY_MAX),
   status: z.enum(["active", "left", "stealth", "founder", "unknown"]).optional(),
 });
 
@@ -68,7 +70,12 @@ export async function classifyWithLLM(input: {
   }
   if (!content) return null;
   try {
-    return ResponseSchema.parse(JSON.parse(content));
+    const parsed = JSON.parse(content) as Record<string, unknown>;
+    // A wordy but otherwise valid answer should not be thrown away over length.
+    if (typeof parsed.summary === "string" && parsed.summary.length > SUMMARY_MAX) {
+      parsed.summary = `${parsed.summary.slice(0, SUMMARY_MAX - 1).trimEnd()}…`;
+    }
+    return ResponseSchema.parse(parsed);
   } catch {
     return null;
   }
