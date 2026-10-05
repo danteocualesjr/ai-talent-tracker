@@ -7,7 +7,8 @@ import { ensureOrgForUser } from "@/lib/org";
 export async function POST(req: NextRequest) {
   const { priceId } = (await req.json()) as { priceId?: string };
   if (!priceId) return NextResponse.json({ error: "missing priceId" }, { status: 400 });
-  if (!(priceId in PRICE_PLAN_MAP)) {
+  // `in` also matches inherited keys like "constructor"; only accept real price ids.
+  if (!Object.hasOwn(PRICE_PLAN_MAP, priceId)) {
     return NextResponse.json({ error: "invalid priceId" }, { status: 400 });
   }
 
