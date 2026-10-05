@@ -49,6 +49,11 @@ function isActiveSubscription(sub: Stripe.Subscription): boolean {
   return sub.status === "active" || sub.status === "trialing";
 }
 
+/** Subscription customer id, whether Stripe sent the id or an expanded object. */
+function stripeCustomerId(sub: Stripe.Subscription): string {
+  return typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+}
+
 function shouldDowngrade(sub: Stripe.Subscription): boolean {
   return ["canceled", "unpaid", "incomplete_expired"].includes(sub.status);
 }
@@ -57,7 +62,7 @@ async function downgradeOrg(db: ReturnType<typeof createAdminClient>, sub: Strip
   const { error } = await db
     .from("organizations")
     .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-    .eq("stripe_customer_id", sub.customer as string);
+    .eq("stripe_customer_id", stripeCustomerId(sub));
   if (error) throw error;
 }
 
@@ -93,7 +98,7 @@ async function applySubscription(
   const byCustomer = await db
     .from("organizations")
     .update(payload)
-    .eq("stripe_customer_id", sub.customer as string)
+    .eq("stripe_customer_id", stripeCustomerId(sub))
     .select("id");
 
   if (byCustomer.error) {
@@ -109,7 +114,7 @@ async function applySubscription(
       throw byOrg.error;
     }
     if ((byOrg.data ?? []).length === 0) {
-      console.warn(`[stripe] no org matched customer ${sub.customer} or org ${orgId}`);
+      console.warn(`[stripe] no org matched customer ${stripeCustomerId(sub)} or org ${orgId}`);
     }
   }
 }
