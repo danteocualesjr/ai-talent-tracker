@@ -32,7 +32,13 @@ export async function POST(req: NextRequest) {
     });
     customerId = customer.id;
     const admin = (await import("@/lib/supabase/server")).createAdminClient();
-    await admin.from("organizations").update({ stripe_customer_id: customerId }).eq("id", org.id);
+    const { error: saveError } = await admin
+      .from("organizations")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", org.id);
+    // Checkout can still proceed (the webhook falls back to org_id metadata),
+    // but a silent failure here would mint a new Stripe customer every attempt.
+    if (saveError) console.error("[checkout] failed to save stripe_customer_id", org.id, saveError);
   }
 
   const session = await stripe.checkout.sessions.create({
