@@ -79,13 +79,26 @@ export const refreshProfile = inngest.createFunction(
     const hash = hashSnapshot(fetched);
 
     const stored = await step.run("store-snapshot", async () => {
-      const { data: existing } = await db
+      // Compare against the latest snapshot, not every snapshot ever stored, so a
+      // profile that reverts to an earlier state (A -> B -> A) still counts as a change.
+      const { data: latest } = await db
         .from("profile_snapshots")
-        .select("id")
+        .select("id, content_hash")
+        .eq("profile_id", profileId)
+        .order("fetched_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (latest?.content_hash === hash) return null;
+
+      // (profile_id, content_hash) is unique, so reuse the older row for a revert.
+      const { data: earlier } = await db
+        .from("profile_snapshots")
+        .update({ fetched_at: new Date().toISOString() })
         .eq("profile_id", profileId)
         .eq("content_hash", hash)
+        .select("*")
         .maybeSingle();
-      if (existing) return null;
+      if (earlier) return earlier as ProfileSnapshot;
 
       const { data, error } = await db
         .from("profile_snapshots")
