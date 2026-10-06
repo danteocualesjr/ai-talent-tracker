@@ -24,7 +24,9 @@ export class ProxycurlProvider implements ProfileProvider {
       signal: AbortSignal.timeout(PROXYCURL_TIMEOUT_MS),
     });
     if (!res.ok) {
-      throw new Error(`Proxycurl ${res.status}: ${await res.text()}`);
+      // Error pages can be large HTML; keep Inngest run logs readable.
+      const body = (await res.text().catch(() => "")).slice(0, 200);
+      throw new Error(`Proxycurl ${res.status}: ${body}`);
     }
     const data = (await res.json()) as ProxycurlResponse;
 
