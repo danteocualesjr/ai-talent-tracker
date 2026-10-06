@@ -89,10 +89,14 @@ async function trackProfileUrl(
     return { outcome: "already_tracked", newCount: currentCount };
   }
 
-  await db.from("watchlist_profiles").upsert(
+  const { error: linkError } = await db.from("watchlist_profiles").upsert(
     { watchlist_id: watchlist.id, profile_id: profileRow.id, added_by: userId },
     { onConflict: "watchlist_id,profile_id" },
   );
+  if (linkError) {
+    console.error("[watchlist] could not link profile", linkError);
+    return { outcome: "failed", newCount: currentCount };
+  }
 
   try {
     await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileRow.id, reason: "manual_add" } });
