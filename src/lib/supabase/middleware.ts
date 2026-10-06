@@ -44,7 +44,9 @@ export async function updateSession(request: NextRequest) {
   if (isAppPath && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", request.nextUrl.pathname);
+    // Keep the query string so deep links like /app/events?type=stealth survive login.
+    url.search = "";
+    url.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
 
