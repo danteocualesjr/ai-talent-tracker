@@ -59,10 +59,13 @@ function shouldDowngrade(sub: Stripe.Subscription): boolean {
 }
 
 async function downgradeOrg(db: ReturnType<typeof createAdminClient>, sub: Stripe.Subscription) {
+  // Only downgrade when this is the org's current subscription. Cancelling an
+  // old subscription after switching plans must not drop the new one to free.
   const { error } = await db
     .from("organizations")
     .update({ plan: "free", profile_limit: 5, refresh_cadence: "weekly", stripe_subscription_id: null })
-    .eq("stripe_customer_id", stripeCustomerId(sub));
+    .eq("stripe_customer_id", stripeCustomerId(sub))
+    .or(`stripe_subscription_id.eq.${sub.id},stripe_subscription_id.is.null`);
   if (error) throw error;
 }
 
