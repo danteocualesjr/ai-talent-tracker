@@ -9,7 +9,7 @@ export interface GitHubActivity {
 interface GitHubEvent {
   type: string;
   created_at: string;
-  payload?: { commits?: unknown[] };
+  payload?: { size?: number; commits?: unknown[] };
 }
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -59,7 +59,9 @@ export async function fetchGitHubActivity(handle: string): Promise<GitHubActivit
         lastCommitAt = event.created_at;
       }
       if (at >= cutoff) {
-        commits30d += event.payload?.commits?.length ?? 1;
+        // `commits` is capped at 20 per push; `size` is the real commit count.
+        const size = event.payload?.size;
+        commits30d += typeof size === "number" && size >= 0 ? size : event.payload?.commits?.length ?? 1;
       }
     }
 
