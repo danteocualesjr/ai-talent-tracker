@@ -24,6 +24,15 @@ export async function POST(req: NextRequest) {
 
   const org = await ensureOrgForUser(user.id, user.email ?? null);
 
+  // A second Checkout would start a second subscription billed alongside the
+  // first; plan changes go through the billing portal instead.
+  if (org.stripe_subscription_id && org.plan !== "free") {
+    return NextResponse.json(
+      { error: "You already have an active subscription. Change plans from Billing > Manage subscription." },
+      { status: 409 },
+    );
+  }
+
   let customerId = org.stripe_customer_id;
   if (!customerId) {
     const customer = await stripe.customers.create({
