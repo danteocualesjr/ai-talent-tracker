@@ -1,26 +1,6 @@
 import "server-only";
-import { extractSocialHandle } from "@/lib/utils";
+import { parseProxycurlProfile, type ProxycurlResponse } from "./proxycurl-parse";
 import type { ProfileProvider, ProviderProfile } from "./types";
-
-interface ProxycurlExperience {
-  company?: string;
-  title?: string;
-  ends_at?: { day: number; month: number; year: number } | null;
-}
-
-interface ProxycurlResponse {
-  full_name?: string;
-  headline?: string;
-  occupation?: string;
-  city?: string;
-  state?: string;
-  country_full_name?: string;
-  profile_pic_url?: string;
-  summary?: string;
-  github_profile_url?: string;
-  twitter_profile_url?: string;
-  experiences?: ProxycurlExperience[];
-}
 
 const ENDPOINT = "https://nubela.co/proxycurl/api/v2/linkedin";
 
@@ -48,21 +28,10 @@ export class ProxycurlProvider implements ProfileProvider {
     }
     const data = (await res.json()) as ProxycurlResponse;
 
-    const current = (data.experiences || []).find((e) => !e.ends_at) || (data.experiences || [])[0];
-
     return {
       linkedin_url: linkedinUrl,
-      full_name: data.full_name ?? null,
-      headline: data.headline ?? data.occupation ?? null,
-      current_company: current?.company ?? null,
-      current_title: current?.title ?? null,
-      location: [data.city, data.state, data.country_full_name].filter(Boolean).join(", ") || null,
-      avatar_url: data.profile_pic_url ?? null,
-      about: data.summary ?? null,
-      github_handle: extractSocialHandle(data.github_profile_url, ["github.com"]),
-      x_handle: extractSocialHandle(data.twitter_profile_url, ["twitter.com", "x.com"]),
+      ...parseProxycurlProfile(data),
       raw: data,
     };
   }
 }
-

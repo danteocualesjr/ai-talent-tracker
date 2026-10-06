@@ -1,26 +1,8 @@
 import type { Json } from "@/types/db";
 import type { ProfileSnapshot } from "@/types/db";
-import { extractSocialHandle, humanizeLinkedInHandle } from "./utils";
+import { humanizeLinkedInHandle } from "./utils";
+import { parseProxycurlProfile, type ProxycurlResponse } from "./providers/proxycurl-parse";
 import type { ProviderProfile } from "./providers/types";
-
-interface ProxycurlExperience {
-  company?: string;
-  title?: string;
-  ends_at?: { day: number; month: number; year: number } | null;
-}
-
-interface ProxycurlRaw {
-  full_name?: string;
-  headline?: string;
-  occupation?: string;
-  city?: string;
-  state?: string;
-  country_full_name?: string;
-  summary?: string;
-  github_profile_url?: string;
-  twitter_profile_url?: string;
-  experiences?: ProxycurlExperience[];
-}
 
 /** Extract comparable profile fields from a stored snapshot payload. */
 export function snapshotToPartialProfile(snapshot: ProfileSnapshot): Partial<ProviderProfile> {
@@ -35,23 +17,9 @@ export function snapshotToPartialProfile(snapshot: ProfileSnapshot): Partial<Pro
 }
 
 function parseProxycurlRaw(raw: Json): Partial<ProviderProfile> {
-  if (!raw || typeof raw !== "object") return {};
-  const data = raw as ProxycurlRaw;
-  const current = (data.experiences || []).find((e) => !e.ends_at) || (data.experiences || [])[0];
-
-  return {
-    full_name: data.full_name ?? null,
-    headline: data.headline ?? data.occupation ?? null,
-    current_company: current?.company ?? null,
-    current_title: current?.title ?? null,
-    location: [data.city, data.state, data.country_full_name].filter(Boolean).join(", ") || null,
-    about: data.summary ?? null,
-    github_handle: extractSocialHandle(data.github_profile_url, ["github.com"]),
-    x_handle: extractSocialHandle(data.twitter_profile_url, ["twitter.com", "x.com"]),
-  };
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  return parseProxycurlProfile(raw as ProxycurlResponse);
 }
-
-
 
 export function toProviderProfile(partial: Partial<ProviderProfile>): ProviderProfile {
   return {
