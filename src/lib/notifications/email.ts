@@ -13,16 +13,18 @@ function resend(): Resend | null {
   return cached;
 }
 
-export async function sendEventEmail(to: string, subject: string, html: string): Promise<void> {
+/** Returns false when email is not configured and nothing was sent. */
+export async function sendEventEmail(to: string, subject: string, html: string): Promise<boolean> {
   const r = resend();
   if (!r) {
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
-    return;
+    return false;
   }
   // Resend reports API failures in `error` instead of throwing, so surface them
   // here; otherwise the delivery log records a bounced alert as "sent".
   const { error } = await r.emails.send({ from: FROM, to, subject, html });
   if (error) throw new Error(`Email delivery failed: ${error.message}`);
+  return true;
 }
 
 export function renderEventEmail(args: {

@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { renderEventEmail, sendEventEmail } from "./email";
 import { sendSlack } from "./slack";
 import { sendWebhook } from "./webhook";
-import type { EventRow, NotificationChannel, Profile } from "@/types/db";
+import type { DeliveryStatus, EventRow, NotificationChannel, Profile } from "@/types/db";
 
 interface EmailConfig { to: string }
 interface SlackConfig { webhook_url: string }
@@ -50,14 +50,15 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
     if (!ch.event_types.includes(event.type)) continue;
 
     try {
-      await deliver(ch, event, profile);
+      const status = await deliver(ch, event, profile);
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
-        status: "sent",
-        delivered_at: new Date().toISOString(),
+        status,
+        delivered_at: status === "sent" ? new Date().toISOString() : null,
+        error: status === "skipped" ? "Email is not configured (RESEND_API_KEY missing)." : null,
       });
-      dispatched++;
+      if (status === "sent") dispatched++;
     } catch (e) {
       await db.from("notification_deliveries").insert({
         channel_id: ch.id,
@@ -106,10 +107,17 @@ export async function sendTestAlert(channel: NotificationChannel): Promise<void>
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
-  await deliver(channel, testEvent, testProfile);
+  const status = await deliver(channel, testEvent, testProfile);
+  if (status === "skipped") {
+    throw new Error("Email alerts are not configured on this server yet (RESEND_API_KEY is missing).");
+  }
 }
 
-async function deliver(ch: NotificationChannel, event: EventRow, profile: Profile): Promise<void> {
+async function deliver(
+  ch: NotificationChannel,
+  event: EventRow,
+  profile: Profile,
+): Promise<Extract<DeliveryStatus, "sent" | "skipped">> {
   const payload = {
     name: profile.full_name || profile.linkedin_url,
     summary: event.summary,
@@ -122,13 +130,12 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
     const { subject, html } = renderEventEmail(payload);
-    await sendEventEmail(cfg.to, subject, html);
-    return;
+    return (await sendEventEmail(cfg.to, subject, html)) ? "sent" : "skipped";
   }
   if (ch.type === "slack") {
     const cfg = ch.config as unknown as SlackConfig;
     await sendSlack(cfg.webhook_url, payload);
-    return;
+    return "sent";
   }
   if (ch.type === "webhook") {
     const cfg = ch.config as unknown as WebhookConfig;
@@ -140,6 +147,7 @@ async function deliver(ch: NotificationChannel, event: EventRow, profile: Profil
       detected_at: new Date(event.detected_at).toISOString(),
       confidence: event.confidence,
     });
-    return;
+    return "sent";
   }
+  throw new Error(`Unsupported channel type: ${String(ch.type)}`);
 }
