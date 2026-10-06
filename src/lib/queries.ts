@@ -61,10 +61,12 @@ export async function countRecentOrgEvents(orgId: string, days = 7): Promise<num
 export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile: Profile })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
+  // Inner join so events for people who opted out never reach the public feed or RSS.
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
+    .eq("profile.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
