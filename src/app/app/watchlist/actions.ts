@@ -269,6 +269,8 @@ export async function removeProfileForm(formData: FormData): Promise<ActionResul
   if (error) return { error: "Could not remove profile. Try again." };
 
   revalidatePath("/app/watchlist");
+  // Add and import refresh the dashboard counts too; removal must match.
+  revalidatePath("/app");
   return { ok: true };
 }
 
