@@ -35,4 +35,4 @@ For full-featured dev, you need real Supabase project credentials (`NEXT_PUBLIC_
 - `npm run inngest` in `package.json` runs `inngest-cli dev` directly, but `inngest-cli` is not a listed dependency — use `npx inngest-cli dev` or install it globally.
 - The Inngest dev server needs the `--no-discovery` flag in headless/CI environments to avoid interactive prompts.
 - `PROFILE_PROVIDER=manual` (default in `.env.example`) lets you exercise the full diff/notification pipeline without Proxycurl API access.
-- Database migrations are in `supabase/migrations/` and meant for the Supabase SQL editor or CLI — there is no local Supabase configuration (`supabase/config.toml` does not exist).
+- Database migrations are in `supabase/migrations/` and meant for the Supabase SQL editor or CLI. A local Supabase CLI config lives at `supabase/config.toml` (run `supabase start` to use it); the app itself only needs the env vars above.
