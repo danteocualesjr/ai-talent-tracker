@@ -24,9 +24,10 @@ const getPublicEvent = cache(async (id: string): Promise<PublicEvent | null> => 
   const db = createAdminClient();
   const { data } = await db
     .from("events")
-    .select("*, profile:profiles(*)")
+    .select("*, profile:profiles!inner(*)")
     .eq("id", id)
     .eq("is_public", true)
+    .eq("profile.is_opted_out", false)
     .maybeSingle();
   return (data as unknown as PublicEvent | null) ?? null;
 });
