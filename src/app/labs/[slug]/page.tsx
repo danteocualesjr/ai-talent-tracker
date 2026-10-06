@@ -36,7 +36,7 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="relative overflow-hidden border-b border-border/60">
           <div className="pointer-events-none absolute inset-0 hero-backdrop" />
           <div className="pointer-events-none absolute inset-0 grid-bg grid-fade" />
