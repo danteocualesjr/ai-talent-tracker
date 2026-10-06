@@ -19,7 +19,10 @@ export async function sendEventEmail(to: string, subject: string, html: string):
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
     return;
   }
-  await r.emails.send({ from: FROM, to, subject, html });
+  // Resend reports API failures in `error` instead of throwing, so surface them
+  // here; otherwise the delivery log records a bounced alert as "sent".
+  const { error } = await r.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(`Email delivery failed: ${error.message}`);
 }
 
 export function renderEventEmail(args: {
