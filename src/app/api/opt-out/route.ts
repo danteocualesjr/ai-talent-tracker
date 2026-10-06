@@ -6,7 +6,12 @@ import { normalizeLinkedInUrl } from "@/lib/utils";
 const EmailSchema = z.string().email();
 
 export async function POST(req: NextRequest) {
-  const form = await req.formData();
+  let form: FormData;
+  try {
+    form = await req.formData();
+  } catch {
+    return NextResponse.json({ error: "expected form data" }, { status: 400 });
+  }
   const url = normalizeLinkedInUrl(String(form.get("linkedin_url") ?? ""));
   const emailParsed = EmailSchema.safeParse(String(form.get("email") ?? "").trim().toLowerCase());
   const notes = String(form.get("notes") ?? "").slice(0, 2000);
