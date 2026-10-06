@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const ev = await getPublicEvent(id);
   if (!ev) return { title: "Event not found" };
-  const name = ev.profile.full_name || ev.profile.linkedin_handle;
+  const name = ev.profile.full_name || ev.profile.linkedin_handle || "Unnamed profile";
   const label = labelForEventType(ev.type);
   return {
     title: `${name} - ${label}`,
