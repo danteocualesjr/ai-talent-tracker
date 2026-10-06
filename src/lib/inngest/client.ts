@@ -1,12 +1,13 @@
-import { Inngest } from "inngest";
+import { EventSchemas, Inngest } from "inngest";
+
+export type AppEvents = {
+  "profile/refresh.requested": { data: { profile_id: string; reason?: string } };
+  "event/created": { data: { event_id: string } };
+};
 
 export const inngest = new Inngest({
   id: "ai-talent-tracker",
   eventKey: process.env.INNGEST_EVENT_KEY,
+  // Typed payloads so a misspelled event name or missing field fails typecheck.
+  schemas: new EventSchemas().fromRecord<AppEvents>(),
 });
-
-export type AppEvents = {
-  "profile/refresh.requested": { data: { profile_id: string; reason?: string } };
-  "profile/snapshot.created": { data: { profile_id: string; snapshot_id: string } };
-  "event/created": { data: { event_id: string } };
-};
