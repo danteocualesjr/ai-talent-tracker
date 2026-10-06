@@ -330,17 +330,19 @@ export async function refreshStaleProfiles(): Promise<RefreshStaleResult> {
 
   if (staleIds.length === 0) return { error: "No stale profiles to refresh." };
 
-  let queued = 0;
-  for (const profileId of staleIds) {
-    try {
-      await inngest.send({ name: "profile/refresh.requested", data: { profile_id: profileId, reason: "stale_bulk" } });
-      queued += 1;
-    } catch (e) {
-      console.warn("[inngest] send failed", e);
-    }
+  // One batched send instead of a round trip per profile (up to the plan limit).
+  try {
+    await inngest.send(
+      staleIds.map((profileId) => ({
+        name: "profile/refresh.requested" as const,
+        data: { profile_id: profileId, reason: "stale_bulk" },
+      })),
+    );
+  } catch (e) {
+    console.warn("[inngest] send failed", e);
+    return { error: "Refresh could not be queued. Try again shortly." };
   }
-
-  if (queued === 0) return { error: "Refresh could not be queued. Try again shortly." };
+  const queued = staleIds.length;
 
   revalidatePath("/app");
   revalidatePath("/app/watchlist");
