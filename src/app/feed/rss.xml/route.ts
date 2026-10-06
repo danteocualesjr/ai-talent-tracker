@@ -9,9 +9,10 @@ export async function GET() {
   const items = events.map((e) => {
     const link = `${siteUrl()}/feed/${e.id}`;
     const typeLabel = shortLabelForEventType(e.type);
+    const name = e.profile?.full_name || e.profile?.linkedin_handle || "Unnamed profile";
     return `
       <item>
-        <title><![CDATA[${escapeRssCdata(`${e.profile.full_name || e.profile.linkedin_handle} - ${typeLabel}`)}]]></title>
+        <title><![CDATA[${escapeRssCdata(`${name} - ${typeLabel}`)}]]></title>
         <link>${link}</link>
         <guid>${link}</guid>
         <category><![CDATA[${escapeRssCdata(typeLabel)}]]></category>
