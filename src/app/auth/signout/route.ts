@@ -5,5 +5,6 @@ import { siteUrl } from "@/lib/utils";
 export async function POST() {
   const supa = await createClient();
   await supa.auth.signOut();
-  return NextResponse.redirect(new URL("/", siteUrl()));
+  // 303 so the browser follows with GET; the default 307 would re-POST to "/".
+  return NextResponse.redirect(new URL("/", siteUrl()), 303);
 }
