@@ -97,7 +97,7 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
                   <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <Link href={`/app/profiles/${p.id}`} className="truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
+                  <Link href={`/app/profiles/${p.id}`} className="block truncate text-sm font-semibold transition-colors hover:text-foreground hover:underline underline-offset-4">
                     {p.full_name || p.linkedin_handle}
                   </Link>
                   <p className="truncate text-sm text-muted-foreground">{p.headline ?? p.current_title ?? ""}</p>

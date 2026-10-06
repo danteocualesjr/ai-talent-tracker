@@ -106,7 +106,7 @@ export default async function PublicLabPage({ params }: { params: Promise<{ slug
                         href={p.linkedin_url}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="truncate text-sm font-semibold hover:underline"
+                        className="block truncate text-sm font-semibold hover:underline"
                       >
                         {p.full_name || p.linkedin_handle}
                         <span className="sr-only"> on LinkedIn (opens in a new tab)</span>
