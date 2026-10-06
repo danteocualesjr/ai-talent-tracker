@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { isProfileOnOrgWatchlist } from "@/lib/queries";
-import { extractLinkedInUrlsFromText, normalizeLinkedInUrl } from "@/lib/utils";
+import { countInvalidImportLines, extractLinkedInUrlsFromText, normalizeLinkedInUrl } from "@/lib/utils";
 import { inngest } from "@/lib/inngest/client";
 import type { Organization, Profile, Watchlist } from "@/types/db";
 
@@ -157,8 +157,7 @@ export async function importProfilesFromCsv(formData: FormData): Promise<ImportR
   const db = createAdminClient();
 
   const extracted = extractLinkedInUrlsFromText(parsed.data.csv_text);
-  const rawLines = parsed.data.csv_text.split(/\r?\n/).filter((line) => line.trim() && !line.trim().startsWith("#")).length;
-  const invalid = Math.max(0, rawLines - extracted.length);
+  const invalid = countInvalidImportLines(parsed.data.csv_text);
 
   if (extracted.length === 0) {
     return { error: "No valid LinkedIn /in/ URLs found. Paste full profile links or a CSV with a linkedin_url column." };

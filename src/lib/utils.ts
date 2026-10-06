@@ -119,6 +119,26 @@ export function extractLinkedInUrlsFromText(text: string): string[] {
   return urls;
 }
 
+/**
+ * Lines in a pasted import that yield no LinkedIn URL. Blank lines, `#` comments,
+ * a leading CSV header row, and repeats of an earlier URL are not invalid.
+ */
+export function countInvalidImportLines(text: string): number {
+  let invalid = 0;
+  let sawContent = false;
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const isFirst = !sawContent;
+    sawContent = true;
+    if (extractLinkedInUrlsFromText(trimmed).length > 0) continue;
+    const cells = trimmed.split(",").map((c) => c.trim().replace(/^["']|["']$/g, ""));
+    if (isFirst && cells.some((c) => CSV_HEADER_RE.test(c))) continue;
+    invalid += 1;
+  }
+  return invalid;
+}
+
 /** Public site origin without a trailing slash, so `${siteUrl()}/path` never doubles up. */
 export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
