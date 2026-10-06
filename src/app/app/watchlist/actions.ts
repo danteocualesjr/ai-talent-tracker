@@ -22,7 +22,7 @@ export type ImportResult =
   | { error: string }
   | { ok: true; added: number; skipped: number; invalid: number; limitReached: boolean };
 
-type TrackOutcome = "added" | "already_tracked" | "limit_reached" | "opted_out";
+type TrackOutcome = "added" | "already_tracked" | "limit_reached" | "opted_out" | "failed";
 
 async function getWatchlistCount(db: ReturnType<typeof createAdminClient>, orgId: string) {
   const { count } = await db
@@ -60,8 +60,17 @@ async function trackProfileUrl(
   let { data: profile } = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
   if (!profile) {
     const ins = await db.from("profiles").insert({ linkedin_url: url }).select("*").single();
-    if (ins.error || !ins.data) return { outcome: "limit_reached", newCount: currentCount };
-    profile = ins.data;
+    if (ins.data) {
+      profile = ins.data;
+    } else {
+      // Another request may have indexed the same URL first (unique linkedin_url).
+      const retry = await db.from("profiles").select("*").eq("linkedin_url", url).maybeSingle();
+      if (!retry.data) {
+        console.error("[watchlist] could not create profile", ins.error);
+        return { outcome: "failed", newCount: currentCount };
+      }
+      profile = retry.data;
+    }
   }
   const profileRow = profile as Profile;
 
@@ -122,6 +131,9 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   }
   if (outcome === "opted_out") {
     return { error: "This profile has opted out of tracking." };
+  }
+  if (outcome === "failed") {
+    return { error: "Could not add this profile. Try again." };
   }
 
   revalidatePath("/app/watchlist");
