@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, MinusCircle, XCircle } from "lucide-react";
 import { EmptyPanel, Panel } from "@/components/panel";
 import { Badge } from "@/components/ui/badge";
 import { labelForEventType } from "@/lib/event-labels";
@@ -36,7 +36,9 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
                 </p>
               )}
               {d.error && (
-                <p className="mt-1 text-xs text-destructive">{d.error}</p>
+                <p className={d.status === "skipped" ? "mt-1 text-xs text-muted-foreground" : "mt-1 text-xs text-destructive"}>
+                  {d.error}
+                </p>
               )}
             </div>
           </div>
@@ -47,12 +49,16 @@ export function DeliveryLog({ deliveries }: { deliveries: DeliveryLogEntry[] }) 
 }
 
 function StatusIcon({ status }: { status: string }) {
-  const label = status === "sent" ? "Sent" : status === "failed" ? "Failed" : "Pending";
+  const label =
+    status === "sent" ? "Sent" : status === "failed" ? "Failed" : status === "skipped" ? "Skipped" : "Pending";
   if (status === "sent") {
     return <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-signal" role="img" aria-label={label} />;
   }
   if (status === "failed") {
     return <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" role="img" aria-label={label} />;
+  }
+  if (status === "skipped") {
+    return <MinusCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" role="img" aria-label={label} />;
   }
   return <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" role="img" aria-label={label} />;
 }
