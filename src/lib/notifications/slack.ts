@@ -26,6 +26,15 @@ function assertHttpsSlackWebhook(url: string): void {
   }
 }
 
+function isHttpUrl(url: string): boolean {
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 export async function sendSlack(webhookUrl: string, payload: {
   name: string;
   summary: string;
@@ -38,8 +47,9 @@ export async function sendSlack(webhookUrl: string, payload: {
   const typeLabel = shortLabelForEventType(payload.type as EventType);
   const safeName = escapeMrkdwn(payload.name);
   const safeSummary = escapeMrkdwn(payload.summary);
-  // Strip characters that break Slack mrkdwn link targets.
-  const safeLinkedInUrl = payload.linkedinUrl.replace(/[<>|]/g, "");
+  // Strip characters that break Slack mrkdwn link targets, and only link
+  // http(s) URLs so a malformed stored value never becomes a clickable target.
+  const safeLinkedInUrl = isHttpUrl(payload.linkedinUrl) ? payload.linkedinUrl.replace(/[<>|]/g, "") : null;
   const metaParts: string[] = [];
   if (payload.detectedAt) metaParts.push(escapeMrkdwn(payload.detectedAt));
   if (typeof payload.confidence === "number" && Number.isFinite(payload.confidence)) {
@@ -56,7 +66,7 @@ export async function sendSlack(webhookUrl: string, payload: {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*<${safeLinkedInUrl}|${safeName}>* - _${typeLabel}_\n${safeSummary}${metaLine}`,
+            text: `${safeLinkedInUrl ? `*<${safeLinkedInUrl}|${safeName}>*` : `*${safeName}*`} - _${typeLabel}_\n${safeSummary}${metaLine}`,
           },
         },
       ],
