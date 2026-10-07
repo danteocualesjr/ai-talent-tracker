@@ -174,14 +174,19 @@ export function hostMatchesDomain(hostname: string, domains: readonly string[]):
 }
 
 
+/** Paths on github.com / x.com that are app pages, not a user handle. */
+const RESERVED_SOCIAL_PATHS = new Set([
+  "intent", "share", "home", "i", "hashtag", "search", "settings", "login", "orgs", "sponsors", "explore",
+]);
+
 /** First path segment of a social profile URL when the host matches. */
 export function extractSocialHandle(url: string | null | undefined, domains: readonly string[]): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
     if (!hostMatchesDomain(u.hostname, domains)) return null;
-    const handle = u.pathname.split("/").filter(Boolean)[0];
-    return handle ? handle.toLowerCase() : null;
+    const handle = u.pathname.split("/").filter(Boolean)[0]?.toLowerCase();
+    return handle && !RESERVED_SOCIAL_PATHS.has(handle) ? handle : null;
   } catch {
     return null;
   }
