@@ -133,7 +133,7 @@ export async function updateChannelEventTypes(formData: FormData): Promise<Actio
   if (!Array.isArray(parsed) || parsed.length === 0) {
     return { error: "Select at least one event type." };
   }
-  const eventTypes = parsed.filter((t): t is EventType => typeof t === "string" && VALID_EVENT_TYPES.has(t));
+  const eventTypes = [...new Set(parsed.filter((t): t is EventType => typeof t === "string" && VALID_EVENT_TYPES.has(t)))];
   if (eventTypes.length === 0) return { error: "Select at least one valid event type." };
 
   const supa = await createClient();
