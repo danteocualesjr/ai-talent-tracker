@@ -193,7 +193,7 @@ export function extractSocialHandle(url: string | null | undefined, domains: rea
 }
 
 export function normalizeSocialHandle(handle: string): string {
-  return handle.trim().replace(/^@/, "");
+  return handle.trim().replace(/^@/, "").replace(/\/+$/, "");
 }
 
 export function githubProfileUrl(handle: string): string {
