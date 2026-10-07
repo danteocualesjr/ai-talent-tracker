@@ -62,7 +62,8 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
 
   let dispatched = 0;
   for (const ch of (channels ?? []) as NotificationChannel[]) {
-    if (!ch.event_types.includes(event.type)) continue;
+    // A channel saved without event types subscribes to nothing rather than crashing the loop.
+    if (!(ch.event_types ?? []).includes(event.type)) continue;
     if (alreadySent.has(ch.id)) continue;
 
     try {
