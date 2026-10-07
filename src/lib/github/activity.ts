@@ -24,6 +24,9 @@ const GITHUB_TIMEOUT_MS = 10_000;
 export async function fetchGitHubActivity(handle: string): Promise<GitHubActivity | null> {
   const normalized = normalizeSocialHandle(handle);
   if (!normalized) return null;
+  // GitHub logins are letters, digits, and single hyphens (max 39). Skip anything
+  // else instead of spending a rate-limited request on it.
+  if (!/^[a-z\d](?:[a-z\d-]{0,38})$/i.test(normalized)) return null;
 
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
