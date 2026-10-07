@@ -326,7 +326,9 @@ export async function refreshStaleProfiles(): Promise<RefreshStaleResult> {
       if (!p.last_synced_at) return true;
       return new Date(p.last_synced_at).getTime() < staleCutoff;
     })
-    .map((row) => row.profile_id);
+    .map((row) => row.profile_id)
+    // A profile on more than one of the org's watchlists should be queued once.
+    .filter((id, i, all) => all.indexOf(id) === i);
 
   if (staleIds.length === 0) return { error: "No stale profiles to refresh." };
 
