@@ -210,6 +210,8 @@ export async function addLabRosterToWatchlist(labId: string, labSlug?: string): 
     .from("profiles")
     .select("linkedin_url")
     .eq("current_company_lab_id", labId)
+    // Opted-out people are skipped anyway; leave them out of the query.
+    .eq("is_opted_out", false)
     .not("linkedin_url", "is", null)
     .limit(500);
 
