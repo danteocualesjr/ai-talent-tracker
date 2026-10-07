@@ -197,11 +197,11 @@ export function normalizeSocialHandle(handle: string): string {
 }
 
 export function githubProfileUrl(handle: string): string {
-  return `https://github.com/${normalizeSocialHandle(handle)}`;
+  return `https://github.com/${encodeURIComponent(normalizeSocialHandle(handle))}`;
 }
 
 export function xProfileUrl(handle: string): string {
-  return `https://x.com/${normalizeSocialHandle(handle)}`;
+  return `https://x.com/${encodeURIComponent(normalizeSocialHandle(handle))}`;
 }
 
 /** Compact month/day label for charts and dense UI. */
