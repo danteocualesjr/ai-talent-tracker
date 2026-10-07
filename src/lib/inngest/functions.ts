@@ -202,7 +202,9 @@ export const refreshProfile = inngest.createFunction(
       if (error) throw error;
 
       if (classification!.status) {
-        await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        const { error: statusErr } = await db.from("profiles").update({ status: classification!.status }).eq("id", profileId);
+        // Log rather than throw: a retry would insert the event a second time.
+        if (statusErr) console.error("[refresh] could not update profile status", statusErr);
       }
       return data;
     });
