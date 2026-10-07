@@ -18,7 +18,7 @@ interface Props {
  * by default so it inherits text color via `text-*` utilities.
  */
 export function Sparkline({
-  data,
+  data: rawData,
   width = 100,
   height = 28,
   className,
@@ -26,6 +26,8 @@ export function Sparkline({
   fill = true,
   strokeWidth = 1.5,
 }: Props) {
+  // NaN or Infinity would turn every coordinate into "NaN" and blank the path.
+  const data = rawData.filter((v) => Number.isFinite(v));
   if (data.length === 0) return null;
 
   const min = Math.min(...data);
