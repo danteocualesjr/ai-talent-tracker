@@ -31,7 +31,8 @@ export function diffProfiles(prev: Partial<ProviderProfile> | null, next: Provid
 }
 
 function norm(v: string | null | undefined): string {
-  return (v ?? "").trim().toLowerCase();
+  // Collapse inner whitespace too, so "Jane  Doe" vs "Jane Doe" is not a change.
+  return (v ?? "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 export function hashSnapshot(p: ProviderProfile): string {
