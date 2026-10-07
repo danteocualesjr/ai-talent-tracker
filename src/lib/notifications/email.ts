@@ -36,7 +36,9 @@ export function renderEventEmail(args: {
   confidence?: number;
 }): { subject: string; html: string } {
   const typeLabel = shortLabelForEventType(args.type as EventType);
-  const subject = `[Tracker] ${args.name} - ${typeLabel}`;
+  // Header values must stay on one line; a name with a stray newline would
+  // otherwise break the subject line.
+  const subject = `[Tracker] ${singleLine(args.name)} - ${typeLabel}`;
   const html = `
     <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px;margin:auto;padding:24px">
       <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#666">${escapeHtml(typeLabel)}</div>
@@ -58,6 +60,11 @@ function safeHttpUrl(url: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Collapse control characters and runs of whitespace into single spaces. */
+function singleLine(s: string): string {
+  return s.replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function escapeHtml(s: string): string {
