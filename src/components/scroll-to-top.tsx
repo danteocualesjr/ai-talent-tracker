@@ -25,7 +25,12 @@ export function ScrollToTop() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // Content that reflows changes the page height, so remeasure on resize too.
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [pathname]);
 
   const circumference = 2 * Math.PI * 17;
