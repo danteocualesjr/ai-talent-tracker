@@ -136,13 +136,16 @@ async function deliver(
   event: EventRow,
   profile: Profile,
 ): Promise<Extract<DeliveryStatus, "sent" | "skipped">> {
+  // toISOString() throws on an invalid date, which would fail every channel.
+  const parsedDetected = new Date(event.detected_at);
+  const detected = Number.isNaN(parsedDetected.getTime()) ? new Date() : parsedDetected;
   const payload = {
     // A readable name from the handle beats a raw URL in alert subjects and Slack.
     name: profile.full_name || humanizeLinkedInHandle(profile.linkedin_handle) || profile.linkedin_url,
     summary: event.summary,
     type: event.type,
     linkedinUrl: profile.linkedin_url,
-    detectedAt: new Date(event.detected_at).toUTCString(),
+    detectedAt: detected.toUTCString(),
     confidence: event.confidence,
   };
 
@@ -163,7 +166,7 @@ async function deliver(
       profile_id: profile.id,
       ...payload,
       // Machine-readable fields alongside the human-friendly ones above.
-      detected_at: new Date(event.detected_at).toISOString(),
+      detected_at: detected.toISOString(),
       confidence: event.confidence,
     });
     return "sent";
