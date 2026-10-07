@@ -117,7 +117,7 @@ export const refreshProfile = inngest.createFunction(
     // Always bump last_synced_at + reschedule.
     await step.run("touch-profile", async () => {
       const next = await nextSyncAt(db, profile);
-      await db
+      const { error } = await db
         .from("profiles")
         .update({
           full_name: fetched.full_name ?? profile.full_name,
@@ -133,6 +133,8 @@ export const refreshProfile = inngest.createFunction(
           next_sync_at: next,
         })
         .eq("id", profileId);
+      // A silent failure here leaves next_sync_at stale, so the profile is refetched every hour.
+      if (error) throw error;
     });
 
     const githubHandle = fetched.github_handle ?? profile.github_handle;
