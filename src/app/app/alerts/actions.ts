@@ -12,7 +12,7 @@ const EmailSchema = z.object({ to: z.string().email() });
 const SlackSchema = z.object({ webhook_url: z.string().url().startsWith("https://hooks.slack.com/") });
 // Delivery refuses non-HTTPS endpoints, so reject them here instead of saving a
 // channel that can only ever fail.
-const WebhookSchema = z.object({ url: z.string().url().startsWith("https://"), secret: z.string().optional() });
+const WebhookSchema = z.object({ url: z.string().url().startsWith("https://"), secret: z.string().max(256).optional() });
 
 export type ActionResult = { ok: true } | { error: string };
 
@@ -46,7 +46,7 @@ export async function addChannel(formData: FormData): Promise<ActionResult> {
       url: String(formData.get("url") ?? "").trim(),
       secret: secretRaw || undefined,
     });
-    if (!r.success) return { error: "Enter a valid https:// webhook URL." };
+    if (!r.success) return { error: "Enter a valid https:// webhook URL and a secret of at most 256 characters." };
     config = r.data;
   } else {
     return { error: "Unknown channel type." };
