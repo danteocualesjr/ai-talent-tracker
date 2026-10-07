@@ -22,10 +22,12 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   if (profile.is_opted_out) return { dispatched: 0 };
 
   // Find every org watching this profile.
-  const { data: watchers } = await db
+  const { data: watchers, error: watchersErr } = await db
     .from("watchlist_profiles")
     .select("watchlist_id, watchlists(org_id)")
     .eq("profile_id", profile.id);
+  // Throw so notify-event retries instead of silently dropping the alert.
+  if (watchersErr) throw watchersErr;
 
   const orgIds = Array.from(
     new Set(
@@ -41,18 +43,21 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
   );
   if (orgIds.length === 0) return { dispatched: 0 };
 
-  const { data: channels } = await db
+  const { data: channels, error: channelsErr } = await db
     .from("notification_channels")
     .select("*")
     .in("org_id", orgIds)
     .eq("is_active", true);
+  if (channelsErr) throw channelsErr;
 
   // notify-event retries; never send the same alert twice to a channel.
-  const { data: priorSends } = await db
+  const { data: priorSends, error: priorErr } = await db
     .from("notification_deliveries")
     .select("channel_id")
     .eq("event_id", event.id)
     .eq("status", "sent");
+  // Without the prior-send list a retry could double-send, so retry the whole step.
+  if (priorErr) throw priorErr;
   const alreadySent = new Set(((priorSends ?? []) as { channel_id: string }[]).map((d) => d.channel_id));
 
   let dispatched = 0;
