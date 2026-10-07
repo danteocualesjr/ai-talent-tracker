@@ -17,17 +17,24 @@ export function ScrollToTop() {
   }, [pathname]);
 
   useEffect(() => {
-    const onScroll = () => {
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       setVisible(scrollTop > 400);
       setProgress(docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0);
     };
-    onScroll();
+    // Coalesce scroll bursts into one state update per animation frame.
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(measure);
+    };
+    measure();
     window.addEventListener("scroll", onScroll, { passive: true });
     // Content that reflows changes the page height, so remeasure on resize too.
     window.addEventListener("resize", onScroll);
     return () => {
+      if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
