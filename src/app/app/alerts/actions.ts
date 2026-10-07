@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { ensureOrgForUser } from "@/lib/org";
 import { sendTestAlert } from "@/lib/notifications/dispatch";
+import { EVENT_TYPE_LABELS } from "@/lib/event-labels";
 import type { ChannelType, EventType, NotificationChannel } from "@/types/db";
 
 const EmailSchema = z.object({ to: z.string().email() });
@@ -115,10 +116,8 @@ export async function toggleChannelActive(formData: FormData): Promise<ActionRes
   return { ok: true };
 }
 
-const VALID_EVENT_TYPES = new Set([
-  "left_company", "joined_company", "went_stealth", "headline_signals_founding",
-  "role_change_internal", "about_changed", "location_changed", "github_dark", "new_domain", "other",
-]);
+// Derived from the label map so a new event type cannot be forgotten here.
+const VALID_EVENT_TYPES = new Set<string>(Object.keys(EVENT_TYPE_LABELS));
 
 export async function updateChannelEventTypes(formData: FormData): Promise<ActionResult> {
   const id = String(formData.get("id") ?? "");
