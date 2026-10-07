@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
+import { humanizeLinkedInHandle } from "@/lib/utils";
 import { renderEventEmail, sendEventEmail } from "./email";
 import { sendSlack } from "./slack";
 import { sendWebhook } from "./webhook";
@@ -136,7 +137,8 @@ async function deliver(
   profile: Profile,
 ): Promise<Extract<DeliveryStatus, "sent" | "skipped">> {
   const payload = {
-    name: profile.full_name || profile.linkedin_url,
+    // A readable name from the handle beats a raw URL in alert subjects and Slack.
+    name: profile.full_name || humanizeLinkedInHandle(profile.linkedin_handle) || profile.linkedin_url,
     summary: event.summary,
     type: event.type,
     linkedinUrl: profile.linkedin_url,
