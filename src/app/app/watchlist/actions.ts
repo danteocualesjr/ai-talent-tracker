@@ -25,10 +25,15 @@ export type ImportResult =
 type TrackOutcome = "added" | "already_tracked" | "limit_reached" | "opted_out" | "failed";
 
 async function getWatchlistCount(db: ReturnType<typeof createAdminClient>, orgId: string) {
-  const { count } = await db
+  const { count, error } = await db
     .from("watchlist_profiles")
     .select("profile_id, watchlists!inner(org_id)", { count: "exact", head: true })
     .eq("watchlists.org_id", orgId);
+  // Fail closed: a failed count must not read as an empty watchlist and skip the plan limit.
+  if (error) {
+    console.error("[watchlist] could not count profiles", error);
+    return null;
+  }
   return count ?? 0;
 }
 
@@ -125,6 +130,7 @@ export async function addProfile(formData: FormData): Promise<ActionResult> {
   if (!watchlist) return { error: "Could not create watchlist." };
 
   const count = await getWatchlistCount(db, org.id);
+  if (count === null) return { error: "Could not check your plan limit. Try again." };
   const { outcome } = await trackProfileUrl(db, org, user.id, watchlist, url, count);
 
   if (outcome === "limit_reached") {
@@ -170,7 +176,9 @@ export async function importProfilesFromCsv(formData: FormData): Promise<ImportR
   const watchlist = await ensureWatchlist(db, org.id);
   if (!watchlist) return { error: "Could not create watchlist." };
 
-  let currentCount = await getWatchlistCount(db, org.id);
+  const startCount = await getWatchlistCount(db, org.id);
+  if (startCount === null) return { error: "Could not check your plan limit. Try again." };
+  let currentCount = startCount;
   let added = 0;
   let skipped = 0;
   let limitReached = false;
@@ -224,7 +232,9 @@ export async function addLabRosterToWatchlist(labId: string, labSlug?: string): 
   const watchlist = await ensureWatchlist(db, org.id);
   if (!watchlist) return { error: "Could not create watchlist." };
 
-  let currentCount = await getWatchlistCount(db, org.id);
+  const startCount = await getWatchlistCount(db, org.id);
+  if (startCount === null) return { error: "Could not check your plan limit. Try again." };
+  let currentCount = startCount;
   let added = 0;
   let skipped = 0;
   let limitReached = false;
