@@ -19,7 +19,11 @@ function assertHttpsUrl(url: string, label: string): void {
 export async function sendWebhook(url: string, secret: string | undefined, payload: object): Promise<void> {
   assertHttpsUrl(url, "Webhook");
   const body = JSON.stringify(payload);
-  const headers: Record<string, string> = { "content-type": "application/json" };
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    // Lets receivers allowlist or log tracker deliveries.
+    "user-agent": "ai-talent-tracker-webhooks/1.0",
+  };
   if (secret) {
     const sig = createHmac("sha256", secret).update(body).digest("hex");
     headers["x-tracker-signature"] = `sha256=${sig}`;

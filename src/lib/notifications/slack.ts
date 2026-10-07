@@ -58,7 +58,7 @@ export async function sendSlack(webhookUrl: string, payload: {
   const metaLine = metaParts.length ? `\n_${metaParts.join(" · ")}_` : "";
   const res = await fetch(webhookUrl, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "user-agent": "ai-talent-tracker-webhooks/1.0" },
     signal: AbortSignal.timeout(SLACK_TIMEOUT_MS),
     body: JSON.stringify({
       blocks: [
