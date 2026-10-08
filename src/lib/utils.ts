@@ -80,7 +80,10 @@ export function formatRelative(date: Date | string | null | undefined) {
 
 export function normalizeLinkedInUrl(url: string): string | null {
   try {
-    const u = new URL(url.trim());
+    const trimmed = url.trim();
+    // Accept "linkedin.com/in/jane" pasted without a scheme.
+    const withScheme = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    const u = new URL(withScheme);
     const host = u.hostname.toLowerCase();
     // Exact domain or a real subdomain only; `includes` let hosts like
     // "linkedin.com.evil.io" or "notlinkedin.com" slip through.
