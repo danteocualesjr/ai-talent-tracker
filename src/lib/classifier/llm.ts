@@ -9,19 +9,21 @@ const LLM_TIMEOUT_MS = 20_000;
 
 const SUMMARY_MAX = 280;
 
+const PROFILE_EVENT_TYPES = [
+  "left_company",
+  "joined_company",
+  "went_stealth",
+  "headline_signals_founding",
+  "role_change_internal",
+  "about_changed",
+  "location_changed",
+  "github_dark",
+  "new_domain",
+  "other",
+] as const;
+
 const ResponseSchema = z.object({
-  type: z.enum([
-    "left_company",
-    "joined_company",
-    "went_stealth",
-    "headline_signals_founding",
-    "role_change_internal",
-    "about_changed",
-    "location_changed",
-    "github_dark",
-    "new_domain",
-    "other",
-  ]),
+  type: z.enum(PROFILE_EVENT_TYPES),
   confidence: z.number().min(0).max(1),
   summary: z.string().min(1).max(SUMMARY_MAX),
   status: z.enum(["active", "left", "stealth", "founder", "unknown"]).optional(),
@@ -31,6 +33,11 @@ const SYSTEM = `You are a labor-market analyst classifying LinkedIn profile chan
 - "stealth", "building something", "undisclosed" headlines (went_stealth)
 - "founder", "co-founder", "founding [role]" headlines (headline_signals_founding)
 - Current company removed or replaced (left_company / joined_company)
+Respond with a JSON object with exactly these keys:
+- "type": one of ${PROFILE_EVENT_TYPES.join(", ")}
+- "confidence": a number from 0 to 1
+- "summary": one plain sentence, at most ${SUMMARY_MAX} characters
+- "status" (optional): one of active, left, stealth, founder, unknown
 Return JSON only.`;
 
 export async function classifyWithLLM(input: {
