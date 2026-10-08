@@ -82,13 +82,15 @@ export async function listLabs(): Promise<Lab[]> {
 export async function isProfileOnOrgWatchlist(orgId: string, profileId: string): Promise<boolean> {
   if (!isSupabaseConfigured()) return false;
   const db = createAdminClient();
+  // A profile can sit on several of the org's watchlists; maybeSingle() errors on
+  // more than one row, which read as "not on your watchlist" and blocked refreshes.
   const { data } = await db
     .from("watchlist_profiles")
     .select("profile_id, watchlists!inner(org_id)")
     .eq("watchlists.org_id", orgId)
     .eq("profile_id", profileId)
-    .maybeSingle();
-  return Boolean(data);
+    .limit(1);
+  return (data ?? []).length > 0;
 }
 
 export async function getLabBySlug(slug: string): Promise<Lab | null> {
