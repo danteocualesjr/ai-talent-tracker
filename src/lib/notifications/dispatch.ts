@@ -69,21 +69,24 @@ export async function dispatchEvent(eventId: string): Promise<{ dispatched: numb
 
     try {
       const status = await deliver(ch, event, profile);
-      await db.from("notification_deliveries").insert({
+      const { error: logErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status,
         delivered_at: status === "sent" ? new Date().toISOString() : null,
         error: status === "skipped" ? "Email is not configured (RESEND_API_KEY missing)." : null,
       });
+      // A missing "sent" row means a retry could deliver this alert again; leave a trace.
+      if (logErr) console.error("[dispatch] could not record delivery", ch.id, logErr);
       if (status === "sent") dispatched++;
     } catch (e) {
-      await db.from("notification_deliveries").insert({
+      const { error: logErr } = await db.from("notification_deliveries").insert({
         channel_id: ch.id,
         event_id: event.id,
         status: "failed",
         error: e instanceof Error ? e.message : String(e),
       });
+      if (logErr) console.error("[dispatch] could not record failed delivery", ch.id, logErr);
     }
   }
   return { dispatched };
