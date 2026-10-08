@@ -214,7 +214,7 @@ export async function addLabRosterToWatchlist(labId: string, labSlug?: string): 
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   const db = createAdminClient();
 
-  const { data: profiles } = await db
+  const { data: profiles, error: rosterErr } = await db
     .from("profiles")
     .select("linkedin_url")
     .eq("current_company_lab_id", labId)
@@ -222,6 +222,11 @@ export async function addLabRosterToWatchlist(labId: string, labSlug?: string): 
     .eq("is_opted_out", false)
     .not("linkedin_url", "is", null)
     .limit(500);
+  // A failed query is not an empty roster; do not tell the user nothing is indexed.
+  if (rosterErr) {
+    console.error("[watchlist] could not load lab roster", rosterErr);
+    return { error: "Could not load this lab's roster. Try again." };
+  }
 
   const urls = (profiles ?? []).map((p) => p.linkedin_url as string).filter(Boolean);
 
