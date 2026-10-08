@@ -151,6 +151,8 @@ async function deliver(
 
   if (ch.type === "email") {
     const cfg = ch.config as unknown as EmailConfig;
+    // Resend's error for a missing recipient is vague; say what is wrong in the delivery log.
+    if (!cfg?.to?.trim()) throw new Error("Email channel has no recipient address.");
     const { subject, html } = renderEventEmail(payload);
     return (await sendEventEmail(cfg.to, subject, html)) ? "sent" : "skipped";
   }
