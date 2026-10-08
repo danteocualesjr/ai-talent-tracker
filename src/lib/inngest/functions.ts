@@ -258,13 +258,15 @@ async function checkGitHubActivity(
 
   const recent = (await step.run("dedupe-github-dark", async () => {
     const since = new Date(Date.now() - 30 * 86400000).toISOString();
-    const { data } = await db
+    const { data, error } = await db
       .from("events")
       .select("id")
       .eq("profile_id", profile.id)
       .eq("type", "github_dark")
       .gte("detected_at", since)
       .limit(1);
+    // A failed lookup must not read as "no recent event" and post a duplicate alert.
+    if (error) throw error;
     return (data ?? []).length > 0;
   })) as boolean;
   if (recent) return { githubDark: false };
