@@ -17,8 +17,7 @@ const PROFILE_EVENT_TYPES = [
   "role_change_internal",
   "about_changed",
   "location_changed",
-  "github_dark",
-  "new_domain",
+  // github_dark and new_domain come from other detectors, never from a profile diff.
   "other",
 ] as const;
 
