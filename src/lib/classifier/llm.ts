@@ -23,7 +23,11 @@ const PROFILE_EVENT_TYPES = [
 
 const ResponseSchema = z.object({
   type: z.enum(PROFILE_EVENT_TYPES),
-  confidence: z.number().min(0).max(1),
+  // Models sometimes answer "0.8" or 85; read both as the 0-1 score we store.
+  confidence: z.preprocess((v) => {
+    const n = typeof v === "string" && v.trim() !== "" ? Number(v) : v;
+    return typeof n === "number" && n > 1 && n <= 100 ? n / 100 : n;
+  }, z.number().min(0).max(1)),
   summary: z.string().min(1).max(SUMMARY_MAX),
   status: z.enum(["active", "left", "stealth", "founder", "unknown"]).optional(),
 });
