@@ -8,12 +8,14 @@ import type { Organization } from "@/types/db";
 export async function ensureOrgForUser(userId: string, email: string | null): Promise<Organization> {
   const db = createAdminClient();
 
-  const { data: existing } = await db
+  const { data: existing, error: lookupErr } = await db
     .from("org_members")
     .select("org_id, organizations(*)")
     .eq("user_id", userId)
     .limit(1)
     .maybeSingle();
+  // A failed lookup is not "no workspace"; creating one here would split the user's data.
+  if (lookupErr) throw lookupErr;
 
   if (existing && (existing as { organizations?: unknown }).organizations) {
     const o = (existing as { organizations: unknown }).organizations;
