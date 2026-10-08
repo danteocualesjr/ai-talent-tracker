@@ -9,13 +9,16 @@ export function cn(...inputs: ClassValue[]) {
 export function initialsFromName(name: string | null | undefined, fallback = "??"): string {
   const raw = (name ?? "").trim();
   if (!raw) return fallback;
-  const parts = raw.split(/\s+/).filter(Boolean);
+  // Array.from keeps emoji and other astral characters whole instead of
+  // splitting them into broken surrogate halves.
+  const parts = raw.split(/\s+/).filter(Boolean).map((p) => Array.from(p));
   if (parts.length >= 2) {
     return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase() || fallback;
   }
-  const single = parts[0] ?? "";
-  if (single.length >= 2) return single.slice(0, 2).toUpperCase();
-  return (single[0] ?? fallback[0] ?? "?").toUpperCase().padEnd(2, fallback[1] ?? "?");
+  const single = parts[0] ?? [];
+  if (single.length >= 2) return single.slice(0, 2).join("").toUpperCase();
+  // A one-letter name shows that letter alone, not "J?".
+  return (single[0] ?? fallback).toUpperCase();
 }
 
 /**
