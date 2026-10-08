@@ -16,6 +16,15 @@ const WebhookSchema = z.object({ url: z.string().url().startsWith("https://"), s
 
 export type ActionResult = { ok: true } | { error: string };
 
+/** Plan gate shared by adding a channel and turning one back on. */
+function planChannelError(plan: string, type: ChannelType): string | null {
+  if (type === "slack" && plan === "free") return "Slack channels require a Pro plan or higher.";
+  if (type === "webhook" && plan !== "team" && plan !== "enterprise") {
+    return "Webhook channels require a Team plan or higher.";
+  }
+  return null;
+}
+
 export async function addChannel(formData: FormData): Promise<ActionResult> {
   const type = String(formData.get("type") ?? "") as ChannelType;
 
@@ -31,16 +40,14 @@ export async function addChannel(formData: FormData): Promise<ActionResult> {
     if (!r.success) return { error: "Enter a valid email address." };
     config = r.data;
   } else if (type === "slack") {
-    if (org.plan === "free") {
-      return { error: "Slack channels require a Pro plan or higher." };
-    }
+    const planError = planChannelError(org.plan, type);
+    if (planError) return { error: planError };
     const r = SlackSchema.safeParse({ webhook_url: String(formData.get("webhook_url") ?? "").trim() });
     if (!r.success) return { error: "Slack URL must start with https://hooks.slack.com/" };
     config = r.data;
   } else if (type === "webhook") {
-    if (org.plan !== "team" && org.plan !== "enterprise") {
-      return { error: "Webhook channels require a Team plan or higher." };
-    }
+    const planError = planChannelError(org.plan, type);
+    if (planError) return { error: planError };
     const secretRaw = String(formData.get("secret") ?? "").trim();
     const r = WebhookSchema.safeParse({
       url: String(formData.get("url") ?? "").trim(),
@@ -104,6 +111,19 @@ export async function toggleChannelActive(formData: FormData): Promise<ActionRes
   if (!user) return { error: "Not authenticated." };
   const org = await ensureOrgForUser(user.id, user.email ?? null);
   const db = createAdminClient();
+
+  // After a downgrade, re-enabling a Slack or webhook channel must respect the plan.
+  if (isActive) {
+    const { data: channel } = await db
+      .from("notification_channels")
+      .select("type")
+      .eq("id", id)
+      .eq("org_id", org.id)
+      .maybeSingle();
+    if (!channel) return { error: "Channel not found." };
+    const planError = planChannelError(org.plan, channel.type as ChannelType);
+    if (planError) return { error: planError };
+  }
 
   const { error } = await db
     .from("notification_channels")
