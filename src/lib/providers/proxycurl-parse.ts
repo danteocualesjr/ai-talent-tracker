@@ -29,7 +29,9 @@ export function parseProxycurlProfile(
   data: ProxycurlResponse,
 ): Omit<ProviderProfile, "linkedin_url" | "raw"> {
   const experiences = data.experiences || [];
-  const current = experiences.find((e) => !e.ends_at) || experiences[0];
+  // When every role has an end date the person has no current employer; falling
+  // back to the latest past job hid departures from the left_company rule.
+  const current = experiences.find((e) => !e.ends_at);
 
   return {
     full_name: data.full_name ?? null,
