@@ -99,7 +99,9 @@ export function normalizeLinkedInUrl(url: string): string | null {
   }
 }
 
-const LINKEDIN_IN_REGEX = /(?:https?:\/\/)?(?:[\w-]+\.)?linkedin\.com\/in\/([\w-]+)/gi;
+// Letters beyond ASCII and %-escapes are valid in vanity handles; matching only
+// \w cut "josé-garcia" to "jos" and imported the wrong person.
+const LINKEDIN_IN_REGEX = /(?:https?:\/\/)?(?:[\w-]+\.)?linkedin\.com\/in\/([\p{L}\p{N}_%-]+)/giu;
 const CSV_HEADER_RE = /^(linkedin(?:_url)?|url|profile(?:_url)?|link)$/i;
 
 /** Extract unique normalized LinkedIn /in/ URLs from plain text or CSV paste. */
