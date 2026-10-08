@@ -19,17 +19,19 @@ export function initialsFromName(name: string | null | undefined, fallback = "??
 }
 
 /**
- * Best-effort display name from a LinkedIn handle ("jane-2-doe-81a" -> "Jane Doe A").
- * Strips digits and collapses the gaps they leave behind.
+ * Best-effort display name from a LinkedIn handle ("jane-2-doe-81a2b3" -> "Jane Doe").
+ * LinkedIn appends an id like "81a2b3" to taken vanity names, so a trailing
+ * segment with digits is dropped whole; digits elsewhere are stripped.
  */
 export function humanizeLinkedInHandle(handle: string | null | undefined): string | null {
   if (!handle) return null;
+  const parts = handle.split(/[-_\s]+/).filter(Boolean);
+  if (parts.length > 1 && /\d/.test(parts[parts.length - 1])) parts.pop();
   return (
-    handle
-      .replace(/[-_]+/g, " ")
-      .replace(/\d+/g, "")
-      .replace(/\s+/g, " ")
-      .trim()
+    parts
+      .map((p) => p.replace(/\d+/g, ""))
+      .filter(Boolean)
+      .join(" ")
       .replace(/\b\w/g, (c) => c.toUpperCase()) || null
   );
 }
