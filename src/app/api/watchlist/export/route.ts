@@ -14,7 +14,13 @@ export async function GET() {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  const profiles = await listOrgProfiles(org.id);
+  // listOrgProfiles returns one row per watchlist link; export each person once.
+  const seen = new Set<string>();
+  const profiles = (await listOrgProfiles(org.id)).filter((p) => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
   const header = "full_name,linkedin_url,status,current_company,current_title,headline,last_synced_at";
   const rows = profiles.map((p) =>
     [
