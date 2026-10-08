@@ -236,13 +236,15 @@ async function checkGitHubActivity(
   if (!activity) return { githubDark: false };
 
   await step.run("update-github-stats", async () => {
-    await db
+    const { error } = await db
       .from("profiles")
       .update({
         github_last_commit_at: activity.lastCommitAt,
         github_commits_30d: activity.commits30d,
       })
       .eq("id", profile.id);
+    // Stale stats make the next run compare against old numbers, so retry instead.
+    if (error) throw error;
   });
 
   const signal = detectGitHubDark(
