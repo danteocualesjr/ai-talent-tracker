@@ -316,10 +316,12 @@ async function nextSyncAt(
   profile: Profile,
 ): Promise<string> {
   // Cadence is the *fastest* among orgs watching this profile.
-  const { data } = await db
+  const { data, error } = await db
     .from("watchlist_profiles")
     .select("watchlists!inner(organizations!inner(refresh_cadence))")
     .eq("profile_id", profile.id);
+  // Falling back to weekly quietly slows hourly and daily workspaces; make it visible.
+  if (error) console.error("[refresh] could not read watcher cadences; defaulting to weekly", error);
 
   let cadenceHours = CADENCE_HOURS.weekly;
   for (const row of data ?? []) {
