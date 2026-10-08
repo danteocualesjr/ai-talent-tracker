@@ -25,14 +25,21 @@ export function initialsFromName(name: string | null | undefined, fallback = "??
  */
 export function humanizeLinkedInHandle(handle: string | null | undefined): string | null {
   if (!handle) return null;
-  const parts = handle.split(/[-_\s]+/).filter(Boolean);
+  let decoded = handle;
+  try {
+    // Non-ASCII vanity names arrive percent-encoded ("jos%C3%A9-garcia").
+    decoded = decodeURIComponent(handle);
+  } catch {
+    // Keep the raw handle when it is not valid percent-encoding.
+  }
+  const parts = decoded.split(/[-_\s]+/).filter(Boolean);
   if (parts.length > 1 && /\d/.test(parts[parts.length - 1])) parts.pop();
   return (
     parts
       .map((p) => p.replace(/\d+/g, ""))
       .filter(Boolean)
       .join(" ")
-      .replace(/\b\w/g, (c) => c.toUpperCase()) || null
+      .replace(/(^|\s)(\p{L})/gu, (_m, space: string, c: string) => space + c.toUpperCase()) || null
   );
 }
 
