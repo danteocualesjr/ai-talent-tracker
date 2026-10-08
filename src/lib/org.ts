@@ -22,10 +22,14 @@ export async function ensureOrgForUser(userId: string, email: string | null): Pr
     return Array.isArray(o) ? (o[0] as Organization) : (o as Organization);
   }
 
-  const slug = (email?.split("@")[0] || `u-${userId.slice(0, 8)}`)
+  // Local parts like "+++" or "_" would otherwise leave a slug of bare dashes.
+  const base = (email?.split("@")[0] ?? "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .slice(0, 32) + "-" + userId.slice(0, 6);
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 32)
+    .replace(/-+$/, "");
+  const slug = `${base || `u-${userId.slice(0, 8)}`}-${userId.slice(0, 6)}`;
 
   const { data: org, error } = await db
     .from("organizations")
