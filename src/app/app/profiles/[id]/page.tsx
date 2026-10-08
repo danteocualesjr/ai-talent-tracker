@@ -87,10 +87,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                   href={p.linkedin_url}
                   target="_blank"
                   rel="noreferrer noopener"
-                  aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on LinkedIn`}
+                  aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on LinkedIn (opens in a new tab)`}
                 >
                   LinkedIn <ExternalLink className="ml-1 h-3 w-3" aria-hidden />
-                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </Button>
               {p.github_handle && (
@@ -99,10 +98,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                     href={githubProfileUrl(p.github_handle)}
                     target="_blank"
                     rel="noreferrer noopener"
-                    aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on GitHub`}
+                    aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on GitHub (opens in a new tab)`}
                   >
                     <Github className="mr-1 h-3 w-3" aria-hidden /> {p.github_handle}
-                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </Button>
               )}
@@ -112,10 +110,9 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                     href={xProfileUrl(p.x_handle)}
                     target="_blank"
                     rel="noreferrer noopener"
-                    aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on X`}
+                    aria-label={`Open ${p.full_name || p.linkedin_handle || "profile"} on X (opens in a new tab)`}
                   >
                     <span className="mr-1 text-xs font-bold" aria-hidden>𝕏</span> {p.x_handle}
-                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </Button>
               )}
