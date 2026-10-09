@@ -47,13 +47,19 @@ export function Sparkline({
     return [x, y] as const;
   });
 
-  const linePath = points
-    .map(([x, y], i) => (i === 0 ? `M${x.toFixed(2)},${y.toFixed(2)}` : `L${x.toFixed(2)},${y.toFixed(2)}`))
-    .join(" ");
+  // A single point has no segment to draw, so extend it into a flat line
+  // across the chart instead of rendering an empty path beside a lone dot.
+  const linePath =
+    points.length === 1
+      ? `M0,${points[0][1].toFixed(2)} L${width.toFixed(2)},${points[0][1].toFixed(2)}`
+      : points
+          .map(([x, y], i) => (i === 0 ? `M${x.toFixed(2)},${y.toFixed(2)}` : `L${x.toFixed(2)},${y.toFixed(2)}`))
+          .join(" ");
 
   const areaPath = `${linePath} L${width.toFixed(2)},${height} L0,${height} Z`;
 
-  const [lastX, lastY] = points[points.length - 1];
+  const [lastPointX, lastY] = points[points.length - 1];
+  const lastX = points.length === 1 ? width : lastPointX;
   const gradId = `spark-grad-${reactId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   return (
