@@ -270,9 +270,13 @@ export function csvEscape(value: string): string {
   return safe;
 }
 
-/** Date-stamped CSV download name (UTC YYYY-MM-DD). */
-export function stampedCsvFilename(prefix: string): string {
-  const stamp = new Date().toISOString().slice(0, 10);
+/**
+ * Date-stamped CSV download name (local YYYY-MM-DD). The UTC date stamped
+ * exports with yesterday's date for anyone ahead of UTC early in their day.
+ */
+export function stampedCsvFilename(prefix: string, now: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   return `${prefix}-${stamp}.csv`;
 }
 
