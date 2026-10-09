@@ -62,7 +62,11 @@ export function formatRelative(date: Date | string | null | undefined) {
     const hr = Math.floor(min / 60);
     if (hr < 24) return `in ${hr}h`;
     const day = Math.floor(hr / 24);
-    return `in ${day}d`;
+    if (day < 30) return `in ${day}d`;
+    // Match the past-tense scale so far-off times read "in 3mo", not "in 95d".
+    const mo = Math.floor(day / 30);
+    if (mo < 12) return `in ${mo}mo`;
+    return `in ${Math.floor(mo / 12)}y`;
   }
   const sec = Math.floor(diff / 1000);
   if (sec < 5) return "just now";
