@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import type { ProviderProfile } from "./providers/types";
 
 export const DIFFED_FIELDS = [
@@ -33,10 +32,4 @@ export function diffProfiles(prev: Partial<ProviderProfile> | null, next: Provid
 function norm(v: string | null | undefined): string {
   // Collapse inner whitespace too, so "Jane  Doe" vs "Jane Doe" is not a change.
   return (v ?? "").replace(/\s+/g, " ").trim().toLowerCase();
-}
-
-export function hashSnapshot(p: ProviderProfile): string {
-  const subset: Record<string, unknown> = {};
-  for (const f of DIFFED_FIELDS) subset[f] = p[f];
-  return createHash("sha256").update(JSON.stringify(subset)).digest("hex");
 }
