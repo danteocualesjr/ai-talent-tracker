@@ -194,6 +194,11 @@ export function hostMatchesDomain(hostname: string, domains: readonly string[]):
 /** Paths on github.com / x.com that are app pages, not a user handle. */
 const RESERVED_SOCIAL_PATHS = new Set([
   "intent", "share", "home", "i", "hashtag", "search", "settings", "login", "orgs", "sponsors", "explore",
+  // GitHub app pages that were being stored as a person's handle.
+  "about", "features", "marketplace", "topics", "trending", "collections", "notifications", "pricing",
+  "signup", "join", "enterprise", "pulls", "issues", "apps", "site",
+  // X app pages.
+  "messages", "compose", "tos", "privacy", "logout",
 ]);
 
 /** First path segment of a social profile URL when the host matches. */
