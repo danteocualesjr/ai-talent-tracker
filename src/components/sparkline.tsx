@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -26,6 +27,10 @@ export function Sparkline({
   fill = true,
   strokeWidth = 1.5,
 }: Props) {
+  // React ids are stable across SSR and hydration and unique per instance, so
+  // two sparklines with the same size and range but different stroke colors
+  // no longer share (and overwrite) one gradient definition.
+  const reactId = useId();
   // NaN or Infinity would turn every coordinate into "NaN" and blank the path.
   const data = rawData.filter((v) => Number.isFinite(v));
   if (data.length === 0) return null;
@@ -49,8 +54,7 @@ export function Sparkline({
   const areaPath = `${linePath} L${width.toFixed(2)},${height} L0,${height} Z`;
 
   const [lastX, lastY] = points[points.length - 1];
-  // Deterministic id avoids SSR/client hydration mismatch from Math.random().
-  const gradId = `spark-grad-${width}x${height}-${data.length}-${min}-${max}`;
+  const gradId = `spark-grad-${reactId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   return (
     <svg
