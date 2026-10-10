@@ -1,8 +1,11 @@
 import "server-only";
 import type { GitHubActivity } from "./activity";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
 const DARK_THRESHOLD_DAYS = 14;
 const MIN_PRIOR_COMMITS = 2;
+/** The last known commit must be this recent for silence to read as a change. */
+const PRIOR_ACTIVITY_WINDOW_DAYS = 45;
 
 export interface GitHubDarkSignal {
   type: "github_dark";
@@ -11,7 +14,7 @@ export interface GitHubDarkSignal {
 }
 
 /**
- * Detect when a previously active GitHub user stops committing  -  a common
+ * Detect when a previously active GitHub user stops committing, a common
  * precursor to stealth mode or a new venture.
  */
 export function detectGitHubDark(
@@ -31,7 +34,7 @@ export function detectGitHubDark(
     };
   }
 
-  const daysSince = (Date.now() - lastAt) / (24 * 60 * 60 * 1000);
+  const daysSince = (Date.now() - lastAt) / DAY_MS;
   if (daysSince < DARK_THRESHOLD_DAYS) return null;
 
   const priorLastMs = prev.github_last_commit_at
@@ -39,7 +42,7 @@ export function detectGitHubDark(
     : Number.NaN;
   const hadRecentActivity =
     Number.isFinite(priorLastMs) &&
-    Date.now() - priorLastMs < 45 * 24 * 60 * 60 * 1000;
+    Date.now() - priorLastMs < PRIOR_ACTIVITY_WINDOW_DAYS * DAY_MS;
   if (!hadRecentActivity) return null;
 
   const days = Math.floor(daysSince);
