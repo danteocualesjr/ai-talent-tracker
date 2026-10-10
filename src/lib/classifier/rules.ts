@@ -167,5 +167,6 @@ export function classifyByRules(
 }
 
 function norm(s: string): string {
-  return s.trim().toLowerCase();
+  // Same normalization as the profile diff, so "Open  AI" and "open ai" read as one company.
+  return s.replace(/\s+/g, " ").trim().toLowerCase();
 }
