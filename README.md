@@ -71,6 +71,9 @@ npm run inngest        # inngest dev server (separate terminal)
 
 # 5. (optional) seed a roster
 npm run seed
+
+# 6. before pushing: typecheck + lint
+npm run check
 ```
 
 ### Stripe setup
