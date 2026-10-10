@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint",
     "inngest": "inngest-cli dev",
     "seed": "tsx scripts/seed-labs.ts"
   },
