@@ -53,15 +53,10 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
           <div className="flex-1">
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{lab.name}</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              {lab.description} · {lab.domain}
+              {lab.description} · {lab.domain} · {people.length} indexed
             </p>
           </div>
           <AddLabRosterButton labId={lab.id} labSlug={lab.slug} count={people.length} />
-        </div>
-        <div className="mt-6 grid grid-cols-3 gap-3">
-          <Stat label="Indexed" value={people.length} />
-          <Stat label="Stealth" value={stealth} tone="signal" />
-          <Stat label="Left" value={left} tone="muted" />
         </div>
       </div>
 
@@ -126,17 +121,6 @@ export default async function LabRosterPage({ params }: { params: Promise<{ slug
           })
         )}
       </Panel>
-    </div>
-  );
-}
-
-function Stat({ label, value, tone }: { label: string; value: number; tone?: "signal" | "muted" }) {
-  const valueClass =
-    tone === "signal" ? "text-signal" : tone === "muted" ? "text-muted-foreground" : "text-foreground";
-  return (
-    <div className="rounded-xl border border-border/60 bg-background px-4 py-3.5">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className={`tnum mt-1 text-2xl font-bold ${valueClass}`}>{value}</div>
     </div>
   );
 }
