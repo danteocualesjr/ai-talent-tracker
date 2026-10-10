@@ -121,6 +121,7 @@ export function MarketingNav() {
         <div className="flex items-center gap-1 md:hidden">
           <ThemeToggle />
           <button
+            type="button"
             onClick={() => setOpen(!open)}
             className="rounded-md p-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal/40"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -128,14 +129,14 @@ export function MarketingNav() {
             aria-controls={mobileNavId}
             ref={menuButtonRef}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
           </button>
         </div>
       </div>
 
       {open && (
         <>
-          <button aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm motion-safe:animate-fade-in md:hidden" onClick={() => setOpen(false)} />
+          <button type="button" aria-label="Close menu" className="fixed inset-0 z-20 bg-foreground/20 backdrop-blur-sm motion-safe:animate-fade-in md:hidden" onClick={() => setOpen(false)} />
           <nav
             id={mobileNavId}
             ref={mobileNavRef}
