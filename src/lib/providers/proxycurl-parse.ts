@@ -21,6 +21,12 @@ export interface ProxycurlResponse {
   experiences?: ProxycurlExperience[];
 }
 
+/** Blank strings from the provider count as missing, so they never mask a fallback or look like an edit. */
+function clean(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 /**
  * Map a Proxycurl payload to comparable profile fields. Shared by the live
  * provider and the snapshot history view so both read the payload the same way.
@@ -34,13 +40,14 @@ export function parseProxycurlProfile(
   const current = experiences.find((e) => !e.ends_at);
 
   return {
-    full_name: data.full_name ?? null,
-    headline: data.headline ?? data.occupation ?? null,
-    current_company: current?.company ?? null,
-    current_title: current?.title ?? null,
-    location: [data.city, data.state, data.country_full_name].filter(Boolean).join(", ") || null,
-    avatar_url: data.profile_pic_url ?? null,
-    about: data.summary ?? null,
+    full_name: clean(data.full_name),
+    // An empty headline should fall back to the occupation, not hide it.
+    headline: clean(data.headline) ?? clean(data.occupation),
+    current_company: clean(current?.company),
+    current_title: clean(current?.title),
+    location: [data.city, data.state, data.country_full_name].map(clean).filter(Boolean).join(", ") || null,
+    avatar_url: clean(data.profile_pic_url),
+    about: clean(data.summary),
     github_handle: extractSocialHandle(data.github_profile_url, ["github.com"]),
     x_handle: extractSocialHandle(data.twitter_profile_url, ["twitter.com", "x.com"]),
   };
