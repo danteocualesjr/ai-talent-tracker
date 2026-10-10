@@ -2,6 +2,19 @@ import "server-only";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { EventRow, Lab, NotificationDelivery, NotificationChannel, Profile, EventType } from "@/types/db";
 
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+/** Unique ids of every profile on any of the org's watchlists. */
+async function getWatchedProfileIds(db: AdminClient, orgId: string): Promise<string[]> {
+  const { data, error } = await db
+    .from("watchlist_profiles")
+    .select("profile_id, watchlists!inner(org_id)")
+    .eq("watchlists.org_id", orgId);
+  if (error) console.error("[queries] could not load watched profiles", error);
+  // A profile on several watchlists would otherwise repeat in every `in (...)` filter.
+  return [...new Set((data ?? []).map((w) => (w as { profile_id: string }).profile_id))];
+}
+
 export async function listOrgProfiles(orgId: string): Promise<(Profile & { watchlist_id: string })[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
@@ -20,11 +33,7 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
 
-  const { data: watched } = await db
-    .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
-    .eq("watchlists.org_id", orgId);
-  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  const ids = await getWatchedProfileIds(db, orgId);
   if (ids.length === 0) return [];
 
   const { data } = await db
@@ -42,11 +51,7 @@ export async function countRecentOrgEvents(orgId: string, days = 7): Promise<num
   const db = createAdminClient();
   const since = new Date(Date.now() - days * 86400000).toISOString();
 
-  const { data: watched } = await db
-    .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
-    .eq("watchlists.org_id", orgId);
-  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  const ids = await getWatchedProfileIds(db, orgId);
   if (ids.length === 0) return 0;
 
   const { count } = await db
@@ -133,11 +138,7 @@ export async function getOrgDailyEventCounts(
   if (!isSupabaseConfigured()) return Array(days).fill(0);
   const db = createAdminClient();
 
-  const { data: watched } = await db
-    .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
-    .eq("watchlists.org_id", orgId);
-  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  const ids = await getWatchedProfileIds(db, orgId);
   if (ids.length === 0) return Array(days).fill(0);
 
   const since = new Date(Date.now() - days * 86400000).toISOString();
@@ -216,11 +217,7 @@ export async function getOrgInsights(orgId: string, days = 30): Promise<OrgInsig
   if (!isSupabaseConfigured()) return empty;
 
   const db = createAdminClient();
-  const { data: watched } = await db
-    .from("watchlist_profiles")
-    .select("profile_id, watchlists!inner(org_id)")
-    .eq("watchlists.org_id", orgId);
-  const ids = (watched ?? []).map((w) => (w as { profile_id: string }).profile_id);
+  const ids = await getWatchedProfileIds(db, orgId);
   if (ids.length === 0) return empty;
 
   const since = new Date(Date.now() - days * 86400000).toISOString();
