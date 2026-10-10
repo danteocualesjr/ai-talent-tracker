@@ -201,6 +201,7 @@ const RESERVED_SOCIAL_PATHS = new Set([
   // GitHub app pages that were being stored as a person's handle.
   "about", "features", "marketplace", "topics", "trending", "collections", "notifications", "pricing",
   "signup", "join", "enterprise", "pulls", "issues", "apps", "site",
+  "new", "security", "readme", "codespaces", "customer-stories", "premium-support", "resources",
   // X app pages.
   "messages", "compose", "tos", "privacy", "logout",
 ]);
