@@ -36,12 +36,13 @@ export async function getOrgEvents(orgId: string, limit = 50): Promise<(EventRow
   const ids = await getWatchedProfileIds(db, orgId);
   if (ids.length === 0) return [];
 
-  const { data } = await db
+  const { data, error } = await db
     .from("events")
     .select("*, profile:profiles(*)")
     .in("profile_id", ids)
     .order("detected_at", { ascending: false })
     .limit(limit);
+  if (error) console.error("[queries] could not load org events", error);
 
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
 }
@@ -54,11 +55,12 @@ export async function countRecentOrgEvents(orgId: string, days = 7): Promise<num
   const ids = await getWatchedProfileIds(db, orgId);
   if (ids.length === 0) return 0;
 
-  const { count } = await db
+  const { count, error } = await db
     .from("events")
     .select("*", { count: "exact", head: true })
     .in("profile_id", ids)
     .gte("detected_at", since);
+  if (error) console.error("[queries] could not count recent events", error);
 
   return count ?? 0;
 }
@@ -67,20 +69,22 @@ export async function getPublicEvents(limit = 50): Promise<(EventRow & { profile
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
   // Inner join so events for people who opted out never reach the public feed or RSS.
-  const { data } = await db
+  const { data, error } = await db
     .from("events")
     .select("*, profile:profiles!inner(*)")
     .eq("is_public", true)
     .eq("profile.is_opted_out", false)
     .order("detected_at", { ascending: false })
     .limit(limit);
+  if (error) console.error("[queries] could not load public events", error);
   return (data ?? []) as unknown as (EventRow & { profile: Profile })[];
 }
 
 export async function listLabs(): Promise<Lab[]> {
   if (!isSupabaseConfigured()) return [];
   const db = createAdminClient();
-  const { data } = await db.from("labs").select("*").order("is_featured", { ascending: false }).order("name");
+  const { data, error } = await db.from("labs").select("*").order("is_featured", { ascending: false }).order("name");
+  if (error) console.error("[queries] could not load labs", error);
   return (data ?? []) as Lab[];
 }
 
