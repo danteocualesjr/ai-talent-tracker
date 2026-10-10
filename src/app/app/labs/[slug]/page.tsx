@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ArrowRight, Compass, LogOut, Star, Users2 } from "lucide-react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -10,6 +11,12 @@ import { getLabBySlug, listLabProfiles } from "@/lib/queries";
 import { formatAbsoluteDateTime, formatRelative, initialsFromName } from "@/lib/utils";
 import { AddLabRosterButton } from "../add-lab-roster-button";
 import { TrackProfileButton } from "../track-profile-button";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const lab = await getLabBySlug(slug);
+  return { title: lab ? `${lab.name} roster` : "Lab roster" };
+}
 
 export default async function LabRosterPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
