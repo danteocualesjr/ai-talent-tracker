@@ -34,6 +34,8 @@ export const scheduleRefreshes = inngest.createFunction(
         .select("id, watchlist_profiles!inner(profile_id)")
         .or(`next_sync_at.lte.${new Date().toISOString()},next_sync_at.is.null`)
         .eq("is_opted_out", false)
+        // Most overdue first, so a backlog over 500 profiles cannot starve the same ones every hour.
+        .order("next_sync_at", { ascending: true, nullsFirst: true })
         .limit(500);
       if (error) throw error;
       const ids = [...new Set(((data ?? []) as { id: string }[]).map((p) => p.id))];
