@@ -104,6 +104,7 @@ export function AppSidebar({ orgName, orgPlan, email, unreadCount = 0 }: Props) 
 
       {open && (
         <button
+          type="button"
           aria-label="Close menu"
           className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm md:hidden"
           onClick={() => setOpen(false)}
