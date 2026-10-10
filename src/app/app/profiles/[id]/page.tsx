@@ -18,6 +18,14 @@ import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
 export const metadata = { title: "Profile" };
 
+const EVENT_LIMIT = 50;
+const SNAPSHOT_LIMIT = 10;
+
+/** A capped list at its limit means "at least this many", so say so instead of a flat number. */
+function cappedCount(shown: number, limit: number): string | number {
+  return shown >= limit ? `${limit}+` : shown;
+}
+
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
@@ -35,8 +43,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
   const p = profile as Profile;
 
   const [{ data: events }, { data: snaps }] = await Promise.all([
-    db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(50),
-    db.from("profile_snapshots").select("*").eq("profile_id", id).order("fetched_at", { ascending: false }).limit(10),
+    db.from("events").select("*").eq("profile_id", id).order("detected_at", { ascending: false }).limit(EVENT_LIMIT),
+    db.from("profile_snapshots").select("*").eq("profile_id", id).order("fetched_at", { ascending: false }).limit(SNAPSHOT_LIMIT),
   ]);
 
   const initials = initialsFromName(p.full_name || p.linkedin_handle);
@@ -140,8 +148,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <div className="stat-strip grid-cols-3">
-        <ProfileMetric label="Events" value={eventList.length} icon={<Activity className="h-3.5 w-3.5" aria-hidden />} accent="text-signal" />
-        <ProfileMetric label="Snapshots" value={snapshotList.length} icon={<Camera className="h-3.5 w-3.5" aria-hidden />} accent="text-violet-accent" />
+        <ProfileMetric label="Events" value={cappedCount(eventList.length, EVENT_LIMIT)} icon={<Activity className="h-3.5 w-3.5" aria-hidden />} accent="text-signal" />
+        <ProfileMetric label="Snapshots" value={cappedCount(snapshotList.length, SNAPSHOT_LIMIT)} icon={<Camera className="h-3.5 w-3.5" aria-hidden />} accent="text-violet-accent" />
         <ProfileMetric label="Latest confidence" value={latestConfidence} icon={<Sparkles className="h-3.5 w-3.5" aria-hidden />} accent="text-amber-accent" />
       </div>
 
