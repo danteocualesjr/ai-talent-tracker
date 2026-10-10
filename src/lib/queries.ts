@@ -254,8 +254,9 @@ export async function getOrgInsights(orgId: string, days = 30): Promise<OrgInsig
     const dayIndex = Math.floor((new Date(row.detected_at).getTime() - start.getTime()) / 86400000);
     if (dayIndex >= 0 && dayIndex < days) dailyCounts[dayIndex] += 1;
 
+    // `||` so a blank stored name still falls back to the handle.
     const name =
-      row.profile?.full_name ?? row.profile?.linkedin_handle ?? row.profile_id.slice(0, 8);
+      row.profile?.full_name || row.profile?.linkedin_handle || row.profile_id.slice(0, 8);
     const existing = profileCounts.get(row.profile_id);
     if (!existing) {
       profileCounts.set(row.profile_id, {
