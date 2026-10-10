@@ -42,7 +42,14 @@ export async function fetchGitHubActivity(handle: string): Promise<GitHubActivit
     );
     if (res.status === 404) return { lastCommitAt: null, commits30d: 0 };
     if (!res.ok) {
-      console.warn(`[github] ${res.status} fetching activity for ${normalized}`);
+      // 403/429 with no quota left is a rate limit, not a problem with this handle.
+      const rateLimited =
+        (res.status === 403 || res.status === 429) && res.headers.get("x-ratelimit-remaining") === "0";
+      console.warn(
+        rateLimited
+          ? `[github] rate limit hit fetching activity for ${normalized}; set GITHUB_TOKEN to raise it`
+          : `[github] ${res.status} fetching activity for ${normalized}`,
+      );
       return null;
     }
 
