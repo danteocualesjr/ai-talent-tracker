@@ -16,6 +16,8 @@ import { SnapshotList } from "@/components/snapshot-list";
 import { formatAbsoluteDateTime, formatConfidencePercent, formatRelative, githubProfileUrl, initialsFromName, xProfileUrl } from "@/lib/utils";
 import type { EventRow, Profile, ProfileSnapshot } from "@/types/db";
 
+export const metadata = { title: "Profile" };
+
 export default async function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!isSupabaseConfigured()) notFound();
@@ -146,7 +148,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       {p.github_handle && (
         <div className="surface-card flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm">
           <div className="flex items-center gap-2 font-semibold">
-            <Github className="h-4 w-4 text-violet-accent" />
+            <Github className="h-4 w-4 text-violet-accent" aria-hidden />
             GitHub activity
           </div>
           <span className="text-muted-foreground">
